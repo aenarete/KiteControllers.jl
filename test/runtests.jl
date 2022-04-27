@@ -1,6 +1,6 @@
 using KiteControllers
 using Test
 
-@testset "KiteControllers.jl" begin
+@testset "KiteControllers" begin
     # Write your tests here.
 end
