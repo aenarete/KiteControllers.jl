@@ -12,6 +12,14 @@ wrap2pi(angle)
 ```
 Convert an angle, given in radian in an infinite range to the range from -pi to pi
 
+## Types
+```
+Integrator
+```
+```
+Wrap2pi
+```
+
 ## Kite controller
 
 ## Winch controller
