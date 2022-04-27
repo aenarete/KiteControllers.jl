@@ -24,9 +24,14 @@ function saturate(value, min_, max_)
     result
 end
 
-function wrap2pi(value)
-    num2pi = floor(value / 2π + 0.5)
-    value - 2π * num2pi
+"""
+    wrap2pi(angle)
+
+Convert an angle in an infinite range to the range from -pi to pi
+"""
+function wrap2pi(angle)
+    num2pi = floor(angle / 2π + 0.5)
+    angle - 2π * num2pi
 end
 
 # class Integrator(object):
