@@ -2,6 +2,8 @@ module KiteControllers
 
 using KiteUtils, Parameters
 
-include("components.jl")
+export saturate, wrap2pi
+
+include("utils.jl")
 
 end
