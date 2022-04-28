@@ -13,18 +13,24 @@ wrap2pi(angle)
 Convert an angle, given in radian in an infinite range to the range from -pi to pi
 
 ## Types
-```
+```julia
 Integrator
-```
-int = Integrator()  
-int = Integrator(2,3) # integration constant, inital output
-```
-Wrap2pi
-```
 
-## Kite controller
+int = Integrator()  
+int = Integrator(2,3) # integration constant, inital output  
+reset(int)  
+update(int, 2)        # input value  
+on_timer(int)
+```
+## Flight path controller
+```
+FlightPathController
+```
 
 ## Winch controller
+```
+WinchController
+```
 
 ## See also
 - [Research Fechner](https://research.tudelft.nl/en/publications/?search=Uwe+Fechner&pageSize=50&ordering=rating&descending=true) for the scientic background of this code
