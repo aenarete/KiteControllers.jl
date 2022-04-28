@@ -1,14 +1,8 @@
 """
-A collection of control functions and control components for discrete control
-
-Functions:
-
-- calc_v_ro
-- saturation
+A collection of control functions and control components for winch control
 
 Components:
 
-- Integrator
 - UnitDelay
 - RateLimiter
 - Mixer_2CH    two channel mixer
@@ -79,67 +73,6 @@ end
 #             return V_F_MAX * sqrt((force - f_low) / float(f_high - f_low))
 #         else:
 #             return -V_F_MAX * sqrt((f_low - force) / float(f_high - f_low))
-
-# def saturation(value, min_, max_):
-#     """ Calculate a saturated value, that stays within the given limits. """
-#     result = value
-#     if result > max_:
-#         result = max_
-#     if result < min_:
-#         result = min_
-#     return result
-
-# def wrapToPi(value):
-#     num2pi = np.floor(value / (2 * pi) + 0.5)
-#     return value - num2pi * 2 * pi
-
-# #class Wrap2Pi(object):
-# #    def __init__(self):
-# #        self.last_value = 0.0
-# #        self.last_raw_value = 0.0
-# #        self.turns = 0
-# #
-# #    def wrap2pi(self, value):
-# #        self.last_raw_value = value
-# #        if value < 0.0:
-# #            temp_result = value + 2 * pi
-# #        else:
-# #            temp_result = value
-# #        if self.last_raw_value < 0.0 and value >= 0.0:
-# #            self.turns +=1
-# #        if self.last_raw_value >= 0.0 and value < 0.0:
-# #            self.turns -= 1
-# #        return temp_result + self.turns * 2 * pi
-
-# class Integrator(object):
-#     """ Discrete integrator with external reset. """
-#     def __init__(self, I=1.0, x_0=0.0):
-#         """
-#         Constructor. Parameters:
-#         I:   integration constant
-#         x_0: initial ouput
-#         """
-#         self._output = x_0
-#         self._last_output = x_0
-#         self._I = I
-
-#     def reset(self, x_0):
-#         self._output = x_0
-#         self._last_output = x_0
-
-#     # TODO: pass period time to calcOutput    
-#     def calcOutput(self, input_):
-#         self._output = self._last_output + input_ * self._I * PERIOD_TIME
-#         return self._output
-        
-#     def getOutput(self):
-#         return self._output
-        
-#     def getLastOutput(self):
-#         return self._last_output
-        
-#     def onTimer(self):
-#         self._last_output = self._output
 
 # class UnitDelay(object):
 #     """ Delay the input signal by one time step. """
