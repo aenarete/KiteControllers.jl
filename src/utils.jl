@@ -6,7 +6,7 @@ Functions:
 - saturation
 - wrap2pi
 
-Components:
+Types:
 
 - Integrator
 
@@ -42,6 +42,7 @@ function on_timer(int::Integrator)
     int.last_output = int.output
     nothing
 end
+# end integrator
 
 
 """ Calculate a saturated value, that stays within the given limits. """

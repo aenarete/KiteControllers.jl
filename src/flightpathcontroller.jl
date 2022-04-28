@@ -60,13 +60,22 @@
 #     ./01_doc/flight_path_controller_II.png and
 #     ./01_doc/flight_path_controller_III.png
 #     """
+
+@with_kw mutable struct FlightPathController
+    "cycle number"
+    count::Int64                               = 0 
+    "attractor coordinates, azimuth and elevation in radian"
+    attractor::MVector{2, Float64}             = zeros(2)
+    "desired turn rate in rad per second or nothing"
+    psi_dot_set::Union{Nothing, Float64}       = nothing
+    psi_dot_set_final::Union{Nothing, Float64} = nothing
+    "azimuth angle of the kite position in radian"
+    phi::Float64                               = 0
+    "elevation angle of the kite position in radian"
+    beta::Float64                              = 0
+
+end
 #     def __init__(self, pro):
-#         self.count = 0               # cycle number
-#         self.attractor = np.zeros(2) # attractor coordinates, azimuth and elevation in radian
-#         self.psi_dot_set = None      # desired turn rate in rad per second or None
-#         self.psi_dot_set_final = None
-#         self.phi = 0.0               # the azimuth angle of the kite position in radian
-#         self.beta = 0.0              # the elevation angle of the kite position in radian
 #         self.psi = 0.0               # heading of the kite in radian
 #         self.chi = 0.0               # course in radian
 #         self.chi_factor = 0.0        # 0.0 use psi only; 1.0 use chi only
