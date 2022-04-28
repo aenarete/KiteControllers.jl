@@ -19,3 +19,27 @@ end
     @test wrap2pi(2pi) == 0
     @test wrap2pi(-2pi) == 0
 end
+
+@testset "Integrator" begin
+    int1 = Integrator()
+    @test int1.output == 0.0
+    @test int1.last_output == 0.0
+    @test int1.I == 1.0
+    int2 = Integrator(2)
+    @test int2.output == 0.0
+    @test int2.last_output == 0.0
+    @test int2.I == 2.0
+    int3 = Integrator(2,2)
+    @test int3.output == 2.0
+    @test int3.last_output == 2.0
+    @test int3.I == 2.0
+    @test update(int3, 0.5, 0.05) == 2.05
+    reset(int3, 1.1)
+    @test int3.output == 1.1
+    @test int3.last_output == 1.1
+    @test int3.I == 2.0
+    int3 = Integrator(2,2)
+    update(int3, 0.5, 0.05) == 2.05
+    on_timer(int3)
+    @test int3.last_output == 2.05
+end

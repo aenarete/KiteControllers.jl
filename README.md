@@ -16,6 +16,8 @@ Convert an angle, given in radian in an infinite range to the range from -pi to 
 ```
 Integrator
 ```
+int = Integrator()  
+int = Integrator(2,3) # integration constant, inital output
 ```
 Wrap2pi
 ```

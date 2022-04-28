@@ -1,4 +1,4 @@
-"""
+ """
 A collection of control functions and control components for discrete control
 
 Functions:
@@ -12,6 +12,37 @@ Components:
 
 Implemented as described in the PhD thesis of Uwe Fechner.
 """
+
+# discrete integrator with external reset
+@with_kw mutable struct Integrator
+    output::Float64      = 0.0
+    last_output::Float64 = 0.0
+    I::Float64           = 1.0 # integration constant
+end
+
+function  Integrator(I, x0=0.0)
+    int = Integrator()
+    int.output = x0
+    int.last_output = x0
+    int.I = I
+    int
+end
+
+function reset(int::Integrator, x0=0.0)
+    int.output = x0
+    int.last_output = x0
+    nothing
+end
+
+function update(int::Integrator, input, dt)
+    int.output = int.last_output + input * int.I * dt
+end
+
+function on_timer(int::Integrator)
+    int.last_output = int.output
+    nothing
+end
+
 
 """ Calculate a saturated value, that stays within the given limits. """
 function saturate(value, min_, max_)
@@ -33,34 +64,3 @@ function wrap2pi(angle)
     num2pi = floor(angle / 2π + 0.5)
     angle - 2π * num2pi
 end
-
-# class Integrator(object):
-#     """ Discrete integrator with external reset. """
-#     def __init__(self, I=1.0, x_0=0.0):
-#         """
-#         Constructor. Parameters:
-#         I:   integration constant
-#         x_0: initial ouput
-#         """
-#         self._output = x_0
-#         self._last_output = x_0
-#         self._I = I
-
-#     def reset(self, x_0):
-#         self._output = x_0
-#         self._last_output = x_0
-
-#     # TODO: pass period time to calcOutput    
-#     def calcOutput(self, input_):
-#         self._output = self._last_output + input_ * self._I * PERIOD_TIME
-#         return self._output
-        
-#     def getOutput(self):
-#         return self._output
-        
-#     def getLastOutput(self):
-#         return self._last_output
-        
-#     def onTimer(self):
-#         self._last_output = self._output
-
