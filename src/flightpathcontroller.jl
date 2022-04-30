@@ -16,52 +16,51 @@
 
 # TAU = 0.95
 # TAU_VA = 0.0
-# # TAU = 0.0
-
-# # Settings of the flight path controller
-# FPC_P    = 20.0 # P gain of the PID controller
-# FPC_I    =  1.2 # I gain of the PID controller
-# FPC_D    = 10.0  # * 0.1 # D gain of the PID controller
-# FPC_GAIN = 0.16 * 0.25# * 2.2 *1.2 # additional factor for P, I and D
-
-# if True:
-#     C1 =  0.0612998898221 # was: 0.0786
-#     C2 =  1.22597628388   # was: 2.508
-#     # increase K_C1, if the radius is too small
-#     K_C1 = 1.6 # was: 1.6
-#     K_C2 = 6.0     # C2 for the reelout phase was: 7.0
-#     K_C2_high = 12.0  # C2 for the reelout phase at high elevation angles was: 14.0
-#     K_C2_int = 0.6 # C2 for the intermediate phase LOW_RIGHT, LOW_TURN, LOW_LEFT
-# else:
-#     K_C1  =  0.3  # correction factor for C1, used by the NDI block  (0.8 < K_C1 < 1.2)
-#     C1 = 0.262
-#     C2 = 6.27
-#     K_C2  =  0.4  # correction factor for C2, used by the NDI block (-1.5 < K_C2 > 1.5)
-
 
 # class FlightPathController(object):
-#     """
-#     FlightPathController as specified in chapter six of the PhD thesis of Uwe Fechner.
+@with_kw mutable struct CourseControl @deftype Float64
+    "P gain of the PID controller"
+    p  = 20.0
+    "I gain of the PID controller"
+    i  = 1.2
+    "D gain of the PID controller"
+    d  = 10.0
+    "additional factor for P, I and D"
+    gain = 0.04
+    c1 =  0.0612998898221 # was: 0.0786
+    c2 =  1.22597628388   # was: 2.508
+    "correction factor, used by the NDI block; increase k_c1, if the radius is too small; "
+    k_c1 = 1.6
+    "c2 for the reelout phase was: 7.0"
+    k_c2 = 6.0
+    "C2 for the reelout phase at high elevation angles was: 14.0"
+    k_c2_high = 12.0
+    "C2 for the intermediate phase LOW_RIGHT, LOW_TURN, LOW_LEFT"
+    k_c2_int  =  0.6
+end
 
-#     Main inputs are calls to the functions:
-#     - onNewControlCommand()
-#     - onNewEstSysState()
+const cc = CourseControl()
 
-#     Main output is the set value of the steering u_s, returned by the method:
-#     - calcSteering()
-#     This method needs the current time step as parameter.
+"""
+FlightPathController as specified in chapter six of the PhD thesis of Uwe Fechner.
 
-#     Once per time step the method
-#     - onTimer
-#     must be called.
+Main inputs are calls to the functions:
+- on_control_command()
+- on_est_sys_state()
 
-#     See also:
-#     ./01_doc/flight_path_controller_I.png and
-#     ./01_doc/flight_path_controller_II.png and
-#     ./01_doc/flight_path_controller_III.png
-#     """
+Main output is the set value of the steering u_s, returned by the method:
+- calc_steering()
 
-@with_kw mutable struct FlightPathController
+Once per time step the method
+- onTimer
+must be called.
+
+See also:
+../doc/flight_path_controller_I.png and
+../doc/flight_path_controller_II.png and
+../doc/flight_path_controller_III.png
+"""
+@with_kw mutable struct FlightPathController @deftype Float64
     "cycle number"
     count::Int64                               = 0 
     "attractor coordinates, azimuth and elevation in radian"
@@ -70,56 +69,76 @@
     psi_dot_set::Union{Nothing, Float64}       = nothing
     psi_dot_set_final::Union{Nothing, Float64} = nothing
     "azimuth angle of the kite position in radian"
-    phi::Float64                               = 0
+    phi                                        = 0
     "elevation angle of the kite position in radian"
-    beta::Float64                              = 0
+    beta                                       = 0
     "heading of the kite in radian"
-    psi::Float64                               = 0
+    psi                                        = 0
     "course in radian"
-    chi::Float64                               = 0
+    chi                                        = 0
     "0.0 use psi only; 1.0 use chi only"
-    chi_factor::Float64                        = 0
+    chi_factor                                 = 0
     "angular velocity of the kite in degrees/s"
-    omega::Float64                             = 0
+    omega                                      = 0
     "estimated turn rate"
-    est_psi_dot::Float64                       = 0
+    est_psi_dot                                = 0
     "desired flight direction (bearing)"
-    chi_set::Float64                           = 0
+    chi_set                                    = 0
     "minimal value of the depower setting, needed for the fully powered kite"
-    u_d0::Float64                              = 0.01 * se().depower_offset
-
+    u_d0                                       = 0.01 * se().depower_offset
+    "maximal value of the depower setting, needed for the fully depowered kite"
+    u_d_max                                    = 0.01 * 42.2 # TODO: add this to settings.yaml
+    "normalized depower settings"
+    u_d_prime                                  = 0.2
+    "maximal value of the steering settings"
+    u_s_max                                    = 0.99
+    "maximal value of the turn rate in radians per second"
+    psi_dot_max                                = 3.0
+    "influece of the depower settings on the steering sensitivity"
+    k_ds                                       = se().k_ds # was 2.0
+    "actual depower setting (0..1)"
+    u_d                                        = 0.01 * se().depower
+    k_c2                                       = cc.k_c2
+    k_c2_int                                   = cc.k_c2_int
+    k_c2_hight                                 = cc.k_c2_high
+    c1                                         = cc.c1 * cc.k_c1  # identified value for hydra kite from paper [rad/m]
+    c2                                         = cc.c2 * cc.k_c2
+    intermediate::Bool                         = true
+    "apparent wind speed at the kite"
+    va                                         = 0.0
+    "average apparent wind speed"
+    va_av                                      = 0.0
+    "minimal apparent wind speed for full NDI"
+    va_min                                     = 8.0
+    "quotient of the output and the input of the NDI block"
+    ndi_gain                                   = 1.0
+    "integrator for the I part of the pid controller"
+    int::Integrator                            = Integrator()
+    "integrator for the D part of the pid controller"
+    int2::Integrator                           = Integrator()
+    "P gain of the PID controller"
+    p                                          = cc.p
+    "I gain of the PID controller"
+    i                                          = cc.i
+    "D gain of the PID controller"
+    d                                          = cc.d
+    "additional factor for P, I and D"
+    gain                                       = cc.gain
+    "anti-windup gain for limited steering signal"
+    k_u                                        =  5.0
+    "anti-windup gatin for limited turn rate"
+    k_psi                                      = 10.0
+    "error (input of the PID controller)"
+    err                                        =  0
+    "residual of the solver"
+    res::MVector{2, Float64}                   = zeros(2)
+    "steering output of the FPC, calculated by solve()"
+    u_s                                        = 0
+    "period time"
+    dt                                         = 1.0 / se().sample_freq
 
 end
 #     def __init__(self, pro):  
-#         # maximal value of the depower setting, needed for the fully depowered kite
-#         self.u_d_max = 0.01 * pro._mode.max_depower 
-#         self.u_d_prime = 0.2         # normalized depower settings
-#         self.u_s_max = 0.99           # maximal value of the steering settings
-#         self.psi_dot_max = 3.0       # maximal value of the turn rate in radians per second
-#         self.K_d_s = 2.0             # influece of the depower settings on the steering sensitivity
-#         self.u_d = self.u_d0         # actual depower setting (0..1)
-#         self.k_c2 = pro._course_control.K_C2
-#         self.k_c2_int = pro._course_control.K_C2_int
-#         self.k_c2_high = pro._course_control.K_C2_high
-#         self.c1 = C1 * pro._course_control.K_C1       # identified value for hydra kite from paper [rad/m]
-#         self.c2 = C2 * self.k_c2
-#         self.intermediate = True
-#         self.v_a = 0.0               # apparent wind speed at the kite
-#         self.v_a_av = 0.0            # average apparent wind speed
-#         self.v_a_min = 8.0           # minimal apparent wind speed for full NDI
-#         self.ndi_gain = 1.0          # quotient of the output and the input of the NDI block
-#         self.int = Integrator()      # integrator for the I part of the pid controller
-#         self.int2 = Integrator()     # integrator for the D part of the pid controller
-#         self.P = FPC_P               # P gain of the PID controller
-#         self.I = FPC_I               # I gain of the PID controller
-#         self.D = FPC_D               # D gain of the PID controller
-#         self.gain = FPC_GAIN         # additional factor for P, I and D
-#         self.K_u = 5.0               # anti-windup gain for limited steering signal
-#         self.K_psi = 10.0            # anti-windup gatin for limited turn rate
-#         self.err = 0.0               # error (input of the PID controller)
-#         self.res = np.zeros(2)       # residual of the solver
-#         self.u_s = 0.0               # steering output of the FPC, caculated by solve()
-#         self.period_time = PERIOD_TIME      # period time
 #         self.Kpsi_out = 0.0
 #         self.Ku_out = 0.0
 #         self.k_psi_in = 0.0
