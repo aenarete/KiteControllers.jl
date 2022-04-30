@@ -43,3 +43,7 @@ end
     on_timer(int3)
     @test int3.last_output == 2.05
 end
+
+@testset "FlightPathController" begin
+    fpc = FlightPathController()    
+end

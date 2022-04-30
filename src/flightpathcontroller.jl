@@ -73,17 +73,24 @@
     phi::Float64                               = 0
     "elevation angle of the kite position in radian"
     beta::Float64                              = 0
+    "heading of the kite in radian"
+    psi::Float64                               = 0
+    "course in radian"
+    chi::Float64                               = 0
+    "0.0 use psi only; 1.0 use chi only"
+    chi_factor::Float64                        = 0
+    "angular velocity of the kite in degrees/s"
+    omega::Float64                             = 0
+    "estimated turn rate"
+    est_psi_dot::Float64                       = 0
+    "desired flight direction (bearing)"
+    chi_set::Float64                           = 0
+    "minimal value of the depower setting, needed for the fully powered kite"
+    u_d0::Float64                              = 0.01 * se().depower_offset
+
 
 end
-#     def __init__(self, pro):
-#         self.psi = 0.0               # heading of the kite in radian
-#         self.chi = 0.0               # course in radian
-#         self.chi_factor = 0.0        # 0.0 use psi only; 1.0 use chi only
-#         self.omega = 0.0             # angular velocity of the kite in degrees/s
-#         self.est_psi_dot = 0.0       # estimated turn rate
-#         self.chi_set = 0.0           # desired flight direction (bearing)
-#         # minimal value of the depower setting, needed for the fully powered kite     
-#         self.u_d0 = 0.01 * pro._mode.min_depower    
+#     def __init__(self, pro):  
 #         # maximal value of the depower setting, needed for the fully depowered kite
 #         self.u_d_max = 0.01 * pro._mode.max_depower 
 #         self.u_d_prime = 0.2         # normalized depower settings
