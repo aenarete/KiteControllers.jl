@@ -136,19 +136,19 @@ See also:
     u_s                                        = 0
     "period time"
     dt                                         = 1.0 / se().sample_freq
+    k_psi_out                                  = 0
+    k_u_out                                    = 0
+    k_psi_in                                   = 0
+    k_u_in                                     = 0
+    int_in                                     = 0
+    int2_in                                    = 0
+    reset_int1::Bool                           = false
+    radius::Union{Nothing, Float64}            = nothing
+    _n                                         = 15
+    "number of calls of solve"
+    _i                                         = 0
 
 end
-#     def __init__(self, pro):  
-#         self.Kpsi_out = 0.0
-#         self.Ku_out = 0.0
-#         self.k_psi_in = 0.0
-#         self.k_u_in = 0.0
-#         self.int_in = 0.0
-#         self.int2_in = 0.0
-#         self.reset_int1 = False
-#         self.radius = None
-#         self._N = 15
-#         self._i = 0                  # number of calls of solve
 
 #     def onNewControlCommand(self, attractor=None, psi_dot_set=None, radius=None, intermediate = True):
 #         """
