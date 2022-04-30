@@ -1,7 +1,6 @@
 # Implements the class FlightPathController as specified in chapter six of
 # the PhD thesis of Uwe Fechner.
 
-# PRINT = False
 # PRINT_NDI_GAIN = False
 # PRINT_EST_PSI_DOT = False
 # PRINT_VA = False
@@ -12,13 +11,16 @@
 # RESET_INT2 = False # reset the integrator of the D part at the second time step
 # INIT_OPT_TO_ZERO = False # if the root finder should start with zero
 # RESET_INT1_TO_ZERO = True
-# USE_RADIUS = True
 
 # TAU = 0.95
 # TAU_VA = 0.0
 
-# class FlightPathController(object):
-@with_kw mutable struct CourseControl @deftype Float64
+"""
+Settings of the FlightPathController
+"""
+@with_kw mutable struct CourseControlSettings @deftype Float64
+    prn::Bool        = false
+    use_radius::Bool = true
     "P gain of the PID controller"
     p  = 20.0
     "I gain of the PID controller"
@@ -39,7 +41,7 @@
     k_c2_int  =  0.6
 end
 
-const cc = CourseControl()
+const cc = CourseControlSettings()
 
 """
 FlightPathController as specified in chapter six of the PhD thesis of Uwe Fechner.
@@ -147,33 +149,39 @@ See also:
     _n                                         = 15
     "number of calls of solve"
     _i                                         = 0
-
 end
 
-#     def onNewControlCommand(self, attractor=None, psi_dot_set=None, radius=None, intermediate = True):
-#         """
-#         Input:
-#         Either the attractor point (numpy array of azimuth and elevation in radian),
-#         or psi_dot, the set value for the turn rate in degrees per second.
-#         """
-#         self.intermediate = intermediate
-#         if USE_RADIUS and radius is not None:
-#              psi_dot_set = degrees(self.omega / radius) # desired turn rate during the turns
-#         if psi_dot_set is not None and radius is not None:
-#             temp = self.omega / radius
-#             if PRINT:
-#                 print "--->>--->> temp, psi_dot_set", form(temp), form(psi_dot_set), form(self.omega), form(radius)
-#         self.radius = radius
-#         if psi_dot_set is None and self.psi_dot_set is not None:
-#             # reset integrator
-#             self.reset_int1 = True
-#         if attractor is not None:
-#             self.attractor[:] = attractor
-#         if psi_dot_set is not None:
-#             self.psi_dot_set_final = radians(psi_dot_set)
-#             self.psi_dot_set = self.psi_dot_set_final * 2.0
-#         else:
-#             self.psi_dot_set = None
+"""
+Input:
+Either the attractor point (MVector of azimuth and elevation in radian),
+or psi_dot, the set value for the turn rate in degrees per second.
+"""
+function on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
+    fpc.intermediate = intermediate
+    if cc.use_radius && ! isnothing(radius)
+        psi_dot_set = rad2deg(fpc.omega / radius) # desired turn rate during the turns
+    end
+    if ! isnothing(psi_dot_set) && ! isnothing(radius)
+        temp = fpc.omega / radius
+        if cc.prn
+            @printf "--->>--->> temp, psi_dot_set %.2f %2f %2f %2f" temp psi_dot_set omega radius
+        end
+    end
+    fpc.radius = radius
+    if isnothing(psi_dot_set) && ! isnothing(fpc.psi_dot_set)
+        # reset integrator
+        fpc.reset_int1 = True
+    end
+    if ! isnothing(attractor)
+        fpc.attractor .= attractor
+    end
+    if ! isnothing(psi_dot_set)
+        fpc.psi_dot_set_final = deg2rad(psi_dot_set)
+        fpc.psi_dot_set = fpc.psi_dot_set_final * 2.0
+    else
+        fpc.psi_dot_set = nothing
+    end
+end
 
 #     def onNewEstSysState(self, phi, beta, psi, chi, omega, v_a, u_d=None, u_d_prime=None, \
 #                                period_time=PERIOD_TIME):

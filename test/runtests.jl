@@ -48,5 +48,6 @@ end
 end
 
 @testset "FlightPathController" begin
-    fpc = FlightPathController()    
+    fpc = FlightPathController() 
+    on_control_command(fpc)   
 end
