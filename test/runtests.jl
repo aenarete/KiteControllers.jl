@@ -49,5 +49,12 @@ end
 
 @testset "FlightPathController" begin
     fpc = FlightPathController() 
-    on_control_command(fpc)   
+    on_control_command(fpc)
+    phi = 0.0
+    beta = 0.0
+    psi = 0.0
+    chi = 0.0
+    omega = 0.0
+    v_a = 0.0
+    on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a, u_d=0.236)
 end

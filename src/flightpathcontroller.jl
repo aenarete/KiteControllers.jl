@@ -1,9 +1,5 @@
-# Implements the class FlightPathController as specified in chapter six of
+# Implements a FlightPathController as specified in chapter six of
 # the PhD thesis of Uwe Fechner.
-
-# PRINT_NDI_GAIN = False
-# PRINT_EST_PSI_DOT = False
-# PRINT_VA = False
 
 # USE_CHI = True
 
@@ -13,14 +9,17 @@
 # RESET_INT1_TO_ZERO = True
 
 # TAU = 0.95
-# TAU_VA = 0.0
+const TAU_VA = 0.0 # time constant for averaging the apparent wind velocity
 
 """
 Settings of the FlightPathController
 """
 @with_kw mutable struct CourseControlSettings @deftype Float64
-    prn::Bool        = false
-    use_radius::Bool = true
+    prn::Bool             = false
+    prn_ndi_gain::Bool    = false
+    prn_est_psi_dot::Bool = false
+    prn_va::Bool          = false
+    use_radius::Bool      = true
     "P gain of the PID controller"
     p  = 20.0
     "I gain of the PID controller"
@@ -152,7 +151,9 @@ See also:
 end
 
 """
-Input:
+    function on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
+
+Input:  
 Either the attractor point (MVector of azimuth and elevation in radian),
 or psi_dot, the set value for the turn rate in degrees per second.
 """
@@ -164,7 +165,7 @@ function on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=
     if ! isnothing(psi_dot_set) && ! isnothing(radius)
         temp = fpc.omega / radius
         if cc.prn
-            @printf "--->>--->> temp, psi_dot_set %.2f %2f %2f %2f" temp psi_dot_set omega radius
+            @printf "--->>--->> temp, psi_dot_set %.2f %.2f %.2f %.2f" temp psi_dot_set omega radius
         end
     end
     fpc.radius = radius
@@ -183,47 +184,59 @@ function on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=
     end
 end
 
-#     def onNewEstSysState(self, phi, beta, psi, chi, omega, v_a, u_d=None, u_d_prime=None, \
-#                                period_time=PERIOD_TIME):
-#         """
-#         Parameters:
-#         phi:  the azimuth angle of the kite position in radian
-#         beta: the elevation angle of the kite position in radian
-#         psi:  heading of the kite in radian
-#         chi:  course of the kite in radian
-#         omega: angular velocity of the kite on the unit sphere in degrees/s ???
-#         """
-#         self.phi = phi
-#         self.chi = chi
-#         self.omega = omega
-#         self.beta = beta
-#         self.period_time = period_time
-#         if self._i > 0:
-#             delta = psi - self.psi
-#             if delta < -pi:
-#                 delta += 2 * pi
-#             if delta > pi:
-#                 delta -= 2 * pi
-#             self.est_psi_dot = (delta) / period_time
-#         self.psi = psi
-#         # Eq. 6.4: calculate the normalized depower setting
-#         if u_d_prime is None:
-#             self.u_d_prime = (u_d - self.u_d0) / (self.u_d_max - self.u_d0)
-#         else:
-#             self.u_d_prime = u_d_prime
-#         self.u_d = u_d
-#         self.v_a = v_a
-#         self.v_a_av = TAU_VA * self.v_a_av + (1.0 - TAU_VA) * v_a
-#         # print some debug info every second
-#         self.count += 1
-#         if self.count >= 50:
-#             if PRINT_NDI_GAIN:
-#                 print "ndi_gain", form(self.ndi_gain)
-#             if PRINT_EST_PSI_DOT:
-#                 print "est_psi_dot:", degrees(self.est_psi_dot)
-#             if PRINT_VA:
-#                 print "va, va_av", form(v_a), form(self.v_a_av)
-#             self.count = 0
+"""
+    function on_est_sys_state(fpc, phi, beta, psi, chi, omega, v_a; u_d=nothing, u_d_prime=nothing)
+
+Parameters:
+- phi:      azimuth angle of the kite position in radian
+- beta:     elevation angle of the kite position in radian
+- psi:      heading of the kite in radian
+- chi:      course of the kite in radian
+- omega:    angular velocity of the kite on the unit sphere in degrees/s ???
+- u_d:      depower settings             [0..1]
+- u_d_prime normalized depower settings  [0..1]
+
+Either u_d or u_d_prime must be provided.
+"""
+function on_est_sysstate(fpc, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_prime=nothing)
+    fpc.phi = phi
+    fpc.chi = chi
+    fpc.omega = omega
+    fpc.beta = beta
+    if fpc._i > 0
+        delta = psi - fpc.psi
+        if delta < -pi
+            delta += 2π
+        elseif delta > π
+            delta -= 2π
+            fpc.est_psi_dot = delta / fpc.dt
+        end
+    end
+    fpc.psi = psi
+    # Eq. 6.4: calculate the normalized depower setting
+    if isnothing(u_d_prime)
+        fpc.u_d_prime = (u_d - fpc.u_d0) / (fpc.u_d_max - fpc.u_d0)
+    else
+        fpc.u_d_prime = u_d_prime
+    end
+    fpc.u_d = u_d
+    fpc.va = va
+    fpc.va_av = TAU_VA * fpc.va_av + (1.0 - TAU_VA) * va
+    # print some debug info every 2.5 seconds
+    fpc.count += 1
+    if fpc.count >= 50
+        if cc.prn_ndi_gain
+            @printf "ndi_gain: %.2f" fpc.ndi_gain
+        end
+        if cc.prn_est_psi_dot
+            @printf "est_psi_dot: %.2f" degrees(fpc.est_psi_dot)
+        end
+        if cc.prn_va
+            @printf "va, va_av: %.2f, %.2f" va fpc.va_av
+        end
+        fpc.count = 0
+    end
+end
 
 #     def _navigate(self, limit=50.0):
 #         """
