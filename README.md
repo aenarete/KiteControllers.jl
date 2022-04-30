@@ -25,9 +25,14 @@ update(int, 2)        # input value
 on_timer(int)
 ```
 ## Flight path controller
-```
+FlightPathController as specified in chapter six of the PhD thesis of Uwe Fechner.
+```julia
 FlightPathController
+CourseControl         # settings for FlightPathController
 ```
+<p align="center"><img src="./doc/flight_path_controller_I.png" width="500" /></p>
+<p align="center"><img src="./doc/flight_path_controller_II.png" width="500" /></p>
+<p align="center"><img src="./doc/flight_path_controller_III.png" width="500" /></p>
 
 ## Winch controller
 ```
