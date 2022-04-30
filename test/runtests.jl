@@ -57,4 +57,5 @@ end
     omega = 0.0
     v_a = 0.0
     on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a, u_d=0.236)
+    KiteControllers.navigate(fpc)
 end

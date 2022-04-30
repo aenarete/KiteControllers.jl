@@ -238,30 +238,35 @@ function on_est_sysstate(fpc, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_p
     end
 end
 
-#     def _navigate(self, limit=50.0):
-#         """
-#         Calculate the desired flight direction chi_set using great circle navigation.
-#         Limit delta_beta to the value of the parameter limit (in degrees).
-#         """
-#         # navigate only if steering towards the attractor point is active
-#         if self.psi_dot_set is not None:
-#             return
-#         phi_set = self.attractor[0]
-#         beta_set = self.attractor[1]
-#         r_limit = radians(limit)
-#         if beta_set - self.beta > r_limit:
-#             beta_set = self.beta + r_limit
-#         if beta_set - self.beta < -r_limit:
-#             beta_set = self.beta - r_limit
-#         y = sin(phi_set - self.phi) * cos(beta_set)
-#         x = cos(self.beta) * sin(beta_set) - sin(self.beta) * cos(beta_set) * cos(phi_set - self.phi)
-#         self.chi_set = atan2(-y, x)
+"""
+    function navigate(fpc, limit=50.0)
 
-#     def _linearize(self, psi_dot, fix_va=False):
+Calculate the desired flight direction chi_set using great circle navigation.
+Limit delta_beta to the value of the parameter limit (in degrees).
+"""
+function navigate(fpc, limit=50.0)
+    # navigate only if steering towards the attractor point is active
+    if ! isnothing(fpc.psi_dot_set)
+        return nothing
+    end
+    phi_set  = fpc.attractor[1]
+    beta_set = fpc.attractor[2]
+    r_limit = deg2rad(limit)
+    if beta_set - fpc.beta > r_limit
+        beta_set = fpc.beta + r_limit
+    elseif beta_set - fpc.beta < -r_limit
+        beta_set = fpc.beta - r_limit
+    end
+    y = sin(phi_set - fpc.phi) * cos(beta_set)
+    x = cos(fpc.beta) * sin(beta_set) - sin(fpc.beta) * cos(beta_set) * cos(phi_set - fpc.phi)
+    fpc.chi_set = atan(-y, x)
+end
+
+function linearize(fpc, psi_dot; fix_va=false)
 #         """
 #         Implement the nonlinear, dynamic inversion block (NDI) according to Eq. 6.4 and Eq. 6.12.
 #         psi_dot: desired turn rate in radians per second
-#         fix_va: keep v_a fixed for the second term of the turn rate low; was useful in some
+#         fix_va: keep v_a fixed for the second term of the turn rate law; was useful in some
 #         simulink tests.
 #         """
 #         # Eq. 6.13: calculate v_a_hat
@@ -293,6 +298,7 @@ end
 #             self.ndi_gain = 1e-6
 #         # print "ndi_gain", self.ndi_gain
 #         return u_s
+end
 
 #     def _calcSat1In_Sat1Out_SatIn_Sat2Out(self, x):
 #         """
