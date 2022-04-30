@@ -1,5 +1,8 @@
-using KiteControllers
+using KiteControllers, KiteUtils
 using Test
+
+cd("..")
+KiteUtils.set_data_path("") 
 
 @testset "saturate" begin
     @test saturate( 10.0, -1,   1) == 1
