@@ -31,6 +31,7 @@ steering:
 depower:
     alpha_d_max:    31.0   # max depower angle                            [deg]
     depower_offset: 23.6   # at rel_depower=0.236 the kite is fully powered [%]
+    max_depower:    42.2   # max depower setting                            [%]
 
 kite:
     model: "data/kite.obj" # 3D model of the kite
