@@ -28,7 +28,7 @@ on_timer(int)
 FlightPathController as specified in chapter six of the PhD thesis of Uwe Fechner.
 ```julia
 FlightPathController
-CourseControl         # settings for FlightPathController
+FPCSettings
 ```
 <p align="center"><img src="./doc/flight_path_controller_I.png" width="500" /></p>
 <p align="center"><img src="./doc/flight_path_controller_II.png" width="500" /></p>

@@ -14,7 +14,7 @@ const TAU_VA = 0.0 # time constant for averaging the apparent wind velocity
 """
 Settings of the FlightPathController
 """
-@with_kw mutable struct CourseControlSettings @deftype Float64
+@with_kw mutable struct FPCSettings @deftype Float64
     prn::Bool             = false
     prn_ndi_gain::Bool    = false
     prn_est_psi_dot::Bool = false
@@ -40,7 +40,7 @@ Settings of the FlightPathController
     k_c2_int  =  0.6
 end
 
-const cc = CourseControlSettings()
+const cc = FPCSettings()
 
 """
 FlightPathController as specified in chapter six of the PhD thesis of Uwe Fechner.
@@ -300,11 +300,15 @@ function linearize(fpc, psi_dot; fix_va=false)
 #         return u_s
 end
 
-#     def _calcSat1In_Sat1Out_SatIn_Sat2Out(self, x):
-#         """
-#         see: ./01_doc/flight_path_controller_II.png
-#         x: vector of k_u_in, k_psi_in and int2_in
-#         """
+"""
+    calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
+
+see: ./01_doc/flight_path_controller_II.png
+
+Parameters:
+- x: vector of k_u_in, k_psi_in and int2_in
+"""
+function calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
 #         k_u_in   = x[0]
 #         k_psi_in = x[1]
 
@@ -326,6 +330,7 @@ end
 #         # calculate the saturated set value of the steering
 #         sat2_out = saturation(sat2_in, -self.u_s_max, self.u_s_max)
 #         return sat1_in, sat1_out, sat2_in, sat2_out, int_in
+end
 
 #     def _calcResidual(self, x):
 #         """
