@@ -66,16 +66,19 @@ function wrap2pi(angle)
     angle - 2π * num2pi
 end
 
-# def mergeAngles(alpha, beta, factor_beta):
-#     """
-#     Calculate the weighted average of two angles. The weight of beta,
-#     factor_beta must be between 0 and 1.
-#     """
-#     x1 = sin(alpha)
-#     y1 = cos(alpha)
-#     x2 = sin(beta)
-#     y2 = cos(beta)
-#     x = x1 * (1.0 - factor_beta) + x2 * factor_beta
-#     y = y1 * (1.0 - factor_beta) + y2 * factor_beta
-#     return atan2(x, y)
+"""
+    merge_angles(alpha, beta, factor_beta)
 
+Calculate the weighted average of two angles. The weight of beta,
+factor_beta must be between 0 and 1.
+"""
+function merge_angles(alpha, beta, factor_beta)
+
+    x1 = sin(alpha)
+    y1 = cos(alpha)
+    x2 = sin(beta)
+    y2 = cos(beta)
+    x = x1 * (1.0 - factor_beta) + x2 * factor_beta
+    y = y1 * (1.0 - factor_beta) + y2 * factor_beta
+    atan(x, y)
+end

@@ -29,9 +29,10 @@ FlightPathController as specified in chapter six of the PhD thesis of Uwe Fechne
 ```julia
 FlightPathController
 FPCSettings
-function on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
-function on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a; u_d=nothing, u_d_prime=nothing)
-function calc_steering(fpc, parking)
+on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
+on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a; u_d=nothing, u_d_prime=nothing)
+on_timer(fpc)
+calc_steering(fpc, parking)
 ```
 <p align="center"><img src="./doc/flight_path_controller_I.png" width="500" /></p>
 <p align="center"><img src="./doc/flight_path_controller_II.png" width="500" /></p>

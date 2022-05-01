@@ -62,4 +62,6 @@ end
     KiteControllers.linearize(fpc, psi_dot)
     x = [0, 0]
     KiteControllers.calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
+    parking = false
+    KiteControllers.calc_steering(fpc, parking)
 end

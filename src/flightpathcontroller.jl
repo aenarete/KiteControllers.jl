@@ -1,25 +1,26 @@
-# Implements a FlightPathController as specified in chapter six of
+# FlightPathController as specified in chapter six of
 # the PhD thesis of Uwe Fechner.
 
-# USE_CHI = True
-
-# RESET_INT1 = True # reset the main integrator to the last estimated turn rate
-# RESET_INT2 = False # reset the integrator of the D part at the second time step
-# INIT_OPT_TO_ZERO = False # if the root finder should start with zero
-# RESET_INT1_TO_ZERO = True
-
-# TAU = 0.95
+const TAU = 0.95   # time constant for psi_dot_set
 const TAU_VA = 0.0 # time constant for averaging the apparent wind velocity
 
 """
 Settings of the FlightPathController
 """
 @with_kw mutable struct FPCSettings @deftype Float64
-    prn::Bool             = false
-    prn_ndi_gain::Bool    = false
-    prn_est_psi_dot::Bool = false
-    prn_va::Bool          = false
-    use_radius::Bool      = true
+    prn::Bool                = false
+    prn_ndi_gain::Bool       = false
+    prn_est_psi_dot::Bool    = false
+    prn_va::Bool             = false
+    use_radius::Bool         = true
+    use_chi::Bool            = true
+    "reset the main integrator to the last estimated turn rate"
+    reset_int1::Bool         = true
+    "reset the integrator of the D part at the second time step"
+    reset_int2::Bool         = false
+    reset_int1_to_zero::Bool = true
+    "if the root finder should start with zero"
+    init_opt_to_zero::Bool   = false
     "P gain of the PID controller"
     p  = 20.0
     "I gain of the PID controller"
@@ -129,7 +130,7 @@ See also:
     k_u                                        =  5.0
     "anti-windup gatin for limited turn rate"
     k_psi                                      = 10.0
-    "error (input of the PID controller)"
+    "heading/ course error (input of the PID controller)"
     err                                        =  0
     "residual of the solver"
     res::MVector{2, Float64}                   = zeros(2)
@@ -340,20 +341,10 @@ function calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
     sat1_in, sat1_out, sat2_in, sat2_out, int_in
 end
 
-#     def _calcResidual(fpc, x):
-#         """
-#         see: ./01_doc/flight_path_controller_II.png
-#         x: vector of k_u_in, k_psi_in and int2_in
-#         """
-#         sat1_in, sat1_out, sat2_in, sat2_out, int_in = fpc._calcSat1In_Sat1Out_SatIn_Sat2Out(x)
-#         k_u_in = (sat2_out - sat2_in) / fpc.ndi_gain
-#         k_psi_in = sat1_out - sat1_in
-#         fpc.res[0] = k_u_in - x[0]
-#         fpc.res[1] = k_psi_in - x[1]
-#         return fpc.res
+
 
 """
-    function solve(fpc, parking)
+    function calc_steering(fpc, parking)
 
 Calculate the steering output u_s and the turn rate error err,
 but also the signals Kpsi_out, Ku_out and int_in.
@@ -363,94 +354,92 @@ Implements the simulink block diagram, shown in:
 
 If the parameter parking is true, only the heading is controlled, not the course.
 """
-function solve(fpc, parking)
-    navigate(fpc)
-#         # control the heading of the kite
-#         chi_factor = 0.0
-#         if fpc.omega > 0.8:
-#              chi_factor = (fpc.omega - 0.8) / 1.2
-#         if chi_factor > 0.85:
-#             chi_factor = 0.85
-#         fpc.chi_factor = chi_factor
-#         if USE_CHI and not parking:
-#             control_var = mergeAngles(fpc.psi, fpc.chi, chi_factor)
-#         else:
-#             fpc.chi_factor = 0.0
-#             control_var = fpc.psi
-#         fpc.err = wrapToPi(fpc.chi_set - control_var)
-#         if RESET_INT1 and fpc._i == 0 or fpc.reset_int1:
-#             if RESET_INT1_TO_ZERO:
-#                 if PRINT:
-#                     print "===>>> Reset integrator to zero!"
-#                 fpc.int.reset(0.0)
-#             else:
-#                 if PRINT:
-#                     print "est_psi_dot: ", fpc.est_psi_dot
-#                     print "initial integrator output: ", (fpc.est_psi_dot / fpc.gain - fpc.err * fpc.P)
-#                 fpc.int.reset(fpc.est_psi_dot / fpc.gain - fpc.err * fpc.P)
-#             fpc.reset_int1 = False
-#         if RESET_INT2 and fpc._i == 1:
-#             if PRINT:
-#                 print "initial output of integrator two: ", fpc.err * fpc.D
-#             fpc.int2.reset((fpc.err * fpc.D))
-#         # begin interate
-#         # print "------------------"
-#         if INIT_OPT_TO_ZERO:
-#             x = scipy.optimize.broyden1(fpc._calcResidual, [0.0, 0.0], f_tol=1e-14)
-#         else:
-#             x = scipy.optimize.broyden1(fpc._calcResidual, [fpc.k_u_in, fpc.k_psi_in], f_tol=1e-14)
-#         sat1_in, sat1_out, sat2_in, sat2_out, int_in = fpc._calcSat1In_Sat1Out_SatIn_Sat2Out(x)
-#         fpc.k_u_in = (sat2_out - sat2_in) / fpc.ndi_gain
-#         fpc.k_psi_in = sat1_out - sat1_in
-#         fpc.Kpsi_out = (sat1_out - sat1_in) * fpc.K_psi
-#         fpc.Ku_out = (sat2_out - sat2_in) * fpc.K_u
-#         # print "sat1_in, sat1_out, sat2_in, sat2_out", sat1_in, sat1_out, sat2_in, sat2_out
-#         # end first iteration loop
-#         fpc.int_in = int_in
-#         if fpc.psi_dot_set is not None:
-#             if USE_RADIUS and fpc.radius is not None:
-#                 fpc.psi_dot_set_final = fpc.omega / fpc.radius # desired turn rate during the turns
-#             fpc.psi_dot_set = fpc.psi_dot_set * TAU + fpc.psi_dot_set_final * (1-TAU)
-
-#             fpc.u_s = saturation(fpc._linearize(fpc.psi_dot_set), -1.0, 1.0)
-#             # fpc.err = 0.0
-#         else:
-#             fpc.u_s = sat2_out
-
-#         fpc._i += 1
-#         return fpc.u_s
-end
-
-#     def getErr(fpc):
-#         """ Return the heading/ course error of the controller. """
-#         return fpc.err
-
-#     def getKpsi_out(fpc):
-#         return fpc.Kpsi_out
-
-#     def getKu_out(fpc):
-#         return fpc.Ku_out
-
-#     def getIntIn(fpc):
-#         return fpc.int_in
-
-#     def getIntOut(fpc):
-#         return fpc.int.getOutput()
-
-#     def getChiFactor(fpc):
-#         return fpc.chi_factor
-
-#     def onTimer(fpc):
-#         fpc.int.onTimer()
-#         fpc.int2.onTimer()
-
 function calc_steering(fpc, parking)
-    solve(fpc, parking)
-    return fpc.u_s
+    """
+        residual!(fpc, x)
+
+    see: ../doc/flight_path_controller_II.png
+    x: vector of k_u_in, k_psi_in and int2_in
+    """
+    function residual!(F, x)
+        sat1_in, sat1_out, sat2_in, sat2_out, int_in = calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
+        k_u_in = (sat2_out - sat2_in) / fpc.ndi_gain
+        k_psi_in = sat1_out - sat1_in
+        F[1] = k_u_in - x[1]
+        F[2] = k_psi_in - x[2]
+    end
+
+    navigate(fpc)
+    # control the heading of the kite
+    chi_factor = 0.0
+    if fpc.omega > 0.8
+            chi_factor = (fpc.omega - 0.8) / 1.2
+    end
+    if chi_factor > 0.85
+        chi_factor = 0.85
+    end
+    fpc.chi_factor = chi_factor
+    if cc.use_chi && ! parking
+        control_var = merge_angles(fpc.psi, fpc.chi, chi_factor)
+    else
+        fpc.chi_factor = 0.0
+        control_var = fpc.psi
+    end
+    fpc.err = wrap2pi(fpc.chi_set - control_var)
+    if cc.reset_int1 && (fpc._i == 0) || fpc.reset_int1
+        if cc.reset_int1_to_zero
+            if cc.prn
+                @printf "===>>> Reset integrator to zero!"
+            end
+            reset(fpc.int, 0.0)
+        else
+            if cc.prn
+                @printf "est_psi_dot: %.3f" fpc.est_psi_dot
+                @printf "initial integrator output: %.3f" (fpc.est_psi_dot / fpc.gain - fpc.err * fpc.P)
+            end
+            reset(fpc.int, fpc.est_psi_dot / fpc.gain - fpc.err * fpc.P)
+        end
+        fpc.reset_int1 = false
+    end
+    if cc.reset_int2 && fpc._i == 1
+        if cc.prn
+            @printf "initial output of integrator two: %.3f" fpc.err * fpc.D
+        end
+        fpc.int2.reset((fpc.err * fpc.D))
+    end
+    if cc.init_opt_to_zero
+        res = nlsolve(residual!, [ 0.0; 0.0], ftol=1e-14)
+        @assert converged(res)
+        x = res.zero
+    else
+        res = nlsolve(residual!, [fpc.k_u_in; fpc.k_psi_in], ftol=1e-14)
+        @assert converged(res)
+        x = res.zero
+    end
+    sat1_in, sat1_out, sat2_in, sat2_out, int_in = calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
+    fpc.k_u_in = (sat2_out - sat2_in) / fpc.ndi_gain
+    fpc.k_psi_in = sat1_out - sat1_in
+    fpc.k_psi_out = (sat1_out - sat1_in) * fpc.k_psi
+    fpc.k_u_out = (sat2_out - sat2_in) * fpc.k_u
+    # @printf "sat1_in, sat1_out, sat2_in, sat2_out: %.3f, %.3f, %.3f, %.3f", sat1_in, sat1_out, sat2_in, sat2_out
+    fpc.int_in = int_in
+    if ! isnothing(fpc.psi_dot_set)
+        if cc.use_radius && ! isnothing(fpc.radius)
+            fpc.psi_dot_set_final = fpc.omega / fpc.radius # desired turn rate during the turns
+        end
+        fpc.psi_dot_set = fpc.psi_dot_set * TAU + fpc.psi_dot_set_final * (1-TAU)
+        fpc.u_s = saturation(fpc._linearize(fpc.psi_dot_set), -1.0, 1.0)
+    else
+        fpc.u_s = sat2_out
+    end
+    fpc._i += 1
+    fpc.u_s
 end
 
-#     def getSteering(fpc):
-#         return fpc.u_s
+function on_timer(fpc)
+    on_timer(fpc.int)
+    on_timer(fpc.int2)
+end
 
 #     def getState(fpc):
 #         if fpc.psi_dot_set is not None:
