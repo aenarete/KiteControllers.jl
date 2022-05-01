@@ -185,7 +185,7 @@ function on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=
 end
 
 """
-    function on_est_sys_state(fpc, phi, beta, psi, chi, omega, v_a; u_d=nothing, u_d_prime=nothing)
+    function on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a; u_d=nothing, u_d_prime=nothing)
 
 Parameters:
 - phi:      azimuth angle of the kite position in radian
@@ -344,17 +344,19 @@ end
 #         self.res[1] = k_psi_in - x[1]
 #         return self.res
 
-#     def _solve(self, parking):
-#         """
-#         Calculate the steering output u_s and the turn rate error err,
-#         but also the signals Kpsi_out, Ku_out and int_in.
+"""
+    function solve(fpc, parking)
 
-#         Implements the simulink block diagram, shown in:
-#         01_doc/flight_path_controller_I.png
+Calculate the steering output u_s and the turn rate error err,
+but also the signals Kpsi_out, Ku_out and int_in.
 
-#         If the parameter parking is True, only the heading is controlled, not the course.
-#         """
-#         self._navigate()
+Implements the simulink block diagram, shown in:
+01_doc/flight_path_controller_I.png
+
+If the parameter parking is true, only the heading is controlled, not the course.
+"""
+function solve(fpc, parking)
+    navigate(fpc)
 #         # control the heading of the kite
 #         chi_factor = 0.0
 #         if self.omega > 0.8:
@@ -409,6 +411,7 @@ end
 
 #         self._i += 1
 #         return self.u_s
+end
 
 #     def getErr(self):
 #         """ Return the heading/ course error of the controller. """
@@ -433,10 +436,10 @@ end
 #         self.int.onTimer()
 #         self.int2.onTimer()
 
-#     def calcSteering(self, parking, period_time):
-#         self.period_time = period_time
-#         self._solve(parking)
-#         return self.u_s
+function calc_steering(fpc, parking)
+    solve(fpc, parking)
+    return fpc.u_s
+end
 
 #     def getSteering(self):
 #         return self.u_s
