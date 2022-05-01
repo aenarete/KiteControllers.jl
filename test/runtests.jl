@@ -60,4 +60,6 @@ end
     KiteControllers.navigate(fpc)
     psi_dot = 0.0
     KiteControllers.linearize(fpc, psi_dot)
+    x = [0, 0]
+    KiteControllers.calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
 end

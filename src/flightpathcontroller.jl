@@ -317,27 +317,27 @@ Parameters:
 - x: vector of k_u_in, k_psi_in and int2_in
 """
 function calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
-#         k_u_in   = x[0]
-#         k_psi_in = x[1]
+    k_u_in   = x[1]
+    k_psi_in = x[2]
 
-#         # calculate I part
-#         int_in = fpc.I * fpc.err + fpc.K_u * k_u_in + fpc.K_psi * k_psi_in
-#         int_out = fpc.int.calcOutput(int_in)
+    # calculate I part
+    int_in = fpc.i * fpc.err + fpc.k_u * k_u_in + fpc.k_psi * k_psi_in
+    int_out = update(fpc.int, int_in, fpc.dt)
 
-#         # calculate D part
-#         int2_in = fpc._N * (fpc.err * fpc.D - fpc.int2.getLastOutput()) / (1.0 + fpc._N * fpc.period_time)
-#         fpc.int2.calcOutput(int2_in)
+    # calculate D part
+    int2_in = fpc._n * (fpc.err * fpc.d - fpc.int2.last_output) / (1.0 + fpc._n * fpc.dt)
+    update(fpc.int2, int2_in, fpc.dt)
 
-#         # calculate P, I, D output
-#         sat1_in = (fpc.P * fpc.err + int_out + int2_in) * fpc.gain
+    # calculate P, I, D output
+    sat1_in = (fpc.p * fpc.err + int_out + int2_in) * fpc.gain
 
-#         # calcuate saturated set value of the turn rate psi_dot
-#         sat1_out = saturation(sat1_in, -fpc.psi_dot_max, fpc.psi_dot_max)
-#         # nonlinar inversion
-#         sat2_in = fpc._linearize(sat1_out)
-#         # calculate the saturated set value of the steering
-#         sat2_out = saturation(sat2_in, -fpc.u_s_max, fpc.u_s_max)
-#         return sat1_in, sat1_out, sat2_in, sat2_out, int_in
+    # calcuate saturated set value of the turn rate psi_dot
+    sat1_out = saturate(sat1_in, -fpc.psi_dot_max, fpc.psi_dot_max)
+    # nonlinar inversion
+    sat2_in = linearize(fpc, sat1_out)
+    # calculate the saturated set value of the steering
+    sat2_out = saturate(sat2_in, -fpc.u_s_max, fpc.u_s_max)
+    sat1_in, sat1_out, sat2_in, sat2_out, int_in
 end
 
 #     def _calcResidual(fpc, x):
