@@ -36,8 +36,6 @@ calc_steering(fpc, parking)
 ```
 <p align="center"><img src="./doc/flight_path_controller_I.png" width="500" /></p>
 <p align="center"><img src="./doc/flight_path_controller_II.png" width="500" /></p>
-<p align="center"><img src="./doc/flight_path_controller_III.png" width="500" /></p>
-
 
 ## Winch controller
 ```
