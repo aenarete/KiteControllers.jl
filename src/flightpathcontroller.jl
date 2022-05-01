@@ -95,7 +95,7 @@ See also:
     u_s_max                                    = 0.99
     "maximal value of the turn rate in radians per second"
     psi_dot_max                                = 3.0
-    "influece of the depower settings on the steering sensitivity"
+    "influence of the depower settings on the steering sensitivity"
     k_ds                                       = se().k_ds # was 2.0
     "actual depower setting (0..1)"
     u_d                                        = 0.01 * se().depower
@@ -151,7 +151,7 @@ See also:
 end
 
 """
-    function on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
+    on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
 
 Input:  
 Either the attractor point (MVector of azimuth and elevation in radian),
@@ -185,7 +185,7 @@ function on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=
 end
 
 """
-    function on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a; u_d=nothing, u_d_prime=nothing)
+    on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a; u_d=nothing, u_d_prime=nothing)
 
 Parameters:
 - phi:      azimuth angle of the kite position in radian
@@ -239,7 +239,7 @@ function on_est_sysstate(fpc, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_p
 end
 
 """
-    function navigate(fpc, limit=50.0)
+    navigate(fpc, limit=50.0)
 
 Calculate the desired flight direction chi_set using great circle navigation.
 Limit delta_beta to the value of the parameter limit (in degrees).
@@ -262,42 +262,50 @@ function navigate(fpc, limit=50.0)
     fpc.chi_set = atan(-y, x)
 end
 
+"""
+    linearize(fpc, psi_dot; fix_va=false))
+
+Nonlinear, dynamic inversion block (NDI) according to Eq. 6.4 and Eq. 6.12.
+
+Parameters:
+- psi_dot: desired turn rate in radians per second
+- fix_va: keep va fixed for the second term of the turn rate law; was useful in some
+  simulink tests.
+"""
 function linearize(fpc, psi_dot; fix_va=false)
-#         """
-#         Implement the nonlinear, dynamic inversion block (NDI) according to Eq. 6.4 and Eq. 6.12.
-#         psi_dot: desired turn rate in radians per second
-#         fix_va: keep v_a fixed for the second term of the turn rate law; was useful in some
-#         simulink tests.
-#         """
-#         # Eq. 6.13: calculate v_a_hat
-#         if self.v_a_av >= self.v_a_min:
-#             v_a_hat = self.v_a_av
-#         else:
-#             v_a_hat = self.v_a_min
-#         # print "v_a, v_a_hat", self.v_a, v_a_hat
-#         # Eq. 6.12: calculate the steering from the desired turn rate
-#         if fix_va:
-#             va_fix = 20.0
-#         else:
-#             va_fix = v_a_hat
-#         if self.intermediate:
-#             k = (va_fix - 22) / 3.8
-#             c2 = C2 * (self.k_c2_int + k)
-#         else:
-#             k = (va_fix - 22) / 3.5 # was: 4
-#             if self.beta < radians(30):
-#                 c2 = C2 * (self.k_c2 + k)
-#             else:
-#                 c2 = C2 * (self.k_c2_high + k)
-#         u_s = (1.0 + self.K_d_s * self.u_d_prime) / (self.c1 * v_a_hat) \
-#               * (psi_dot - c2 / va_fix * sin(self.psi) * cos(self.beta))
-#         if abs(psi_dot) < 1e-6:
-#             psi_dot = 1e-6
-#         self.ndi_gain = saturation(u_s / psi_dot, -20.0, 20.0)
-#         if abs(self.ndi_gain) < 1e-6:
-#             self.ndi_gain = 1e-6
-#         # print "ndi_gain", self.ndi_gain
-#         return u_s
+
+    # Eq. 6.13: calculate va_hat
+    va_hat = fpc.va_min
+    if fpc.va_av >= fpc.va_min
+        va_hat = fpc.va_av
+    end
+    # print "v_a, v_a_hat", fpc.v_a, v_a_hat
+    # Eq. 6.12: calculate the steering from the desired turn rate
+    if fix_va
+        va_fix = 20.0
+    else
+        va_fix = va_hat
+    end
+    if fpc.intermediate
+        k = (va_fix - 22) / 3.8
+        c2 = cc.c2 * (fpc.k_c2_int + k)
+    else
+        k = (va_fix - 22) / 3.5 # was: 4
+        if fpc.beta < radians(30)
+            c2 = cc.c2 * (fpc.k_c2 + k)
+        else
+            c2 = cc.c2 * (fpc.k_c2_high + k)
+        end
+    end
+    u_s = (1.0 + fpc.k_ds * fpc.u_d_prime) / (fpc.c1 * va_hat) * (psi_dot - c2 / va_fix * sin(fpc.psi) * cos(fpc.beta))
+    if abs(psi_dot) < 1e-6
+        psi_dot = 1e-6
+    end
+    fpc.ndi_gain = saturate(u_s / psi_dot, -20.0, 20.0)
+    if abs(fpc.ndi_gain) < 1e-6
+        fpc.ndi_gain = 1e-6
+    end
+    return u_s
 end
 
 """
@@ -313,36 +321,36 @@ function calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
 #         k_psi_in = x[1]
 
 #         # calculate I part
-#         int_in = self.I * self.err + self.K_u * k_u_in + self.K_psi * k_psi_in
-#         int_out = self.int.calcOutput(int_in)
+#         int_in = fpc.I * fpc.err + fpc.K_u * k_u_in + fpc.K_psi * k_psi_in
+#         int_out = fpc.int.calcOutput(int_in)
 
 #         # calculate D part
-#         int2_in = self._N * (self.err * self.D - self.int2.getLastOutput()) / (1.0 + self._N * self.period_time)
-#         self.int2.calcOutput(int2_in)
+#         int2_in = fpc._N * (fpc.err * fpc.D - fpc.int2.getLastOutput()) / (1.0 + fpc._N * fpc.period_time)
+#         fpc.int2.calcOutput(int2_in)
 
 #         # calculate P, I, D output
-#         sat1_in = (self.P * self.err + int_out + int2_in) * self.gain
+#         sat1_in = (fpc.P * fpc.err + int_out + int2_in) * fpc.gain
 
 #         # calcuate saturated set value of the turn rate psi_dot
-#         sat1_out = saturation(sat1_in, -self.psi_dot_max, self.psi_dot_max)
+#         sat1_out = saturation(sat1_in, -fpc.psi_dot_max, fpc.psi_dot_max)
 #         # nonlinar inversion
-#         sat2_in = self._linearize(sat1_out)
+#         sat2_in = fpc._linearize(sat1_out)
 #         # calculate the saturated set value of the steering
-#         sat2_out = saturation(sat2_in, -self.u_s_max, self.u_s_max)
+#         sat2_out = saturation(sat2_in, -fpc.u_s_max, fpc.u_s_max)
 #         return sat1_in, sat1_out, sat2_in, sat2_out, int_in
 end
 
-#     def _calcResidual(self, x):
+#     def _calcResidual(fpc, x):
 #         """
 #         see: ./01_doc/flight_path_controller_II.png
 #         x: vector of k_u_in, k_psi_in and int2_in
 #         """
-#         sat1_in, sat1_out, sat2_in, sat2_out, int_in = self._calcSat1In_Sat1Out_SatIn_Sat2Out(x)
-#         k_u_in = (sat2_out - sat2_in) / self.ndi_gain
+#         sat1_in, sat1_out, sat2_in, sat2_out, int_in = fpc._calcSat1In_Sat1Out_SatIn_Sat2Out(x)
+#         k_u_in = (sat2_out - sat2_in) / fpc.ndi_gain
 #         k_psi_in = sat1_out - sat1_in
-#         self.res[0] = k_u_in - x[0]
-#         self.res[1] = k_psi_in - x[1]
-#         return self.res
+#         fpc.res[0] = k_u_in - x[0]
+#         fpc.res[1] = k_psi_in - x[1]
+#         return fpc.res
 
 """
     function solve(fpc, parking)
@@ -359,98 +367,98 @@ function solve(fpc, parking)
     navigate(fpc)
 #         # control the heading of the kite
 #         chi_factor = 0.0
-#         if self.omega > 0.8:
-#              chi_factor = (self.omega - 0.8) / 1.2
+#         if fpc.omega > 0.8:
+#              chi_factor = (fpc.omega - 0.8) / 1.2
 #         if chi_factor > 0.85:
 #             chi_factor = 0.85
-#         self.chi_factor = chi_factor
+#         fpc.chi_factor = chi_factor
 #         if USE_CHI and not parking:
-#             control_var = mergeAngles(self.psi, self.chi, chi_factor)
+#             control_var = mergeAngles(fpc.psi, fpc.chi, chi_factor)
 #         else:
-#             self.chi_factor = 0.0
-#             control_var = self.psi
-#         self.err = wrapToPi(self.chi_set - control_var)
-#         if RESET_INT1 and self._i == 0 or self.reset_int1:
+#             fpc.chi_factor = 0.0
+#             control_var = fpc.psi
+#         fpc.err = wrapToPi(fpc.chi_set - control_var)
+#         if RESET_INT1 and fpc._i == 0 or fpc.reset_int1:
 #             if RESET_INT1_TO_ZERO:
 #                 if PRINT:
 #                     print "===>>> Reset integrator to zero!"
-#                 self.int.reset(0.0)
+#                 fpc.int.reset(0.0)
 #             else:
 #                 if PRINT:
-#                     print "est_psi_dot: ", self.est_psi_dot
-#                     print "initial integrator output: ", (self.est_psi_dot / self.gain - self.err * self.P)
-#                 self.int.reset(self.est_psi_dot / self.gain - self.err * self.P)
-#             self.reset_int1 = False
-#         if RESET_INT2 and self._i == 1:
+#                     print "est_psi_dot: ", fpc.est_psi_dot
+#                     print "initial integrator output: ", (fpc.est_psi_dot / fpc.gain - fpc.err * fpc.P)
+#                 fpc.int.reset(fpc.est_psi_dot / fpc.gain - fpc.err * fpc.P)
+#             fpc.reset_int1 = False
+#         if RESET_INT2 and fpc._i == 1:
 #             if PRINT:
-#                 print "initial output of integrator two: ", self.err * self.D
-#             self.int2.reset((self.err * self.D))
+#                 print "initial output of integrator two: ", fpc.err * fpc.D
+#             fpc.int2.reset((fpc.err * fpc.D))
 #         # begin interate
 #         # print "------------------"
 #         if INIT_OPT_TO_ZERO:
-#             x = scipy.optimize.broyden1(self._calcResidual, [0.0, 0.0], f_tol=1e-14)
+#             x = scipy.optimize.broyden1(fpc._calcResidual, [0.0, 0.0], f_tol=1e-14)
 #         else:
-#             x = scipy.optimize.broyden1(self._calcResidual, [self.k_u_in, self.k_psi_in], f_tol=1e-14)
-#         sat1_in, sat1_out, sat2_in, sat2_out, int_in = self._calcSat1In_Sat1Out_SatIn_Sat2Out(x)
-#         self.k_u_in = (sat2_out - sat2_in) / self.ndi_gain
-#         self.k_psi_in = sat1_out - sat1_in
-#         self.Kpsi_out = (sat1_out - sat1_in) * self.K_psi
-#         self.Ku_out = (sat2_out - sat2_in) * self.K_u
+#             x = scipy.optimize.broyden1(fpc._calcResidual, [fpc.k_u_in, fpc.k_psi_in], f_tol=1e-14)
+#         sat1_in, sat1_out, sat2_in, sat2_out, int_in = fpc._calcSat1In_Sat1Out_SatIn_Sat2Out(x)
+#         fpc.k_u_in = (sat2_out - sat2_in) / fpc.ndi_gain
+#         fpc.k_psi_in = sat1_out - sat1_in
+#         fpc.Kpsi_out = (sat1_out - sat1_in) * fpc.K_psi
+#         fpc.Ku_out = (sat2_out - sat2_in) * fpc.K_u
 #         # print "sat1_in, sat1_out, sat2_in, sat2_out", sat1_in, sat1_out, sat2_in, sat2_out
 #         # end first iteration loop
-#         self.int_in = int_in
-#         if self.psi_dot_set is not None:
-#             if USE_RADIUS and self.radius is not None:
-#                 self.psi_dot_set_final = self.omega / self.radius # desired turn rate during the turns
-#             self.psi_dot_set = self.psi_dot_set * TAU + self.psi_dot_set_final * (1-TAU)
+#         fpc.int_in = int_in
+#         if fpc.psi_dot_set is not None:
+#             if USE_RADIUS and fpc.radius is not None:
+#                 fpc.psi_dot_set_final = fpc.omega / fpc.radius # desired turn rate during the turns
+#             fpc.psi_dot_set = fpc.psi_dot_set * TAU + fpc.psi_dot_set_final * (1-TAU)
 
-#             self.u_s = saturation(self._linearize(self.psi_dot_set), -1.0, 1.0)
-#             # self.err = 0.0
+#             fpc.u_s = saturation(fpc._linearize(fpc.psi_dot_set), -1.0, 1.0)
+#             # fpc.err = 0.0
 #         else:
-#             self.u_s = sat2_out
+#             fpc.u_s = sat2_out
 
-#         self._i += 1
-#         return self.u_s
+#         fpc._i += 1
+#         return fpc.u_s
 end
 
-#     def getErr(self):
+#     def getErr(fpc):
 #         """ Return the heading/ course error of the controller. """
-#         return self.err
+#         return fpc.err
 
-#     def getKpsi_out(self):
-#         return self.Kpsi_out
+#     def getKpsi_out(fpc):
+#         return fpc.Kpsi_out
 
-#     def getKu_out(self):
-#         return self.Ku_out
+#     def getKu_out(fpc):
+#         return fpc.Ku_out
 
-#     def getIntIn(self):
-#         return self.int_in
+#     def getIntIn(fpc):
+#         return fpc.int_in
 
-#     def getIntOut(self):
-#         return self.int.getOutput()
+#     def getIntOut(fpc):
+#         return fpc.int.getOutput()
 
-#     def getChiFactor(self):
-#         return self.chi_factor
+#     def getChiFactor(fpc):
+#         return fpc.chi_factor
 
-#     def onTimer(self):
-#         self.int.onTimer()
-#         self.int2.onTimer()
+#     def onTimer(fpc):
+#         fpc.int.onTimer()
+#         fpc.int2.onTimer()
 
 function calc_steering(fpc, parking)
     solve(fpc, parking)
     return fpc.u_s
 end
 
-#     def getSteering(self):
-#         return self.u_s
+#     def getSteering(fpc):
+#         return fpc.u_s
 
-#     def getState(self):
-#         if self.psi_dot_set is not None:
+#     def getState(fpc):
+#         if fpc.psi_dot_set is not None:
 #             turning = True
-#             value = self.psi_dot_set
+#             value = fpc.psi_dot_set
 #         else:
 #             turning = False
-#             value = self.attractor
+#             value = fpc.attractor
 #         return turning, value
 
 # if __name__ == "__main__":

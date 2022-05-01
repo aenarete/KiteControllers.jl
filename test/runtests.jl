@@ -58,4 +58,6 @@ end
     v_a = 0.0
     on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a, u_d=0.236)
     KiteControllers.navigate(fpc)
+    psi_dot = 0.0
+    KiteControllers.linearize(fpc, psi_dot)
 end
