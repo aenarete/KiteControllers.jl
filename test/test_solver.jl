@@ -12,6 +12,7 @@
 # time for executing test_broyden2() loop in µs:  1276
 
 using NLsolve
+const MAX_ITER = 100
 
 function fun!(F, x)
     F[1] = x[1]  + 0.5 * (x[1] - x[2])^3 - 1.0
@@ -19,7 +20,8 @@ function fun!(F, x)
 end
 
 function test_broyden2()
-    sol = nlsolve(fun!, [ 0.0; 0.0])
+    sol = nlsolve(fun!, [ 0.0; 0.0], iterations=MAX_ITER)
+    @assert sol.f_converged
     sol.zero
 end
 # execution time: 5 µs, 255 times faster than Python
