@@ -42,15 +42,18 @@ Settings of the WinchController
     vf_max = 2.75
     "P constant of the lower force controller"
     pf_low = 1.44e-4 * fac
+    "I constant of the lower force controller"
+    if_low = 7.5e-3 * 1.5 * fac
+    "back calculation constant for the anti-windup loop of the lower force controller"
+    kbf_low = 1.0
+    "tracking constant of the lower force controller"
+    ktf_low = 8.0
+    "lower force limit [N]"
+    f_low = 300
 end
 
 const TEST_COMPONENTS = false
 
-# # lower force controller
-# I_F_LOW = 7.5e-3 * 1.5 * FAC
-# K_b_F_LOW = 1.0
-# K_t_F_LOW = 8.0
-# F_LOW = 300.0
 # # upper force controller
 # # if TEST_COMPONENTS
 # P_F_HIGH = 1.44e-4
@@ -756,7 +759,7 @@ const TEST_COMPONENTS = false
 #     mix2 = Mixer_2CH()
 #     mix3 = Mixer_3CH()
 #     pid1 = SpeedController()
-#     pid2 = LowerForceController(pf_low, I_F_LOW, K_b_F_LOW, K_t_F_LOW)
+#     pid2 = LowerForceController(pf_low, I_F_LOW, kbf_low, ktf_low)
 #     pid3 = UpperForceController(P_F_HIGH, I_F_HIGH, D_F_HIGH, N_F_HIGH, K_b_F_HIGH, K_t_F_HIGH)
 #     winch = Winch()
 #     kite = KiteModel()
