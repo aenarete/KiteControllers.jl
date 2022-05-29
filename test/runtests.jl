@@ -65,3 +65,7 @@ end
     parking = false
     KiteControllers.calc_steering(fpc, parking)
 end
+
+@testset "WinchController" begin
+    wc = WCSettings()
+end

@@ -16,53 +16,62 @@ Components:
 Implemented as described in the PhD thesis of Uwe Fechner.
 """
 
-@consts begin
-
-FAC = 0.25
-
-# PERIOD_TIME = 1/50.0
-TEST_COMPONENTS = false
-EPSILON = 1e-6
-
-T_BLEND = 0.25 # blending time of the mixers in seconds
-V_SAT_ERR = 1.0 # limitation of the reel-out speed error, used by the input saturation block of the speed controller
-# V_SAT = 8.0    # limitation of the reel-out speed , used by the output saturation block of the speed controller
-V_SAT = 12.0
-V_RI_MAX = 12.0
-
-# speed controller
-P_SPEED = 0.125 #-0.025  # P value of the speed controller
-I_SPEED = 4.0   # I value of the speed controller
-K_b_SPEED = 4.0 # back calculation constant for the anti-windup loop of the speed controller
-K_t_SPEED = 5.0 # tracking constant of the speed controller
-V_F_MAX = 2.75   # reel-out velocity where the set force should reach it's maximum
-# lower force controller
-P_F_LOW = 1.44e-4 * FAC
-I_F_LOW = 7.5e-3 * 1.5 * FAC
-K_b_F_LOW = 1.0
-K_t_F_LOW = 8.0
-F_LOW = 300.0
-# upper force controller
-# if TEST_COMPONENTS
-P_F_HIGH = 1.44e-4
-I_F_HIGH = 7.5e-3
-D_F_HIGH = 2e-5
-N_F_HIGH = 15.0
-# else
-#     P_F_HIGH = 0.007 * 0.33
-#     I_F_HIGH = 0.003 * 0.33
-#     D_F_HIGH = 2e-5 * 2.0 * 0.0
-#     N_F_HIGH = 15.0
-# end
-K_b_F_HIGH = 1.0
-K_t_F_HIGH = 10.0
-F_HIGH = 3750.0*2.0
-# Winch
-WINCH_ITER = 10
-
-MAX_ACC = 8.0 # maximal acceleration of the winch (derivative of the set value of the reel-out speed)
-K_v = 0.06  #
+"""
+Settings of the WinchController
+"""
+@with_kw mutable struct WCSettings @deftype Float64
+    fac = 0.25
+    eps = 1e-6
+    "blending time of the mixers in seconds"
+    t_blend = 0.25
+    "limitation of the reel-out speed error, used by the input saturation block of the speed controller"
+    v_sat_error = 1.0
+    "limitation of the reel-out speed , used by the output saturation block of the speed controller"
+    v_sat = 12.0 # was: 8.0
+    "maximal reel-in speed [m/s]"
+    v_ri_max = 12.0
+    "P value of the speed controller"
+    p_speed = 0.125
+    "I value of the speed controller"
+    i_speed = 4.0
+    "back calculation constant for the anti-windup loop of the speed controller"
+    kb_speed = 4.0
+    "tracking constant of the speed controller"
+    kt_speed = 5.0
+    "reel-out velocity where the set force should reach it's maximum"
+    vf_max = 2.75
+    "P constant of the lower force controller"
+    pf_low = 1.44e-4 * fac
 end
+
+const TEST_COMPONENTS = false
+
+# # lower force controller
+# I_F_LOW = 7.5e-3 * 1.5 * FAC
+# K_b_F_LOW = 1.0
+# K_t_F_LOW = 8.0
+# F_LOW = 300.0
+# # upper force controller
+# # if TEST_COMPONENTS
+# P_F_HIGH = 1.44e-4
+# I_F_HIGH = 7.5e-3
+# D_F_HIGH = 2e-5
+# N_F_HIGH = 15.0
+# # else
+# #     P_F_HIGH = 0.007 * 0.33
+# #     I_F_HIGH = 0.003 * 0.33
+# #     D_F_HIGH = 2e-5 * 2.0 * 0.0
+# #     N_F_HIGH = 15.0
+# # end
+# K_b_F_HIGH = 1.0
+# K_t_F_HIGH = 10.0
+# F_HIGH = 3750.0*2.0
+# # Winch
+# WINCH_ITER = 10
+
+# MAX_ACC = 8.0 # maximal acceleration of the winch (derivative of the set value of the reel-out speed)
+# K_v = 0.06  #
+# end
 
 # def calcV_ro(force, f_high, f_low):
 #     """ Calculate the optimal reel-out speed for a given force. """
@@ -392,7 +401,7 @@ end
 #     anti-windup is K_b, the constant for tracking K_t
 #     Implements the simulink block diagram, shown in ./01_doc/speed_controller.png.
 #     """
-#     def __init__(self, P=P_SPEED, I=I_SPEED, K_b=K_b_SPEED, K_t=K_t_SPEED):
+#     def __init__(self, P=P_SPEED, I=I_SPEED, K_b=kb_speed, K_t=kt_speed):
 #         self._P = P
 #         self.integrator = Integrator()
 #         self._I = I
@@ -747,7 +756,7 @@ end
 #     mix2 = Mixer_2CH()
 #     mix3 = Mixer_3CH()
 #     pid1 = SpeedController()
-#     pid2 = LowerForceController(P_F_LOW, I_F_LOW, K_b_F_LOW, K_t_F_LOW)
+#     pid2 = LowerForceController(pf_low, I_F_LOW, K_b_F_LOW, K_t_F_LOW)
 #     pid3 = UpperForceController(P_F_HIGH, I_F_HIGH, D_F_HIGH, N_F_HIGH, K_b_F_HIGH, K_t_F_HIGH)
 #     winch = Winch()
 #     kite = KiteModel()
