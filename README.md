@@ -39,15 +39,6 @@ reset(int)            # reset the integrator
 update(int, 2)        # input value  
 on_timer(int)         # must be called on each timestep
 ```
-### Functions
-Functions of the `FlightPathController`
-```julia
-on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
-on_est_sysstate(fpc, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_prime=nothing)
-on_timer(fpc)
-calc_steering(fpc, parking)
-```
-The control commands are usually recived from the FlightPathPlanner, the output of the model or the system state estimator must call `on_est_systate()` each timestep.
 ## Flight path controller
 FlightPathController as specified in chapter six of the [PhD thesis](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) of Uwe Fechner.
 ```julia
@@ -58,6 +49,7 @@ on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a; u_d=nothing, u_d_prime=not
 on_timer(fpc)
 calc_steering(fpc, parking)
 ```
+The control commands are usually recived from the FlightPathPlanner, the output of the model or the system state estimator must call `on_est_systate()` each timestep.
 <p align="center"><img src="./doc/flight_path_controller_I.png" width="500" /></p>
 <p align="center"><img src="./doc/flight_path_controller_II.png" width="500" /></p>
 
