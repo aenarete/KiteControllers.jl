@@ -37,6 +37,9 @@ calc_steering(fpc, parking)
 <p align="center"><img src="./doc/flight_path_controller_I.png" width="500" /></p>
 <p align="center"><img src="./doc/flight_path_controller_II.png" width="500" /></p>
 
+## Scientific background
+[Flight path control of kite power systems in a turbulent wind environment](https://ieeexplore.ieee.org/document/7525563)
+
 ## Winch controller
 ```
 WinchController
@@ -50,6 +53,9 @@ Depending on the mode of operation, one of the following three controllers is us
 
 ### Upper Force Controller
 <p align="center"><img src="./doc/upper_force_controller.png" width="500" /></p>
+
+## Scientific background
+[A Methodology for the Design of Kite-Power Control Systems](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) Chapter 6.3 Winch control (WC)
 
 ## Related
 - [Research Fechner](https://research.tudelft.nl/en/publications/?search=wind+Fechner&pageSize=50&ordering=rating&descending=true) for the scientic background of this code
