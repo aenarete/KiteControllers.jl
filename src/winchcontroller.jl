@@ -50,36 +50,30 @@ Settings of the WinchController
     ktf_low = 8.0
     "lower force limit [N]"
     f_low = 300
+    "P constant of upper force controller"
+    pf_high = 0.007 * 0.33
+    "I constant of upper force controller"
+    if_high = 0.003 * 0.33
+    "D constant of upper force controller"
+    df_high = 2e-5 * 2.0 * 0.0
+    "filter constant n of upper force controller"
+    nf_high = 15.0
+    "back calculation constant for the anti-windup loop of the upper force controller"
+    kbf_high = 1.0
+    "tracking constant of the upper force controller"
+    ktf_high = 10.0
+    "interations of the winch model"
+    winch_iter = 10
+    "maximal acceleration of the winch (derivative of the set value of the reel-out speed)"
+    max_acc = 8.0
+    "proportional factor of the square root law, see function calc_vro"
+    kv = 0.06
 end
-
-const TEST_COMPONENTS = false
-
-# # upper force controller
-# # if TEST_COMPONENTS
-# P_F_HIGH = 1.44e-4
-# I_F_HIGH = 7.5e-3
-# D_F_HIGH = 2e-5
-# N_F_HIGH = 15.0
-# # else
-# #     P_F_HIGH = 0.007 * 0.33
-# #     I_F_HIGH = 0.003 * 0.33
-# #     D_F_HIGH = 2e-5 * 2.0 * 0.0
-# #     N_F_HIGH = 15.0
-# # end
-# K_b_F_HIGH = 1.0
-# K_t_F_HIGH = 10.0
-# F_HIGH = 3750.0*2.0
-# # Winch
-# WINCH_ITER = 10
-
-# MAX_ACC = 8.0 # maximal acceleration of the winch (derivative of the set value of the reel-out speed)
-# K_v = 0.06  #
-# end
 
 # def calcV_ro(force, f_high, f_low):
 #     """ Calculate the optimal reel-out speed for a given force. """
 #     if TEST_COMPONENTS:
-#         return sqrt(force) * K_v
+#         return sqrt(force) * kv
 #     else:
 #         if force >= f_low:
 #             return V_F_MAX * sqrt((force - f_low) / float(f_high - f_low))
@@ -759,7 +753,7 @@ const TEST_COMPONENTS = false
 #     mix2 = Mixer_2CH()
 #     mix3 = Mixer_3CH()
 #     pid1 = SpeedController()
-#     pid2 = LowerForceController(pf_low, I_F_LOW, kbf_low, ktf_low)
-#     pid3 = UpperForceController(P_F_HIGH, I_F_HIGH, D_F_HIGH, N_F_HIGH, K_b_F_HIGH, K_t_F_HIGH)
+#     pid2 = LowerForceController(pf_low, if_low, kbf_low, ktf_low)
+#     pid3 = UpperForceController(pf_high, if_high, df_high, nf_high, kbf_high, ktf_high)
 #     winch = Winch()
 #     kite = KiteModel()
