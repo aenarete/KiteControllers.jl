@@ -19,7 +19,7 @@ function fun!(F, x)
     F[2] = 0.5 * (x[2] - x[1])^3 + x[2]
 end
 
-function test_broyden2()
+function test_nlsolve()
     sol = nlsolve(fun!, [ 0.0; 0.0], iterations=MAX_ITER)
     @assert sol.f_converged
     sol.zero
