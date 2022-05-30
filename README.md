@@ -4,7 +4,17 @@
 
 Discrete controllers for kite power systems.
 
-## Utility functions
+This package is part of Julia Kite Power Tools, which consist of the following packages:
+<p align="center"><img src="./doc/kite_power_tools.png" width="500" /></p>
+
+## Installation
+```julia
+using Pkg
+pkg"add KiteControllers"
+```
+
+## This package provides
+### Utility functions
 ```
 saturate(value, min_, max_)
 ```
@@ -14,18 +24,32 @@ wrap2pi(angle)
 ```
 Convert an angle, given in radian in an infinite range to the range from -pi to pi
 
-## Types
+### Types
 ```julia
 Integrator
-
+FlightPathController
+FPCSettings
+WCSettings
+```
+Usage of the Integrator
+```
 int = Integrator()  
 int = Integrator(2,3) # integration constant, inital output  
-reset(int)  
+reset(int)            # reset the integrator
 update(int, 2)        # input value  
-on_timer(int)
+on_timer(int)         # must be called on each timestep
 ```
+### Functions
+Functions of the `FlightPathController`
+```julia
+on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
+on_est_sysstate(fpc, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_prime=nothing)
+on_timer(fpc)
+calc_steering(fpc, parking)
+```
+The control commands are usually recived from the FlightPathPlanner, the output of the model or the system state estimator must call `on_est_systate()` each timestep.
 ## Flight path controller
-FlightPathController as specified in chapter six of the PhD thesis of Uwe Fechner.
+FlightPathController as specified in chapter six of the [PhD thesis](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) of Uwe Fechner.
 ```julia
 FlightPathController
 FPCSettings
@@ -44,7 +68,10 @@ calc_steering(fpc, parking)
 ```
 WinchController
 ```
-Depending on the mode of operation, one of the following three controllers is used:
+For a kite power system, the reel-out speed of the winch must be controlled such that the
+maximal tether force is never exceeded, while the reel out speed should be optimized for
+maximal power over the full cycle at wind speeds below rated wind speed. To keep the
+kite controllable, also a minimal tether force limit has to be kept. Depending on the mode of operation, one of the following three controllers is used:
 ### Speed Controller
 <p align="center"><img src="./doc/speed_controller.png" width="500" /></p>
 
