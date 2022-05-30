@@ -67,5 +67,10 @@ end
 end
 
 @testset "WinchController" begin
-    wc = WCSettings()
+    wcs = WCSettings()
+    force = wcs.f_low
+    v_ro = calc_vro(wcs, force; test=false)
+    @test v_ro ≈ 0
+    v_ro = calc_vro(wcs, wcs.f_high; test=false)
+    @test v_ro ≈ wcs.vf_max
 end

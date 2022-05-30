@@ -50,6 +50,8 @@ Settings of the WinchController
     ktf_low = 8.0
     "lower force limit [N]"
     f_low = 300
+    "upper force limit [N]"
+    f_high = 4000
     "P constant of upper force controller"
     pf_high = 0.007 * 0.33
     "I constant of upper force controller"
@@ -70,15 +72,21 @@ Settings of the WinchController
     kv = 0.06
 end
 
-# def calcV_ro(force, f_high, f_low):
-#     """ Calculate the optimal reel-out speed for a given force. """
-#     if TEST_COMPONENTS:
-#         return sqrt(force) * kv
-#     else:
-#         if force >= f_low:
-#             return V_F_MAX * sqrt((force - f_low) / float(f_high - f_low))
-#         else:
-#             return -V_F_MAX * sqrt((f_low - force) / float(f_high - f_low))
+""" 
+
+Calculate the optimal reel-out speed for a given force. 
+"""
+function calc_vro(wcs::WCSettings, force; test=false)
+    if test
+        return sqrt(force) * wcs.kv
+    else
+        if force >= wcs.f_low
+            return wcs.vf_max * sqrt((force - wcs.f_low) / (wcs.f_high - wcs.f_low))
+        else
+            return -wcs.vf_max * sqrt((wcs.f_low - force) / (wcs.f_high - wcs.f_low))
+        end
+    end
+end
 
 # class UnitDelay(object):
 #     """ Delay the input signal by one time step. """
@@ -170,7 +178,7 @@ end
 #         v_set_in is calculated as function of the force.
 #         """
 #         if v_set_pc is None:
-#             v_set_in = calcV_ro(force, self._f_high, self._f_low)
+#             v_set_in = calc_vro(force, self._f_high, self._f_low)
 #             self._mixer2.setInputA(v_set_in)
 #             self._mixer2.selectB(False)
 #         else:
