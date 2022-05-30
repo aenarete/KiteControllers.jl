@@ -41,11 +41,18 @@ calc_steering(fpc, parking)
 ```
 WinchController
 ```
+Depending on the mode of operation, one of the following three controllers is used:
+### Speed Controller
+<p align="center"><img src="./doc/speed_controller.png" width="500" /></p>
 
-## See also
-- [Research Fechner](https://research.tudelft.nl/en/publications/?search=Uwe+Fechner&pageSize=50&ordering=rating&descending=true) for the scientic background of this code
-- The application [KiteViewer](https://github.com/ufechner7/KiteViewer)
-- the package [KiteUtils](https://github.com/ufechner7/KiteUtils.jl)
-- the package [KitePodModels](https://github.com/aenarete/KitePodModels.jl)
-- the package [KiteModels](https://github.com/ufechner7/KiteModels.jl)
-- the package [KiteViewers](https://github.com/aenarete/KiteViewers.jl)
+### Lower Force Controller
+<p align="center"><img src="./doc/lower_force_controller.png" width="500" /></p>
+
+### Upper Force Controller
+<p align="center"><img src="./doc/upper_force_controller.png" width="500" /></p>
+
+## Related
+- [Research Fechner](https://research.tudelft.nl/en/publications/?search=wind+Fechner&pageSize=50&ordering=rating&descending=true) for the scientic background of this code
+- The meta package [KiteSimulators](https://github.com/aenarete/KiteSimulators.jl) which contains all packages from Julia Kite Power Tools.
+- the packages [KiteModels](https://github.com/ufechner7/KiteModels.jl) and [WinchModels](https://github.com/aenarete/WinchModels.jl) and [AtmosphericModels](https://github.com/aenarete/AtmosphericModels.jl)
+- the packages [KiteViewers](https://github.com/aenarete/KiteViewers.jl) and [KiteUtils](https://github.com/ufechner7/KiteUtils.jl)
