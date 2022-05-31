@@ -125,13 +125,14 @@ function reset(ud::RateLimiter, x0=0.0)
 end
 
 function calc_output(rl::RateLimiter, input)
-    if input - rl.last_output > limit
-        rl.output = rl.last_output + limit
-    elseif input - rl.last_output < limit 
-        rl.output = rl.last_output - limit
+    if input - rl.last_output > rl.limit
+        rl.output = rl.last_output + rl.limit
+    elseif input - rl.last_output < -rl.limit 
+        rl.output = rl.last_output - rl.limit
     else
         rl.output = input
     end
+    rl.output
 end
 
 function on_timer(rl::RateLimiter)

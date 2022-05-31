@@ -87,3 +87,15 @@ end
     @test ud.last_input == 0
     @test ud.last_output == 0
 end
+
+@testset "RateLimiter" begin
+    rl = RateLimiter(0.5)
+    input = [0,0,1,2,3,3,3,3,3,2,1,0,0,0,0,0]
+    out = zeros(16)
+    for i in 1:16
+        out[i] = calc_output(rl, input[i])
+        on_timer(rl)
+        # println(input[i], " ", out[i])
+    end
+    @test out == [0,0,0.5,1,1.5,2,2.5,3,3,2.5,2,1.5,1,0.5,0,0]
+end
