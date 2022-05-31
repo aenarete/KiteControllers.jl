@@ -28,6 +28,7 @@ Convert an angle, given in radian in an infinite range to the range from -pi to 
 ```julia
 Integrator
 UnitDelay
+RateLimiter
 FlightPathController
 FPCSettings
 WCSettings
@@ -44,8 +45,8 @@ Usage of UnitDelay
 ```julia
 ud = UnitDelay()
 for i in 1:3
-    out = calc_output(ud, i)
-    on_timer(ud)
+    out = calc_output(ud, i) # updates the input and calculates the output
+    on_timer(ud)             # next timestep
     println(out)
 end
 ```

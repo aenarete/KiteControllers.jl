@@ -103,33 +103,40 @@ function on_timer(ud::UnitDelay)
     ud.last_output = ud.last_input
 end
 
-function clear(ud::UnitDelay)
+function reset(ud::UnitDelay)
     ud.last_input = 0.0
     ud.last_output = 0.0
 end
 
-# class RateLimiter(object):
-#     """ Limit the rate of the output signal (return value of calcOutput) to -+ MAX_ACC. """
-#     def __init__(self, x0=0.0):
-#         self._output = x0
-#         self._last_output = x0
+""" Limit the rate of the output signal (return value of calc_output) to ± limit. """
+@with_kw mutable struct RateLimiter @deftype Float64
+    limit = 1
+    output = 0
+    last_output = 0
+end
 
-#     def reset(self, x0=0.0):
-#         self.__init__(x0)
+function RateLimiter(limit, x0=0.0)
+    RateLimiter(limit, x0, x0)
+end
 
-#     def calcOutput(self, input_):
-#         if input_ - self._last_output > MAX_ACC * PERIOD_TIME:
-#             self._output = self._last_output + MAX_ACC * PERIOD_TIME
-#             # print "acc too high:", (input_ - self._last_output) / PERIOD_TIME
-#         elif input_ - self._output < -MAX_ACC * PERIOD_TIME:
-#             self._output = self._last_output - MAX_ACC * PERIOD_TIME
-#             # print "acc too low:", (input_ - self._last_output) / PERIOD_TIME
-#         else:
-#             self._output = input_
-#         return self._output
+function reset(ud::RateLimiter, x0=0.0)
+    ud.output = x0
+    ud.last_output = x0
+end
 
-#     def onTimer(self):
-#         self._last_output = self._output
+function calc_output(rl::RateLimiter, input)
+    if input - rl.last_output > limit
+        rl.output = rl.last_output + limit
+    elseif input - rl.last_output < limit 
+        rl.output = rl.last_output - limit
+    else
+        rl.output = input
+    end
+end
+
+function on_timer(rl::RateLimiter)
+    rl.last_output = rl.output
+end
 
 # class Mixer_2CH(object):
 #     """
