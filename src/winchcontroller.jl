@@ -108,7 +108,7 @@ function reset(ud::UnitDelay)
     ud.last_output = 0.0
 end
 
-""" Limit the rate of the output signal (return value of calc_output) to ± limit. """
+""" Limit the chate of the output signal per tick (return value of calc_output) to ± limit. """
 @with_kw mutable struct RateLimiter @deftype Float64
     limit = 1
     output = 0
@@ -139,43 +139,42 @@ function on_timer(rl::RateLimiter)
     rl.last_output = rl.output
 end
 
-# class Mixer_2CH(object):
-#     """
-#     Mix two analog inputs. Implements the simulink block diagram, shown in
-#     ./01_doc/mixer_2ch.png
-#     """
-#     def __init__(self, t_blend = T_BLEND):
-#         self._input_a = 0.0
-#         self._input_b = 0.0
-#         self._factor_b = 0.0
-#         self._select_b = False
-#         self._t_blend = t_blend
+"""
+Mix two analog inputs. Implements the simulink block diagram, shown in
+./01_doc/mixer_2ch.png
+"""
+@with_kw mutable struct Mixer_2CH @deftype Float64
+    dt = 0.05
+    t_blend = 1.0
+    factor_b = 0
+    select_b::Bool = false
+end
 
-#     def onTimer(self):
-#         """ Must be called every period time. """
-#         if self._select_b:
-#             integrator_in = 1.0 / self._t_blend
-#         else:
-#             integrator_in = -1.0 / self._t_blend
-#         self._factor_b += integrator_in * PERIOD_TIME
-#         if self._factor_b > 1.0:
-#             self._factor_b = 1.0
-#         if self._factor_b < 0.0:
-#             self._factor_b = 0.0
+function Mixer_2CH(dt=0.05, t_blend = 1.0)
+    Mixer_2CH(dt, t_blend, 0, false)
+end
 
-#     def setInputA(self, input_a):
-#         self._input_a = input_a
+function select_b(m2::Mixer_2CH, select_b)
+    ms.select_b = select_b
+end
 
-#     def setInputB(self, input_b):
-#         self._input_b = input_b
+function on_timer(m2::Mixer_2CH)
+    if m2.select_b
+        integrator_in = 1.0 / m2.t_blend
+    else
+        integrator_in = -1.0 / m2.t_blend
+    end
+    m2.factor_b += integrator_in * m2.dt
+    if ms.factor_b > 1.0
+        ms.factor_b = 1.0
+    elseif ms.factor_b < 0
+        ms.factor_b = 0
+    end
+end
 
-#     def selectB(self, select_b):
-#         assert type(select_b) == bool
-#         self._select_b = select_b
-
-#     def getOutput(self):
-#         result = self._input_b * self._factor_b + self._input_a * (1.0 - self._factor_b)
-#         return result
+function calc_output(m2::Mixer_2CH, input_a, input_b)
+    input_b * m2.factor_b + input_a * (1.0 - m2.factor_b)
+end
 
 # class CalcVSetIn(object):
 #     """ Class for calculation v_set_in, using soft switching. """
