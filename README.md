@@ -5,7 +5,7 @@
 Discrete controllers for kite power systems.
 
 This package is part of Julia Kite Power Tools, which consist of the following packages:
-<p align="center"><img src="./doc/kite_power_tools.png" width="500" /></p>
+<p align="center"><img src="./docs/kite_power_tools.png" width="500" /></p>
 
 ## Installation
 ```julia
@@ -87,8 +87,8 @@ on_timer(fpc)
 calc_steering(fpc, parking)
 ```
 The control commands are usually recived from the FlightPathPlanner, the output of the model or the system state estimator must call `on_est_systate()` each timestep.
-<p align="center"><img src="./doc/flight_path_controller_I.png" width="500" /></p>
-<p align="center"><img src="./doc/flight_path_controller_II.png" width="500" /></p>
+<p align="center"><img src="./docs/flight_path_controller_I.png" width="500" /></p>
+<p align="center"><img src="./docs/flight_path_controller_II.png" width="500" /></p>
 
 ## Scientific background
 [Flight path control of kite power systems in a turbulent wind environment](https://ieeexplore.ieee.org/document/7525563)
@@ -102,13 +102,13 @@ maximal tether force is never exceeded, while the reel out speed should be optim
 maximal power over the full cycle at wind speeds below rated wind speed. To keep the
 kite controllable, also a minimal tether force limit has to be kept. Depending on the mode of operation, one of the following three controllers is used:
 ### Speed Controller
-<p align="center"><img src="./doc/speed_controller.png" width="500" /></p>
+<p align="center"><img src="./docs/speed_controller.png" width="500" /></p>
 
 ### Lower Force Controller
-<p align="center"><img src="./doc/lower_force_controller.png" width="500" /></p>
+<p align="center"><img src="./docs/lower_force_controller.png" width="500" /></p>
 
 ### Upper Force Controller
-<p align="center"><img src="./doc/upper_force_controller.png" width="500" /></p>
+<p align="center"><img src="./docs/upper_force_controller.png" width="500" /></p>
 
 ## Scientific background
 [A Methodology for the Design of Kite-Power Control Systems](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) Chapter 6.3 Winch control (WC)
