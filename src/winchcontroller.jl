@@ -103,6 +103,11 @@ function on_timer(ud::UnitDelay)
     ud.last_output = ud.last_input
 end
 
+function clear(ud::UnitDelay)
+    ud.last_input = 0.0
+    ud.last_output = 0.0
+end
+
 # class RateLimiter(object):
 #     """ Limit the rate of the output signal (return value of calcOutput) to -+ MAX_ACC. """
 #     def __init__(self, x0=0.0):

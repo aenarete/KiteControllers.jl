@@ -73,4 +73,14 @@ end
     @test v_ro ≈ 0
     v_ro = calc_vro(wcs, wcs.f_high; test=false)
     @test v_ro ≈ wcs.vf_max
+    ud = UnitDelay()
+    for i in 1:3
+        out=calc_output(ud, i)
+        on_timer(ud)
+        println(out)
+        @test out == i-1
+    end
+    clear(ud)
+    @test ud.last_input == 0
+    @test ud.last_output == 0
 end

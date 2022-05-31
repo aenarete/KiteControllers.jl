@@ -27,18 +27,29 @@ Convert an angle, given in radian in an infinite range to the range from -pi to 
 ### Types
 ```julia
 Integrator
+UnitDelay
 FlightPathController
 FPCSettings
 WCSettings
 ```
 Usage of the Integrator
-```
+```julia
 int = Integrator()  
 int = Integrator(2,3) # integration constant, inital output  
 reset(int)            # reset the integrator
 update(int, 2)        # input value  
 on_timer(int)         # must be called on each timestep
 ```
+Usage of UnitDelay
+```julia
+ud = UnitDelay()
+for i in 1:3
+    out = calc_output(ud, i)
+    on_timer(ud)
+    println(out)
+end
+```
+Expected output: `0.0 1.0 2.0`
 ## Flight path controller
 FlightPathController as specified in chapter six of the [PhD thesis](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) of Uwe Fechner.
 ```julia
