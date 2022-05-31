@@ -11,6 +11,7 @@ export on_control_command, on_est_sysstate, on_timer, calc_steering # functions 
 export calc_vro, calc_output, reset                                 # functions for winch control
 
 include("utils.jl")
+include("components.jl")
 include("flightpathcontroller.jl")
 include("winchcontroller.jl")
 
