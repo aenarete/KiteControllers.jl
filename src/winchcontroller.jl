@@ -88,18 +88,20 @@ function calc_vro(wcs::WCSettings, force; test=false)
     end
 end
 
-# class UnitDelay(object):
-#     """ Delay the input signal by one time step. """
-#     def __init__(self):
-#         self._last_output = 0.0
-#         self._last_input = 0.0
+""" Delay the input signal by one time step. """
+@with_kw mutable struct UnitDelay @deftype Float64
+    last_output = 0
+    last_input = 0
+end
 
-#     def calcOutput(self, input_):
-#         self._last_input = input_
-#         return self._last_output
+function calc_output(ud::UnitDelay, input)
+    ud.last_input = input
+    ud.last_output
+end
 
-#     def onTimer(self):
-#         self._last_output = self._last_input
+function on_timer(ud::UnitDelay)
+    ud.last_output = ud.last_input
+end
 
 # class RateLimiter(object):
 #     """ Limit the rate of the output signal (return value of calcOutput) to -+ MAX_ACC. """

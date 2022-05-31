@@ -245,7 +245,7 @@ end
 Calculate the desired flight direction chi_set using great circle navigation.
 Limit delta_beta to the value of the parameter limit (in degrees).
 """
-function navigate(fpc, limit=50.0)
+function navigate(fpc::FlightPathController, limit=50.0)
     # navigate only if steering towards the attractor point is active
     if ! isnothing(fpc.psi_dot_set)
         return nothing
@@ -273,7 +273,7 @@ Parameters:
 - fix_va: keep va fixed for the second term of the turn rate law; was useful in some
   simulink tests.
 """
-function linearize(fpc, psi_dot; fix_va=false)
+function linearize(fpc::FlightPathController, psi_dot; fix_va=false)
 
     # Eq. 6.13: calculate va_hat
     va_hat = fpc.va_min
@@ -317,7 +317,7 @@ see: ./01_doc/flight_path_controller_II.png
 Parameters:
 - x: vector of k_u_in, k_psi_in and int2_in
 """
-function calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
+function calc_sat1in_sat1out_sat2in_sat2out(fpc::FlightPathController, x)
     k_u_in   = x[1]
     k_psi_in = x[2]
 
@@ -354,7 +354,7 @@ Implements the simulink block diagram, shown in:
 
 If the parameter parking is true, only the heading is controlled, not the course.
 """
-function calc_steering(fpc, parking)
+function calc_steering(fpc::FlightPathController, parking)
     """
         residual!(fpc, x)
 
@@ -436,7 +436,7 @@ function calc_steering(fpc, parking)
     fpc.u_s
 end
 
-function on_timer(fpc)
+function on_timer(fpc::FlightPathController)
     on_timer(fpc.int)
     on_timer(fpc.int2)
 end
