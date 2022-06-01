@@ -67,7 +67,7 @@ end
     last_output = 0
 end
 
-function RateLimiter(dt=0.05, limit=1.0, x0=0.0)
+function RateLimiter(dt, limit=1.0, x0=0.0)
     RateLimiter(dt, limit, x0, x0)
 end
 
@@ -101,12 +101,12 @@ end
     select_b::Bool = false
 end
 
-function Mixer_2CH(dt=0.05, t_blend = 1.0)
+function Mixer_2CH(dt, t_blend = 1.0)
     Mixer_2CH(dt, t_blend, 0, false)
 end
 
 function select_b(m2::Mixer_2CH, select_b)
-    ms.select_b = select_b
+    m2.select_b = select_b
 end
 
 function on_timer(m2::Mixer_2CH)
@@ -116,10 +116,10 @@ function on_timer(m2::Mixer_2CH)
         integrator_in = -1.0 / m2.t_blend
     end
     m2.factor_b += integrator_in * m2.dt
-    if ms.factor_b > 1.0
-        ms.factor_b = 1.0
-    elseif ms.factor_b < 0
-        ms.factor_b = 0
+    if m2.factor_b > 1.0
+        m2.factor_b = 1.0
+    elseif m2.factor_b < 0
+        m2.factor_b = 0
     end
 end
 

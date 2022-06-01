@@ -48,8 +48,19 @@ Expected output:
 <p align="center"><img src="./rate_limiter.png" width="500" /></p>
 
 ### Usage of Mixer_2D
-```
-m2 = Mixer_2D()
+```julia
+m2 = Mixer_2CH(0.2, 1.0) # dt=0.2s, t_blend = 1.0s
+x = ones(10)
+y = 2*x
+out = zeros(10)
+for i in 1:length(x)
+    in1=x[i]
+    in2=y[i]
+    out[i] = calc_output(m2, x[i], y[i])
+    select_b(m2, i > 2)
+    on_timer(m2)
+end
+@test all(out .≈ [1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0, 2.0])
 ```
 
 Continue with [README](../README.md)

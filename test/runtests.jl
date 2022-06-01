@@ -101,11 +101,16 @@ end
 end
 
 @testset "Mixer_2CH" begin
-    m2 = Mixer_2CH(1.0)
-    x=[0,1,2,3,4,3,2,1,0,1,2]
-    y=-x
+    m2 = Mixer_2CH(0.2, 1.0)
+    x = ones(10)
+    y = 2*x
+    out = zeros(10)
     for i in 1:length(x)
         in1=x[i]
         in2=y[i]
+        out[i] = calc_output(m2, x[i], y[i])
+        select_b(m2, i > 2)
+        on_timer(m2)
     end
+    @test all(out .≈ [1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0, 2.0])
 end
