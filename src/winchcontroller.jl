@@ -68,11 +68,26 @@ Settings of the WinchController
     kv = 0.06
 end
 
+# Component for calculation v_set_in, using soft switching.
+@with_kw mutable struct CalcVSetIn @deftype Float64
+    mixer2::Mixer_2CH = Mixer_2CH()
+    f_high      = 4000
+    f_low       = 300
+    vf_max      = 0
+    input_a     = 0
+    input_b     = 0
+end
+
+function CalcVSetIn(dt, t_blend, f_high, f_low, vf_max)
+    m2 = Mixer_2CH(dt, t_blend)
+    CalcVSetIn(m2, f_high, f_low, vf_max, 0, 0)
+end
+
 """ 
 
 Calculate the optimal reel-out speed for a given force. 
 """
-function calc_vro(wcs::WCSettings, force; test=false)
+function calc_vro(wcs::CalcVSetIn, force; test=false)
     if test
         return sqrt(force) * wcs.kv
     else
@@ -84,43 +99,36 @@ function calc_vro(wcs::WCSettings, force; test=false)
     end
 end
 
+"""
+    set_vset_pc(cvi::CalcVSetIn, v_set_pc, force)
 
-# class CalcVSetIn(object):
-#     """ Class for calculation v_set_in, using soft switching. """
-#     def __init__(self, f_high, f_low):
-#         self._mixer2 = Mixer_2CH()
-#         self._f_high = f_high
-#         self._f_low = f_low
+Parameters:
+- force:    measured tether force [N]
+- v_set_pc: only used during manual operation or park-at-length. If it is `nothing`,
+            v_set_in is calculated as function of the force.
+"""
+function set_vset_pc(cvi::CalcVSetIn, v_set_pc, force)
+    if isnothing(v_set_pc)
+        cvi.input_a = calc_vro(cvi, force)
+        select_b(cvi.mixer2, false)
+    else
+        cvs.input_b = v_set_pc
+        select_b(cvi.mixer2, false)
+    end
+end
 
-#     def setVSetPc_Force(self, v_set_pc, force):
-#         """
-#         Parameters:
+"""
+    get_vsetin(cvi::CalcVSetIn)
 
-#         force: measured tether force [N]
-#         v_set: only used during manual operation or park-at-length. If it is none,
-#         v_set_in is calculated as function of the force.
-#         """
-#         if v_set_pc is None:
-#             v_set_in = calc_vro(force, self._f_high, self._f_low)
-#             self._mixer2.setInputA(v_set_in)
-#             self._mixer2.selectB(False)
-#         else:
-#             v_set_in = v_set_pc
-#             self._mixer2.setInputB(v_set_in)
-#             self._mixer2.selectB(True)
+Returns v_set_in: Either v_set, or a value, proportional to the sqare root of the force.
+"""
+function get_vsetin(cvi::CalcVSetIn)
+    calc_output(cvi.mixer2, cvi.input_a, cvi.input_b)
+end
 
-#     def getVSetIn(self):
-#         """
-#         Returns:
-
-#         v_set_in: Either v_set, or a value, proportional to the sqare root of the force.
-#         """
-#         return self._mixer2.getOutput()
-
-#     def onTimer(self):
-#         self._mixer2.onTimer()
-
-
+function on_timer(cvi::CalcVSetIn)
+    on_timer(cvi.mixer2)
+end
 
 # class Winch(object):
 #     """ Class, that calculates the acceleration of the tether based on the tether force
