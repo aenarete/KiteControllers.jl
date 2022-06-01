@@ -19,12 +19,7 @@ Components:
 end
 
 function  Integrator(dt, i=1.0, x0=0.0)
-    int = Integrator()
-    int.dt = dt
-    int.output = x0
-    int.last_output = x0
-    int.i = i
-    int
+    Integrator(dt, i, x0, x0)
 end
 
 function reset(int::Integrator, x0=0.0)
@@ -63,15 +58,17 @@ function reset(ud::UnitDelay)
 end
 
 # RateLimiter
-# Limit the chate of the output signal per tick (return value of calc_output) to ± limit.
+# Limit the rate of change of the output signal (return value of calc_output) to ± limit.
+# Unit of limit: 1/s
 @with_kw mutable struct RateLimiter @deftype Float64
+    dt = 0.05
     limit = 1
     output = 0
     last_output = 0
 end
 
-function RateLimiter(limit, x0=0.0)
-    RateLimiter(limit, x0, x0)
+function RateLimiter(dt=0.05, limit=1.0, x0=0.0)
+    RateLimiter(dt, limit, x0, x0)
 end
 
 function reset(ud::RateLimiter, x0=0.0)
@@ -81,9 +78,9 @@ end
 
 function calc_output(rl::RateLimiter, input)
     if input - rl.last_output > rl.limit
-        rl.output = rl.last_output + rl.limit
-    elseif input - rl.last_output < -rl.limit 
-        rl.output = rl.last_output - rl.limit
+        rl.output = rl.last_output + rl.limit * rl.dt
+    elseif input - rl.last_output < -rl.limit * rl.dt
+        rl.output = rl.last_output - rl.limit * rl.dt
     else
         rl.output = input
     end

@@ -34,7 +34,7 @@ Expected output: `0.0 1.0 2.0`
 #### Usage of RateLimiter
 ```julia
 using KiteControllers, Plots
-rl = RateLimiter(0.8)
+rl = RateLimiter(1.0, 0.8)
 input =  [0,0,1,2,3,3,3,3,3,2,1,0,0,0,0,0]
 out = zeros(16)
 for i in 1:16

@@ -89,7 +89,7 @@ end
 end
 
 @testset "RateLimiter" begin
-    rl = RateLimiter(0.5)
+    rl = RateLimiter(1.0, 0.5)
     input = [0,0,1,2,3,3,3,3,3,2,1,0,0,0,0,0]
     out = zeros(16)
     for i in 1:16
