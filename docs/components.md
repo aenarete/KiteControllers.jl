@@ -14,10 +14,11 @@ Mixer_3D
 #### Usage of the Integrator
 ```julia
 int = Integrator()  
-int = Integrator(2,3) # integration constant, inital output  
-reset(int)            # reset the integrator
-update(int, 2)        # input value  
-on_timer(int)         # must be called on each timestep
+int = Integrator(0.05, 2, 3)  # dt, integration constant, inital output  
+reset(int)                    # reset the integrator
+input = 2
+out = calc_output(int, input) # calculate the output 
+on_timer(int)                 # must be called on each timestep
 ```
 #### Usage of UnitDelay
 ```julia
@@ -46,7 +47,7 @@ plot!(1:16, out, label="output")
 Expected output:
 <p align="center"><img src="./rate_limiter.png" width="500" /></p>
 
-Usage of Mixer_2D
+### Usage of Mixer_2D
 ```
 m2 = Mixer_2D()
 ```

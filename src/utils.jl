@@ -1,49 +1,13 @@
  """
-A collection of control functions and control components for discrete control
+A collection of control functions for discrete control
 
 Functions:
 
 - saturation
 - wrap2pi
 
-Types:
-
-- Integrator
-
 Implemented as described in the PhD thesis of Uwe Fechner.
 """
-
-# discrete integrator with external reset
-@with_kw mutable struct Integrator
-    output::Float64      = 0.0
-    last_output::Float64 = 0.0
-    I::Float64           = 1.0 # integration constant
-end
-
-function  Integrator(I, x0=0.0)
-    int = Integrator()
-    int.output = x0
-    int.last_output = x0
-    int.I = I
-    int
-end
-
-function reset(int::Integrator, x0=0.0)
-    int.output = x0
-    int.last_output = x0
-    nothing
-end
-
-function update(int::Integrator, input, dt)
-    int.output = int.last_output + input * int.I * dt
-end
-
-function on_timer(int::Integrator)
-    int.last_output = int.output
-    nothing
-end
-# end integrator
-
 
 """ Calculate a saturated value, that stays within the given limits. """
 function saturate(value, min_, max_)

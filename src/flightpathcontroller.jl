@@ -64,7 +64,9 @@ See also:
 """
 @with_kw mutable struct FlightPathController @deftype Float64
     "cycle number"
-    count::Int64                               = 0 
+    count::Int64                               = 0
+    "period time"
+    dt                                         = 1.0 / se().sample_freq 
     "attractor coordinates, azimuth and elevation in radian"
     attractor::MVector{2, Float64}             = zeros(2)
     "desired turn rate in rad per second or nothing"
@@ -115,9 +117,9 @@ See also:
     "quotient of the output and the input of the NDI block"
     ndi_gain                                   = 1.0
     "integrator for the I part of the pid controller"
-    int::Integrator                            = Integrator()
+    int::Integrator                            = Integrator(dt)
     "integrator for the D part of the pid controller"
-    int2::Integrator                           = Integrator()
+    int2::Integrator                           = Integrator(dt)
     "P gain of the PID controller"
     p                                          = cc.p
     "I gain of the PID controller"
@@ -136,8 +138,6 @@ See also:
     res::MVector{2, Float64}                   = zeros(2)
     "steering output of the FPC, calculated by solve()"
     u_s                                        = 0
-    "period time"
-    dt                                         = 1.0 / se().sample_freq
     k_psi_out                                  = 0
     k_u_out                                    = 0
     k_psi_in                                   = 0
@@ -323,11 +323,11 @@ function calc_sat1in_sat1out_sat2in_sat2out(fpc::FlightPathController, x)
 
     # calculate I part
     int_in = fpc.i * fpc.err + fpc.k_u * k_u_in + fpc.k_psi * k_psi_in
-    int_out = update(fpc.int, int_in, fpc.dt)
+    int_out = calc_output(fpc.int, int_in)
 
     # calculate D part
     int2_in = fpc._n * (fpc.err * fpc.d - fpc.int2.last_output) / (1.0 + fpc._n * fpc.dt)
-    update(fpc.int2, int2_in, fpc.dt)
+    calc_output(fpc.int2, int2_in)
 
     # calculate P, I, D output
     sat1_in = (fpc.p * fpc.err + int_out + int2_in) * fpc.gain

@@ -11,17 +11,19 @@ Components:
 """
 
 # Discrete integrator with external reset
-@with_kw mutable struct Integrator
-    output::Float64      = 0.0
-    last_output::Float64 = 0.0
-    I::Float64           = 1.0 # integration constant
+@with_kw mutable struct Integrator @deftype Float64
+    dt          = 0.05  # timestep [s]
+    i           = 1.0   # integration constant
+    output      = 0.0
+    last_output = 0.0
 end
 
-function  Integrator(I, x0=0.0)
+function  Integrator(dt, i=1.0, x0=0.0)
     int = Integrator()
+    int.dt = dt
     int.output = x0
     int.last_output = x0
-    int.I = I
+    int.i = i
     int
 end
 
@@ -31,8 +33,8 @@ function reset(int::Integrator, x0=0.0)
     nothing
 end
 
-function update(int::Integrator, input, dt)
-    int.output = int.last_output + input * int.I * dt
+function calc_output(int::Integrator, input)
+    int.output = int.last_output + input * int.i * int.dt
 end
 
 function on_timer(int::Integrator)
