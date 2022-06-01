@@ -11,7 +11,7 @@ RateLimiter
 Mixer_2D
 Mixer_3D
 ```
-Usage of the Integrator
+#### Usage of the Integrator
 ```julia
 int = Integrator()  
 int = Integrator(2,3) # integration constant, inital output  
@@ -19,7 +19,7 @@ reset(int)            # reset the integrator
 update(int, 2)        # input value  
 on_timer(int)         # must be called on each timestep
 ```
-Usage of UnitDelay
+#### Usage of UnitDelay
 ```julia
 ud = UnitDelay()
 for i in 1:3
@@ -30,7 +30,7 @@ end
 ```
 Expected output: `0.0 1.0 2.0`
 
-Usage of RateLimiter
+#### Usage of RateLimiter
 ```julia
 using KiteControllers, Plots
 rl = RateLimiter(0.8)
