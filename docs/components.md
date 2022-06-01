@@ -48,6 +48,10 @@ Expected output:
 <p align="center"><img src="./rate_limiter.png" width="500" /></p>
 
 ### Usage of Mixer_2D
+This component is equivalent to the following model:
+<p align="center"><img src="./mixer_2ch.png" width="500" /></p>
+It has two analog inputs, one digital input and one analog output. It selects either input a or input b depending on the value of the digital input and implements soft switching with a blend time t_blend.
+
 ```julia
 m2 = Mixer_2CH(0.2, 1.0) # dt=0.2s, t_blend = 1.0s
 x = ones(10)
