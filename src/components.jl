@@ -135,6 +135,10 @@ end
     select_c::Bool = false
 end
 
+function Mixer_3CH(dt, t_blend = 1.0)
+    Mixer_3CH(dt, t_blend, 0, 0, false, false)
+end
+
 function on_timer(m3::Mixer_3CH)
     # calc output of integrator b
     if m3.select_b
