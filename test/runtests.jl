@@ -114,3 +114,32 @@ end
     end
     @test all(out .≈ [1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0, 2.0])
 end
+
+@testset "Mixer_3CH" begin
+    m3 = Mixer_3CH(0.2, 1.0)
+    x = ones(10)
+    y = 2*x
+    out = zeros(10)
+    for i in 1:length(x)
+        in1=x[i]
+        in2=y[i]
+        out[i] = calc_output(m3, x[i], y[i], 0)
+        select_b(m3, i > 2)
+        on_timer(m3)
+    end
+    @test all(out .≈ [1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0, 2.0])
+    m3 = Mixer_3CH(0.2, 1.0)
+    x = ones(10)
+    y = 2*x
+    out = zeros(10)
+    for i in 1:length(x)
+        in1=x[i]
+        in2=y[i]
+        out[i] = calc_output(m3, x[i], 0, y[i])
+        select_c(m3, i > 2)
+        on_timer(m3)
+    end
+    @test all(out .≈ [1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0, 2.0])    
+end
+
+
