@@ -116,11 +116,7 @@ function on_timer(m2::Mixer_2CH)
         integrator_in = -1.0 / m2.t_blend
     end
     m2.factor_b += integrator_in * m2.dt
-    if m2.factor_b > 1.0
-        m2.factor_b = 1.0
-    elseif m2.factor_b < 0
-        m2.factor_b = 0
-    end
+    m2.factor_b = saturate(m2.factor_b, 0, 1)
 end
 
 function calc_output(m2::Mixer_2CH, input_a, input_b)
@@ -147,11 +143,7 @@ function on_timer(m3::Mixer_3CH)
         integrator_b_in = -1.0 / m3.t_blend
     end
     m3.factor_b += integrator_b_in * m3.dt
-    if m3.factor_b > 1.0
-        m3.factor_b = 1.0
-    elseif m3.factor_b < 0
-        m3.factor_b = 0
-    end
+    m3.factor_b = saturate(m3.factor_b, 0, 1)
     # calc output of integrator c
     if m3.select_c
         integrator_c_in = 1.0 / m3.t_blend
@@ -159,11 +151,8 @@ function on_timer(m3::Mixer_3CH)
         integrator_c_in = -1.0 / m3.t_blend
     end
     m3.factor_c += integrator_c_in * m3.dt
-    if m3.factor_c > 1.0
-        m3.factor_c = 1.0
-    elseif m3.factor_c < 0
-        m3.factor_c = 0
-    end    
+    m3.factor_c = saturate(m3.factor_c, 0, 1)  
+    nothing
 end
 
 function select_b(m3::Mixer_3CH, select_b::Bool)
