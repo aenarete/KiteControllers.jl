@@ -47,7 +47,7 @@ plot!(1:16, out, label="output")
 Expected output:
 <p align="center"><img src="./rate_limiter.png" width="500" /></p>
 
-### Usage of Mixer_2D
+### Mixer_2D
 This component is equivalent to the following model:
 <p align="center"><img src="./mixer_2ch.png" width="500" /></p>
 It has two analog inputs, one digital input and one analog output. It selects either input a or input b depending on the value of the digital input and implements soft switching with a blend time t_blend.
@@ -66,5 +66,10 @@ for i in 1:length(x)
 end
 @test all(out .≈ [1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0, 2.0])
 ```
+### Mixer_3D
+This component is equivalent to the following model:
+<p align="center"><img src="./mixer_3ch.png" width="500" /></p>
+It has three analog inputs, two digitals input and one analog output. It selects either input a or input b or input c depending on the values of the digital inputs and implements soft switching with a blend time t_blend.
+
 
 Continue with [README](../README.md)

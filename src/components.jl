@@ -93,7 +93,7 @@ end
 
 # Mixer_2CH
 # Mix two analog inputs. Implements the simulink block diagram, shown in
-# ./01_doc/mixer_2ch.png
+# docs/mixer_2ch.png
 @with_kw mutable struct Mixer_2CH @deftype Float64
     dt = 0.05
     t_blend = 1.0
@@ -105,7 +105,7 @@ function Mixer_2CH(dt, t_blend = 1.0)
     Mixer_2CH(dt, t_blend, 0, false)
 end
 
-function select_b(m2::Mixer_2CH, select_b)
+function select_b(m2::Mixer_2CH, select_b::Bool)
     m2.select_b = select_b
 end
 
@@ -129,60 +129,68 @@ end
 
 # Mixer_3CH
 # Mix three analog inputs. Implements the simulink block diagram, shown in
-# ./01_doc/mixer_3ch.png
+# docs/mixer_3ch.png
+@with_kw mutable struct Mixer_3CH @deftype Float64
+    dt = 0.05
+    t_blend = 1.0
+    factor_b = 0
+    factor_c = 0
+    select_b::Bool = false
+    select_c::Bool = false
+end
 
-# class Mixer_3CH(object):
-#     def __init__(self):
-#         self._factor_b = 0.0
-#         self._factor_c = 0.0
-#         self._select_b = False
-#         self._select_c = False
+function on_timer(m3::Mixer_3CH)
+    # calc output of integrator b
+    if m3.select_b
+        integrator_b_in = 1.0 / m3.t_blend
+    else
+        integrator_b_in = -1.0 / m3.t_blend
+    end
+    m3.factor_b += integrator_b_in * m3.dt
+    if m3.factor_b > 1.0
+        m3.factor_b = 1.0
+    elseif m3.factor_b < 0
+        m3.factor_b = 0
+    end
+    # calc output of integrator c
+    if m3.select_c
+        integrator_c_in = 1.0 / m3.t_blend
+    else
+        integrator_c_in = -1.0 / m3.t_blend
+    end
+    m3.factor_c += integrator_c_in * m3.dt
+    if m3.factor_c > 1.0
+        m3.factor_c = 1.0
+    elseif m3.factor_c < 0
+        m3.factor_c = 0
+    end    
+end
 
-#     def onTimer(self):
-#         """ Must be called every period time. """
-#         # calc output of integrator b
-#         if self._select_b:
-#             integrator_b_in = 1.0 / T_BLEND
-#         else:
-#             integrator_b_in = -1.0 / T_BLEND
-#         self._factor_b += integrator_b_in * PERIOD_TIME
-#         if self._factor_b > 1.0:
-#             self._factor_b = 1.0
-#         if self._factor_b < 0.0:
-#             self._factor_b = 0.0
-#         # calc output of integrator c
-#         if self._select_c:
-#             integrator_c_in = 1.0 / T_BLEND
-#         else:
-#             integrator_c_in = -1.0 / T_BLEND
-#         self._factor_c += integrator_c_in * PERIOD_TIME
-#         if self._factor_c > 1.0:
-#             self._factor_c = 1.0
-#         if self._factor_c < 0.0:
-#             self._factor_c = 0.0
+function select_b(m3::Mixer_3CH, select_b::Bool)
+    m3.select_b = select_b
+    if select_b
+        select_c(m3, false)
+    end
+end
 
-#     def select_b(self, select_b):
-#         assert type(select_b) == bool
-#         self._select_b = select_b
-#         if select_b:
-#             self.select_c(False)
+function select_c(m3::Mixer_3CH, select_c::Bool)
+    m3.select_c = select_c
+    if select_c
+        select_b(m3, false)
+    end
+end
 
-#     def select_c(self, select_c):
-#         assert type(select_c) == bool
-#         self._select_c = select_c
-#         if select_c:
-#             self.select_b(False)
+function calc_output(m3::Mixer_3CH, input_a, input_b, input_c)
+    input_b * m3.factor_b + input_c * m3.factor_c + input_a * (1.0 - m3.factor_b - m3.factor_c)
+end
 
-#     def calc_output(self, input_a, input_b, input_c):
-#         result = input_b * self._factor_b + input_c * self._factor_c \
-#                  + input_a * (1.0 - self._factor_b - self._factor_c)
-#         return result
+"""
+Return the controller state as integer.
 
-#     def get_state(self):
-#         """
-#         Return the controller state as integer.
-#         wcsLowerForceControl = 0
-#         wcsSpeedControl = 1
-#         wcsUpperForceControl = 2
-#         """
-#         return (not self._select_b) and (not self._select_c) + 2 * self._select_c
+wcsLowerForceControl = 0 # input b selected 
+wcsSpeedControl = 1      # input a selected
+wcsUpperForceControl = 2 # input c selected
+"""
+function get_state(m3)
+    Int(! m3.select_b && ! m3.select_c) + 2 * Int(m3.select_c)
+end
