@@ -1,5 +1,5 @@
 """
-A collection of control functions and control components for winch control
+A collection of control functions and components for winch control
 
 Components:
 
