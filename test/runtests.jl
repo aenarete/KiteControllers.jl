@@ -71,7 +71,10 @@ end
     @test v_ro ≈ 0
     v_ro = calc_vro(wcs, wcs.f_high; test=false)
     @test v_ro ≈ wcs.vf_max
-
+    set_vset_pc(cvi, nothing, wcs.f_low)
+    @test calc_output(cvi) ≈ 0
+    set_vset_pc(cvi, nothing, wcs.f_high)
+    @test calc_output(cvi) ≈ wcs.vf_max
 end
 
 @testset "UnitDelay" begin

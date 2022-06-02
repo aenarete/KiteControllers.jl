@@ -116,11 +116,11 @@ function set_vset_pc(cvi::CalcVSetIn, v_set_pc, force)
 end
 
 """
-    get_vsetin(cvi::CalcVSetIn)
+    calc_output(cvi::CalcVSetIn)
 
 Returns v_set_in: Either v_set, or a value, proportional to the sqare root of the force.
 """
-function get_vsetin(cvi::CalcVSetIn)
+function calc_output(cvi::CalcVSetIn)
     calc_output(cvi.mixer2, cvi.input_a, cvi.input_b)
 end
 
