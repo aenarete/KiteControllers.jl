@@ -11,10 +11,6 @@ KiteUtils.set_data_path("")
     @test saturate( 0.5, -1.5, 1.5) == 0.5
 end
 
-# x=range(-4pi, 4pi, step=0.1)
-# y=wrap2pi.(x)
-# plot(x,y)
-
 @testset "wrap2pi" begin
     @test wrap2pi(0) == 0
     @test wrap2pi(pi-0.001) == pi-0.001
