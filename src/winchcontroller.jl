@@ -71,23 +71,21 @@ end
 # Component for calculation v_set_in, using soft switching.
 @with_kw mutable struct CalcVSetIn @deftype Float64
     mixer2::Mixer_2CH = Mixer_2CH()
-    f_high      = 4000
-    f_low       = 300
-    vf_max      = 0
+    wcs::WCSettings = WCSettings()
     input_a     = 0
     input_b     = 0
 end
 
-function CalcVSetIn(dt, t_blend, f_high, f_low, vf_max)
-    m2 = Mixer_2CH(dt, t_blend)
-    CalcVSetIn(m2, f_high, f_low, vf_max, 0, 0)
+function CalcVSetIn(dt, wcs::WCSettings)
+    m2 = Mixer_2CH(dt, wcs.t_blend)
+    CalcVSetIn(m2, wcs, 0, 0)
 end
 
 """ 
 
 Calculate the optimal reel-out speed for a given force. 
 """
-function calc_vro(wcs::CalcVSetIn, force; test=false)
+function calc_vro(wcs::WCSettings, force; test=false)
     if test
         return sqrt(force) * wcs.kv
     else
@@ -109,7 +107,7 @@ Parameters:
 """
 function set_vset_pc(cvi::CalcVSetIn, v_set_pc, force)
     if isnothing(v_set_pc)
-        cvi.input_a = calc_vro(cvi, force)
+        cvi.input_a = calc_vro(cvi.wcs, force)
         select_b(cvi.mixer2, false)
     else
         cvs.input_b = v_set_pc
