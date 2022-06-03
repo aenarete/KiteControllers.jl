@@ -24,16 +24,19 @@ wrap2pi(angle)
 ```
 Convert an angle, given in radian in an infinite range to the range from -pi to pi
 
-### Types
+### Generic control components
+This package contains some generic control components and are documented [here](./docs/components.md).
+
+### Types that are not generic
 ```julia
-Integrator
-UnitDelay
-RateLimiter
-FlightPathController
-FPCSettings
-WCSettings
+FlightPathController    # represents the flight path controller
+WinchController         # represents the winch controller
+CalcVSetIn              # component that calculates the set speed using soft switching
+FPCSettings             # settings of the flight path controller
+WCSettings              # settings of the winch path controller
+KiteModel               # simplified model for unit testing
+WinchModel              # simplified model for unit testing
 ```
-Some of these type are generic control components and are documented [here](./docs/components.md).
 
 ## Flight path controller
 FlightPathController as specified in chapter six of the [PhD thesis](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) of Uwe Fechner.
