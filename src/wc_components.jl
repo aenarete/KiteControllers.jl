@@ -20,6 +20,8 @@ Settings of the WinchController
     dt = 0.05
     fac = 0.25
     eps = 1e-6
+    "startup time for soft start"
+    t_startup = 0.25
     "blending time of the mixers in seconds"
     t_blend = 0.25
     "limitation of the reel-out speed error, used by the input saturation block of the speed controller"

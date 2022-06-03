@@ -1,6 +1,42 @@
+using KiteControllers
+
+wcs = WCSettings()
+DURATION = 10.0
+SAMPLES = Int(DURATION / wcs.dt + 1)
+TIME = range(0.0, DURATION, SAMPLES)
+
+# Create a signal, that is rising with wcs.t_startup from zero to one and then stays constant.
+function get_startup(wcs::WCSettings)
+    result = zeros(SAMPLES)
+    startup = 0.0
+    rising = true
+    delta = wcs.dt/wcs.t_startup
+    for i in 1:SAMPLES
+        result[i] = startup
+        if rising
+            startup += delta
+        end
+        if startup >= 1.0
+            startup = 1.0
+            rising = false
+        end
+    end
+    result
+end
+
+#     for i in range(SAMPLES):
+#         result[i] = startup
+#         if rising:
+#             startup += delta
+#         if startup >= 1.0:
+#             startup = 1.0
+#             rising = False
+#     return result  
+
+
 # def speed_controller_test1():
 #     """
-#     Test 3: Test the speed controller. 
+#     Test the speed controller. 
 #     Input: A varying wind speed. Implements the simulink block diagram, shown in
 #     ./01_doc/speed_controller_test1.png
 #     """    
