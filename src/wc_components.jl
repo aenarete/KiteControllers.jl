@@ -16,6 +16,8 @@ Implemented as described in the PhD thesis of Uwe Fechner.
 Settings of the WinchController
 """
 @with_kw mutable struct WCSettings @deftype Float64
+    "timestep of the winch controller"
+    dt = 0.05
     fac = 0.25
     eps = 1e-6
     "blending time of the mixers in seconds"
@@ -129,40 +131,38 @@ function on_timer(cvi::CalcVSetIn)
     on_timer(cvi.mixer2)
 end
 
-# class Winch(object):
-#     """ Class, that calculates the acceleration of the tether based on the tether force
-#     and the set speed (= synchronous speed). Asynchronous motor model and drum inertia
-#     are taken into account. """
-#     def __init__(self):
-#         self._v_set = 0.0 # input
-#         self._force = 0.0 # input
-#         self._acc = 0.0   # output
-#         self._speed = 0.0 # output; reel-out speed; only state of this model
+# Class, that calculates the acceleration of the tether based on the tether force
+# and the set speed (= synchronous speed). Asynchronous motor model and drum inertia
+# are taken into account.
+@with_kw mutable struct Winch @deftype Float64
+    wcs::WCSettings = WCSettings()
+    wm::AsyncMachine = AsyncMachine()
+    v_set     = 0 # input
+    force     = 0 # input
+    acc       = 0 # output
+    speed     = 0 # output; reel-out speed; only state of this model
+end
 
-#     def setVSet(self, v_set):
-#         self._v_set = v_set
+function set_v_set(w::Winch, v_set)
+    w.v_set = v_set
+end
 
-#     def setForce(self, force):
-#         self._force = force
+function set_force(w::Winch, force)
+    w.force = force
+end
 
-#     def getSpeed(self):
-#         # self._acc = calcAcceleration(self._v_set, self._speed, self._force)
-#         return self._speed
+function get_speed(w::Winch) w.speed end
+function get_acc(w::Winch) w.acc end
 
-#     def getAcc(self):
-#         return self._acc
-
-#     def onTimer(self):
-#         if False:
-#             self._acc = calcAcceleration(self._v_set, self._speed, self._force)
-#             self._speed += self._acc * PERIOD_TIME
-#         else:
-#             acc = 0.0
-#             for i in range(WINCH_ITER):
-#                 self._acc = calcAcceleration(self._v_set, self._speed, self._force)
-#                 acc += self._acc
-#                 self._speed += self._acc * PERIOD_TIME / WINCH_ITER
-#             self._acc = acc / WINCH_ITER
+function on_timer(w::Winch)
+    acc = 0.0
+    for i in 1:w.wcs.winch_iter
+        w.acc = calc_acceleration(w.wm, w.v_set, w.speed, w.force)
+        acc += w.acc
+        w.speed += w.acc * w.wcs.dt/w.wcs.winch_iter
+    end
+    w.acc = acc/w.wcs.winch_iter
+end
 
 # class KiteModel(object):
 #     r""" Class, that calculates the position of the kite (elevation angle beta and azimuth angle phi) and the

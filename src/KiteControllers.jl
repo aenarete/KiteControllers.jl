@@ -1,6 +1,6 @@
 module KiteControllers
 
-using KiteUtils, Parameters, StaticArrays, NLsolve, Printf
+using KiteUtils, WinchModels, Parameters, StaticArrays, NLsolve, Printf
 import Base.reset
 
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types

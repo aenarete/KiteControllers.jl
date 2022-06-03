@@ -1,5 +1,3 @@
 system:
-    project:        "settings.yaml"               # model definition and viewer settings
-    fpc_settings:   "controller_1p_200_600.yaml"  # flight path controller settings
-    winch_settings: "winch_4000_8.yaml"           # winch controller settings
+    project: "settings.yaml"  # simulator settings
  
