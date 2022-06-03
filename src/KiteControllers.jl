@@ -13,6 +13,7 @@ export calc_vro, set_vset_pc                                        # functions 
 include("utils.jl")
 include("components.jl")
 include("flightpathcontroller.jl")
+include("wc_components.jl")
 include("winchcontroller.jl")
 
 end
