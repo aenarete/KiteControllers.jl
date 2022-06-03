@@ -75,6 +75,13 @@ end
     @test calc_output(cvi) ≈ 0
     set_vset_pc(cvi, nothing, wcs.f_high)
     @test calc_output(cvi) ≈ wcs.vf_max
+    v_out_set = 1.0
+    set_vset_pc(cvi, v_out_set)
+    @test calc_output(cvi) ≈ wcs.vf_max
+    for i in 1:5
+        on_timer(cvi)
+    end
+    @test calc_output(cvi) ≈ v_out_set
 end
 
 @testset "UnitDelay" begin

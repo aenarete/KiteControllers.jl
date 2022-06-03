@@ -105,14 +105,15 @@ Parameters:
 - v_set_pc: only used during manual operation or park-at-length. If it is `nothing`,
             v_set_in is calculated as function of the force.
 """
-function set_vset_pc(cvi::CalcVSetIn, v_set_pc, force)
+function set_vset_pc(cvi::CalcVSetIn, v_set_pc, force=nothing)
     if isnothing(v_set_pc)
         cvi.input_a = calc_vro(cvi.wcs, force)
         select_b(cvi.mixer2, false)
     else
-        cvs.input_b = v_set_pc
-        select_b(cvi.mixer2, false)
+        cvi.input_b = v_set_pc
+        select_b(cvi.mixer2, true)
     end
+    nothing
 end
 
 """
