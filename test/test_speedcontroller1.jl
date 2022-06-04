@@ -46,7 +46,7 @@ for i in 1:SAMPLES
     FORCE[i] = force
     set_force(winch, force)
     set_v_act(pid1, v_ro)
-    # get_v_set_out(pid1)
+    get_v_set_out(pid1)
 end
 #             v_set_out = pid1.getVSetOut()
 #             ACC_SET[i] = (v_set_out - last_v_set_out) / PERIOD_TIME

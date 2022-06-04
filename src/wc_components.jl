@@ -20,6 +20,8 @@ Settings of the WinchController
     dt = 0.05
     fac = 0.25
     eps = 1e-6
+    "max iterations of the PID solvers"
+    max_iter::Int64 = 100
     "startup time for soft start"
     t_startup = 0.25
     "blending time of the mixers in seconds"
@@ -183,6 +185,7 @@ end
     tracking = 0
     v_err = 0         # output, calculated by solve
     v_set_out = 0     # output, calculated by solve
+    sat_out = 0       # output of saturate block
     res::MVector{2, Float64} = zeros(2)
 end
 
@@ -215,54 +218,58 @@ end
 function calc_sat2in_sat2out_rateout_intin(sc::SpeedController, x)
     kb_in = x[begin]
     kt_in = x[begin+1]
-    int_in = sc.wcs.i * sc.sat_out + sc.wcs.kb_speed * kb_in + sc.wcs.kt_speed * kt_in * sc.inactive
+    int_in = sc.wcs.i_speed * sc.sat_out + sc.wcs.kb_speed * kb_in + sc.wcs.kt_speed * kt_in * sc.inactive
     int_out = calc_output(sc.integrator, int_in)
     sat2_in = int_out + sc.wcs.p_speed * calc_output(sc.delay, sc.sat_out)
-    sat2_out = saturate(sat2_in, -wcs.v_ri_max, wcs.v_sat)
+    sat2_out = saturate(sat2_in, -sc.wcs.v_ri_max, sc.wcs.v_sat)
     rate_out = calc_output(sc.limiter, sat2_out)
     sat2_in, sat2_out, rate_out, int_in
 end
 
-# Function, that calculates the residual for the given kb_in and kt_in estimates
-# of the feed-back loop of the integrator.
-function calc_residual(sc::SpeedController, x)
-    sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(sc, x)
-    kt_in = sc.tracking - sat2_out
-    kb_in = sat2_out - sat2_in
-    sc.res[begin]   = kb_in - x[begin]
-    sc.res[begin+1] = kt_in - x[begin+1]
-    sc.res
+function solve(sc::SpeedController)
+    # Function, that calculates the residual for the given kb_in and kt_in estimates
+    # of the feed-back loop of the integrator.
+    function calc_residual!(F, x)
+        @assert sc.wcs.dt == 0.05
+        sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(sc, x)
+        kt_in = sc.tracking - sat2_out
+        kb_in = sat2_out - sat2_in
+        sc.res[begin]   = kb_in - x[begin]
+        sc.res[begin+1] = kt_in - x[begin+1]
+        F .= sc.res 
+    end
+
+    err = sc.v_set_in - sc.v_act
+    if sc.inactive
+        sc.v_err = 0.0
+    else
+        sc.v_err = err
+    end
+    sc.sat_out = saturate(err, -sc.wcs.v_sat_error, sc.wcs.v_sat_error)
+    # begin interate
+    sol = nlsolve(calc_residual!, [ 0.0; 0.0], iterations=sc.wcs.max_iter)
+    @assert sol.f_converged
+    sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(sc, sol.zero)
+    sc.v_set_out = rate_out
 end
 
-#     def solve(self):
-#         err = self._v_set_in - self._v_act
-#         if self._inactive:
-#             self._v_err = 0.0
-#         else:
-#             self._v_err = err
-#         self.sat_out = saturation(err, -V_SAT_ERR, V_SAT_ERR)
-#         # begin interate
-#         # print "------------------"
-#         x = scipy.optimize.broyden2(self.calcResidual, [0.0, 0.0], f_tol=1e-14)
-#         sat2_in, sat2_out, rate_out, int_in = self.calcSat2In_Sat2Out_rateOut(x)
-#         # print "int_in, sat2_in", int_in, sat2_in
-#         # end first iteration loop
-#         self._v_set_out = rate_out
+function on_timer(sc::SpeedController)
+    on_timer(sc.limiter)
+    on_timer(sc.integrator)
+    on_timer(sc.delay)
+end
 
-#     def onTimer(self):
-#         self.limiter.onTimer()
-#         self.integrator.onTimer()
-#         self.delay.onTimer()
+function get_v_set_out(sc)
+    solve(sc)
+end
 
-#     def getVSetOut(self):
-#         self.solve()
-#         return self._v_set_out
-
-#     def getVErr(self):
-#         if self._inactive:
-#             return 0.0
-#         else:
-#             return self._v_err
+function get_v_error(sc)
+    if sc.inactive
+        return 0.0
+    else
+        return sc.v_err
+    end
+end
 
 # class LowerForceController(object):
 #     """
