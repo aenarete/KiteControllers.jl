@@ -17,7 +17,7 @@ Settings of the WinchController
 """
 @with_kw mutable struct WCSettings @deftype Float64
     "timestep of the winch controller"
-    dt = 0.05
+    dt = 0.02
     fac = 0.25
     eps = 1e-6
     "max iterations of the PID solvers"
@@ -230,7 +230,6 @@ function solve(sc::SpeedController)
     # Function, that calculates the residual for the given kb_in and kt_in estimates
     # of the feed-back loop of the integrator.
     function calc_residual!(F, x)
-        @assert sc.wcs.dt == 0.05
         sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(sc, x)
         kt_in = sc.tracking - sat2_out
         kb_in = sat2_out - sat2_in
