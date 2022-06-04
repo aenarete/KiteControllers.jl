@@ -77,7 +77,7 @@ function reset(ud::RateLimiter, x0=0.0)
 end
 
 function calc_output(rl::RateLimiter, input)
-    if input - rl.last_output > rl.limit
+    if input - rl.last_output > rl.limit * rl.dt
         rl.output = rl.last_output + rl.limit * rl.dt
     elseif input - rl.last_output < -rl.limit * rl.dt
         rl.output = rl.last_output - rl.limit * rl.dt
