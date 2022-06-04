@@ -1,3 +1,9 @@
+# activate the test environment if needed
+using Pkg
+if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+    using TestEnv; TestEnv.activate()
+end
+
 using KiteControllers, Plots
 """
 Test the three channel mixer, using two sinus signals of different frequencies
@@ -45,4 +51,4 @@ plot(TIME, out, label="output", width=2, linecolor=:blue3, xtickfontsize=12, yti
      legendfontsize=12, size=(640,480))
 plot!(TIME, factor_b, width=2, label="factor_b")
 plot!(TIME, factor_c, width=2, label="factor_c")
-savefig("mixer3.png")
+# savefig("mixer3.png")
