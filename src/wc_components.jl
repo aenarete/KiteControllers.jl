@@ -172,35 +172,33 @@ end
 # anti-windup is K_b, the constant for tracking K_t
 # Implements the simulink block diagram, shown in ./01_doc/speed_controller.png.
 
-# class SpeedController(object):
-#     def __init__(self, P=P_SPEED, I=I_SPEED, K_b=kb_speed, K_t=kt_speed):
-#         self._P = P
-#         self.integrator = Integrator()
-#         self._I = I
-#         self._K_b = K_b
-#         self._K_t = K_t
-#         self._v_act = 0.0
-#         self._v_set_in = 0.0
-#         self._inactive = False
-#         self._tracking = 0.0
-#         self._v_err = 0.0      # output, calculated by solve
-#         self._v_set_out = 0.0  # output, calculated by solve
-#         self.limiter = RateLimiter()
-#         self.delay = UnitDelay()
-#         self.res = np.zeros(2)
+@with_kw mutable struct SpeedController @deftype Float64
+    wcs::WCSettings = WCSettings()
+    integrator::Integrator = Integrator(wcs.dt, wcs.i_speed)
+    limiter::RateLimiter = RateLimiter(wcs.dt, wcs.max_acc)
+    delay::UnitDelay = UnitDelay()
+    v_act = 0
+    v_set_in = 0
+    inactive = false
+    tracking = 0
+    v_err = 0         # output, calculated by solve
+    v_set_out = 0     # output, calculated by solve
+    res::MVector{2, Float64} = zeros(2)
+end
 
-#     def setInactive(self, inactive):
-#         assert type(inactive) == bool
-#         # if it gets activated
-#         if self._inactive and not inactive:
-#             # print "SC: Reset. v_set: ", self._tracking
-#             self.integrator.reset(self._tracking)
-#             self.limiter.reset(self._tracking)
-#             self._v_set_out = self._tracking
-#         self._inactive = inactive
+function set_inactive(sc::SpeedController, inactive::Bool)
+    # when it gets activated
+    if sc.inactive && ! inactive
+        reset(sc.integrator, sc.tracking)
+        reset(sc.limiter, sc.tracking)
+        sc.v_set_out = sc.tracking
+    end
+    sc.inactive = inactive
+end
 
-#     def setVAct(self, v_act):
-#         self._v_act = v_act
+function set_v_act(sc::SpeedController, v_act)
+    sc.v_act = v_act
+end
 
 #     def setVSetIn(self, v_set_in):
 #         self._v_set_in = v_set_in
