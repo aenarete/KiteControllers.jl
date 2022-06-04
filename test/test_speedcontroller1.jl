@@ -8,6 +8,7 @@ end
 # Input: A varying wind speed. Implements the simulink block diagram, shown in
 # docs/speed_controller_test1.png
 using KiteControllers, Plots
+pyplot()
 
 wcs = WCSettings()
 # wm =  AsyncMachine()
@@ -36,6 +37,7 @@ set_inactive(pid1, false)
 set_v_set_in(pid1, 4.0)
 last_v_set_out = 0.0
 for i in 1:SAMPLES
+    global last_v_set_out
     # get the input (the wind speed)
     v_wind = V_WIND[i]
     v_ro = get_speed(winch)
@@ -46,19 +48,22 @@ for i in 1:SAMPLES
     FORCE[i] = force
     set_force(winch, force)
     set_v_act(pid1, v_ro)
-    get_v_set_out(pid1)
+    v_set_out = get_v_set_out(pid1)
+    ACC_SET[i] = (v_set_out - last_v_set_out) / wcs.dt
+    V_SET_OUT[i] = v_set_out
+    v_set = STARTUP[i] * v_set_out
+    # set the reel-out speed of the winch
+    set_v_set(winch, v_set)
+    # update the state of the statefull components
+    on_timer(winch)
+    on_timer(pid1)
+    on_timer(delay)
+    last_v_set_out = v_set_out
 end
-#             v_set_out = pid1.getVSetOut()
-#             ACC_SET[i] = (v_set_out - last_v_set_out) / PERIOD_TIME
-#             V_SET_OUT[i] = v_set_out
-#             v_set = STARTUP[i] * v_set_out
-#             # set the reel-out speed of the winch
-#             winch.setVSet(v_set)
-#             # update the state of the statefull components
-#             winch.onTimer()        
-#             pid1.onTimer()
-#             delay.onTimer()
-#             last_v_set_out = v_set_out
 #     return TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE
 
-plot(TIME, V_WIND, width=2, ylabel="v_wind [m/s]", xtickfontsize=12, ytickfontsize=12, legendfontsize=12, size=(640,480), legend=false)
+p1=plot(TIME, V_WIND,    ylabel="v_wind [m/s]",     xtickfontsize=12, ytickfontsize=12, legendfontsize=12, size=(640,480), legend=false)
+p2=plot(TIME, V_RO,      ylabel="v_reel_out [m/s]", xtickfontsize=12, ytickfontsize=12, legendfontsize=12, size=(640,480), legend=false, reuse=false)
+p3=plot(TIME, V_SET_OUT, ylabel="v_set_out [m/s]",  xtickfontsize=12, ytickfontsize=12, legendfontsize=12, size=(640,480), legend=false, reuse=false)
+p4=plot(TIME, ACC,       ylabel="acc [m/s²]",       xtickfontsize=12, ytickfontsize=12, legendfontsize=12, size=(640,480), legend=false, reuse=false)
+display(p1); display(p2); display(p3); display(p4)
