@@ -1,9 +1,18 @@
-using KiteControllers
+# activate the test environment if needed
+using Pkg
+if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+    using TestEnv; TestEnv.activate()
+end
+
+using KiteControllers, Plots
 
 wcs = WCSettings()
 DURATION = 10.0
 SAMPLES = Int(DURATION / wcs.dt + 1)
 TIME = range(0.0, DURATION, SAMPLES)
+V_WIND_MAX = 8.0 # max wind speed of test wind
+V_WIND_MIN = 4.0 # min wind speed of test wind
+FREQ_WIND  = 0.25 # frequency of the triangle wind speed signal 
 
 # Create a signal, that is rising with wcs.t_startup from zero to one and then stays constant.
 function get_startup(wcs::WCSettings)
@@ -24,15 +33,32 @@ function get_startup(wcs::WCSettings)
     result
 end
 
-#     for i in range(SAMPLES):
-#         result[i] = startup
-#         if rising:
-#             startup += delta
-#         if startup >= 1.0:
-#             startup = 1.0
-#             rising = False
-#     return result  
-
+# Create a wind signal in triangle form, using the constants V_WIND_MIN and V_WIND_MAX with
+# the frequency FREQ_WIND.
+function  get_triangle_wind(wcs)
+    result = zeros(SAMPLES)
+    v_wind = 0.0
+    rising = true
+    delta = FREQ_WIND * 2.0 * (V_WIND_MAX - V_WIND_MIN) * wcs.dt
+    for i in 1:SAMPLES
+        result[i] = v_wind
+        if rising
+            v_wind += delta
+        end
+        if v_wind >= V_WIND_MAX
+            v_wind = V_WIND_MAX
+            rising = false
+        end
+        if ! rising
+            v_wind -= delta
+        end
+        if v_wind <= V_WIND_MIN
+            v_wind = V_WIND_MIN + delta
+            rising = true
+        end
+    end
+    result
+end
 
 # def speed_controller_test1():
 #     """
@@ -80,3 +106,6 @@ end
 #             last_v_set_out = v_set_out
 #     print("time for executing the speed control loop in us: ", form((t1.secs)  / SAMPLES * 1e6))
 #     return TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE
+
+wind = get_triangle_wind(wcs)
+plot(TIME, wind, width=2, ylabel="v_wind [m/s]", xtickfontsize=12, ytickfontsize=12, legendfontsize=12, size=(640,480), legend=false)
