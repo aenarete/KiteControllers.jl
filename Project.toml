@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 KiteUtils = "90980105-b163-44e5-ba9f-8b1c83bb0533"
+Mixers = "2a8e4939-dab8-5edc-8f64-72a8776f13de"
 NLsolve = "2774e3e8-f4cf-5e23-947b-6d7e65073b56"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
@@ -14,11 +15,11 @@ WinchModels = "7dcfa46b-7979-4771-bbf4-0aee0da42e1f"
 
 [compat]
 KiteUtils = "0.4"
-WinchModels = "0.1"
 NLsolve = "4.5"
 Parameters = "0.12"
 StaticArrays = "1"
 TestEnv = "1"
+WinchModels = "0.1"
 julia = "1.6, 1.7, 1.8"
 
 [extras]
