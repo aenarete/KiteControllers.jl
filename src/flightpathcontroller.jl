@@ -441,14 +441,16 @@ function on_timer(fpc::FlightPathController)
     on_timer(fpc.int2)
 end
 
-#     def getState(fpc):
-#         if fpc.psi_dot_set is not None:
-#             turning = True
-#             value = fpc.psi_dot_set
-#         else:
-#             turning = False
-#             value = fpc.attractor
-#         return turning, value
+function get_state(fpc::FlightPathController)
+    if ! isnothing(fpc.psi_dot_set)
+        turning = true
+        value = fpc.psi_dot_set
+    else
+        turning = false
+        value = fpc.attractor
+    end
+    turning, value
+end
 
 # if __name__ == "__main__":
 #     fpc = FlightPathController()
