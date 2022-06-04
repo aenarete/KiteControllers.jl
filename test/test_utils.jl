@@ -43,3 +43,10 @@ function  get_triangle_wind(wcs::WCSettings)
     end
     result
 end
+
+# Calculate the pulling force of the kite as function of the reel-out speed and the wind speed in the
+# direction of the tether at the height of the kite. Most simplified model, massless, constant L/D,
+# constant elevation angle.
+function calc_force(v_wind, v_ro)
+    (v_wind - v_ro)^2 * 4000.0 / 16.0
+end

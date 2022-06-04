@@ -64,8 +64,7 @@ end
 
 @testset "WinchController" begin
     wcs = WCSettings()
-    dt = 0.05
-    cvi = CalcVSetIn(dt, wcs)
+    cvi = CalcVSetIn(wcs)
     force = wcs.f_low
     v_ro = calc_vro(wcs, force; test=false)
     @test v_ro ≈ 0
@@ -148,6 +147,22 @@ end
         on_timer(m3)
     end
     @test all(out .≈ [1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0, 2.0])    
+end
+
+@testset "SpeedController" begin
+    sc = SpeedController()
+    @test sc.wcs.dt == 0.05
+    set_tracking(sc, 1.0)
+    set_inactive(sc, true)
+    set_inactive(sc, false)
+    @test sc.integrator.output == 1.0
+    @test sc.integrator.last_output == 1.0
+    @test sc.limiter.output == 1.0
+    @test sc.limiter.last_output == 1.0
+    set_v_set_in(sc, 2.2)
+    @test sc.v_set_in ≈ 2.2
+    set_v_act(sc, 3.3)
+    @test sc.v_act ≈ 3.3  
 end
 
 

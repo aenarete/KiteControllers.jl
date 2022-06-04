@@ -80,8 +80,8 @@ end
     input_b     = 0
 end
 
-function CalcVSetIn(dt, wcs::WCSettings)
-    m2 = Mixer_2CH(dt, wcs.t_blend)
+function CalcVSetIn(wcs::WCSettings)
+    m2 = Mixer_2CH(wcs.dt, wcs.t_blend)
     CalcVSetIn(m2, wcs, 0, 0)
 end
 
@@ -179,7 +179,7 @@ end
     delay::UnitDelay = UnitDelay()
     v_act = 0
     v_set_in = 0
-    inactive = false
+    inactive::Bool = false
     tracking = 0
     v_err = 0         # output, calculated by solve
     v_set_out = 0     # output, calculated by solve
@@ -200,39 +200,39 @@ function set_v_act(sc::SpeedController, v_act)
     sc.v_act = v_act
 end
 
-#     def setVSetIn(self, v_set_in):
-#         self._v_set_in = v_set_in
+function set_v_set(sc::SpeedController, v_set)
+    reset(sc.integrator, v_set)
+end
 
-#     def setTracking(self, tracking):
-#         self._tracking = tracking
+function set_v_set_in(sc::SpeedController, v_set_in)
+    sc.v_set_in = v_set_in
+end
 
-#     def calcSat2In_Sat2Out_rateOut(self, x):
-#         kb_in = x[0]
-#         kt_in = x[1]
-#         int_in = self._I * self.sat_out + self._K_b * kb_in + self._K_t * kt_in * (self._inactive)
-#         int_out = self.integrator.calcOutput(int_in)
-#         if True:
-#             sat2_in = int_out + self._P * self.delay.calcOutput(self.sat_out)
-#         else:
-#             sat2_in = int_out + self._P * self.sat_out
-#         sat2_out = saturation(sat2_in, -V_RI_MAX, V_SAT)
-#         rate_out = self.limiter.calcOutput(sat2_out)
-#         return sat2_in, sat2_out, rate_out, int_in
+function set_tracking(sc::SpeedController, tracking)
+    sc.tracking = tracking
+end
 
-#     def calcResidual(self, x):
-#         """
-#         Function, that calculates the residual for the given kb_in and kt_in estimates
-#         of the feed-back loop of the integrator.
-#         """
-#         # TODO: calculate kt_in correctly
-#         # kt_in = x[1]
-#         sat2_in, sat2_out, rate_out, int_in = self.calcSat2In_Sat2Out_rateOut(x)
-#         kt_in = self._tracking - sat2_out
-#         kb_in = sat2_out - sat2_in
-#         self.res[0] = kb_in - x[0]
-#         self.res[1] = kt_in - x[1]
-#         # print self.res[0], kb_in
-#         return self.res
+function calc_sat2in_sat2out_rateout_intin(sc::SpeedController, x)
+    kb_in = x[begin]
+    kt_in = x[begin+1]
+    int_in = sc.wcs.i * sc.sat_out + sc.wcs.kb_speed * kb_in + sc.wcs.kt_speed * kt_in * sc.inactive
+    int_out = calc_output(sc.integrator, int_in)
+    sat2_in = int_out + sc.wcs.p_speed * calc_output(sc.delay, sc.sat_out)
+    sat2_out = saturate(sat2_in, -wcs.v_ri_max, wcs.v_sat)
+    rate_out = calc_output(sc.limiter, sat2_out)
+    sat2_in, sat2_out, rate_out, int_in
+end
+
+# Function, that calculates the residual for the given kb_in and kt_in estimates
+# of the feed-back loop of the integrator.
+function calc_residual(sc::SpeedController, x)
+    sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(sc, x)
+    kt_in = sc.tracking - sat2_out
+    kb_in = sat2_out - sat2_in
+    sc.res[begin]   = kb_in - x[begin]
+    sc.res[begin+1] = kt_in - x[begin+1]
+    sc.res
+end
 
 #     def solve(self):
 #         err = self._v_set_in - self._v_act

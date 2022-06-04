@@ -10,6 +10,7 @@ end
 using KiteControllers, Plots
 
 wcs = WCSettings()
+# wm =  AsyncMachine()
 DURATION = 10.0
 SAMPLES = Int(DURATION / wcs.dt + 1)
 TIME = range(0.0, DURATION, SAMPLES)
@@ -28,24 +29,25 @@ ACC = zeros(SAMPLES)
 ACC_SET = zeros(SAMPLES)
 winch = Winch()
 delay = UnitDelay()
-#     pid1 = SpeedController()
-#     pid1.setVSet(-0.5)
-#     pid1.setTracking(-0.5)
-#     pid1.setInactive(False)
-#     pid1.setVSetIn(4.0)
-#     last_v_set_out = 0.0
-#     with Timer() as t1:
-#         for i in range(SAMPLES):
-#             # get the input (the wind speed)
-#             v_wind = V_WIND[i]
-#             v_ro = winch.getSpeed()
-#             acc = winch.getAcc()
-#             V_RO[i] = v_ro
-#             ACC[i] = acc
-#             force = calcForce(v_wind, v_ro)
-#             FORCE[i] = force
-#             winch.setForce(force)
-#             pid1.setVAct(v_ro)    # OK
+pid1 = SpeedController()
+set_v_set(pid1, -0.5)
+set_tracking(pid1, -0.5)
+set_inactive(pid1, false)
+set_v_set_in(pid1, 4.0)
+last_v_set_out = 0.0
+for i in 1:SAMPLES
+    # get the input (the wind speed)
+    v_wind = V_WIND[i]
+    v_ro = get_speed(winch)
+    acc = get_acc(winch)
+    V_RO[i] = v_ro
+    ACC[i] = acc
+    force = calc_force(v_wind, v_ro)
+    FORCE[i] = force
+    set_force(winch, force)
+    set_v_act(pid1, v_ro)
+    # get_v_set_out(pid1)
+end
 #             v_set_out = pid1.getVSetOut()
 #             ACC_SET[i] = (v_set_out - last_v_set_out) / PERIOD_TIME
 #             V_SET_OUT[i] = v_set_out
@@ -57,7 +59,6 @@ delay = UnitDelay()
 #             pid1.onTimer()
 #             delay.onTimer()
 #             last_v_set_out = v_set_out
-#     print("time for executing the speed control loop in us: ", form((t1.secs)  / SAMPLES * 1e6))
 #     return TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE
 
 plot(TIME, V_WIND, width=2, ylabel="v_wind [m/s]", xtickfontsize=12, ytickfontsize=12, legendfontsize=12, size=(640,480), legend=false)
