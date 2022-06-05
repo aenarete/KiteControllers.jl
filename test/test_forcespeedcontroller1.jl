@@ -1,8 +1,46 @@
+# activate the test environment if needed
+using Pkg
+if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+    using TestEnv; TestEnv.activate()
+end
+using Timers; tic()
+
+# Test the speed controller in combination with the controller for the lower force.
+# Input: A varying wind speed. Implements the simulink block diagram, shown in
+# docs/force_speed_controller_test1.png
+using KiteControllers, Plots, BenchmarkTools
+inspectdr()
+
+wcs = WCSettings()
+
+DURATION = 10.0
+SAMPLES = Int(DURATION / wcs.dt + 1)
+TIME = range(0.0, DURATION, SAMPLES)
+V_WIND_MAX = 8.0 # max wind speed of test wind
+V_WIND_MIN = 4.0 # min wind speed of test wind
+FREQ_WIND  = 0.25 # frequency of the triangle wind speed signal 
+BENCHMARK = false
+
+include("test_utils.jl")
+
+STARTUP = get_startup(wcs)    
+V_WIND = STARTUP .* get_triangle_wind(wcs)
+V_RO = zeros(SAMPLES)
+V_SET_OUT = zeros(SAMPLES)
+FORCE = zeros(SAMPLES)
+ACC = zeros(SAMPLES)
+ACC_SET = zeros(SAMPLES)
+winch = Winch(wcs)
+pid1 = SpeedController(wcs)
+set_v_set(pid1, -0.5)
+set_tracking(pid1, -0.5)
+set_inactive(pid1, false)
+set_v_set_in(pid1, 4.0)
+last_v_set_out = 0.0
+
 # def force_speed_controller_test1():  
 #     """
-#     Test the speed controller in combination with the controller for the lower force.
-#     Input: A varying wind speed. Implements the simulink block diagram, shown in
-#     docs/force_speed_controller_test1.png
+
 #     """      
 #     # create input and output arrays
 #     STARTUP = getStartUp()    
