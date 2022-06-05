@@ -95,7 +95,7 @@ end
 # Mix two analog inputs. Implements the simulink block diagram, shown in
 # docs/mixer_2ch.png
 @with_kw mutable struct Mixer_2CH @deftype Float64
-    dt = 0.05
+    dt
     t_blend = 1.0
     factor_b = 0
     select_b::Bool = false

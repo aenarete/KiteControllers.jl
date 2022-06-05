@@ -15,15 +15,14 @@ Implemented as described in the PhD thesis of Uwe Fechner.
 
 # Component for calculation v_set_in, using soft switching.
 @with_kw mutable struct CalcVSetIn @deftype Float64
-    mixer2::Mixer_2CH = Mixer_2CH()
-    wcs::WCSettings = WCSettings()
+    wcs::WCSettings
+    mixer2::Mixer_2CH = Mixer_2CH(wcs.dt, wcs.t_blend)
     input_a     = 0
     input_b     = 0
 end
 
 function CalcVSetIn(wcs::WCSettings)
-    m2 = Mixer_2CH(wcs.dt, wcs.t_blend)
-    CalcVSetIn(m2, wcs, 0, 0)
+    CalcVSetIn(wcs=wcs)
 end
 
 """ 
