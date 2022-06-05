@@ -22,6 +22,7 @@ Settings of the WinchController
     eps = 1e-6
     "max iterations of the PID solvers"
     max_iter::Int64 = 100
+    iter::Int64 = 0
     "startup time for soft start"
     t_startup = 0.25
     "blending time of the mixers in seconds"
@@ -176,7 +177,7 @@ end
 
 @with_kw mutable struct SpeedController @deftype Float64
     wcs::WCSettings = WCSettings()
-    integrator::Integrator = Integrator(wcs.dt, wcs.i_speed)
+    integrator::Integrator = Integrator(wcs.dt)
     limiter::RateLimiter = RateLimiter(wcs.dt, wcs.max_acc)
     delay::UnitDelay = UnitDelay()
     v_act = 0
@@ -248,6 +249,7 @@ function solve(sc::SpeedController)
     # begin interate
     sol = nlsolve(calc_residual!, [ 0.0; 0.0], iterations=sc.wcs.max_iter)
     @assert sol.f_converged
+    sc.wcs.iter=max(sol.iterations, sc.wcs.iter)
     sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(sc, sol.zero)
     sc.v_set_out = rate_out
 end

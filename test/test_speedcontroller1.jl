@@ -66,4 +66,4 @@ p1=plot(TIME, V_WIND,    ylabel="v_wind [m/s]",     xtickfontsize=12, ytickfonts
 p2=plot(TIME, V_RO,      ylabel="v_reel_out [m/s]", xtickfontsize=12, ytickfontsize=12, legendfontsize=12, size=(640,480), legend=false, reuse=false)
 p3=plot(TIME, V_SET_OUT, ylabel="v_set_out [m/s]",  xtickfontsize=12, ytickfontsize=12, legendfontsize=12, size=(640,480), legend=false, reuse=false)
 p4=plot(TIME, ACC,       ylabel="acc [m/s²]",       xtickfontsize=12, ytickfontsize=12, legendfontsize=12, size=(640,480), legend=false, reuse=false)
-display(p1); display(p2); display(p3); display(p4)
+display(p1); display(p2); display(p3); display(p4);
