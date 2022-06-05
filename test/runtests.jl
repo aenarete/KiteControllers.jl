@@ -163,7 +163,30 @@ end
     set_v_set_in(sc, 2.2)
     @test sc.v_set_in ≈ 2.2
     set_v_act(sc, 3.3)
-    @test sc.v_act ≈ 3.3  
+    @test sc.v_act ≈ 3.3
+    pid1 = SpeedController(wcs)
+    set_v_set(pid1, -0.5)
+    set_tracking(pid1, -0.5)
+    set_inactive(pid1, false)
+    set_v_set_in(pid1, 4.0)
+    v_ro = 1.0
+    set_v_act(pid1, v_ro)
+    v_set_out = get_v_set_out(pid1)
+    @test v_set_out ≈ -0.16
+end
+
+@testset "Winch" begin
+    wcs = WCSettings()
+    w = Winch(wcs)
+    v_set = 4.0
+    set_v_set(w, v_set)
+    @test w.v_set == v_set
+    force = 1000.0
+    set_force(w, force)
+    @test w.force == force
+    on_timer(w)
+    @test get_speed(w) ≈ 0.8988387476775817
+    @test get_acc(w) ≈ 44.94193738387908
 end
 
 

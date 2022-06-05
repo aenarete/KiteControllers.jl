@@ -78,12 +78,15 @@ end
 # and the set speed (= synchronous speed). Asynchronous motor model and drum inertia
 # are taken into account.
 @with_kw mutable struct Winch @deftype Float64
-    wcs::WCSettings = WCSettings()
+    wcs::WCSettings
     wm::AsyncMachine = AsyncMachine()
     v_set     = 0 # input
     force     = 0 # input
     acc       = 0 # output
     speed     = 0 # output; reel-out speed; only state of this model
+end
+function Winch(wcs::WCSettings)
+    Winch(wcs=wcs)
 end
 
 function set_v_set(w::Winch, v_set)
