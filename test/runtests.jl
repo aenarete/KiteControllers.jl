@@ -151,7 +151,7 @@ end
 
 @testset "SpeedController" begin
     wcs = WCSettings()
-    sc = SpeedController(wcs=wcs)
+    sc = SpeedController(wcs)
     @test sc.wcs.dt == 0.02
     set_tracking(sc, 1.0)
     set_inactive(sc, true)

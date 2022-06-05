@@ -173,7 +173,7 @@ end
 # While inactive, it tracks the value from the tracking input.
 # Back-calculation is used as anti-windup method and for tracking. The constant for
 # anti-windup is K_b, the constant for tracking K_t
-# Implements the simulink block diagram, shown in ./01_doc/speed_controller.png.
+# Implements the simulink block diagram, shown in docs/speed_controller.png.
 
 @with_kw mutable struct SpeedController @deftype Float64
     wcs::WCSettings
@@ -188,6 +188,9 @@ end
     v_set_out = 0     # output, calculated by solve
     sat_out = 0       # output of saturate block
     res::MVector{2, Float64} = zeros(2)
+end
+function SpeedController(wcs::WCSettings)
+    SpeedController(wcs=wcs)
 end
 
 function set_inactive(sc::SpeedController, inactive::Bool)
