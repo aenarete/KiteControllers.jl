@@ -77,7 +77,7 @@ end
     v_out_set = 1.0
     set_vset_pc(cvi, v_out_set)
     @test calc_output(cvi) ≈ wcs.vf_max
-    for i in 1:5
+    for i in 1:15
         on_timer(cvi)
     end
     @test calc_output(cvi) ≈ v_out_set
@@ -151,7 +151,7 @@ end
 
 @testset "SpeedController" begin
     sc = SpeedController()
-    @test sc.wcs.dt == 0.05
+    @test sc.wcs.dt == 0.02
     set_tracking(sc, 1.0)
     set_inactive(sc, true)
     set_inactive(sc, false)
