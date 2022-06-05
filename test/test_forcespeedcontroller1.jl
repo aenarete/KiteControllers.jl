@@ -25,40 +25,23 @@ include("test_utils.jl")
 
 STARTUP = get_startup(wcs)    
 V_WIND = STARTUP .* get_triangle_wind(wcs)
-V_RO = zeros(SAMPLES)
-V_SET_OUT = zeros(SAMPLES)
-FORCE = zeros(SAMPLES)
-ACC = zeros(SAMPLES)
-ACC_SET = zeros(SAMPLES)
+V_RO, V_SET_OUT, FORCE, F_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
+ACC, ACC_SET, V_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
+STATE = zeros(Int64, SAMPLES)
+# create the winch model and and the v_set_in calculator and mixer
 winch = Winch(wcs)
+calc = CalcVSetIn(wcs)
+# create and initialize speed controller 
 pid1 = SpeedController(wcs)
-set_v_set(pid1, -0.5)
-set_tracking(pid1, -0.5)
+set_tracking(pid1, 0.0)
 set_inactive(pid1, false)
 set_v_set_in(pid1, 4.0)
+# set_v_set(pid1, -0.5)
+# create and initialize lower force controller
+pid2 = LowerForceController(wcs)
+
 last_v_set_out = 0.0
 
-# def force_speed_controller_test1():  
-#     """
-
-#     """      
-#     # create input and output arrays
-#     STARTUP = getStartUp()    
-#     V_WIND = STARTUP * getTriangleWind()
-#     V_RO, V_SET_OUT, FORCE, F_ERR = np.zeros(SAMPLES),  np.zeros(SAMPLES),  np.zeros(SAMPLES), np.zeros(SAMPLES) 
-#     ACC, ACC_SET, V_ERR = np.zeros(SAMPLES),  np.zeros(SAMPLES),  np.zeros(SAMPLES)  
-#     STATE = np.zeros((SAMPLES,), dtype=np.int)
-#     # create the winch model and and the v_set_in calculator and mixer
-#     winch = Winch()
-#     delay = UnitDelay()
-#     calc = CalcVSetIn()
-#     # create and initialize speed controller 
-#     pid1 = SpeedController()
-#     pid1.setTracking(0.0)
-#     pid1.setInactive(False)
-#     pid1.setVSetIn(4.0)
-#     # create and initialize lower force controller
-#     pid2 = LowerForceController()
 #     pid2.setFSet(F_LOW)
 #     pid2.setTracking(0.0)
 #     pid2.setReset(True)
