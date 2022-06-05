@@ -225,4 +225,6 @@ end
     KiteControllers._set(lfc)
     @test get_f_set_low(lfc) == 400.0
     on_timer(lfc)
+    set_f_set(lfc, 330.0)
+    @test lfc.f_set == 330.0
 end
