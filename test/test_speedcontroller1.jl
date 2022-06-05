@@ -52,7 +52,9 @@ plot!(TIME, V_RO,      label="v_reel_out [m/s]", width=2, xtickfontsize=12, ytic
 plot!(TIME, V_SET_OUT, label="v_set_out [m/s]",  width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 plot!(TIME, ACC,       label="acc [m/s²]",       width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 plot!(TIME, FORCE*0.001, label="force [kN]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-display(p1);
+pIDR = display(p1)           # Display with InspectDR and keep plot object
+resize!(pIDR.wnd, 1200, 700) # Resize GTK window directly
+
 println("Max iterations needed: $(wcs.iter)")
 if BENCHMARK println("Average time per control step: $(mean(b.times)/SAMPLES/1e9) s") end
 toc()
