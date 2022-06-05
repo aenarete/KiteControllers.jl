@@ -30,7 +30,7 @@ FORCE = zeros(SAMPLES)
 ACC = zeros(SAMPLES)
 ACC_SET = zeros(SAMPLES)
 winch = Winch()
-pid1 = SpeedController()
+pid1 = SpeedController(wcs=wcs)
 set_v_set(pid1, -0.5)
 set_tracking(pid1, -0.5)
 set_inactive(pid1, false)
@@ -69,4 +69,6 @@ plot!(TIME, V_SET_OUT, label="v_set_out [m/s]",  width=2, xtickfontsize=12, ytic
 plot!(TIME, ACC,       label="acc [m/s²]",       width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 plot!(TIME, FORCE*0.001, label="force [kN]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 display(p1);
+println("Max iterations needed: $(wcs.iter)")
 toc()
+nothing

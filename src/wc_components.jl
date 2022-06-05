@@ -176,7 +176,7 @@ end
 # Implements the simulink block diagram, shown in ./01_doc/speed_controller.png.
 
 @with_kw mutable struct SpeedController @deftype Float64
-    wcs::WCSettings = WCSettings()
+    wcs::WCSettings
     integrator::Integrator = Integrator(wcs.dt)
     limiter::RateLimiter = RateLimiter(wcs.dt, wcs.max_acc)
     delay::UnitDelay = UnitDelay()
