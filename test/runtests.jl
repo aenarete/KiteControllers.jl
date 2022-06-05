@@ -226,5 +226,3 @@ end
     @test get_f_set_low(lfc) == 400.0
     on_timer(lfc)
 end
-
-
