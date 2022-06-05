@@ -193,7 +193,7 @@ function solve(sc::SpeedController)
     # begin interate
     sol = nlsolve(calc_residual!, [ 0.0; 0.0], iterations=sc.wcs.max_iter)
     @assert sol.f_converged
-    sc.wcs.iter=max(sol.iterations, sc.wcs.iter)
+    sc.wcs.iter = max(sol.iterations, sc.wcs.iter)
     sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(sc, sol.zero)
     sc.v_set_out = rate_out
 end
@@ -204,11 +204,11 @@ function on_timer(sc::SpeedController)
     on_timer(sc.delay)
 end
 
-function get_v_set_out(sc)
+function get_v_set_out(sc::SpeedController)
     solve(sc)
 end
 
-function get_v_error(sc)
+function get_v_error(sc::SpeedController)
     if sc.inactive
         return 0.0
     else

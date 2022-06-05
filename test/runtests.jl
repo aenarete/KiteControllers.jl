@@ -173,6 +173,10 @@ end
     set_v_act(pid1, v_ro)
     v_set_out = get_v_set_out(pid1)
     @test v_set_out ≈ -0.16
+    set_v_act(pid1, 1.1)
+    on_timer(pid1)
+    v_set_out = get_v_set_out(pid1)
+    @test get_v_error(pid1) ≈ 2.9
 end
 
 @testset "Winch" begin
