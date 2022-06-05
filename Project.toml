@@ -15,6 +15,7 @@ WinchModels = "7dcfa46b-7979-4771-bbf4-0aee0da42e1f"
 
 [compat]
 KiteUtils = "0.4"
+Mixers = "0.1"
 NLsolve = "4.5"
 Parameters = "0.12"
 StaticArrays = "1"
