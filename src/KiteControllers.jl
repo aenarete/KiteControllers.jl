@@ -12,7 +12,8 @@ export on_control_command, on_est_sysstate, on_timer, calc_steering   # methods 
 export set_tracking, set_v_set, set_inactive, set_v_act, set_v_set_in # methods of SpeedController
 export get_v_set_out, get_v_error                                     # methods of SpeedController
 export set_force, get_acc, get_speed                                  # methods of Winch
-export set_v_act, set_reset, set_f_set, set_v_sw                      # methods of LowerForceController
+export set_v_act, set_reset, set_f_set, set_v_sw, get_f_err           # methods of LowerForceController
+export get_f_set_low                                                  # methods of LowerForceController
 export calc_vro, set_vset_pc                                          # functions for winch control
 
 abstract type AbstractForceController end

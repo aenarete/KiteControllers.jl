@@ -297,54 +297,54 @@ function calc_sat2in_sat2out_rateout_intin(lfc::LowerForceController, x)
     sat2_in, sat2_out, rate_out, int_in
 end
 
-#     def solve(self):
-#         self._updateReset()
-#         err = self._force - self._f_set
+function solve(lfc::LowerForceController)
+    # Function, that calculates the residual for the given kb_in and kt_in estimates
+    # of the feed-back loop of the integrator.
+    function calc_residual!(F, x)
+        sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(lfc, x)
+        kt_in = lfc.tracking - sat2_out
+        kb_in = rate_out - sat2_in
+        lfc.res[begin]   = kb_in - x[begin]
+        lfc.res[begin+1] = kt_in - x[begin+1]
+        F .= lfc.res 
+    end
 
-#         if not self._active:
-#             # activate the force controller if the force drops below the set force
-#             if err < 0.0:
-#                 self._set()
-#                 # print "err: ", err
-#             self._f_err = 0.0
-#         else:
-#             self._f_err = err
+    _update_reset(lfc)
+    err = lfc.force - lfc.f_set
+    if ! lfc.active
+        # activate the force controller if the force drops below the set force
+        if err < 0.0
+            _set(lfc)
+        end
+        lfc.f_err = 0.0
+    else
+        lfc.f_err = err
+    end
+    sol = nlsolve(calc_residual!, [ 0.0; 0.0], iterations=lfc.wcs.max_iter)
+    @assert sol.f_converged
+    lfc.wcs.iter = max(sol.iterations, lfc.wcs.iter)
+    sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(lfc, sol.zero)
+    lfc.v_set_out = rate_out
+end
 
-#         # begin interate
-#         # print "------------------"
-#         x = scipy.optimize.broyden2(self.calcResidual, [0.0, 0.0], f_tol=1e-14)
-#         sat2_in, sat2_out, rate_out, int_in = self.calcSat2In_Sat2Out_rateOut(x)
-#         # print "int_in, sat2_in", int_in, sat2_in
-#         # end first iteration loop
-#         self._v_set_out = rate_out
+function get_v_set_out(fc::AFC)
+    solve(fc)
+    fc.v_set_out
+end
 
-#     def calcResidual(self, x):
-#         """
-#         Function, that calculates the residual for the given kb_in and kt_in estimates
-#         of the feed-back loop of the integrator.
-#         """
-#         sat2_in, sat2_out, rate_out, int_in = self.calcSat2In_Sat2Out_rateOut(x)
-#         kt_in = self._tracking - sat2_out
-#         kb_in = rate_out - sat2_in
-#         self.res[0] = kb_in - x[0]
-#         self.res[1] = kt_in - x[1]
-#         # print self.res[0], kb_in
-#         return self.res
+function get_f_err(fc::AFC)
+    fc.f_err
+end
 
-#     def getVSetOut(self):
-#         self.solve()
-#         return self._v_set_out
+function get_f_set_low(lfc::LowerForceController)
+    lfc.active * lfc.f_set
+end
 
-#     def getFErr(self):
-#         return self._f_err
-
-#     def getFSetLow(self):
-#         return self._active * self._f_set
-
-#     def onTimer(self):
-#         self.limiter.onTimer()
-#         self.integrator.onTimer()
-#         self.delay.onTimer()
+function on_timer(lfc::LowerForceController)
+    on_timer(lfc.limiter)
+    on_timer(lfc.integrator)
+    on_timer(lfc.delay)
+end
 
 # class UpperForceController(object):
 #     """
@@ -435,13 +435,6 @@ end
 #         self.res[2] = int2_in - x[2]
 #         # print self.res[0], kb_in
 #         return self.res
-
-#     def getVSetOut(self):
-#         self.solve()
-#         return self._v_set_out
-
-#     def getFErr(self):
-#         return self._f_err
 
 #     def getFSetUpper(self):
 #         return self._active * self._f_set
