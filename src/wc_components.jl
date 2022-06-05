@@ -215,71 +215,76 @@ function get_v_error(sc::SpeedController)
     end
 end
 
-# class LowerForceController(object):
-#     """
-#     PI controller for the lower force of the tether.
-#     While inactive, it tracks the value from the tracking input.
-#     Back-calculation is used as anti-windup method and for tracking. The constant for
-#     anti-windup is K_b, the constant for tracking K_t
-#     Implements the simulink block diagram, shown in ./01_doc/lower_force_controller.png.
-#     """
-#     def __init__(self, P, I, K_b, K_t):
-#         self._P = P
-#         self.integrator = Integrator()
-#         self._I = I
-#         self._K_b = K_b
-#         self._K_t = K_t
-#         self._v_act = 0.0
-#         self._force = 0.0
-#         self._reset = False
-#         self._active = False
-#         self._f_set = 0.0
-#         self._v_sw = 0.0
-#         self._tracking = 0.0
-#         self._f_err = 0.0      # output, calculated by solve
-#         self._v_set_out = 0.0  # output, calculated by solve
-#         self.limiter = RateLimiter()
-#         self.delay = UnitDelay()
-#         self.res = np.zeros(2)
+# PI controller for the lower force of the tether.
+# While inactive, it tracks the value from the tracking input.
+# Back-calculation is used as anti-windup method and for tracking. The constant for
+# anti-windup is K_b, the constant for tracking K_t
+# Implements the simulink block diagram, shown in docs/lower_force_controller.png.
+@with_kw mutable struct LowerForceController <: AbstractForceController @deftype Float64
+    wcs::WCSettings
+    integrator::Integrator = Integrator(wcs.dt)
+    limiter::RateLimiter = RateLimiter(wcs.dt, wcs.max_acc)
+    delay::UnitDelay = UnitDelay()
+    reset::Bool = false
+    active::Bool = false
+    force = 0
+    f_set = 0
+    v_sw = 0
+    v_act = 0
+    tracking = 0
+    f_err = 0         # output, calculated by solve
+    v_set_out = 0     # output, calculated by solve
+    sat_out = 0       # output of saturate block
+    res::MVector{2, Float64} = zeros(2)
+end
 
-#     def _set(self):
-#         """ internal method to set the SR flip-flop and activate the force controller """
-#                 # if it gets activated
-#         if self._reset:
-#             return
-#         if not self._active:
-#             # print "Reset. Tracking: ", self._tracking
-#             self.integrator.reset(self._tracking)
-#             self.limiter.reset(self._tracking)
-#             self._v_set_out = self._tracking
-#         self._active = True
+function LowerForceController(wcs::WCSettings)
+    LowerForceController(wcs=wcs)
+end
 
-#     def _updateReset(self):
-#         if (self._v_act - self._v_sw) >= 0.0 or self._reset:
-#             if (self._force - self._f_set) > 0.0 or self._reset:
-#                 self._active = False
+# internal method to set the SR flip-flop and activate the force controller
+function _set(lfc::LowerForceController)
+    if lfc.reset return end
+    if ! lfc.active
+       reset(lfc.integrator, lfc.tracking)
+       reset(lfc.limiter, lfc.tracking)
+       lfc.v_set_out = lfc.tracking
+    end
+    lfc.active = true
+end
 
-#     def setVAct(self, v_act):
-#         self._v_act = v_act
+function _update_reset(fc::AFC)
+    if (fc.v_act - fc.v_sw) >= 0.0 || fc.reset
+        if (fc.force - fc.f_set) > 0.0 || fc.reset
+            fc.active = false
+        end
+    end
+end
 
-#     def setForce(self, force):
-#         self._force = force
+function set_v_act(fc::AFC, v_act)
+    fc.v_act = v_act
+end
 
-#     def setReset(self, reset):
-#         self._reset = reset
-#         self._updateReset()
+function set_force(fc::AFC, force)
+    fc.force = force
+end
 
-#     def setFSet(self, f_set):
-#         self._f_set = f_set
+function set_reset(fc::AFC, reset)
+    fc.reset = reset
+    _update_reset(fc)
+end
 
-#     def setV_SW(self, v_sw):
-#         self._v_sw = v_sw
-#         # print "--->>>", self._v_sw, self._v_act
-# #        if self._active and (self._v_act - self._v_sw) >= 0.0:
-# #            print "-->", self._v_act
+function set_f_set(fc::AFC, f_set)
+    fc.f_set = f_set
+end
 
-#     def setTracking(self, tracking):
-#         self._tracking = tracking
+function set_v_sw(fc::AFC, v_sw)
+    fc.v_sw = v_sw
+end
+
+function set_tracking(fc::AFC, tracking)
+    fc.tracking = tracking
+end
 
 #     def calcSat2In_Sat2Out_rateOut(self, x):
 #         kb_in = x[0]
@@ -382,32 +387,6 @@ end
 #             self.limiter.reset(self._tracking)
 #             self._v_set_out = self._tracking
 #         self._active = True
-
-#     def _updateReset(self):
-#         if (self._v_act - self._v_sw) <= 0.0 or self._reset:
-#             if (self._force - self._f_set) < 0.0 or self._reset:
-#                 self._active = False
-
-#     def setVAct(self, v_act):
-#         self._v_act = v_act
-
-#     def setForce(self, force):
-#         self._force = force
-
-#     def setReset(self, reset):
-#         self._reset = reset
-
-#     def setFSet(self, f_set):
-#         self._f_set = f_set
-
-#     def setV_SW(self, v_sw):
-#         self._v_sw = v_sw
-#         # print "--->>>", self._v_sw, self._v_act
-# #        if self._active and (self._v_act - self._v_sw) >= 0.0:
-# #            print "-->", self._v_act
-
-#     def setTracking(self, tracking):
-#         self._tracking = tracking
 
 #     def calcSat2In_Sat2Out_rateOut(self, x):
 #         kb_in = x[0]

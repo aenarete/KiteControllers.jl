@@ -194,4 +194,26 @@ end
     @test get_acc(w) ≈ 44.94193738387908
 end
 
+@testset "LowerForceController" begin
+    wcs = WCSettings()
+    lfc = LowerForceController(wcs)
+    @test lfc.wcs.dt == 0.02
+    KiteControllers._set(lfc)
+    @test lfc.active
+    lfc.v_act = 1.0
+    lfc.force = 1.0
+    KiteControllers._update_reset(lfc)
+    @test ! lfc.active
+    set_v_act(lfc, 0.0)
+    @test lfc.v_act == 0.0
+    set_force(lfc, 300)
+    @test lfc.force == 300
+    set_reset(lfc, true)
+    @test lfc.reset
+    set_v_sw(lfc, 2.2)
+    @test lfc.v_sw == 2.2
+    set_tracking(lfc, 3.3)
+    @test lfc.tracking == 3.3
+end
+
 
