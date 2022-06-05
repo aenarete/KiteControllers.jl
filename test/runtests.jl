@@ -20,15 +20,16 @@ end
 end
 
 @testset "Integrator" begin
-    int1 = Integrator()
+    dt = 0.05
+    int1 = Integrator(dt)
     @test int1.output == 0.0
     @test int1.last_output == 0.0
     @test int1.i == 1.0
-    int2 = Integrator(0.05, 2)
+    int2 = Integrator(dt, 2)
     @test int2.output == 0.0
     @test int2.last_output == 0.0
     @test int2.i == 2.0
-    int3 = Integrator(0.05, 2, 2)
+    int3 = Integrator(dt, 2, 2)
     @test int3.output == 2.0
     @test int3.last_output == 2.0
     @test int3.i == 2.0
@@ -37,7 +38,7 @@ end
     @test int3.output == 1.1
     @test int3.last_output == 1.1
     @test int3.i == 2.0
-    int3 = Integrator(0.05, 2, 2)
+    int3 = Integrator(dt, 2, 2)
     calc_output(int3, 0.5) == 2.05
     on_timer(int3)
     @test int3.last_output == 2.05

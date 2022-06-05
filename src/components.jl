@@ -12,7 +12,7 @@ Components:
 
 # Discrete integrator with external reset
 @with_kw mutable struct Integrator @deftype Float64
-    dt          = 0.05  # timestep [s]
+    dt                  # timestep [s]
     i           = 1.0   # integration constant
     output      = 0.0
     last_output = 0.0
@@ -127,7 +127,7 @@ end
 # Mix three analog inputs. Implements the simulink block diagram, shown in
 # docs/mixer_3ch.png
 @with_kw mutable struct Mixer_3CH @deftype Float64
-    dt = 0.05
+    dt
     t_blend = 1.0
     factor_b = 0
     factor_c = 0
