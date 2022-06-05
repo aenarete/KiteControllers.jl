@@ -286,15 +286,16 @@ function set_tracking(fc::AFC, tracking)
     fc.tracking = tracking
 end
 
-#     def calcSat2In_Sat2Out_rateOut(self, x):
-#         kb_in = x[0]
-#         kt_in = x[1]
-#         int_in = self._I * self._f_err + self._K_b * kb_in + self._K_t * kt_in * (not self._active)
-#         int_out = self.integrator.calcOutput(int_in)
-#         sat2_in = int_out + self._P * self.delay.calcOutput(self._f_err)
-#         sat2_out = saturation(sat2_in, -V_RI_MAX, V_SAT)
-#         rate_out = self.limiter.calcOutput(sat2_out)
-#         return sat2_in, sat2_out, rate_out, int_in
+function calc_sat2in_sat2out_rateout_intin(lfc::LowerForceController, x)
+    kb_in = x[begin]
+    kt_in = x[begin+1]
+    int_in = lfc.wcs.if_low * lfc.sat_out + lfc.wcs.kbf_low * kb_in + lfc.wcs.ktf_low * kt_in * (! lfc.active)
+    int_out = calc_output(lfc.integrator, int_in)
+    sat2_in = int_out + lfc.wcs.pf_low * calc_output(lfc.delay, lfc.f_err)
+    sat2_out = saturate(sat2_in, -lfc.wcs.v_ri_max, lfc.wcs.v_sat)
+    rate_out = calc_output(lfc.limiter, sat2_out)
+    sat2_in, sat2_out, rate_out, int_in
+end
 
 #     def solve(self):
 #         self._updateReset()

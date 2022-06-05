@@ -214,6 +214,9 @@ end
     @test lfc.v_sw == 2.2
     set_tracking(lfc, 3.3)
     @test lfc.tracking == 3.3
+    lfc = LowerForceController(wcs)
+    x = [0.0, 0.0]
+    sat2_in, sat2_out, rate_out, int_in = KiteControllers.calc_sat2in_sat2out_rateout_intin(lfc, x)
 end
 
 
