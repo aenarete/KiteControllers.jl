@@ -29,7 +29,6 @@ FORCE = zeros(SAMPLES)
 ACC = zeros(SAMPLES)
 ACC_SET = zeros(SAMPLES)
 winch = Winch()
-delay = UnitDelay()
 pid1 = SpeedController()
 set_v_set(pid1, -0.5)
 set_tracking(pid1, -0.5)
@@ -57,7 +56,6 @@ for i in 1:SAMPLES
     # update the state of the statefull components
     on_timer(winch)
     on_timer(pid1)
-    on_timer(delay)
     last_v_set_out = v_set_out
 end
 #     return TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE
