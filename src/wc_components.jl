@@ -430,8 +430,9 @@ end
 #         # print self.res[0], kb_in
 #         return self.res
 
-#     def getFSetUpper(self):
-#         return self._active * self._f_set
+function get_f_set_upper(ufc::UpperForceController)
+    ufc.active * ufc.f_set
+end
 
 function on_timer(ufc::UpperForceController)
     on_timer(ufc.limiter)
