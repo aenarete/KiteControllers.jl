@@ -102,3 +102,57 @@ function speed_controller_step2!(pid, winch, calc, i, last_force, last_v_set_out
     last_force[] = force
     last_v_set_out = v_set_out
 end
+
+function speed_controller_step3!(pid1, pid2, winch, calc, i, last_force, last_v_set_out, V_WIND, STARTUP, V_RO, ACC, FORCE, V_SET_OUT, STATE, V_ERR, F_ERR)
+
+    # calc v_set_in of the speed controller
+    set_vset_pc(calc, nothing, last_force[])
+    v_set_in = calc_output(calc)
+    set_v_set_in(pid1, v_set_in)
+    # get the input (the wind speed)
+    v_wind = V_WIND[i]
+    v_ro = get_speed(winch)
+    acc = get_acc(winch)
+    V_RO[i] = v_ro
+    ACC[i] = acc
+    force = calc_force(v_wind, v_ro)
+    FORCE[i] = force
+    set_force(winch, force)
+    # calculate v_set_out_A from the speed controller
+    set_v_act(pid1, v_ro)
+    v_set_out_A = get_v_set_out(pid1)
+    V_ERR[i] = get_v_error(pid1)
+    # calculate v_set_out_B from the force controller
+    set_force(pid2, last_force[])
+    if i * wcs.dt <= wcs.t_startup
+        reset = true
+    else
+        reset = false
+    end
+    set_reset(pid2, reset)
+    v_sw = calc_vro(wcs, pid2.f_set) * 1.05
+    set_v_sw(pid2, v_sw)
+    set_v_act(pid2, v_ro)
+    set_tracking(pid2, v_set_out_A)
+    set_force(pid2, force)
+    v_set_out_B = get_v_set_out(pid2)
+    F_ERR[i] = get_f_err(pid2)
+    set_tracking(pid1, v_set_out_B)
+    select_b(mix2, pid2.active)
+    set_inactive(pid1, pid2.active)
+    STATE[i] = pid2.active
+    v_set_out = calc_output(mix2, v_set_out_A, v_set_out_B)
+    # ACC_SET[i] = (v_set_out - last_v_set_out[]) / wcs.dt
+    V_SET_OUT[i] = v_set_out
+    v_set = STARTUP[i] * v_set_out
+    # set the reel-out speed of the winch
+    set_v_set(winch, v_set)
+    # update the state of the statefull components
+    on_timer(winch)
+    on_timer(calc)
+    on_timer(pid1)
+    on_timer(pid2)
+    on_timer(mix2)
+    last_force[] = force
+    last_v_set_out[] = v_set_out            
+end
