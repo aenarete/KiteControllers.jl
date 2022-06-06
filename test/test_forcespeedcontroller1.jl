@@ -10,12 +10,13 @@ using Timers; tic()
 # docs/force_speed_controller_test1.png
 using KiteControllers, Plots, BenchmarkTools
 inspectdr()
+InspectDR.defaults.xaxiscontrol_visible = false
 
 wcs = WCSettings()
+wcs.test = true
 wcs.f_low = 1500
 wcs.fac = 1.0
-#wcs.if_low= 0
-#wcs.pf_low*=2
+wcs.t_blend = 0.25
 
 DURATION = 10.0
 SAMPLES = Int(DURATION / wcs.dt + 1)
@@ -48,7 +49,7 @@ set_tracking(pid2, 0.0)
 set_reset(pid2, true)
 set_v_sw(pid2, -1.0)
 # create the mixer for the output of the two controllers
-mix2 = Mixer_2CH(wcs.dt)
+mix2 = Mixer_2CH(wcs.dt, wcs.t_blend)
 last_force = Ref(0.0)
 last_v_set_out = Ref(0.0)
 
@@ -61,18 +62,21 @@ plot!(TIME, V_RO,      label="v_reel_out [m/s]", width=2, xtickfontsize=12, ytic
 plot!(TIME, V_SET_OUT, label="v_set_out [m/s]",  width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 
 p2=plot(TIME, F_ERR*0.001, label="f_err [kN]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+plot!(TIME, V_ERR, label="v_error [m/s]",        width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 
-# p2=plot(TIME, ACC,       label="acc [m/s²]",       width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+p3=plot(TIME, ACC,       label="acc [m/s²]",       width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 # plot!(TIME, FORCE*0.001, label="force [kN]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 # plot!(TIME, STATE,       label="state",          width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 # plot!(TIME, V_ERR, label="v_error [m/s]",        width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 # plot!(TIME, F_ERR*0.001, label="f_error [kN]",   width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 
-# pIDR = display(p1)           # Display with InspectDR and keep plot object
-# resize!(pIDR.wnd, 1200, 700) # Resize GTK window directly
+pIDR = display(p1)           # Display with InspectDR and keep plot object
+resize!(pIDR.wnd, 1200, 700) # Resize GTK window directly
 
 pIDR2 = display(p2)           # Display with InspectDR and keep plot object
 resize!(pIDR2.wnd, 1200, 700) # Resize GTK window directly
+
+display(p3)
 
 println("Max iterations needed: $(wcs.iter)")
             

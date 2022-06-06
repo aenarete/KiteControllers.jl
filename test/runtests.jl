@@ -67,9 +67,9 @@ end
     wcs = WCSettings()
     cvi = CalcVSetIn(wcs)
     force = wcs.f_low
-    v_ro = calc_vro(wcs, force; test=false)
+    v_ro = calc_vro(wcs, force)
     @test v_ro ≈ 0
-    v_ro = calc_vro(wcs, wcs.f_high; test=false)
+    v_ro = calc_vro(wcs, wcs.f_high)
     @test v_ro ≈ wcs.vf_max
     set_vset_pc(cvi, nothing, wcs.f_low)
     @test calc_output(cvi) ≈ 0

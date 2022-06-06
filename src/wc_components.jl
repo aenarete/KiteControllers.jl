@@ -29,8 +29,8 @@ end
 
 Calculate the optimal reel-out speed for a given force. 
 """
-function calc_vro(wcs::WCSettings, force; test=true)
-    if test
+function calc_vro(wcs::WCSettings, force)
+    if wcs.test
         return sqrt(force) * wcs.kv
     else
         if force >= wcs.f_low

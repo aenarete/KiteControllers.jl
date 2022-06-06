@@ -4,10 +4,13 @@ Settings of the WinchController
 @with_kw mutable struct WCSettings @deftype Float64
     "timestep of the winch controller"
     dt = 0.02
+    "set to true for running the unit tests"
+    test::Bool = false
+    "factor for I and P of lower force controller"
     fac = 0.25
-    eps = 1e-6
-    "max iterations of the PID solvers"
+    "max iterations limit for the PID solvers"
     max_iter::Int64 = 100
+    "actual max iterations of the PID solvers"
     iter::Int64 = 0
     "startup time for soft start"
     t_startup = 0.25

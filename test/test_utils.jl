@@ -130,7 +130,7 @@ function speed_controller_step3!(pid1, pid2, winch, calc, i, last_force, last_v_
         reset = false
     end
     set_reset(pid2, reset)
-    v_sw = calc_vro(wcs, pid2.f_set; test=true) * 1.05
+    v_sw = calc_vro(wcs, pid2.f_set) #* 1.05
     set_v_sw(pid2, v_sw)
     set_v_act(pid2, v_ro)
     set_tracking(pid2, v_set_out_A)
