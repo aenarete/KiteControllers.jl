@@ -101,7 +101,7 @@ end
     select_b::Bool = false
 end
 
-function Mixer_2CH(dt, t_blend = 1.0)
+function Mixer_2CH(dt, t_blend)
     Mixer_2CH(dt, t_blend, 0, false)
 end
 
