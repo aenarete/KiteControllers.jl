@@ -29,7 +29,7 @@ end
 
 Calculate the optimal reel-out speed for a given force. 
 """
-function calc_vro(wcs::WCSettings, force; test=false)
+function calc_vro(wcs::WCSettings, force; test=true)
     if test
         return sqrt(force) * wcs.kv
     else
@@ -289,9 +289,9 @@ end
 function calc_sat2in_sat2out_rateout_intin(lfc::LowerForceController, x)
     kb_in = x[begin]
     kt_in = x[begin+1]
-    int_in = lfc.wcs.if_low * lfc.sat_out + lfc.wcs.kbf_low * kb_in + lfc.wcs.ktf_low * kt_in * (! lfc.active)
+    int_in = if_low_scaled(lfc.wcs) * lfc.f_err + lfc.wcs.kbf_low * kb_in + lfc.wcs.ktf_low * kt_in * (! lfc.active)
     int_out = calc_output(lfc.integrator, int_in)
-    sat2_in = int_out + lfc.wcs.pf_low * calc_output(lfc.delay, lfc.f_err)
+    sat2_in = int_out + pf_low_scaled(lfc.wcs) * calc_output(lfc.delay, lfc.f_err)
     sat2_out = saturate(sat2_in, -lfc.wcs.v_ri_max, lfc.wcs.v_sat)
     rate_out = calc_output(lfc.limiter, sat2_out)
     sat2_in, sat2_out, rate_out, int_in
