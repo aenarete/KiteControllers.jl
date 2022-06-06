@@ -10,6 +10,7 @@ using Timers; tic()
 # docs/speed_controller_test1.png
 using KiteControllers, Plots, BenchmarkTools
 inspectdr()
+InspectDR.defaults.xaxiscontrol_visible = false
 
 wcs = WCSettings()
 
