@@ -30,9 +30,9 @@ Settings of the WinchController
     "reel-out velocity where the set force should reach it's maximum"
     vf_max = 2.75
     "P constant of the lower force controller"
-    pf_low = 1.44e-4 * fac
+    pf_low = 1.44e-4
     "I constant of the lower force controller"
-    if_low = 7.5e-3 * 1.5 * fac
+    if_low = 7.5e-3 * 1.5
     "back calculation constant for the anti-windup loop of the lower force controller"
     kbf_low = 1.0
     "tracking constant of the lower force controller"
@@ -59,4 +59,12 @@ Settings of the WinchController
     max_acc = 8.0
     "proportional factor of the square root law, see function calc_vro"
     kv = 0.06
+end
+
+function pf_low_scaled(wcs::WCSettings)
+   wcs.pf_low * wcs.fac
+end
+
+function if_low_scaled(wcs::WCSettings)
+   wcs.if_low * wcs.fac
 end
