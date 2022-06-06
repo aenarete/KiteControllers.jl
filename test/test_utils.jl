@@ -143,7 +143,6 @@ function speed_controller_step3!(pid1, pid2, winch, calc, i, last_force, last_v_
     STATE[i] = pid2.active
     V_SET_OUT_B[i] = v_set_out_B
     v_set_out = calc_output(mix2, v_set_out_A, v_set_out_B)
-    # ACC_SET[i] = (v_set_out - last_v_set_out[]) / wcs.dt
     V_SET_OUT[i] = v_set_out
     v_set = STARTUP[i] * v_set_out
     # set the reel-out speed of the winch
