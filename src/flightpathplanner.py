@@ -1,0 +1,916 @@
+# # -*- coding: utf-8 -*-
+# """
+# Implements the classes FlightPathPlanner and FlightPathCalculator. The main class for
+# external use is FlightPathPlanner. Implementation as specified in chapter five of
+# the PhD thesis of Uwe Fechner.
+# """
+
+# from flufl.enum import Enum
+# from math import sqrt, degrees, radians, cos, sin, atan2, pi
+# from Publisher import Publisher
+# from FPC import FlightPathController, wrapToPi
+# from Settings import pro
+# import asset.system_pb2 as system
+# import numpy as np
+# import time
+# # pylint: disable=C0326, W0105, W0232, E1101
+
+# PRINT = False
+# PRINT_DELTA_BETA = False
+# PRINT_EVERY_SECOND = False
+
+# # BETA_SET                 = 45.0 # for test 503
+# BETA_SET                 = 24.0 # for test 502
+# FIXED_ELEVATION          = False
+# CORRECT_RADIUS           = False
+# W_FIG                    = 28.0 # valid values: 36, 28
+
+# TRANS_FACTOR             = 2.3 # 1.5
+# DIRECT                   = False # skip intermediate target point
+# CLEAN                    = True  # do not use any correction
+
+# PSI_DOT_MAX = 3.0
+
+# ELEVATION_OFFSET         =  0.0
+# ELEVATION_OFFSET_40      =  0.0
+# ELEVATION_OFFSET_P1      =  0.0
+# ELEVATION_OFFSET_P2      = -4.0 # was: -4.4 
+# ELEVATION_OFFSET_P4_HIGH =  0.0
+# AZIMUTH_OFFSET_PHI_1     =  3.0
+# AZIMUTH_OFFSET_PHI_2     = -5.0 # was: -5.0 
+# AZIMUTH_OFFSET_PHI_2     =  0.0
+# ELEVATION_OFFSET_T2      =  3.5
+# ELEVATION_OFFSET_P3_ZERO = -2.4 # degrees; not used, when high elevation pattern is used
+# ELEVATION_OFFSET_P3_ZERO_HIGH = 0.0
+# ELEVATION_OFFSET_P3_ONE_HIGH  = 0.0
+# ELEVATION_OFFSET_P4_ZERO   = -2.0 # not used, when high elevation pattern is used
+# ELEVATION_OFFSET_P4_ONE   =   0.0
+# ELEVATION_OFFSET_P4_ONE_HIGH  =  0.0
+
+# # TODO: check, if HEADING_OFFSET_LOW should become dependant on omega (angular speed)    
+# if W_FIG >= 36.0:
+#     HEADING_OFFSET_LOW  = 22.0 # degrees, before finishing the right and left turns
+#     HEADING_OFFSET_INT =  32.0 #54.0 # dito, for the turn around the intermediate point
+# elif W_FIG <= 28.0:
+#     HEADING_OFFSET_LOW =  20.0
+#     HEADING_OFFSET_INT =  62.0 #54.0 # dito, for the turn around the intermediate point
+# HEADING_OFFSET_HIGH = 54.0 # dito, for elevation angles > 47.5 degrees
+# HEADING_OFFSET_UP   = 60.0 # degrees, before finishing the up-turn
+# HEADING_UPPER_TURN =  360.0-25.0
+
+# DPHI_LOW    =  8.0           # azimuth offset for finishing the turns
+# DPHI_HIGH   = 10.0    
+# DELTA_PHI_1 =  6.0           # azimuth offset for finishing the turn around the intermediate point
+# DELTA_BETA = 1.0
+
+# def form(number):
+#     """ Convert a number to a string with two digits after the decimal point. """
+#     return "{:.2f}".format(number)
+    
+# def addy(vec, y):
+#     result = np.zeros(2)
+#     result[0] = vec[0]
+#     result[1] = vec[1] + y
+#     return result    
+    
+# def addxy(vec, x, y):
+#     result = np.zeros(2)
+#     result[0] = vec[0] + x
+#     result[1] = vec[1] + y
+#     return result    
+    
+
+# class SystemState(Enum):
+#     """ Class for encoding and decoding the field system_state.
+#         See: http://www.kitepower.eu/wiki/index.php/CentralControl. """
+#     ssManualOperation          = 0
+#     ssParking                  = 1
+#     ssPower                    = 2
+#     ssKiteReelOut              = 3
+#     ssWaitUntil                = 4 # wait until high elevation
+#     ssDepower                  = 5
+#     ssIntermediate             = 6 # after ssPower, before ssKiteReelOut
+#     ssLaunching                = 7
+#     ssEmergencyLanding         = 8
+#     ssLanding                  = 9
+#     ssReelIn                   = 10
+#     ssTouchdown                = 11
+#     ssPowerProduction          = 15 # new
+
+# class FPPS(Enum):
+#     """ Class for enconding the state of the flight-path-planner. """
+#     INITIAL                    = 0  # ssManualOperation
+#     UPPER_TURN                 = 1  # ssIntermediate
+#     LOW_RIGHT                  = 2  # ssIntermediate
+#     LOW_TURN                   = 3  # ssIntermediate
+#     LOW_LEFT                   = 4  # ssIntermediate
+#     TURN_LEFT                  = 5  # ssKiteReelOut
+#     FLY_RIGHT                  = 6  # ssKiteReelOut
+#     TURN_RIGHT                 = 7  # ssKiteReelOut
+#     FLY_LEFT                   = 8  # ssKiteReelOut
+#     UP_TURN                    = 9  # ssWaitUntil
+#     UP_TURN_LEFT               = 10
+#     UP_FLY_UP                  = 11  # ssWaitUntil
+#     DEPOWER                    = 12 # ssDepower
+#     POWER                      = 13 # ssPower
+#     PARKING                    = 14 # ssParking
+
+# """
+# message AttractorPoint {
+#    required double azimuth   = 1; // Angle in radians. Zero straight downwind. Positive direction clockwise seen
+#                                   // from above. Valid range: -pi .. pi.
+#                                   // Upwind is the direction the wind is coming from.
+#    required double elevation = 2; // Angle in radians above the horizon. Valid range: -pi/2 to pi/2.
+# }
+# message PlannedFlightPath {
+#     required int32 counter             = 1; // message number
+#     optional AttractorPoint p1         = 2;
+#     optional AttractorPoint p2         = 3;
+#     optional AttractorPoint p3         = 4;
+#     optional AttractorPoint p4         = 5;
+#     optional double phi_1              = 9;  // in degrees
+#     optional double phi_2              = 10; // in degrees
+#     optional double phi_3              = 11; // in degrees
+#     optional double phi_sw             = 12; // in degrees
+#     optional double beta_ri            = 13; // in degrees
+#     required double time_sent          = 20; // unix time, us resolution
+# }
+# """
+
+# class FlightPathCalculator(object):
+#     """
+#     Class, that calculates the planned flight path as specified in the PhD thesis of
+#     Uwe Fechner in chapter five.
+
+#     Inputs:
+#     a) The elevation angle at the end of the power phase (transition from ssPower to ssIntermediate)
+#     b) azimuth and elevation angle of the kite at each time step for the calculation of omega
+
+#     Outputs:
+#     a) the planned flight path as defined in the message PlannedFlightPath (see above)
+#     b) the angular speed of the kite (omega), projected on the unit sphere in degrees per second
+
+#     A new flight path is calculated and published:
+#     a) at the beginning of the reel-out phase (when the method onNewSystemState(ssIntermediate) is called )
+#     b) when the set value of the elevation changes (call of the method publish(beta_set))
+
+#     See also: ./01_doc/planned_fligh_path.png
+#     """
+#     def __init__(self, pro):
+#         if PRINT:
+#             print "FlightPathCalculator.__init__ called!"
+#         self._beta_min = 20.0 # minimal elevation angle of the center of the figure of eight
+#         self._beta_max = 60.0 # maximal elevation angle of the center of the figure of eight
+#         self._r_min =  3.0 # minimal turn radius in degrees
+#         self._r_max =  4.5
+#         self._radius = 4.5
+#         self._w_fig = W_FIG # width of the figure of eight in degrees
+#         self._dphi = 9.0 # correction for finishing the turns
+#         self._phi_c3 = 0.0
+#         self._beta_set = BETA_SET # average elevation angle during reel-out
+#         self._beta_int = 68.5 # elevation angle at the start of beginning of the ssIntermediate
+#         self._k = 0.0 # gradient of straight flight path sections, calculated value
+#         self._k1 = 1.28
+#         self._k4 = 0.175
+#         self._k5 = 37.5
+#         self._k6 = 0.45
+#         self._delta_min = 10.0 # minimal attractor point distance in degrees
+#         self._delta_phi = 0.0  # minimal attractor point distance in phi direction (calculated)
+#         self._delta_beta = 0.0 # minimal attractor point distance in beta direction (calculated)
+#         self._phi = 0.0    # kite position, azimuth
+#         self._last_phi = self._phi
+#         self._beta = 66.0  # kite position, elevation
+#         self._last_beta = self._beta
+#         self._omega = 0.0  # angular velocity of the kite in degrees per second
+#         self._t1 = np.zeros(2)
+#         self._t2 = np.zeros(2)
+#         self._t3 = np.zeros(2)
+#         self._t4 = np.zeros(2)
+#         self._t5 = np.zeros(2) # point, where the upturn starts (end of flying fig. eight)
+#         self._p1 = np.zeros(2)
+#         self._p2 = np.zeros(2)
+#         self._p3 = np.zeros(2)
+#         self._p3_zero = np.zeros(2)
+#         self._p3_zero_high = np.zeros(2)
+#         self._p3_one_high = np.zeros(2)
+#         self._p4 = np.zeros(2)
+#         self._p4_zero = np.zeros(2)
+#         self._p4_one = np.zeros(2)
+#         self._p4_one_high = np.zeros(2)
+#         self._zenith = np.zeros(2)
+#         self._zenith[1] = 90.0 # desired elevation angle at zenith
+#         self._phi_2 = 0.0
+#         self._phi_3 = 0.0
+#         self._phi_sw = 0.0
+#         self._beta_ri = 0.0
+#         self._heading_offset = HEADING_OFFSET_LOW
+#         self._elevation_offset_p4 = 0.0
+#         self._v_wind_gnd = 6.0 # ground wind speed at 6 m height
+#         self._azimuth_offset_phi1 = AZIMUTH_OFFSET_PHI_1
+#         self._elevation_offset_p2 = ELEVATION_OFFSET_P2
+#         self._elevation_offset_t2 = ELEVATION_OFFSET_T2
+#         self.fig8 = 0 # number of the current figure of eight
+#         self._sys_state = SystemState.ssManualOperation
+#         self.pub = None
+#         self.fpc = FlightPathController(pro)
+#         self.high = False
+#         self.elevation_offset = ELEVATION_OFFSET
+#         if not hasattr(self, 'pub2'):
+#             self.pub2 = Publisher(5583)
+
+#     def clear(self, pro, publisher = None):
+#         """ Clear the state of the FPP and assign a publisher for protobuf messages. """
+#         self.__init__(pro)
+#         self.pub = publisher
+
+#     def onNewSystemState(self, new_state, internal = False):
+#         """ Event handler for events, received from the CentralControl program. The flight path planner
+#             must be in sync with the central system state. """
+#         if self._sys_state.value == new_state:
+#             return
+#         else:
+#             if PRINT:
+#                 print "ABC: ", self._sys_state.value, new_state, internal
+#         self._sys_state = SystemState(new_state)
+#         if new_state == SystemState.ssPower.value:
+#             self._beta_int = self._beta
+#             if PRINT:
+#                 print "_beta_int: ", self._beta_int
+#             # calculate and publish the flight path for the next cycle
+#             self.publish(self._beta_set)
+#         if new_state == SystemState.ssParking.value and not internal:
+#             self._switch(FPPS.PARKING)
+            
+#     def setVWindGnd(self, v_wind_gnd):
+#         """
+#         Set the ground wind speed at 6 m height.
+#         """
+#         # print "----> FPP.setVWindGnd:", v_wind_gnd
+#         self._v_wind_gnd = v_wind_gnd
+#         if v_wind_gnd > 8.2: 
+#             self._elevation_offset_p2 =  4.0
+#             self._elevation_offset_t2 = 10.5
+#             self._azimuth_offset_phi1 =  0.0               
+#         elif v_wind_gnd > 8.06: # T505: 8.16
+#             self._elevation_offset_p2 = 3.0
+#             self._elevation_offset_t2 = 9.5
+#             self._azimuth_offset_phi1 = 0.0            
+#         elif v_wind_gnd > 7.2: # T412
+#             self._elevation_offset_p2 = 1.7
+#             self._elevation_offset_t2 = 7.3
+#             self._azimuth_offset_phi1 = 0.0            
+#         elif v_wind_gnd > 6.2: # T503: 6.27
+#             self._elevation_offset_p2 =  0.5
+#             self._elevation_offset_t2 =  4.2
+#             self._azimuth_offset_phi1 =  1.5
+#         elif v_wind_gnd > 5.2: # T502: 5.3
+#             self._elevation_offset_p2 = -4.0
+#             self._elevation_offset_t2 =  3.0
+#             self._azimuth_offset_phi1 =  3.0
+#         elif v_wind_gnd > 3.7: # T501: 3.78  
+#             self._elevation_offset_p2 = -4.0 
+#             self._elevation_offset_t2 =  1.5
+#             self._azimuth_offset_phi1 =  3.0
+#         else:
+#             self._elevation_offset_p2 = -6.0 
+#             self._elevation_offset_t2 = -0.5
+#             self._azimuth_offset_phi1 =  4.0
+
+#     def setAzimuthElevation(self, phi, beta, period_time):
+#         """ Set the kite position in spherical coordinates in the wind reference frame. """
+#         self._phi =  -degrees(phi)
+#         self._beta = degrees(beta)
+#         self._omega = sqrt(((self._beta - self._last_beta) / period_time)**2 \
+#                            + ((self._phi - self._last_phi) / period_time)**2 * (cos(beta))**2)
+#         self._last_beta = self._beta
+#         self._last_phi = self._phi
+
+#     def _calcBetaC1(self, beta_set):
+#         """ Calculate the elevation angle of the turning point as function of the set value of the
+#         average elevation angle during reel-out. """
+#         self._radius = self._r_max - (self._r_max - self._r_min) * (beta_set - self._beta_min) / \
+#                                                               (self._beta_max - self._beta_min)
+#         try:
+#             assert self._radius >= 2.8
+#             assert self._radius <= 5.2
+#         except:
+#             print self._r_max, self._r_min, beta_set, self._beta_min, self._beta_max, self._radius
+#         phi_c3 = self._w_fig/2.0 - self._radius
+#         self._phi_c3 = phi_c3
+#         delta_phi = self._radius**2 / phi_c3
+#         phi_sw = phi_c3 - self._radius**2 / phi_c3
+#         self._phi_sw = phi_sw
+#         beta_sw = sqrt(self._radius**2 - (phi_sw - phi_c3)**2) + beta_set
+#         k = sqrt((phi_c3 - phi_sw) / phi_sw)
+#         beta_cw = beta_sw + k * (phi_c3 + delta_phi)
+#         beta_c1 = 0.5 * (self._beta_int + beta_cw)
+#         self._k = k
+#         return beta_c1, k, beta_cw
+
+#     def _calcK2K3(self, beta_set):
+#         if beta_set > 40.0:
+#             k2 = beta_set - 40.0
+#         else:
+#             k2 = 0.0
+#         if self._r_min < 4.0:
+#             k3 = 4.0 - self._r_min
+#         else:
+#             k3 = 0.0
+#         return k2, k3
+
+#     def _calcT1(self, beta_set):
+#         """
+#         Calculate azimuth and elevation of the point T1, where the first turn starts.
+#         """
+#         k2, k3 = self._calcK2K3(beta_set)
+#         beta_c1, k, beta_cw = self._calcBetaC1(beta_set)
+#         phi_c1 = (beta_c1 - beta_cw - 10.0 * self._k1 * (0.1 * self._radius)**1.2) / k #- k2 * k3 * self._k4
+#         self._t1[0] = (self._beta_int * k + phi_c1 - beta_c1 * k) / (k*k + 1.0)
+#         self._t1[1] = self._beta_int - self._t1[0] * k
+
+#     def calcP1(self, beta_set):
+#         """
+#         Calculate azimuth and elevation of the intermediate attractor point P1.
+#         """
+#         self._calcT1(beta_set)
+#         self._delta_phi = sqrt(self._delta_min**2 / (1.0 + self._k**2))
+#         self._delta_beta = self._k * sqrt(self._delta_min**2 / (1.0 + self._k**2))
+#         self._p1[0] = self._t1[0] + self._delta_phi
+#         self._p1[1] = self._t1[1] - self._delta_beta + ELEVATION_OFFSET_P1
+
+#     def calcP2(self, beta_set):
+#         """
+#         Calculate azimuth and elevation of the second attractor point P2.
+#         """
+#         # Calculate azimuth and elevation of the point T2, where the figure-of-eight starts.
+#         phi_sw, r = self._phi_sw, self._radius
+#         self._t2[0] = -(self._phi_c3 - phi_sw) - self._phi_c3
+#         self._t2[1] = sqrt(r * r - (phi_sw - self._phi_c3)**2) + beta_set
+#         self._p2[0] = self._t2[0] - self._delta_phi
+#         self._p2[1] = (self._t2[1] - self._delta_beta)
+
+#     def calcP3(self):
+#         """
+#         Calculate azimuth and elevation of the third attractor point P3.
+#         """
+#         # Calculate azimuth and elevation of the point T3, where the right turn starts.
+#         self._t3[0] = self._phi_sw
+#         self._t3[1] = self._t2[1]
+#         self._p3[0] = self._t3[0] + self._delta_phi
+#         self._p3_zero[0] = self._p3[0]
+#         self._p3_zero_high[0] = self._p3[0]
+#         self._p3_one_high[0] = self._p3[0]
+#         self._p3[1] = self._t3[1] + self._delta_beta
+#         self._p3_zero[1] = self._p3[1] + ELEVATION_OFFSET_P3_ZERO
+#         self._p3_zero_high[1] = self._p3[1] + ELEVATION_OFFSET_P3_ZERO_HIGH
+#         self._p3_one_high[1] = self._p3[1] + ELEVATION_OFFSET_P3_ONE_HIGH
+
+#     def calcP4(self):
+#         """
+#         Calculate azimuth and elevation of the forth attractor point P4.
+#         """
+#         # Calculate azimuth and elevation of the point T4, where the left turn starts.
+#         self._t4[0] = - self._phi_sw
+#         self._t4[1] = self._t3[1]
+#         self._p4[0] = self._t4[0] - self._delta_phi
+#         self._p4_one[0] = self._p4[0]
+#         self._p4_one_high[0] = self._p4[0]
+#         self._p4_zero[0] = self._p4[0]
+#         self._p4[1] = (self._t4[1] + self._delta_beta) + self._elevation_offset_p4
+#         self._p4_one[1] = self._p4[1] + ELEVATION_OFFSET_P4_ONE
+#         self._p4_one_high[1] = self._p4[1] + ELEVATION_OFFSET_P4_ONE_HIGH
+#         self._p4_zero[1] = self._p4[1] + ELEVATION_OFFSET_P4_ZERO
+
+#     def calcT5(self, beta_set):
+#         """
+#         Calculate azimuth and elevation of the point T5, where the up-turn starts.
+#         """
+#         r, k = self._radius, self._k
+#         self._t5[0] = r - sqrt(k * k * r * r / (k * k + 1.0))
+#         self._t5[1] = beta_set - k * self._t5[0]
+
+#     def publish(self, beta_set = BETA_SET):
+#         """ Calculate and publish the planned flight path. Must be called each time when
+#         the winch controller calculates a new set value for the elevation, but also, when beta_int
+#         changes (at the beginning of each intermediate phase). """
+#         if FIXED_ELEVATION:
+#             beta_set = BETA_SET
+#         if beta_set > 30.0:
+#             self._w_fig = W_FIG + 10.0
+#         if beta_set > 52.0:
+#             self._w_fig = W_FIG +  5.0            
+#         else:
+#             self._w_fig = W_FIG            
+#         if beta_set >= 47.5:
+#             self._heading_offset = HEADING_OFFSET_HIGH
+#             self._dphi = DPHI_HIGH
+#             self._elevation_offset_p4 = ELEVATION_OFFSET_P4_HIGH
+#         else:
+#             if self._v_wind_gnd > 9.2:
+#                 self._heading_offset = HEADING_OFFSET_LOW + 4.0
+#             else:
+#                 self._heading_offset = HEADING_OFFSET_LOW
+#             self._dphi = DPHI_LOW
+#             self._elevation_offset_p4 = 0.0
+#         rel_elevation = (beta_set - 20.0) / 20.0
+#         self._beta_set = beta_set
+#         self.elevation_offset = ELEVATION_OFFSET + rel_elevation * ELEVATION_OFFSET_40
+#         beta_set += self.elevation_offset
+
+#         self.calcP1(beta_set)
+#         self.calcP2(beta_set)
+#         self.calcP3()
+#         self.calcP4()
+#         self.calcT5(beta_set)
+#         if TRANS_FACTOR >= 1.5:
+#             self._t1[0] /= TRANS_FACTOR
+#         self._p1[0] /= TRANS_FACTOR
+#         # self._p1[1] -= 2.5
+#         phi_1 = self._t1[0]
+#         if PRINT:
+#             print "phi_1, _p1[0], beta_set, beta_int", form(phi_1), form(self._p1[0]), form(beta_set), \
+#                                                        form(self._beta_int)
+#         self._phi_2 = self._t2[0]
+#         self._phi_3 = self._t5[0]
+#         self._beta_ri = self._k5 + self._k6 * beta_set + ELEVATION_OFFSET
+#         if self.pub is not None:
+#             self.pub.publishPlannedFlightPath(self._p1, self._p2, self._p3, self._p4, self._t1[0], self._t2[0], \
+#                                               self._t5[0], self._phi_sw, self._beta_ri)
+
+# """
+# message AttractorPoint {
+#    required double azimuth   = 1; // Angle in radians. Zero straight downwind. Positive direction clockwise seen
+#                                   // from above. Valid range: -pi .. pi.
+#                                   // Upwind is the direction the wind is coming from.
+#    required double elevation = 2; // Angle in radians above the horizon. Valid range: -pi/2 to pi/2.
+# }
+
+# message FPC_Command {
+#     required int32 counter             = 1;  // sequence number of the message
+#     required bool turn                 = 2;  // if true, than a turn rate must be given, otherwise an attractor 
+#                                                 point
+#     optional double psi_dot            = 3;  // desired turn rate in degrees per second
+#     optional AttractorPoint attractor  = 4;  // the kite should fly towards this point
+#     required double time_sent          = 20; // unix time, us resolution
+# }
+# """
+
+# class FlightPathPlanner(FlightPathCalculator):
+#     """
+#     Class, that implements the state machine as described in the PhD thesis of Uwe Fechner, chapter
+#     five. It inherits from the flight path calculator. It uses the pre-calculated flight path together
+#     with incoming kite state data to calculate the FPC_Command messages, if needed.
+
+#     Inputs:
+#     a) the inherited flight path and angular kite speed omega (on the unit circle)
+#     b) the actual depower value of the kite
+#     c) the actual reel-out length of the tether
+#     d) the actual orientation of the kite: the heading angle
+#     e) the height of the kite
+
+#     Output:
+#     FPC_Command messages as defined above.
+#     """
+#     def __init__(self, pro, clear=False, publisher=None):
+#         if clear:
+#             super(FlightPathPlanner, self).clear(pro, publisher)
+#         else:
+#             super(FlightPathPlanner, self).__init__(pro)
+#         self._state = FPPS.INITIAL
+#         self.delta_depower = 0.0 # this value must be increased, if the power is too high
+#         self.const_dd      = 0.7 # greek delta_depower
+#         self.u_d_ro =  0.01 * pro._mode.min_depower  # min_depower
+#         self.u_d_ri =  0.01 * pro._mode.max_depower # max_depower
+#         self.u_d_pa = 0.25   # parking depower
+#         self.l_low = pro._mode.min_length   # lower length
+#         self.l_up  = pro._mode.max_length   # upper lenght
+#         self.z_up  = pro._mode.max_height   # upper height
+#         self.count = 0
+#         self.finish = False
+
+#     def clear(self, pro, publisher=None):
+#         self.__init__(pro, clear=True, publisher=publisher)
+
+#     def setLlowLup(self, l_low, l_up):
+#         self.l_low = l_low
+#         self.l_up = l_up
+
+#     def start(self):
+#         """
+#         Start automated power production; Precondition: The kite is parking at a high elevation angle.
+#         """
+#         if self._sys_state == SystemState.ssManualOperation or self._sys_state == SystemState.ssParking:
+#             # see: Table 5.3
+#             self._switch(FPPS.POWER)
+
+#     def isActive(self):
+#         """ Check, if the new flight path planner is active. """
+#         return self._state != FPPS.INITIAL
+
+#     def getState(self):
+#         """ Return the state of the flight path planner as integer for logging. """
+#         return self._state.value
+
+#     def onNewEstSysState(self, period_time, phi, beta, heading, course, v_a, u_d):
+#         """
+#         Parameters:
+#         phi:  the azimuth angle of the kite position in radian
+#         beta: the elevation angle of the kite position in radian
+#         psi:  heading of the kite in radian
+#         u_d:  relative depower of the kite (0..1)
+#         """
+#         psi = wrapToPi(heading)
+#         chi = wrapToPi(course)
+#         self.fpc.onNewEstSysState(-phi, beta, -psi, -chi, self._omega, v_a, u_d=u_d, period_time=period_time)
+
+#     def onNewData(self, depower, length, heading, height, time):
+#         """
+#         Parameters:
+#         depower: 0.0 .. 1.0
+#         length: tether length [m]
+#         heading: 0 .. 2 pi (psi)
+#         height: height [m]
+
+#         Inherited:
+#         self._phi:   azimuth in degrees
+#         self._beta:  elevation in degrees
+#         self._omega: angular speed in degrees per second
+
+#         Determine, if a state change is need it and change it by calling the switch method, if neccessary.
+#         """
+#         phi, psi  = self._phi, heading
+#         beta = self._beta
+#         phi_1 = self._t1[0]
+#         phi_2 = self._phi_2
+#         phi_3 = self._phi_3
+#         state = self._state
+#         if self.fig8 == 0:
+#             dphi = self._dphi + 5.0 
+#         elif self.fig8 <= 2:
+#             dphi = self._dphi + 3.0
+#         else:
+#             dphi = self._dphi + 2.0
+#         #if PRINT:
+#         #    print "dphi: ", form(dphi)
+#         # see: Table 5.3, 5.4
+#         if state == FPPS.POWER:
+#             self.finish = False
+#             # use the intermediate point only if we have to fly down more than 20 degrees
+#             delta_beta = beta - self._beta_set - self._radius
+#             if (beta > self._beta_set + 25.0 + self._radius) and not DIRECT:
+#                 if depower < self.u_d_ro + self.delta_depower + self.const_dd * \
+#                                                            (self.u_d_ri - self.u_d_ro - self.delta_depower):
+#                     if PRINT_DELTA_BETA:
+#                         print "Delta beta large: ", form(delta_beta)  
+#                     self.fig8 = -1
+#                     self.high = False
+#                     self._switch(FPPS.UPPER_TURN)
+#             else:
+#                 if depower < self.u_d_ro + self.delta_depower + self.const_dd * \
+#                                                            (self.u_d_ri - self.u_d_ro - self.delta_depower):
+#                     if PRINT_DELTA_BETA:
+#                         print "Delta beta low: ", form(delta_beta)                                                          
+#                     self.fig8 = -1
+#                     self.high = True
+#                     self._switch(FPPS.FLY_LEFT, delta_beta)
+#         elif state == FPPS.UPPER_TURN and psi > pi and psi < radians(HEADING_UPPER_TURN):
+#             self._switch(FPPS.LOW_RIGHT)
+#         elif state == FPPS.LOW_RIGHT and phi < -phi_1 + self._azimuth_offset_phi1:
+#             self.fig8 += 1
+#             print "LOW_TURN; phi, psi:", form(phi), form(degrees(psi))
+#             self._switch(FPPS.LOW_TURN)
+#         elif state == FPPS.LOW_TURN  and psi < radians(180.0 + HEADING_OFFSET_INT): # and phi > -phi_1 - DELTA_PHI_1:
+#             if PRINT:
+#                 print "===>>> time, phi, _phi_sw + dphi, psi", form(time), form(phi), form(-phi_1 - DELTA_PHI_1), \
+#                                                             form(degrees(psi))
+#             print "LOW_TURN_ENDS; phi, beta:", form(phi), form(degrees(psi))            
+#             self._switch(FPPS.LOW_LEFT)
+#         elif state == FPPS.LOW_LEFT  and phi > -phi_2 + AZIMUTH_OFFSET_PHI_2 \
+#                                      and beta < (self._beta_set + self._radius + 0.5 * self.elevation_offset + \
+#                                          self._elevation_offset_t2):
+#             self._switch(FPPS.TURN_LEFT)
+#         # see: Table 5.5
+#         elif state == FPPS.FLY_LEFT  and phi > self._phi_sw \
+#                                      and beta > (self._beta_set + self._radius + 0.5 * self.elevation_offset - DELTA_BETA) \
+#                                      and beta < (self._beta_set + self._radius + 0.5 * self.elevation_offset + 2.3):
+#             self.fig8 += 1            
+#             self._switch(FPPS.TURN_LEFT)
+#         elif state == FPPS.TURN_LEFT and psi > radians(180.0 - self._heading_offset):# and phi < self._phi_sw + dphi:
+#             if PRINT:
+#                 print "===>>> time, phi, _phi_sw + dphi, psi, fig8", form(time), form(phi), \
+#                                               form(self._phi_sw + dphi), form(degrees(psi)), form(self.fig8)
+#             self._switch(FPPS.FLY_RIGHT)
+#         elif state == FPPS.FLY_RIGHT and phi >= phi_3:
+#             if not self.finish:
+#                 self.finish = (length > self.l_up or height > self.z_up)
+#                 if self.finish and PRINT:
+#                     print '=========> Set finish to True! '
+#         elif state == FPPS.FLY_RIGHT and self.finish and phi < phi_3:
+#             self._switch(FPPS.UP_TURN_LEFT)
+#         elif state == FPPS.FLY_RIGHT and phi < -self._phi_sw \
+#                                      and beta > (self._beta_set + self._radius + 0.5 * self.elevation_offset - DELTA_BETA):
+#             self._switch(FPPS.TURN_RIGHT)
+#         elif state == FPPS.TURN_RIGHT and psi < radians(180.0 + self._heading_offset): # and phi > -self._phi_sw - dphi:
+#             self._switch(FPPS.FLY_LEFT)
+#         # check, if the condition for finishing is fullfilled while still beeing on the left hand side
+#         #    of the wind window
+#         elif state == FPPS.FLY_LEFT and phi <= -phi_3:
+#             if not self.finish:
+#                 self.finish = (length > self.l_up or height > self.z_up)
+#                 if self.finish and PRINT:
+#                     print '=========> Set finish to True! '
+#         elif state == FPPS.FLY_LEFT and self.finish and phi > -phi_3:
+#             self._switch(FPPS.UP_TURN)
+#         elif state == FPPS.UP_TURN and (psi > radians(360.0 - HEADING_OFFSET_UP) or psi < radians(HEADING_OFFSET_UP)):
+#             self._switch(FPPS.UP_FLY_UP)
+#         elif state == FPPS.UP_TURN_LEFT and (psi > radians(360.0 - HEADING_OFFSET_UP) or psi < radians(HEADING_OFFSET_UP)):
+#             self._switch(FPPS.UP_FLY_UP)
+#         elif state == FPPS.UP_FLY_UP and ((self._beta > self._beta_ri) or (height > self.z_up) or length > (self.l_up + 57.0)):
+#             self._switch(FPPS.DEPOWER)
+#         # see: Table 5.3
+#         elif state == FPPS.DEPOWER and length < self.l_low:
+#             self.fig8 = 0
+#             self._switch(FPPS.POWER)
+#         # print some debug info every second
+#         self.count += 1
+#         if self.count >= 50:
+#             u_s = self.fpc.getSteering()
+#             chi_set = self.fpc.chi_set
+#             chi_factor = self.fpc.getChiFactor()
+#             if PRINT_EVERY_SECOND:
+#                 print "omega, phi, beta, state, chi_factor", form(self._omega), form(self._phi), form(self._beta),\
+#                                                          self._state, form(chi_factor)
+#                 print "--> heading, course, bearing, steering", form(degrees(self.fpc.psi)), \
+#                              form(degrees(self.fpc.chi)), form(degrees(chi_set)), form(100 * u_s)
+#                 turning, value = self.fpc.getState()
+#                 if turning:
+#                     print "--> turning. psi_dot_set: ", form(degrees(value))
+#                 else:
+#                     print "--> no turn. attractor:   ", form(degrees(value[0])), form(degrees(value[1]))
+#                 print "beta_set, intermediate", form(self._beta_set), self.fpc.intermediate
+#             self.count = 0
+
+#     def _publishFPC_Command(self, turn, attractor=None, psi_dot=None, radius=None, intermediate = False):
+#         """
+#         Publish a new command of the flight path planner and call the related method of the
+#         flight path controller directly. Publishing is currently only relevant for logging and debugging.
+#         """
+#         if psi_dot is not None:
+#             psi_dot = degrees(psi_dot)
+#         fpc_attactor = attractor * np.array((-1.0, 1.0))
+#         self.pub2.publishFPC_Command(turn, fpc_attactor, psi_dot)
+#         self.fpc.onNewControlCommand(attractor=np.radians(fpc_attactor), psi_dot_set=psi_dot, radius=radius, intermediate = intermediate)
+#         if PRINT:
+#             print "New FPC command. Intermediate: ", intermediate
+#             if psi_dot is None:
+#                 print "New attractor point:", form(fpc_attactor[0]), form(fpc_attactor[1])
+#             else:
+#                 if radius is None:
+#                     print "New psi_dot_set [°/s] ", form(psi_dot)
+#                 else:
+#                     print "New psi_dot_set [°/s], radius [°] ", form(psi_dot), form(radius)
+
+#     def _calcMidPoint(self, point1, point2):
+#         """
+#         Calculate the mid point of two points on a sphere.
+#         """
+#         dazi = point2[0] - point1[0]
+#         Bx = cos(point2[1]) * cos(dazi)
+#         By = cos(point2[1]) * sin(dazi)
+#         midpoint = np.zeros(2)
+#         midpoint[0] = point1[0] + atan2(By, cos(point1[1]) + Bx)
+#         midpoint[1] = atan2(sin(point1[1]) + sin(point2[1]), sqrt((cos(point1[1]) + Bx)**2) + By**2)
+#         return midpoint
+
+
+#     """
+#     message WayPoint {
+#        required double azimuth   = 1; // Angle in radians. Zero straight downwind. Positive direction clockwise seen
+#                                       // from above. Valid range: -pi .. pi.
+#                                       // Upwind is the direction the wind is coming from.
+#        required double elevation = 2; // Angle in radians above the horizon. Valid range: -pi/2 to pi/2.
+#     }
+
+#     // track from the current kite position to nearest waypoint of the desired high level trajectory
+#     message Bearing {
+#         required int32 counter              = 1; // sequence number of the package; limited to 16 bit
+#         repeated WayPoint bearing           = 2; // list of waypoints, recalculated on every FAST_CLOCK event,
+#                                                  // when an autopilot is active
+#         required double time_sent           = 3; // time, when the bearing was sent from the controller
+#     }
+#     """
+#     def calcSteering(self, parking, period_time):
+#         """
+#         Calculate the steering and send a bearing vector to be drawn in frontview.
+#         Bearing vector: Desired trajectory to the next attractor point.
+#         """
+#         result = self.fpc.calcSteering(parking, period_time)
+#         p1, p3 = np.zeros(2), np.zeros(2)
+#         p1[0], p1[1] = -self.fpc.phi, self.fpc.beta
+#         p3 = self.fpc.attractor * np.array((-1.0, 1.0))
+#         p2 = self._calcMidPoint(p1, p3)
+#         self.pub.publishBearing(p1, p2, p3)
+#         return result
+
+#     def _switch(self, state, delta_beta = 0.0):
+#         """
+#         Switch the state of the FPP. Execute all actions, that are needed when the new state is entered.
+#         Return immidiately, if the new state is equal to the old state.
+#         """
+#         if state == self._state:
+#             return
+#         psi_dot_turn = self._omega / self._radius # desired turn rate during the turns
+#         # see: Table 5.3
+#         if state == FPPS.POWER:
+#             depower = self.u_d_ro + self.delta_depower
+#             self.pub2.sendEvent(system.KITE_CTRL_CMD, depower = depower * 100.0) # Table 5.3
+#             sys_state = SystemState.ssPower
+#         if state == FPPS.UPPER_TURN:
+#             self._publishFPC_Command(True, psi_dot = PSI_DOT_MAX, attractor = self._p1, \
+#             intermediate = True)
+#             sys_state = SystemState.ssIntermediate
+#         # see: Table 5.4
+#         elif state == FPPS.LOW_RIGHT:
+#             self._publishFPC_Command(False, attractor = self._p1, intermediate = True)
+#             sys_state = SystemState.ssIntermediate
+#         elif state == FPPS.LOW_TURN:
+#             p2 = addy(self._p2, self._elevation_offset_p2)
+#             self._publishFPC_Command(True, psi_dot = psi_dot_turn, radius=self._radius, attractor = p2, intermediate = True)
+#             sys_state = SystemState.ssIntermediate
+#         elif state == FPPS.LOW_LEFT:
+#             p2 = addy(self._p2, self._elevation_offset_p2)
+#             self._publishFPC_Command(False, attractor = p2, intermediate = True)
+#             sys_state = SystemState.ssIntermediate
+#         # see: Table 5.5
+#         elif state == FPPS.TURN_LEFT:
+#             radius = -self._radius
+#             if CORRECT_RADIUS and self.fig8 == 0:
+#                 radius *= 0.8
+#             if PRINT:
+#                 print "======>>> self.fig8, radius", self.fig8, form(radius)
+#             self._publishFPC_Command(True, psi_dot = -psi_dot_turn, radius=radius,  attractor = self._p3)
+#             sys_state = SystemState.ssKiteReelOut
+#         elif state == FPPS.FLY_RIGHT:
+#             if self.fig8 == 0:
+#                 if self.high:
+#                     self._publishFPC_Command(False, attractor = self._p3_zero_high)
+#                     # print "AAA"
+#                 else:
+#                     self._publishFPC_Command(False, attractor = self._p3_zero)
+#                     # print "BBB"
+#             elif self.fig8 == 1 and self.high:
+#                 self._publishFPC_Command(False, attractor = self._p3_one_high)
+#                 # print "CCC"
+#             else:
+#                 self._publishFPC_Command(False, attractor = self._p3)
+#                 # print "DDD"
+#             sys_state = SystemState.ssKiteReelOut
+#         elif state == FPPS.TURN_RIGHT:
+#             radius = self._radius
+#             if CORRECT_RADIUS:
+#                 radius += (self._beta - (self._t2[1])) * 0.5
+#                 if radius < 1.5:
+#                     radius = 1.5
+#             self._publishFPC_Command(True, psi_dot = psi_dot_turn, radius=radius, attractor = self._p4)
+#             sys_state = SystemState.ssKiteReelOut
+#         elif state == FPPS.FLY_LEFT:
+#             if self.fig8 == 0 and not self.high:
+                
+#                 self._publishFPC_Command(False, attractor = self._p4_zero)
+#             if self.fig8 == 1:
+#                 if not self.high:
+#                     self._publishFPC_Command(False, attractor = self._p4_one)
+#                 else:
+                    
+#                     self._publishFPC_Command(False, attractor = self._p4_one_high)
+#             else:
+#                 if delta_beta < 10.0:
+#                     delta_beta = 0.0
+#                 else:
+#                     delta_beta -= 10.0
+#                 y = -1.5 * delta_beta
+#                 x = delta_beta
+#                 if delta_beta > 0.0:
+#                     print "--->>> x, y=", form(x), form(y)
+#                 self._publishFPC_Command(False, attractor = addxy(self._p4, x, y))
+#             sys_state = SystemState.ssKiteReelOut
+#         # see: Table 5.6
+#         elif state == FPPS.UP_TURN:
+#             self._publishFPC_Command(True, psi_dot = psi_dot_turn, radius=self._radius, attractor = self._zenith)
+#             sys_state = SystemState.ssWaitUntil
+#         elif state == FPPS.UP_TURN_LEFT:
+#             self._publishFPC_Command(True, psi_dot = -psi_dot_turn, radius=-self._radius, attractor = self._zenith)
+#             sys_state = SystemState.ssWaitUntil
+#         elif state == FPPS.UP_FLY_UP:
+#             self._publishFPC_Command(False, attractor = self._zenith)
+#             sys_state = SystemState.ssWaitUntil
+#         elif state == FPPS.DEPOWER:
+#             self._publishFPC_Command(False, attractor = self._zenith)
+#             self.pub2.sendEvent(system.KITE_CTRL_CMD, depower = self.u_d_ri * 100.0) # Table 5.3
+#             sys_state = SystemState.ssDepower
+#         elif state == FPPS.PARKING:
+#             self._publishFPC_Command(False, attractor = self._zenith)
+#             self.pub2.sendEvent(system.KITE_CTRL_CMD, depower = self.u_d_pa * 100.0) # Table 5.3
+#             sys_state = SystemState.ssParking
+
+#         if sys_state.value != self._sys_state.value:
+#             if PRINT:
+#                 print "############## -->>>>>>>", sys_state, self._sys_state
+#             self._sys_state = sys_state
+#             self.onNewSystemState(sys_state.value, True)
+#             self.pub2.sendEvent(system.NEW_SYSTEM_STATE, system_state=sys_state.value)
+#             time.sleep(0.001)
+
+
+#         if PRINT:
+#             print "Switching to: ", state
+#         self._state = state
+
+#     def getFPP_State(self):
+#         """ Return the state of the flight path planner (instance of the enum FPPS). """
+#         return self._state
+        
+# class SystemStateControl(object):
+#     """ 
+#     Highest level state machine
+
+#     Minimal set of states:
+#     ssManualOperation, ssParking, ssPowerProduction
+   
+#     Input:
+#     - event PARKING_MODE
+#     - event PARKING_MODE, tether_length defined (park at length)
+#     - event PARKING_MODE
+#     - event START_POWER_PRODUCTION
+#     - event STOP_AUTOPILOTS
+   
+#     Output:
+#     - event NEW_SYSTEM_STATE via pub2
+   
+#     """
+#     def __init__(self, pro, publisher=None):
+#         self.pub = publisher
+#         self.pro = pro
+#         self.tether_length = None
+#         self._state = SystemState.ssManualOperation
+        
+#     def clear(self, pro, publisher):
+#         self.__init__(pro)
+#         # print "----->>>>> CLEAR:", publisher
+#         self.pub = publisher        
+       
+#     def on_parking_mode(self, tether_length = None): # OK        
+#         self.tether_length = tether_length
+#         self._switch(SystemState.ssParking)
+   
+#     def on_start_power_production(self): # OK
+#         self._switch(SystemState.ssPowerProduction)
+   
+#     def on_stop_autopilots(self): #OK
+#         self._switch(SystemState.ssManualOperation)
+   
+#     def _switch(self, state):   
+#         """
+#         Switch the state of the SSC. Execute all actions, that are needed when the new state is entered.
+#         """
+#         if self._state == state and state != SystemState.ssParking:
+#             return
+#         self._state = state       
+#         if self.pub is not None:
+#             if state == SystemState.ssParking:
+#                 self.pub.publishSystemState(state.value, self.tether_length)
+#             else:
+#                 self.pub.publishSystemState(state.value)
+
+# # pylint: disable=W0212
+# if __name__ == "__main__":
+#     fpp = None
+#     try:
+#         fpp = FlightPathPlanner(pro)
+#         print "normal: ", fpp._calcBetaC1(22.0)
+#         print "high: ", fpp._calcBetaC1(60.0)
+#         print
+#         fpp.publish(BETA_SET)
+#         print "Radius:", fpp._radius
+#         print "\nT1", fpp._t1
+#         print "P1", fpp._p1
+#         # print "phi_sw, phi_c3", form(fpp._phi_sw), form(fpp._phi_c3)
+#         print "T2", fpp._t2
+#         print "P2", fpp._p2
+#         print "T3", fpp._t3
+#         print "P3", fpp._p3
+#         print "T4", fpp._t4
+#         print "P4", fpp._p4
+#         print "T5", fpp._t5
+
+#         print "\nbeta_ri: ", fpp._beta_ri
+
+#         fpp._beta_int = 87.5
+#         fpp.publish(60.0)
+#         print "\nP1_high:", fpp._p1
+#         print "phi2", fpp._phi_2
+#         print "phi3", fpp._phi_3
+#         print "phi_sw", fpp._phi_sw
+#     finally:
+#         if fpp is not None:
+#             fpp.pub2.close()
