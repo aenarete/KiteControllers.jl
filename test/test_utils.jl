@@ -103,7 +103,7 @@ function speed_controller_step2!(pid, winch, calc, i, last_force, last_v_set_out
     last_v_set_out = v_set_out
 end
 
-function speed_controller_step3!(pid1, pid2, winch, calc, i, last_force, last_v_set_out, V_WIND, STARTUP, V_RO, ACC, FORCE, V_SET_OUT, STATE, V_ERR, F_ERR)
+function speed_controller_step3!(pid1, pid2, winch, calc, i, last_force, last_v_set_out, V_WIND, STARTUP, V_RO, ACC, FORCE, V_SET_OUT, V_SET_OUT_B, STATE, V_ERR, F_ERR)
 
     # calc v_set_in of the speed controller
     set_vset_pc(calc, nothing, last_force[])
@@ -130,7 +130,7 @@ function speed_controller_step3!(pid1, pid2, winch, calc, i, last_force, last_v_
         reset = false
     end
     set_reset(pid2, reset)
-    v_sw = calc_vro(wcs, pid2.f_set) * 1.05
+    v_sw = calc_vro(wcs, pid2.f_set; test=true) * 1.05
     set_v_sw(pid2, v_sw)
     set_v_act(pid2, v_ro)
     set_tracking(pid2, v_set_out_A)
@@ -141,6 +141,7 @@ function speed_controller_step3!(pid1, pid2, winch, calc, i, last_force, last_v_
     select_b(mix2, pid2.active)
     set_inactive(pid1, pid2.active)
     STATE[i] = pid2.active
+    V_SET_OUT_B[i] = v_set_out_B
     v_set_out = calc_output(mix2, v_set_out_A, v_set_out_B)
     # ACC_SET[i] = (v_set_out - last_v_set_out[]) / wcs.dt
     V_SET_OUT[i] = v_set_out
