@@ -346,35 +346,29 @@ function on_timer(lfc::LowerForceController)
     on_timer(lfc.delay)
 end
 
-# class UpperForceController(object):
-#     """
-#     PI controller for the lower force of the tether.
-#     While inactive, it tracks the value from the tracking input.
-#     Back-calculation is used as anti-windup method and for tracking. The constant for
-#     anti-windup is K_b, the constant for tracking K_t
-#     Implements the simulink block diagram, shown in ./01_doc/lower_force_controller.png.
-#     """
-#     def __init__(self, P, I, D, N, K_b, K_t):
-#         self._P = P
-#         self.integrator = Integrator()
-#         self.int2 = Integrator() # integrater of the D part
-#         self._I = I
-#         self._D = D
-#         self._N = N
-#         self._K_b = K_b
-#         self._K_t = K_t
-#         self._v_act = 0.0
-#         self._force = 0.0
-#         self._reset = False
-#         self._active = False
-#         self._f_set = 0.0
-#         self._v_sw = 0.0
-#         self._tracking = 0.0
-#         self._f_err = 0.0      # output, calculated by solve
-#         self._v_set_out = 0.0  # output, calculated by solve
-#         self.limiter = RateLimiter()
-#         self.delay = UnitDelay()
-#         self.res = np.zeros(3)
+# PID controller for the upper force of the tether.
+# While inactive, it tracks the value from the tracking input.
+# Back-calculation is used as anti-windup method and for tracking. The constant for
+# anti-windup is K_b, the constant for tracking K_t
+# Implements the simulink block diagram, shown in docs/upper_force_controller.png.
+@with_kw mutable struct UpperForceController <: AbstractForceController @deftype Float64
+    wcs::WCSettings
+    integrator::Integrator = Integrator(wcs.dt)
+    int2::Integrator = Integrator(wcs.dt)
+    limiter::RateLimiter = RateLimiter(wcs.dt, wcs.max_acc)
+    delay::UnitDelay = UnitDelay()
+    reset::Bool = false
+    active::Bool = false
+    f_set = 0
+    v_sw = 0
+    v_act = 0
+    force = 0
+    tracking = 0
+    f_err = 0         # output, calculated by solve
+    v_set_out = 0     # output, calculated by solve
+    sat_out = 0       # output of saturate block
+    res::MVector{3, Float64} = zeros(3)
+end
 
 #     def _set(self):
 #         """ internal method to set the SR flip-flop and activate the force controller """
@@ -439,18 +433,9 @@ end
 #     def getFSetUpper(self):
 #         return self._active * self._f_set
 
-#     def onTimer(self):
-#         self.limiter.onTimer()
-#         self.integrator.onTimer()
-#         self.int2.onTimer()
-#         self.delay.onTimer()
-
-# if __name__ == "__main__":
-#     limiter = RateLimiter()
-#     mix2 = Mixer_2CH()
-#     mix3 = Mixer_3CH()
-#     pid1 = SpeedController()
-#     pid2 = LowerForceController(pf_low, if_low, kbf_low, ktf_low)
-#     pid3 = UpperForceController(pf_high, if_high, df_high, nf_high, kbf_high, ktf_high)
-#     winch = Winch()
-#     kite = KiteModel()
+function on_timer(ufc::UpperForceController)
+    on_timer(ufc.limiter)
+    on_timer(ufc.integrator)
+    on_timer(ufc.int2)
+    on_timer(ufc.delay)
+end
