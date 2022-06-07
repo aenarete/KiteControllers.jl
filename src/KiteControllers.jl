@@ -26,5 +26,6 @@ include("flightpathcontroller.jl")
 include("wc_settings.jl")
 include("wc_components.jl")
 include("winchcontroller.jl")
+include("flightpathplanner.jl")
 
 end
