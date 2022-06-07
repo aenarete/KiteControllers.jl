@@ -112,8 +112,6 @@ end
 #     See also: docs/planned_fligh_path.png
 #     """
 #     def __init__(self, pro):
-#         if PRINT:
-#             print "FlightPathCalculator.__init__ called!"
 #         self._beta_min = 20.0 # minimal elevation angle of the center of the figure of eight
 #         self._beta_max = 60.0 # maximal elevation angle of the center of the figure of eight
 #         self._r_min =  3.0 # minimal turn radius in degrees
@@ -166,7 +164,6 @@ end
 #         self._elevation_offset_t2 = ELEVATION_OFFSET_T2
 #         self.fig8 = 0 # number of the current figure of eight
 #         self._sys_state = SystemState.ssManualOperation
-#         self.pub = None
 #         self.fpc = FlightPathController(pro)
 #         self.high = false
 #         self.elevation_offset = ELEVATION_OFFSET
