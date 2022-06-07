@@ -1,72 +1,50 @@
-# # -*- coding: utf-8 -*-
-# """
 # Implements the classes FlightPathPlanner and FlightPathCalculator. The main class for
 # external use is FlightPathPlanner. Implementation as specified in chapter five of
 # the PhD thesis of Uwe Fechner.
-# """
 
-# from flufl.enum import Enum
-# from math import sqrt, degrees, radians, cos, sin, atan2, pi
-# from Publisher import Publisher
-# from FPC import FlightPathController, wrapToPi
-# from Settings import pro
-# import asset.system_pb2 as system
-# import numpy as np
-# import time
-# # pylint: disable=C0326, W0105, W0232, E1101
+BETA_SET                 = 24.0 # for test 502
+FIXED_ELEVATION          = False
+CORRECT_RADIUS           = False
+W_FIG                    = 28.0 # valid values: 36, 28
 
-# PRINT = False
-# PRINT_DELTA_BETA = False
-# PRINT_EVERY_SECOND = False
+TRANS_FACTOR             = 2.3 # 1.5
+DIRECT                   = False # skip intermediate target point
+CLEAN                    = True  # do not use any correction
 
-# # BETA_SET                 = 45.0 # for test 503
-# BETA_SET                 = 24.0 # for test 502
-# FIXED_ELEVATION          = False
-# CORRECT_RADIUS           = False
-# W_FIG                    = 28.0 # valid values: 36, 28
+PSI_DOT_MAX = 3.0
 
-# TRANS_FACTOR             = 2.3 # 1.5
-# DIRECT                   = False # skip intermediate target point
-# CLEAN                    = True  # do not use any correction
+ELEVATION_OFFSET         =  0.0
+ELEVATION_OFFSET_40      =  0.0
+ELEVATION_OFFSET_P1      =  0.0
+ELEVATION_OFFSET_P2      = -4.0 # was: -4.4 
+ELEVATION_OFFSET_P4_HIGH =  0.0
+AZIMUTH_OFFSET_PHI_1     =  3.0
+AZIMUTH_OFFSET_PHI_2     = -5.0 # was: -5.0 
+AZIMUTH_OFFSET_PHI_2     =  0.0
+ELEVATION_OFFSET_T2      =  3.5
+ELEVATION_OFFSET_P3_ZERO = -2.4 # degrees; not used, when high elevation pattern is used
+ELEVATION_OFFSET_P3_ZERO_HIGH = 0.0
+ELEVATION_OFFSET_P3_ONE_HIGH  = 0.0
+ELEVATION_OFFSET_P4_ZERO   = -2.0 # not used, when high elevation pattern is used
+ELEVATION_OFFSET_P4_ONE   =   0.0
+ELEVATION_OFFSET_P4_ONE_HIGH  =  0.0
 
-# PSI_DOT_MAX = 3.0
+if W_FIG >= 36.0
+    HEADING_OFFSET_LOW  = 22.0 # degrees, before finishing the right and left turns
+    HEADING_OFFSET_INT =  32.0 #54.0 # dito, for the turn around the intermediate point
+elseif W_FIG <= 28.0
+    HEADING_OFFSET_LOW =  20.0
+    HEADING_OFFSET_INT =  62.0 #54.0 # dito, for the turn around the intermediate point
+end
+HEADING_OFFSET_HIGH = 54.0 # dito, for elevation angles > 47.5 degrees
+HEADING_OFFSET_UP   = 60.0 # degrees, before finishing the up-turn
+HEADING_UPPER_TURN =  360.0-25.0
 
-# ELEVATION_OFFSET         =  0.0
-# ELEVATION_OFFSET_40      =  0.0
-# ELEVATION_OFFSET_P1      =  0.0
-# ELEVATION_OFFSET_P2      = -4.0 # was: -4.4 
-# ELEVATION_OFFSET_P4_HIGH =  0.0
-# AZIMUTH_OFFSET_PHI_1     =  3.0
-# AZIMUTH_OFFSET_PHI_2     = -5.0 # was: -5.0 
-# AZIMUTH_OFFSET_PHI_2     =  0.0
-# ELEVATION_OFFSET_T2      =  3.5
-# ELEVATION_OFFSET_P3_ZERO = -2.4 # degrees; not used, when high elevation pattern is used
-# ELEVATION_OFFSET_P3_ZERO_HIGH = 0.0
-# ELEVATION_OFFSET_P3_ONE_HIGH  = 0.0
-# ELEVATION_OFFSET_P4_ZERO   = -2.0 # not used, when high elevation pattern is used
-# ELEVATION_OFFSET_P4_ONE   =   0.0
-# ELEVATION_OFFSET_P4_ONE_HIGH  =  0.0
-
-# # TODO: check, if HEADING_OFFSET_LOW should become dependant on omega (angular speed)    
-# if W_FIG >= 36.0:
-#     HEADING_OFFSET_LOW  = 22.0 # degrees, before finishing the right and left turns
-#     HEADING_OFFSET_INT =  32.0 #54.0 # dito, for the turn around the intermediate point
-# elif W_FIG <= 28.0:
-#     HEADING_OFFSET_LOW =  20.0
-#     HEADING_OFFSET_INT =  62.0 #54.0 # dito, for the turn around the intermediate point
-# HEADING_OFFSET_HIGH = 54.0 # dito, for elevation angles > 47.5 degrees
-# HEADING_OFFSET_UP   = 60.0 # degrees, before finishing the up-turn
-# HEADING_UPPER_TURN =  360.0-25.0
-
-# DPHI_LOW    =  8.0           # azimuth offset for finishing the turns
-# DPHI_HIGH   = 10.0    
-# DELTA_PHI_1 =  6.0           # azimuth offset for finishing the turn around the intermediate point
-# DELTA_BETA = 1.0
-
-# def form(number):
-#     """ Convert a number to a string with two digits after the decimal point. """
-#     return "{:.2f}".format(number)
-    
+DPHI_LOW    =  8.0           # azimuth offset for finishing the turns
+DPHI_HIGH   = 10.0    
+DELTA_PHI_1 =  6.0           # azimuth offset for finishing the turn around the intermediate point
+DELTA_BETA = 1.0
+  
 # def addy(vec, y):
 #     result = np.zeros(2)
 #     result[0] = vec[0]
@@ -115,7 +93,6 @@
 #     POWER                      = 13 # ssPower
 #     PARKING                    = 14 # ssParking
 
-# """
 # message AttractorPoint {
 #    required double azimuth   = 1; // Angle in radians. Zero straight downwind. Positive direction clockwise seen
 #                                   // from above. Valid range: -pi .. pi.
@@ -123,7 +100,6 @@
 #    required double elevation = 2; // Angle in radians above the horizon. Valid range: -pi/2 to pi/2.
 # }
 # message PlannedFlightPath {
-#     required int32 counter             = 1; // message number
 #     optional AttractorPoint p1         = 2;
 #     optional AttractorPoint p2         = 3;
 #     optional AttractorPoint p3         = 4;
@@ -133,9 +109,7 @@
 #     optional double phi_3              = 11; // in degrees
 #     optional double phi_sw             = 12; // in degrees
 #     optional double beta_ri            = 13; // in degrees
-#     required double time_sent          = 20; // unix time, us resolution
 # }
-# """
 
 # class FlightPathCalculator(object):
 #     """
@@ -154,7 +128,7 @@
 #     a) at the beginning of the reel-out phase (when the method onNewSystemState(ssIntermediate) is called )
 #     b) when the set value of the elevation changes (call of the method publish(beta_set))
 
-#     See also: ./01_doc/planned_fligh_path.png
+#     See also: docs/planned_fligh_path.png
 #     """
 #     def __init__(self, pro):
 #         if PRINT:
@@ -215,13 +189,10 @@
 #         self.fpc = FlightPathController(pro)
 #         self.high = False
 #         self.elevation_offset = ELEVATION_OFFSET
-#         if not hasattr(self, 'pub2'):
-#             self.pub2 = Publisher(5583)
 
-#     def clear(self, pro, publisher = None):
-#         """ Clear the state of the FPP and assign a publisher for protobuf messages. """
+#     def clear(self, pro):
+#         """ Clear the state of the FPP """
 #         self.__init__(pro)
-#         self.pub = publisher
 
 #     def onNewSystemState(self, new_state, internal = False):
 #         """ Event handler for events, received from the CentralControl program. The flight path planner
@@ -881,36 +852,3 @@
 #                 self.pub.publishSystemState(state.value, self.tether_length)
 #             else:
 #                 self.pub.publishSystemState(state.value)
-
-# # pylint: disable=W0212
-# if __name__ == "__main__":
-#     fpp = None
-#     try:
-#         fpp = FlightPathPlanner(pro)
-#         print "normal: ", fpp._calcBetaC1(22.0)
-#         print "high: ", fpp._calcBetaC1(60.0)
-#         print
-#         fpp.publish(BETA_SET)
-#         print "Radius:", fpp._radius
-#         print "\nT1", fpp._t1
-#         print "P1", fpp._p1
-#         # print "phi_sw, phi_c3", form(fpp._phi_sw), form(fpp._phi_c3)
-#         print "T2", fpp._t2
-#         print "P2", fpp._p2
-#         print "T3", fpp._t3
-#         print "P3", fpp._p3
-#         print "T4", fpp._t4
-#         print "P4", fpp._p4
-#         print "T5", fpp._t5
-
-#         print "\nbeta_ri: ", fpp._beta_ri
-
-#         fpp._beta_int = 87.5
-#         fpp.publish(60.0)
-#         print "\nP1_high:", fpp._p1
-#         print "phi2", fpp._phi_2
-#         print "phi3", fpp._phi_3
-#         print "phi_sw", fpp._phi_sw
-#     finally:
-#         if fpp is not None:
-#             fpp.pub2.close()
