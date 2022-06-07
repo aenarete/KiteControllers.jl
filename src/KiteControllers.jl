@@ -6,7 +6,7 @@ import Base.reset
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types
 export UnitDelay, RateLimiter, Mixer_2CH, Mixer_3CH, CalcVSetIn
 export Winch, SpeedController, LowerForceController
-export FlightPathPlanner
+export FlightPathCalculator
 export saturate, wrap2pi                                              # utility function
 export reset, calc_output, on_timer, select_b, select_c, get_state    # methods of Integrator, UnitDelay etc.
 export on_control_command, on_est_sysstate, on_timer, calc_steering   # methods of FlightPathController 

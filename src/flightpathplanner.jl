@@ -104,7 +104,7 @@ end
 #     a) at the beginning of the reel-out phase (when the method onNewSystemState(ssIntermediate) is called )
 #     b) when the set value of the elevation changes (call of the method publish(beta_set))
 #     See also: docs/planned_fligh_path.png
-@with_kw mutable struct FlightPathPlanner @deftype Float64
+@with_kw mutable struct FlightPathCalculator @deftype Float64
     _beta_min = 20.0 # minimal elevation angle of the center of the figure of eight
     _beta_max = 60.0 # maximal elevation angle of the center of the figure of eight
 
@@ -165,7 +165,7 @@ end
 
 # Event handler for events, received from the GUI. The flight path planner
 # must be in sync with the central system state.
-function on_new_system_state(fpp::FlightPathPlanner, new_state, internal = false)
+function on_new_system_state(fpp::FlightPathCalculator, new_state, internal = false)
     if fpp._sys_state.value == new_state
         return
     end
