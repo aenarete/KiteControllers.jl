@@ -92,103 +92,92 @@ end
 #     optional double beta_ri            = 13; // in degrees
 # }
 
-# class FlightPathCalculator(object):
-#     """
-#     Class, that calculates the planned flight path as specified in the PhD thesis of
+#     Component, that calculates the planned flight path as specified in the PhD thesis of
 #     Uwe Fechner in chapter five.
-
 #     Inputs:
 #     a) The elevation angle at the end of the power phase (transition from ssPower to ssIntermediate)
 #     b) azimuth and elevation angle of the kite at each time step for the calculation of omega
-
 #     Outputs:
 #     a) the planned flight path as defined in the message PlannedFlightPath (see above)
 #     b) the angular speed of the kite (omega), projected on the unit sphere in degrees per second
-
 #     A new flight path is calculated and published:
 #     a) at the beginning of the reel-out phase (when the method onNewSystemState(ssIntermediate) is called )
 #     b) when the set value of the elevation changes (call of the method publish(beta_set))
-
 #     See also: docs/planned_fligh_path.png
-#     """
-#     def __init__(self, pro):
-#         self._beta_min = 20.0 # minimal elevation angle of the center of the figure of eight
-#         self._beta_max = 60.0 # maximal elevation angle of the center of the figure of eight
-#         self._r_min =  3.0 # minimal turn radius in degrees
-#         self._r_max =  4.5
-#         self._radius = 4.5
-#         self._w_fig = W_FIG # width of the figure of eight in degrees
-#         self._dphi = 9.0 # correction for finishing the turns
-#         self._phi_c3 = 0.0
-#         self._beta_set = BETA_SET # average elevation angle during reel-out
-#         self._beta_int = 68.5 # elevation angle at the start of beginning of the ssIntermediate
-#         self._k = 0.0 # gradient of straight flight path sections, calculated value
-#         self._k1 = 1.28
-#         self._k4 = 0.175
-#         self._k5 = 37.5
-#         self._k6 = 0.45
-#         self._delta_min = 10.0 # minimal attractor point distance in degrees
-#         self._delta_phi = 0.0  # minimal attractor point distance in phi direction (calculated)
-#         self._delta_beta = 0.0 # minimal attractor point distance in beta direction (calculated)
-#         self._phi = 0.0    # kite position, azimuth
-#         self._last_phi = self._phi
-#         self._beta = 66.0  # kite position, elevation
-#         self._last_beta = self._beta
-#         self._omega = 0.0  # angular velocity of the kite in degrees per second
-#         self._t1 = np.zeros(2)
-#         self._t2 = np.zeros(2)
-#         self._t3 = np.zeros(2)
-#         self._t4 = np.zeros(2)
-#         self._t5 = np.zeros(2) # point, where the upturn starts (end of flying fig. eight)
-#         self._p1 = np.zeros(2)
-#         self._p2 = np.zeros(2)
-#         self._p3 = np.zeros(2)
-#         self._p3_zero = np.zeros(2)
-#         self._p3_zero_high = np.zeros(2)
-#         self._p3_one_high = np.zeros(2)
-#         self._p4 = np.zeros(2)
-#         self._p4_zero = np.zeros(2)
-#         self._p4_one = np.zeros(2)
-#         self._p4_one_high = np.zeros(2)
-#         self._zenith = np.zeros(2)
-#         self._zenith[1] = 90.0 # desired elevation angle at zenith
-#         self._phi_2 = 0.0
-#         self._phi_3 = 0.0
-#         self._phi_sw = 0.0
-#         self._beta_ri = 0.0
-#         self._heading_offset = HEADING_OFFSET_LOW
-#         self._elevation_offset_p4 = 0.0
-#         self._v_wind_gnd = 6.0 # ground wind speed at 6 m height
-#         self._azimuth_offset_phi1 = AZIMUTH_OFFSET_PHI_1
-#         self._elevation_offset_p2 = ELEVATION_OFFSET_P2
-#         self._elevation_offset_t2 = ELEVATION_OFFSET_T2
-#         self.fig8 = 0 # number of the current figure of eight
-#         self._sys_state = SystemState.ssManualOperation
-#         self.fpc = FlightPathController(pro)
-#         self.high = false
-#         self.elevation_offset = ELEVATION_OFFSET
+@with_kw mutable struct FlightPathPlanner @deftype Float64
+    _beta_min = 20.0 # minimal elevation angle of the center of the figure of eight
+    _beta_max = 60.0 # maximal elevation angle of the center of the figure of eight
 
-#     def clear(self, pro):
-#         """ Clear the state of the FPP """
-#         self.__init__(pro)
+    _r_min =  3.0 # minimal turn radius in degrees
+    _r_max =  4.5
+    _radius = 4.5
+    _w_fig = W_FIG # width of the figure of eight in degrees
+    _dphi = 9.0 # correction for finishing the turns
+    _phi_c3 = 0.0
+    _beta_set = BETA_SET # average elevation angle during reel-out
+    _beta_int = 68.5 # elevation angle at the start of beginning of the ssIntermediate
+    _k = 0.0 # gradient of straight flight path sections, calculated value
+    _k1 = 1.28
+    _k4 = 0.175
+    _k5 = 37.5
+    _k6 = 0.45
+    _delta_min = 10.0 # minimal attractor point distance in degrees
+    _delta_phi = 0.0  # minimal attractor point distance in phi direction (calculated)
+    _delta_beta = 0.0 # minimal attractor point distance in beta direction (calculated)
+    _phi = 0.0    # kite position, azimuth
+    _last_phi = _phi
+    _beta = 66.0  # kite position, elevation
+    _last_beta = _beta
+    _omega = 0.0  # angular velocity of the kite in degrees per second
+    _t1::MVector{2, Float64} = zeros(2)
+    _t2::MVector{2, Float64} = zeros(2)
+    _t3::MVector{2, Float64} = zeros(2)
+    _t4::MVector{2, Float64} = zeros(2)
+    _t5::MVector{2, Float64} = zeros(2) # point, where the upturn starts (end of flying fig. eight)
+    _p1::MVector{2, Float64} = zeros(2)
+    _p2::MVector{2, Float64} = zeros(2)
+    _p3::MVector{2, Float64} = zeros(2)
+    _p3_zero::MVector{2, Float64} = zeros(2)
+    _p3_zero_high::MVector{2, Float64} = zeros(2)
+    _p3_one_high::MVector{2, Float64} = zeros(2)
+    _p4::MVector{2, Float64} = zeros(2)
+    _p4_zero::MVector{2, Float64} = zeros(2)
+    _p4_one::MVector{2, Float64} = zeros(2)
+    _p4_one_high::MVector{2, Float64} = zeros(2)
+    _zenith::MVector{2, Float64} = [0.0, 90] # desired elevation angle at zenith
+    _phi_2 = 0.0
+    _phi_3 = 0.0
+    _phi_sw = 0.0
+    _beta_ri = 0.0
+    _heading_offset = HEADING_OFFSET_LOW
+    _elevation_offset_p4 = 0.0
+    _v_wind_gnd = 6.0 # ground wind speed at 6 m height
+    _azimuth_offset_phi1 = AZIMUTH_OFFSET_PHI_1
+    _elevation_offset_p2 = ELEVATION_OFFSET_P2
+    _elevation_offset_t2 = ELEVATION_OFFSET_T2
+    fig8 = 0 # number of the current figure of eight
+    _sys_state::SystemState = ssManualOperation
+    # TODO: find correct parameters
+    fpc::FlightPathController = FlightPathController()
+    high = false
+    elevation_offset = ELEVATION_OFFSET
+end
 
-#     def onNewSystemState(self, new_state, internal = false):
-#         """ Event handler for events, received from the CentralControl program. The flight path planner
-#             must be in sync with the central system state. """
-#         if self._sys_state.value == new_state:
-#             return
-#         else:
-#             if PRINT:
-#                 print "ABC: ", self._sys_state.value, new_state, internal
-#         self._sys_state = SystemState(new_state)
-#         if new_state == SystemState.ssPower.value:
-#             self._beta_int = self._beta
-#             if PRINT:
-#                 print "_beta_int: ", self._beta_int
-#             # calculate and publish the flight path for the next cycle
-#             self.publish(self._beta_set)
-#         if new_state == SystemState.ssParking.value and not internal:
-#             self._switch(FPPS.PARKING)
+# Event handler for events, received from the GUI. The flight path planner
+# must be in sync with the central system state.
+function on_new_system_state(fpp::FlightPathPlanner, new_state, internal = false)
+    if fpp._sys_state.value == new_state
+        return
+    end
+    fpp._sys_state = SystemState(new_state)
+    if new_state == Int(ssPower)
+        fpp._beta_int = fpp._beta
+        # calculate and publish the flight path for the next cycle
+        publish(fpp, fpp._beta_set)
+    elseif new_state == Int(ssParking) && ! internal
+        _switch(fpp, PARKING)
+    end
+end
             
 #     def setVWindGnd(self, v_wind_gnd):
 #         """
