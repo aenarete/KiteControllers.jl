@@ -33,9 +33,15 @@ FlightPathController    # represents the flight path controller
 WinchController         # represents the winch controller
 CalcVSetIn              # component that calculates the set speed using soft switching
 FPCSettings             # settings of the flight path controller
-WCSettings              # settings of the winch path controller
+WCSettings              # settings of the winch controller
 KiteModel               # simplified model for unit testing
 WinchModel              # simplified model for unit testing
+SpeedController         # controller for normal operation
+LowerForceController    # controller when force near lower limit
+UpperForceController    # controller when force near upper limit
+WinchController         # winch controller, combining the three controllers above
+FlightPathCalculator    # calculate the planned flight path
+FlightPathPlanner       # execute the planned flight path
 ```
 
 ## Flight path controller
