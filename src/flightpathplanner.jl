@@ -44,36 +44,18 @@ DPHI_LOW    =  8.0           # azimuth offset for finishing the turns
 DPHI_HIGH   = 10.0    
 DELTA_PHI_1 =  6.0           # azimuth offset for finishing the turn around the intermediate point
 DELTA_BETA = 1.0
-  
-# def addy(vec, y):
-#     result = np.zeros(2)
-#     result[0] = vec[0]
-#     result[1] = vec[1] + y
-#     return result    
-    
-# def addxy(vec, x, y):
-#     result = np.zeros(2)
-#     result[0] = vec[0] + x
-#     result[1] = vec[1] + y
-#     return result    
-    
 
-# class SystemState(Enum):
-#     """ Class for encoding and decoding the field system_state.
-#         See: http://www.kitepower.eu/wiki/index.php/CentralControl. """
-#     ssManualOperation          = 0
-#     ssParking                  = 1
-#     ssPower                    = 2
-#     ssKiteReelOut              = 3
-#     ssWaitUntil                = 4 # wait until high elevation
-#     ssDepower                  = 5
-#     ssIntermediate             = 6 # after ssPower, before ssKiteReelOut
-#     ssLaunching                = 7
-#     ssEmergencyLanding         = 8
-#     ssLanding                  = 9
-#     ssReelIn                   = 10
-#     ssTouchdown                = 11
-#     ssPowerProduction          = 15 # new
+function addy(vec, y)
+    @SVector [vec[begin], vec[begin+1]+y]
+end
+  
+function addxy(vec, x, y)
+    @SVector [vec[begin]+x, vec[begin+1]+y]
+end
+
+@enum SystemState ssManualOperation = 0 ssParking ssPower ssKiteReelOut ssWaitUntil ssDepower ssIntermediate ssLaunching ssEmergencyLanding ssLanding ssReelIn ssTouchdown ssPowerProduction
+# ssWaitUntil                = 4 wait until high elevation
+# ssIntermediate             = 6 after ssPower, before ssKiteReelOut
 
 # class FPPS(Enum):
 #     """ Class for enconding the state of the flight-path-planner. """
@@ -88,7 +70,7 @@ DELTA_BETA = 1.0
 #     FLY_LEFT                   = 8  # ssKiteReelOut
 #     UP_TURN                    = 9  # ssWaitUntil
 #     UP_TURN_LEFT               = 10
-#     UP_FLY_UP                  = 11  # ssWaitUntil
+#     UP_FLY_UP                  = 11 # ssWaitUntil
 #     DEPOWER                    = 12 # ssDepower
 #     POWER                      = 13 # ssPower
 #     PARKING                    = 14 # ssParking
@@ -408,7 +390,6 @@ DELTA_BETA = 1.0
 #             self.pub.publishPlannedFlightPath(self._p1, self._p2, self._p3, self._p4, self._t1[0], self._t2[0], \
 #                                               self._t5[0], self._phi_sw, self._beta_ri)
 
-# """
 # message AttractorPoint {
 #    required double azimuth   = 1; // Angle in radians. Zero straight downwind. Positive direction clockwise seen
 #                                   // from above. Valid range: -pi .. pi.
@@ -417,14 +398,11 @@ DELTA_BETA = 1.0
 # }
 
 # message FPC_Command {
-#     required int32 counter             = 1;  // sequence number of the message
 #     required bool turn                 = 2;  // if true, than a turn rate must be given, otherwise an attractor 
 #                                                 point
 #     optional double psi_dot            = 3;  // desired turn rate in degrees per second
 #     optional AttractorPoint attractor  = 4;  // the kite should fly towards this point
-#     required double time_sent          = 20; // unix time, us resolution
 # }
-# """
 
 # class FlightPathPlanner(FlightPathCalculator):
 #     """
