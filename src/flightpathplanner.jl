@@ -1,4 +1,4 @@
-# Implements the classes FlightPathPlanner and FlightPathCalculator. The main class for
+# Provides the components FlightPathPlanner, FlightPathCalculator and SystemStateControl. The main class for
 # external use is FlightPathPlanner. Implementation as specified in chapter five of
 # the PhD thesis of Uwe Fechner.
 
@@ -763,6 +763,10 @@ end
 #     def getFPP_State(self):
 #         """ Return the state of the flight path planner (instance of the enum FPPS). """
 #         return self._state
+
+@with_kw mutable struct SystemStateControl @deftype Float64
+    state::Observable(SystemState)[] = ssManualOperation
+end
         
 # class SystemStateControl(object):
 #     """ 
