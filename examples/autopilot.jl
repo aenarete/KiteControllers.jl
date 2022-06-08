@@ -91,15 +91,15 @@ function async_play()
 end
 
 function parking()
-    println("parking")
+    on_parking(ssc)
 end
 
 function autopilot()
-    println("autopilot")
+    on_autopilot(ssc)
 end
 
 on(viewer.btn_PLAY.clicks) do c; async_play(); end
-on(viewer.btn_STOP.clicks) do c; stop(viewer); end
+on(viewer.btn_STOP.clicks) do c; stop(viewer); on_stop(ssc) end
 on(viewer.btn_PARKING.clicks) do c; parking(); end
 on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 

@@ -764,58 +764,32 @@ end
 #         """ Return the state of the flight path planner (instance of the enum FPPS). """
 #         return self._state
 
-@with_kw mutable struct SystemStateControl @deftype Float64
-    state::Observable(SystemState)[] = ssManualOperation
-end
-        
-# class SystemStateControl(object):
-#     """ 
 #     Highest level state machine
-
 #     Minimal set of states:
 #     ssManualOperation, ssParking, ssPowerProduction
-   
-#     Input:
-#     - event PARKING_MODE
-#     - event PARKING_MODE, tether_length defined (park at length)
-#     - event PARKING_MODE
-#     - event START_POWER_PRODUCTION
-#     - event STOP_AUTOPILOTS
-   
-#     Output:
-#     - event NEW_SYSTEM_STATE via pub2
-   
-#     """
-#     def __init__(self, pro, publisher=None):
-#         self.pub = publisher
-#         self.pro = pro
-#         self.tether_length = None
-#         self._state = SystemState.ssManualOperation
-        
-#     def clear(self, pro, publisher):
-#         self.__init__(pro)
-#         # print "----->>>>> CLEAR:", publisher
-#         self.pub = publisher        
-       
-#     def on_parking_mode(self, tether_length = None): # OK        
-#         self.tether_length = tether_length
-#         self._switch(SystemState.ssParking)
-   
-#     def on_start_power_production(self): # OK
-#         self._switch(SystemState.ssPowerProduction)
-   
-#     def on_stop_autopilots(self): #OK
-#         self._switch(SystemState.ssManualOperation)
-   
-#     def _switch(self, state):   
-#         """
-#         Switch the state of the SSC. Execute all actions, that are needed when the new state is entered.
-#         """
-#         if self._state == state and state != SystemState.ssParking:
-#             return
-#         self._state = state       
-#         if self.pub is not None:
-#             if state == SystemState.ssParking:
-#                 self.pub.publishSystemState(state.value, self.tether_length)
-#             else:
-#                 self.pub.publishSystemState(state.value)
+@with_kw mutable struct SystemStateControl @deftype Float64
+    state::Observable(SystemState)[]       = ssManualOperation
+    tether_length::Union{Nothing, Float64} = nothing
+end
+
+function on_parking(ssc::SystemStateControl, tether_length=nothing)
+   ssc.tether_length = tether_length
+   switch(ssc, ssParking)
+end
+
+function on_autopilot(ssc::SystemStateControl)
+    switch(ssc, ssPowerProduction)
+end
+
+function on_stop(ssc::SystemStateControl)
+    switch(ssc, ssManualOperation)
+end
+
+function switch(ssc::SystemStateControl, state)
+    if ssc.state == state && state != ssParking
+        return
+    end
+    ssc.state = state
+    # publish new system state
+    println("New system state: ", Symbol(ssc.state))
+end
