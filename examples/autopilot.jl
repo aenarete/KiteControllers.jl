@@ -5,7 +5,7 @@ if ! ("Plots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, KitePodModels
+using KiteControllers, KiteViewers, KiteModels
 
 const ssc = SystemStateControl()
 
@@ -17,7 +17,7 @@ if ! @isdefined kps4;   const kps4 = Model(kcu); end
 
 # the following values can be changed to match your interest
 dt = 0.05
-MAX_TIME=3600
+if ! @isdefined MAX_TIME; MAX_TIME=3600; end
 TIME_LAPSE_RATIO = 1
 SHOW_KITE = true
 # end of user parameter section #
@@ -67,6 +67,7 @@ function simulate(integrator)
             t_gc_tot = 0
         end
         if viewer.stop break end
+        if i*dt > MAX_TIME break end
         i += 1
     end
     misses = j/k * 100
@@ -77,6 +78,7 @@ end
 function play()
     global steps
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+    toc()
     steps = simulate(integrator)
     GC.enable(true)
 end
