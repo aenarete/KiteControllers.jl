@@ -30,4 +30,8 @@ include("wc_components.jl")
 include("winchcontroller.jl")
 include("flightpathplanner.jl")
 
+precompile(SystemStateControl, ())
+precompile(on_parking, ())
+precompile(on_autopilot, ())
+
 end
