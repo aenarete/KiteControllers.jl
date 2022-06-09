@@ -76,7 +76,8 @@ resize!(pIDR.wnd, 1200, 700) # Resize GTK window directly
 pIDR2 = display(p2)           # Display with InspectDR and keep plot object
 resize!(pIDR2.wnd, 1200, 700) # Resize GTK window directly
 
-display(p3)
+# display(p3)
+toc()
 
 println("Max iterations needed: $(wcs.iter)")
             

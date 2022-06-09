@@ -370,65 +370,62 @@ end
     res::MVector{3, Float64} = zeros(3)
 end
 
-#     def _set(self):
-#         """ internal method to set the SR flip-flop and activate the force controller """
-#                 # if it gets activated
-#         if self._reset:
-#             return
-#         if not self._active:
-#             # print "Reset. Tracking: ", self._tracking
-#             self.integrator.reset(self._tracking)
-#             self.int2.reset(0.0)
-#             self.limiter.reset(self._tracking)
-#             self._v_set_out = self._tracking
-#         self._active = True
+# internal method to set the SR flip-flop and activate the force controller
+function _set(ufc::UpperForceController)
+    if ufc.reset return end
+    if ! ufc.active
+       reset(ufc.integrator, ufc.tracking)
+       reset(ufc.int2, 0.0)
+       reset(ufc.limiter, ufc.tracking)
+       ufc.v_set_out = ufc.tracking
+    end
+    ufc.active = true
+end
 
-#     def calcSat2In_Sat2Out_rateOut(self, x):
-#         kb_in = x[0]
-#         kt_in = x[1]
-#         int2_in = x[2]
-#         int_in = self._I * self._f_err + self._K_b * kb_in + self._K_t * kt_in * (not self._active)
-#         int_out = self.integrator.calcOutput(int_in)
-#         int2_out = self.int2.calcOutput(int2_in)
-#         sat2_in = int_out + self._P * self.delay.calcOutput(self._f_err) + self._N * (self._f_err * self._D - int2_out)
+function calc_sat2in_sat2out_rateout_intin(ufc::UpperForceController, x)
+    kb_in   = x[begin]
+    kt_in   = x[begin+1]
+    int2_in = x[begin+2]
+    int_in = ufc.wcs.if_high * ufc.f_err + ufc.wcs.kbf_high * kb_in + ufc.wcs.ktf_high * kt_in * (! ufc.active)
+    int_out = calc_output(ufc.integrator, int_in)
+    int2_out = calc_output(ufc.int2, int2_in)
+    sat2_in = int_out + ufc.wcs.pf_high * calc_output(ufc.delay, ufc.f_err) +
+              ufc.wcs.nf_high * (ufc.f_err * ufc.wcs.df_high - int2_out)
+    sat2_out = saturate(sat2_in, -ufc.wcs.v_ri_max, ufc.wcs.v_sat)
+    rate_out = calc_output(ufc.limiter, sat2_out)
+    sat2_in, sat2_out, rate_out, int_in, int2_in
+end
 
-#         sat2_out = saturation(sat2_in, -V_RI_MAX, V_SAT)
-#         rate_out = self.limiter.calcOutput(sat2_out)
-#         return sat2_in, sat2_out, rate_out, int_in, int2_in
+function solve(ufc::UpperForceController)
+    # Function, that calculates the residual for the given kb_in and kt_in estimates
+    # of the feed-back loop of the integrator.
+    function calc_residual!(F, x)
+        sat2_in, sat2_out, rate_out, int_in, int2_in = calc_sat2in_sat2out_rateout_intin(ufc, x)
+        kt_in = ufc.tracking - sat2_out
+        kb_in = rate_out - sat2_in
+        ufc.res[begin]   = kb_in   - x[begin]
+        ufc.res[begin+1] = kt_in   - x[begin+1]
+        ufc.res[begin+2] = int2_in - x[begin+2]
+        F .= ufc.res 
+    end
 
-#     def solve(self):
-#         self._updateReset()
-#         err = self._force - self._f_set
-
-#         if not self._active:
-#             # activate the force controller if the force rises above the set force
-#             if err >= 0.0:
-#                 self._set()
-#                 # print "err: ", err
-#             self._f_err = 0.0
-#         else:
-#             self._f_err = err
-#         # begin interate
-#         # print "------------------"
-#         x = scipy.optimize.broyden1(self.calcResidual, [0.0, 0.0, 0.0], f_tol=1e-14)
-#         sat2_in, sat2_out, rate_out, int_in, int2_in = self.calcSat2In_Sat2Out_rateOut(x)
-#         # print "int_in, sat2_in", int_in, sat2_in
-#         # end first iteration loop
-#         self._v_set_out = rate_out
-
-#     def calcResidual(self, x):
-#         """
-#         Function, that calculates the residual for the given kb_in and kt_in estimates
-#         of the feed-back loop of the integrator.
-#         """
-#         sat2_in, sat2_out, rate_out, int_in, int2_in = self.calcSat2In_Sat2Out_rateOut(x)
-#         kt_in = self._tracking - sat2_out
-#         kb_in = rate_out - sat2_in
-#         self.res[0] = kb_in - x[0]
-#         self.res[1] = kt_in - x[1]
-#         self.res[2] = int2_in - x[2]
-#         # print self.res[0], kb_in
-#         return self.res
+    _update_reset(ufc)
+    err = ufc.force - ufc.f_set
+    if ! ufc.active
+        # activate the force controller if the force rises above the set force
+        if err >= 0.0
+            _set(ufc)
+        end
+        ufc.f_err = 0.0
+    else
+        ufc.f_err = err
+    end
+    sol = nlsolve(calc_residual!, [0.0; 0.0; 0.0], iterations=ufc.wcs.max_iter)
+    @assert sol.f_converged
+    ufc.wcs.iter = max(sol.iterations, ufc.wcs.iter)
+    sat2_in, sat2_out, rate_out, int_in, int2_in = calc_sat2in_sat2out_rateout_intin(ufc, sol.zero)
+    ufc.v_set_out = rate_out
+end
 
 function get_f_set_upper(ufc::UpperForceController)
     ufc.active * ufc.f_set
