@@ -268,4 +268,8 @@ end
 @testset "WinchController" begin
     wcs = WCSettings()
     wc = WinchController(wcs)
+    v_act = 1.0
+    force = 500.0
+    f_low = wcs.f_low
+    calc_v_set(wc, v_act, force, f_low)
 end

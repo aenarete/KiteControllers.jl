@@ -33,14 +33,15 @@ function WinchController(wcs::WCSettings)
     set_v_sw(wc.pid3, calc_vro(wcs, wc.pid3.f_set))
     set_reset(wc.pid3, true)
     set_reset(wc.pid3, false)
+    wc
 end
 
-#     def calcVSet(self, v_set_pc, v_act, force, f_low):
-#         self.pid2.setFSet(f_low)
-#         self.v_set_pc = v_set_pc
-#         self.v_act = v_act
-#         self.force = force
-#         # calc v_set_in
+function calc_v_set(wc::WinchController, v_act, force, f_low, v_set_pc=nothing)
+    set_f_set(wc.pid2, f_low)
+    wc.v_act = v_act
+    wc.force = force
+end
+
 #         self.calc.setVSetPc_Force(v_set_pc, force)
 #         v_set_in = self.calc.getVSetIn()
 #         # set the inputs of pid1

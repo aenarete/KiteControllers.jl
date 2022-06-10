@@ -18,6 +18,7 @@ export set_v_act, set_reset, set_f_set, set_v_sw, get_f_err           # methods 
 export get_f_set_low                                                  # methods of LowerForceController
 export get_f_set_upper                                                # methods of UpperForceController
 export calc_vro, set_vset_pc                                          # functions for winch control
+export calc_v_set                                                     # methods of WinchController
 export on_autopilot, on_parking, on_stop                              # methods of SystemStateControl
 
 abstract type AbstractForceController end
