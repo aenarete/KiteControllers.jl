@@ -1,92 +1,40 @@
-# """ 
-# Winch winch controller base class, implemented as described in the PhD thesis of Uwe Fechner. 
-# """
-# # pylint: disable=E1101
-# # TODO: implement the calculation of v_set for reeling out to a curtain lenght
-# # TODO: send v_set messages
-# from Components import CalcVSetIn, SpeedController, LowerForceController, UpperForceController, Mixer_3CH, \
-#                        calcV_ro, setVRiMax
-# from flufl.enum import Enum, IntEnum
-# import numpy as np
-# from Settings import pro as PRO
+# Winch winch controller component, implemented as described in the PhD thesis of Uwe Fechner. 
 
-# T_BLEND =  0.25 # blending time of the mixers in seconds
-# STARTUP_TIME = 0.5 # during this time the force controller is disabled
-
-# def form(number):
-#     """ Convert a number to a string with two digits after the decimal point. """
-#     return "{:.2f}".format(number)
-
-# class SystemState(Enum):
-#     """ Class for encoding and decoding the field system_state.
-#         See: http://www.kitepower.eu/wiki/index.php/CentralControl. """
-#     ssManualOperation          = 0
-#     ssParking                  = 1
-#     ssPower                    = 2
-#     ssKiteReelOut              = 3
-#     ssWaitUntilPointedAtZenith = 4
-#     ssDepower                  = 5
-#     ssIntermediate             = 6 # after ssPower, before ssKiteReelOut
-#     ssLaunching                = 7
-#     ssEmergencyLanding         = 8
-#     ssLanding                  = 9
-#     ssReelIn                   = 10
-#     ssTouchdown                = 11
-
-# class WinchControlState(IntEnum):
-#     wcsLowerForceLimit = 0 
-#     wcsSpeedControl    = 1 
-#     wcsUpperForceLimit = 2 
+@enum WinchControllerState wcsLowerForceLimit wcsSpeedControl wcsUpperForceLimit
     
         
-# class WinchController(object):
-#     """ 
-#     Basic winch controller. Works in one of the three modes wcsLowerForceLimit, wcsSpeedControl and
-#     wcsUpperForceLimit.
-#     """
-#     def __init__(self, pro):
-#         self.k_v = 0.02      # multiplicator for calculating the set speed from the sqare root of the force
-#         self.v_set_pc = None # last set value from the position controller (can be None)
-#         self.v_set_in = 0.0  # input of the speed controller
-#         self.v_set_out = 0.0 # output of the speed controller
-#         self.v_set_ufc = 0.0 # output of the upper force controller
-#         self.v_set_lfc = 0.0 # output of the lower force controller
-#         self.v_set = 0.0     # output of the winchcontroller, going to the motor-controller/ model
-#         self.v_act = 0.0     # actual, measured speed
-#         self.force = 0.0     # actual, measured force
-#         setVRiMax(pro._winch_control.operational['v_ri_max'])
-#         self.f_high = pro._winch.f_high
-#         # print "--->>> f_high: ", self.f_high
-#         self.f_low = pro._winch.f_low
-#         self.calc = CalcVSetIn(self.f_high, self.f_low)
-#         self.pid1 = SpeedController()
-#         self.pid1.setTracking(0.0)
-#         self.pid1.setInactive(True)
-#         self.pid1.setVSetIn(0.0)
-#         # create and initialize lower force controller
-#         self.pid2 = LowerForceController(pro._winch_control.f_low['P'], pro._winch_control.f_low['I'], \
-#              pro._winch_control.f_low['K_b'], pro._winch_control.f_low['K_t'])
-#         self.pid2.setFSet(pro._winch.f_min)
-#         self.pid2.setTracking(0.0)
-#         self.pid2.setReset(True)
-#         self.pid2.setV_SW(-1.0) # TODO: Is this a good choice? It should not be zero, though.
-#         # create and initialize upper force controller
-#         self.pid3 = UpperForceController(pro._winch_control.f_high['P'], pro._winch_control.f_high['I'], \
-#         pro._winch_control.f_high['D'], pro._winch_control.f_high['N'], pro._winch_control.f_high['K_b'], \
-#         pro._winch_control.f_high['K_t'])
-#         f_upper = pro._winch_control.operational["f_ro_max"]
-#         # print "------->>>> f_upper: ", form(f_upper)
-#         self.pid3.setFSet(f_upper)
-#         self.pid3.setTracking(0.0)   
-#         self.pid3.setV_SW(2 * f_upper) # TODO: Is this a good choice? It should not be zero, though.  
-#         self.pid3.setReset(True)
-#         self.pid3.setReset(False)        
-#         # create the mixer for the output of the two controllers
-#         self.mix3 = Mixer_3CH()
-#         self.last_force = 0.0  
-#         self.time = 0.0
-     
-        
+# Basic winch controller. Works in one of the three modes wcsLowerForceLimit, wcsSpeedControl and
+# wcsUpperForceLimit.
+@with_kw mutable struct WinchController @deftype Float64
+    wcs::WCSettings
+    time = 0
+    last_force = 0
+    v_set_pc::Union{Float64, Nothing} = nothing # last set value from the position controller (can be nothing)
+    v_set_in = 0.0  # input of the speed controller
+    v_set_out = 0.0 # output of the speed controller
+    v_set_ufc = 0.0 # output of the upper force controller
+    v_set_lfc = 0.0 # output of the lower force controller
+    v_set = 0.0     # output of the winchcontroller, going to the motor-controller/ model
+    v_act = 0.0     # actual, measured speed
+    force = 0.0     # actual, measured force
+    calc::CalcVSetIn = CalcVSetIn(wcs)
+    mix3::Mixer_3CH  = Mixer_3CH(wcs.dt, wcs.t_blend)
+    pid1::SpeedController = SpeedController(wcs)
+    pid2::LowerForceController = LowerForceController(wcs)
+    pid3::UpperForceController = UpperForceController(wcs)
+end
+
+function WinchController(wcs::WCSettings)
+    wc = WinchController(wcs=wcs)
+    set_f_set(wc.pid2, wcs.f_low)
+    set_reset(wc.pid2, true)
+    set_v_sw(wc.pid2, -1.0)
+    set_f_set(wc.pid3, wcs.f_high)
+    set_v_sw(wc.pid3, calc_vro(wcs, wc.pid3.f_set))
+    set_reset(wc.pid3, true)
+    set_reset(wc.pid3, false)
+end
+
 #     def calcVSet(self, v_set_pc, v_act, force, f_low):
 #         self.pid2.setFSet(f_low)
 #         self.v_set_pc = v_set_pc
@@ -161,8 +109,3 @@
 #         result[6] = self.v_set_ufc
 #         result[7] = self.v_set_lfc
 #         return result
-
-
-# if __name__ == "__main__":
-#     wc = WinchController(PRO)
-

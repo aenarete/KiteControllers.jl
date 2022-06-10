@@ -122,7 +122,7 @@ end
     delay::UnitDelay = UnitDelay()
     v_act = 0
     v_set_in = 0
-    inactive::Bool = false
+    inactive::Bool = true
     tracking = 0
     v_err = 0         # output, calculated by solve
     v_set_out = 0     # output, calculated by solve

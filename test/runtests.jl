@@ -166,6 +166,7 @@ end
     set_v_act(sc, 3.3)
     @test sc.v_act ≈ 3.3
     pid1 = SpeedController(wcs)
+    set_inactive(pid1, false)
     set_v_set(pid1, -0.5)
     set_tracking(pid1, -0.5)
     set_inactive(pid1, false)
@@ -262,4 +263,9 @@ end
     on_timer(ufc)
     set_f_set(ufc, 330.0)
     @test ufc.f_set == 330.0
+end
+
+@testset "WinchController" begin
+    wcs = WCSettings()
+    wc = WinchController(wcs)
 end
