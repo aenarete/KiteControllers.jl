@@ -41,15 +41,15 @@ Settings of the WinchController
     "tracking constant of the lower force controller"
     ktf_low = 8.0
     "lower force limit [N]"
-    f_low = 300
+    f_low = 350
     "upper force limit [N]"
     f_high = 3650
     "P constant of upper force controller"
-    pf_high = 0.007 * 0.33
+    pf_high = 1.44e-4*1.6
     "I constant of upper force controller"
-    if_high = 0.003 * 0.33
+    if_high = 7.5e-3*1.6
     "D constant of upper force controller"
-    df_high = 2e-5 * 2.0 * 0.0
+    df_high =  2e-5*1.7
     "filter constant n of upper force controller"
     nf_high = 15.0
     "back calculation constant for the anti-windup loop of the upper force controller"

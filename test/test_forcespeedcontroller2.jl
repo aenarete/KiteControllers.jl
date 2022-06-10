@@ -14,14 +14,18 @@ InspectDR.defaults.xaxiscontrol_visible = false
 
 wcs = WCSettings()
 wcs.test = true
-wcs.f_low = 1500
+wcs.f_low = 350
 wcs.fac = 1.0
 wcs.t_blend = 0.25
+#wcs.pf_low = 1.44e-4*0.5
+wcs.pf_high = 1.44e-4*1.6*0.5
+# wcs.kt_speed = 10
+
 
 DURATION = 10.0
 SAMPLES = Int(DURATION / wcs.dt + 1)
 TIME = range(0.0, DURATION, SAMPLES)
-V_WIND_MAX = 8.0 # max wind speed of test wind
+V_WIND_MAX = 9.0 # max wind speed of test wind
 V_WIND_MIN = 0.0 # min wind speed of test wind
 FREQ_WIND  = 0.25 # frequency of the triangle wind speed signal 
 BENCHMARK = false
@@ -84,7 +88,8 @@ resize!(pIDR.wnd, 1200, 700) # Resize GTK window directly
 pIDR2 = display(p2)           # Display with InspectDR and keep plot object
 resize!(pIDR2.wnd, 1200, 700) # Resize GTK window directly
 
-# display(p3)
+pIDR3 = display(p3)
+resize!(pIDR3.wnd, 1200, 700)
 toc()
 
 println("Max iterations needed: $(wcs.iter)")
