@@ -53,10 +53,6 @@ function addxy(vec, x, y)
     @SVector [vec[begin]+x, vec[begin+1]+y]
 end
 
-@enum SystemState ssManualOperation=0 ssParking ssPower ssKiteReelOut ssWaitUntil ssDepower ssIntermediate ssLaunching ssEmergencyLanding ssLanding ssReelIn ssTouchdown ssPowerProduction
-# ssWaitUntil                = 4 wait until high elevation
-# ssIntermediate             = 6 after ssPower, before ssKiteReelOut
-
 @enum FPPS INITIAL=0 UPPER_TURN LOW_RIGHT LOW_TURN LOW_LEFT TURN_LEFT FLY_RIGHT TURN_RIGHT FLY_LEFT UP_TURN UP_TURN_LEFT UP_FLY_UP DEPOWER POWER PARKING
 #     INITIAL                    = 0  # ssManualOperation
 #     UPPER_TURN                 = 1  # ssIntermediate

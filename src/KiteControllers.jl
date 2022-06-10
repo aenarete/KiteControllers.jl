@@ -4,9 +4,10 @@ using KiteUtils, WinchModels, Parameters, Observables, StaticArrays, NLsolve, Pr
 import Base.reset
 
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types
+export WinchController
 export UnitDelay, RateLimiter, Mixer_2CH, Mixer_3CH, CalcVSetIn
 export Winch, SpeedController, LowerForceController, UpperForceController
-export FlightPathCalculator, SystemStateControl
+export FlightPathCalculator, SystemStateControl, SystemState
 export saturate, wrap2pi                                              # utility function
 export reset, calc_output, on_timer, select_b, select_c, get_state    # methods of Integrator, UnitDelay etc.
 export on_control_command, on_est_sysstate, on_timer, calc_steering   # methods of FlightPathController 
@@ -21,6 +22,13 @@ export on_autopilot, on_parking, on_stop                              # methods 
 
 abstract type AbstractForceController end
 const AFC = AbstractForceController
+
+@enum SystemState begin ssManualOperation; ssParking; ssPower; ssKiteReelOut; 
+                        ssWaitUntil;    # wait until high elevation
+                        ssDepower;
+                        ssIntermediate; # ssPower, before ssKiteReelOut
+                        ssLaunching; ssEmergencyLanding; ssLanding; ssReelIn; ssTouchdown; ssPowerProduction 
+                  end
 
 include("utils.jl")
 include("components.jl")
