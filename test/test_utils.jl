@@ -157,8 +157,7 @@ function speed_controller_step3!(pid1, pid2, winch, calc, i, last_force, last_v_
     last_v_set_out[] = v_set_out            
 end
 
-function speed_controller_step4!(pid1, pid2, winch, calc, i, last_force, last_v_set_out, V_WIND, STARTUP, V_RO, ACC, FORCE, V_SET_OUT, V_SET_OUT_B, STATE, V_ERR, F_ERR)
-
+function speed_controller_step4!(pid1, pid2, pid3, mix3, winch, calc, i, last_force, last_v_set_out, V_WIND, STARTUP, V_RO, ACC, FORCE, V_SET_OUT, STATE, V_ERR, F_ERR)
     # calc v_set_in of the speed controller
     set_vset_pc(calc, nothing, last_force[])
     v_set_in = calc_output(calc)
@@ -184,19 +183,32 @@ function speed_controller_step4!(pid1, pid2, winch, calc, i, last_force, last_v_
         reset = false
     end
     set_reset(pid2, reset)
-    v_sw = calc_vro(wcs, pid2.f_set) #* 1.05
+    # set v_switch (the speed, when the force controllers shall be turned off)
+    v_sw = calc_vro(wcs, pid2.f_set) * 1.05
     set_v_sw(pid2, v_sw)
+    v_sw = calc_vro(wcs, pid3.f_set) * 0.95
+    set_v_sw(pid3, v_sw)
+
     set_v_act(pid2, v_ro)
-    set_tracking(pid2, v_set_out_A)
+    set_v_act(pid3, v_ro)
+    
+    set_tracking(pid1, last_v_set_out[])
+    set_tracking(pid2, last_v_set_out[])
+    set_tracking(pid3, last_v_set_out[])
+
     set_force(pid2, force)
+    set_force(pid3, force)
+
     v_set_out_B = get_v_set_out(pid2)
-    F_ERR[i] = get_f_err(pid2)
-    set_tracking(pid1, v_set_out_B)
-    select_b(mix2, pid2.active)
-    set_inactive(pid1, pid2.active)
-    STATE[i] = pid2.active
-    V_SET_OUT_B[i] = v_set_out_B
-    v_set_out = calc_output(mix2, v_set_out_A, v_set_out_B)
+    v_set_out_C = get_v_set_out(pid3)
+    F_ERR[i] = get_f_err(pid2) + get_f_err(pid3)
+
+    select_b(mix3, pid2.active)
+    select_c(mix3, pid3.active)
+    set_inactive(pid1, pid2.active || pid3.active)
+    STATE[i] = get_state(mix3)
+
+    v_set_out = calc_output(mix3, v_set_out_A, v_set_out_B, v_set_out_C)
     V_SET_OUT[i] = v_set_out
     v_set = STARTUP[i] * v_set_out
     # set the reel-out speed of the winch
@@ -206,76 +218,12 @@ function speed_controller_step4!(pid1, pid2, winch, calc, i, last_force, last_v_
     on_timer(calc)
     on_timer(pid1)
     on_timer(pid2)
-    on_timer(mix2)
+    on_timer(pid3)
+    on_timer(mix3)
     last_force[] = force
     last_v_set_out[] = v_set_out            
 end
 
-
-    # with Timer() as t1:
-    #     for i in range(SAMPLES):
-    #         # calc v_set_in of the speed controller
-    #         calc.setVSetPc_Force(None, last_force)
-    #         v_set_in = calc.getVSetIn()
-    #         pid1.setVSetIn(v_set_in)
-    #         # get the input (the wind speed)
-    #         v_wind = V_WIND[i]
-    #         v_ro = winch.getSpeed()
-    #         acc = winch.getAcc()
-    #         V_RO[i] = v_ro
-    #         ACC[i] = acc
-    #         force = calcForce(v_wind, v_ro)
-    #         FORCE[i] = force
-    #         # winch.setForce(0.5 * force + 0.5 * last_force)
-    #         winch.setForce(force)
-    #         pid1.setVAct(v_ro)             
-    #         V_ERR[i] = pid1.getVErr()
-    #         pid2.setForce(last_force)
-    #         if i * PERIOD_TIME <= STARTUP_TIME:
-    #             reset = True
-    #         else:
-    #             reset = False
-    #         # print "reset: ", reset
-    #         pid2.setReset(reset)
-    #         # set v_switch (the speed, when the force controllers shall be turned off)
-    #         pid2.setV_SW(calcV_ro(pid2._f_set, F_UPPER, F_LOW) * 1.05)
-    #         pid3.setV_SW(calcV_ro(pid3._f_set, F_UPPER, F_LOW) * 0.95)
-    #         # pid2.setVAct(delay.calcOutput(v_ro))
-    #         pid2.setVAct(v_ro)
-    #         pid3.setVAct(v_ro)
-    #         pid1.setTracking(mix3.getDirectOutput())
-    #         pid2.setTracking(mix3.getDirectOutput())
-    #         pid3.setTracking(mix3.getDirectOutput())            
-    #         pid2.setForce(force)
-    #         pid3.setForce(force)
-    #         F_ERR[i] = pid2.getFErr() + pid3.getFErr()
-            
-    #         mix3.setInputA(pid1.getVSetOut()    ) # from speed controller
-    #         mix3.setInputB(pid2.getVSetOut())     # from lower force controller
-    #         mix3.setInputC(pid3.getVSetOut())     # from lower force controller
-    #         mix3.selectB(pid2._active)  # 
-    #         mix3.selectC(pid3._active)  # 
-    #         pid1.setInactive((pid2._active or pid3._active))
-    #         STATE[i] = mix3.getControllerState()
-    #         # print "reset, active", reset, pid2._active
-    #         v_set_out = mix3.getOutput()
-    #         # 
     #         ACC_SET[i] = (v_set_out - last_v_set_out) / PERIOD_TIME
-    #         V_SET_OUT[i] = v_set_out
-    #         v_set = STARTUP[i] * v_set_out
-    #         # set the reel-out speed of the winch
-    #         winch.setVSet(v_set)
-    #         # update the state of the statefull components
-    #         winch.onTimer()        
-    #         pid1.onTimer()
-    #         pid2.onTimer()
-    #         pid3.onTimer()
-    #         calc.onTimer()
-    #         mix3.onTimer()
-    #         delay.onTimer()
-    #         # pid1.setInactive(pid2._active)
-    #         last_force = force
-    #         last_v_set_out = v_set_out            
             
-    # print("time for executing the speed control loop in us: ", form((t1.secs)  / SAMPLES * 1e6))
     # return TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE, STATE, V_ERR, F_ERR 

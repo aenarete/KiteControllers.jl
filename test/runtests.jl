@@ -256,8 +256,6 @@ end
     ufc.f_err = -2.0
     @test get_f_err(ufc) == -2.0
     ufc.f_set = 3300.0
-    println(ufc.active)
-
     @test get_f_set_upper(ufc) == 0.0
     KiteControllers._set(ufc)
     @test get_f_set_upper(ufc) == 3300.0

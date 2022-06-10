@@ -33,7 +33,7 @@ V_WIND = STARTUP .* get_triangle_wind(wcs)
 V_RO, V_SET_OUT, V_SET_OUT_B, FORCE, F_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 ACC, ACC_SET, V_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 STATE = zeros(Int64, SAMPLES)
-# create the winch model and and the v_set_in calculator and mixer
+# create the winch model and the v_set_in calculator and mixer
 winch = Winch(wcs)
 calc = CalcVSetIn(wcs)
 # create and initialize speed controller 
