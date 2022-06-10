@@ -253,7 +253,7 @@ function _set(lfc::LowerForceController)
     lfc.active = true
 end
 
-function _update_reset(fc::AFC)
+function _update_reset(fc::LowerForceController)
     if (fc.v_act - fc.v_sw) >= 0.0 || fc.reset
         if (fc.force - fc.f_set) > 0.0 || fc.reset
             fc.active = false
@@ -309,7 +309,7 @@ function solve(lfc::LowerForceController)
         F .= lfc.res 
     end
 
-    _update_reset(lfc)
+    _update_reset(lfc::LowerForceController)
     err = lfc.force - lfc.f_set
     if ! lfc.active
         # activate the force controller if the force drops below the set force
@@ -370,6 +370,10 @@ end
     res::MVector{3, Float64} = zeros(3)
 end
 
+function UpperForceController(wcs::WCSettings)
+    UpperForceController(wcs=wcs, f_set=wcs.f_high)
+end
+
 # internal method to set the SR flip-flop and activate the force controller
 function _set(ufc::UpperForceController)
     if ufc.reset return end
@@ -380,6 +384,14 @@ function _set(ufc::UpperForceController)
        ufc.v_set_out = ufc.tracking
     end
     ufc.active = true
+end
+
+function _update_reset(fc::UpperForceController)
+    if (fc.v_act - fc.v_sw) <= 0.0 || fc.reset
+        if (fc.force - fc.f_set) < 0.0 || fc.reset
+            fc.active = false
+        end
+    end
 end
 
 function calc_sat2in_sat2out_rateout_intin(ufc::UpperForceController, x)

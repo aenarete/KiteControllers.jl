@@ -5,7 +5,7 @@ import Base.reset
 
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types
 export UnitDelay, RateLimiter, Mixer_2CH, Mixer_3CH, CalcVSetIn
-export Winch, SpeedController, LowerForceController
+export Winch, SpeedController, LowerForceController, UpperForceController
 export FlightPathCalculator, SystemStateControl
 export saturate, wrap2pi                                              # utility function
 export reset, calc_output, on_timer, select_b, select_c, get_state    # methods of Integrator, UnitDelay etc.
@@ -15,6 +15,7 @@ export get_v_set_out, get_v_error                                     # methods 
 export set_force, get_acc, get_speed                                  # methods of Winch
 export set_v_act, set_reset, set_f_set, set_v_sw, get_f_err           # methods of LowerForceController
 export get_f_set_low                                                  # methods of LowerForceController
+export get_f_set_upper                                                # methods of UpperForceController
 export calc_vro, set_vset_pc                                          # functions for winch control
 export on_autopilot, on_parking, on_stop                              # methods of SystemStateControl
 
@@ -28,6 +29,7 @@ include("flightpathcontroller.jl")
 include("wc_settings.jl")
 include("wc_components.jl")
 include("winchcontroller.jl")
+include("fpp_settings.jl")
 include("flightpathplanner.jl")
 
 precompile(SystemStateControl, ())

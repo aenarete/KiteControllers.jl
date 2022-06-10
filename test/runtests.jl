@@ -228,3 +228,40 @@ end
     set_f_set(lfc, 330.0)
     @test lfc.f_set == 330.0
 end
+
+@testset "UpperForceController" begin
+    wcs = WCSettings()
+    ufc = UpperForceController(wcs)
+    @test ufc.wcs.dt == 0.02
+    KiteControllers._set(ufc)
+    @test ufc.active
+    ufc.v_act = -1.0
+    ufc.force = 1.0
+    KiteControllers._update_reset(ufc)
+    @test ! ufc.active
+    set_v_act(ufc, 0.0)
+    @test ufc.v_act == 0.0
+    set_force(ufc, 3500)
+    @test ufc.force == 3500
+    set_reset(ufc, true)
+    @test ufc.reset
+    set_v_sw(ufc, 2.2)
+    @test ufc.v_sw == 2.2
+    set_tracking(ufc, 3.3)
+    @test ufc.tracking == 3.3
+    ufc = UpperForceController(wcs)
+    x = [0.1, 0.2, 0.3]
+    sat2_in, sat2_out, rate_out, int_in, int2_in = KiteControllers.calc_sat2in_sat2out_rateout_intin(ufc, x)
+    v_set_out = get_v_set_out(ufc)
+    ufc.f_err = -2.0
+    @test get_f_err(ufc) == -2.0
+    ufc.f_set = 3300.0
+    println(ufc.active)
+
+    @test get_f_set_upper(ufc) == 0.0
+    KiteControllers._set(ufc)
+    @test get_f_set_upper(ufc) == 3300.0
+    on_timer(ufc)
+    set_f_set(ufc, 330.0)
+    @test ufc.f_set == 330.0
+end

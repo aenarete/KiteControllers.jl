@@ -43,7 +43,7 @@ Settings of the WinchController
     "lower force limit [N]"
     f_low = 300
     "upper force limit [N]"
-    f_high = 4000
+    f_high = 3650
     "P constant of upper force controller"
     pf_high = 0.007 * 0.33
     "I constant of upper force controller"
