@@ -7,7 +7,7 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels
 
-const ssc = SystemStateControl()
+const ssc = SystemStateControl(WCSettings())
 
 # change this to KPS3 or KPS4
 const Model = KPS4
@@ -24,12 +24,7 @@ SHOW_KITE = true
 
 if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE); end
 
-steps=0
-
-function update_system2(kps)
-    sys_state = SysState(kps)
-    KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
-end 
+steps = 0
 
 function simulate(integrator)
     start_time_ns = time_ns()
@@ -39,15 +34,23 @@ function simulate(integrator)
     GC.gc()
     max_time = 0
     t_gc_tot = 0
+    last_force = 300.0
+    last_v_act = 0.0
     while true
         v_ro = 0.0
+        f_low = ssc.wc.wcs.f_low
+        # execute winch controller
+        # v_ro = calc_v_set(ssc.wc, last_v_act, last_force, f_low)
+        #
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
         if mod(i, TIME_LAPSE_RATIO) == 0 
-            update_system2(kps4) 
-            end_time_ns = time_ns()
+            sys_state = SysState(kps4)
+            last_force = sys_state.force
+            last_v_act = sys_state.v_reelout
+            KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
             if i > 10/dt 
@@ -62,7 +65,6 @@ function simulate(integrator)
             if mtime > max_time
                 max_time = mtime
             end            
-            time_tot = end_time_ns - start_time_ns
             start_time_ns = time_ns()
             t_gc_tot = 0
         end

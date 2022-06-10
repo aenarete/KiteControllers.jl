@@ -766,8 +766,13 @@ end
 #     Minimal set of states:
 #     ssManualOperation, ssParking, ssPowerProduction
 @with_kw mutable struct SystemStateControl @deftype Float64
+    wc::WinchController
     state::Observable(SystemState)[]       = ssManualOperation
     tether_length::Union{Nothing, Float64} = nothing
+end
+
+function SystemStateControl(wcs::WCSettings)
+    SystemStateControl(wc=WinchController(wcs))
 end
 
 function on_parking(ssc::SystemStateControl, tether_length=nothing)
