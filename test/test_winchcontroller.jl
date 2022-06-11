@@ -39,22 +39,23 @@ STATE = zeros(Int64, SAMPLES)
 wc = WinchController(wcs)
 winch = KiteControllers.Winch(wcs)
 f_low = wcs.f_low
-v_act = 0.0
+
 for i in 1:SAMPLES
-    global v_act
     # model
     v_wind = V_WIND[i]
+
+    v_act = get_speed(winch)
     force = calc_force(v_wind, v_act)
     set_force(winch, force)
-    v_act = get_speed(winch)
 
     # controller
     v_set = calc_v_set(wc, v_act, force, f_low)
-    on_timer(wc)
-
+    
     # update model
     set_v_set(winch, v_set)
+    
     on_timer(winch)
+    on_timer(wc)
 
     # logging
     acc   = get_acc(winch)
