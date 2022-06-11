@@ -17,10 +17,7 @@ wcs.test = true
 wcs.f_low = 350
 wcs.fac = 1.0
 wcs.t_blend = 0.25
-#wcs.pf_low = 1.44e-4*0.5
 wcs.pf_high = 1.44e-4*1.6*0.5
-# wcs.kt_speed = 10
-
 
 DURATION = 10.0
 SAMPLES = Int(DURATION / wcs.dt + 1)
@@ -28,7 +25,6 @@ TIME = range(0.0, DURATION, SAMPLES)
 V_WIND_MAX = 9.0 # max wind speed of test wind
 V_WIND_MIN = 0.0 # min wind speed of test wind
 FREQ_WIND  = 0.25 # frequency of the triangle wind speed signal 
-BENCHMARK = false
 
 include("test_utils.jl")
 
@@ -60,7 +56,9 @@ for i in 1:SAMPLES
 
     # logging
     acc   = get_acc(winch)
+    state = get_state(wc)
     ACC[i] = acc 
+    STATE[i] = state
     V_RO[i] = v_act
     FORCE[i] = force
     V_SET_OUT[i] = v_set
@@ -75,7 +73,7 @@ plot!(TIME, V_SET_OUT, label="v_set_out [m/s]",  width=2, xtickfontsize=12, ytic
 
 p3=#plot(TIME, ACC,       label="acc [m/s²]",       width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 plot(TIME, FORCE*0.001, label="force [kN]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-# plot!(TIME, STATE,       label="state",          width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+plot!(TIME, STATE,       label="state",          width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 # plot!(TIME, V_ERR, label="v_error [m/s]",        width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 # plot!(TIME, F_ERR*0.001, label="f_error [kN]",   width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 
@@ -90,6 +88,3 @@ resize!(pIDR3.wnd, 1200, 700)
 toc()
 
 println("Max iterations needed: $(wcs.iter)")
-            
-#     return TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE, STATE, V_ERR, F_ERR
-    
