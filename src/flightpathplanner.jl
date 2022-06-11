@@ -805,7 +805,12 @@ function calc_v_set(ssc::SystemStateControl)
     end
     force = ssc.sys_state.force
     v_act = ssc.sys_state.v_reelout
-    v_set = calc_v_set(ssc.wc, v_act, force, f_low)
+    if ssc.state == ssParking
+        v_set = calc_v_set(ssc.wc, v_act, force, f_low, 0.0)
+    else
+        v_set = calc_v_set(ssc.wc, v_act, force, f_low)
+    end
+    on_timer(ssc.wc)
     println(v_set)
     v_set
 end
