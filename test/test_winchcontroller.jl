@@ -32,10 +32,11 @@ STARTUP = get_startup(wcs)
 V_WIND = STARTUP .* get_triangle_wind(wcs)
 V_RO, V_SET_OUT, FORCE, F_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 ACC, ACC_SET, V_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
+RESET, ACTIVE, F_SET = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 STATE = zeros(Int64, SAMPLES)
 # create and initialize winch controller 
 wc = WinchController(wcs)
-winch = Winch(wcs)
+winch = KiteControllers.Winch(wcs)
 f_low = wcs.f_low
 v_act = 0.0
 for i in 1:SAMPLES
@@ -57,11 +58,17 @@ for i in 1:SAMPLES
     # logging
     acc   = get_acc(winch)
     state = get_state(wc)
+    status = get_status(wc)
     ACC[i] = acc 
     STATE[i] = state
     V_RO[i] = v_act
-    FORCE[i] = force
+    # FORCE[i] = force
     V_SET_OUT[i] = v_set
+    RESET[i] = status[1]
+    ACTIVE[i] = status[2]
+    FORCE[i] = status[3]
+    F_SET[i] = status[4]
+    V_SET_OUT[i] = status[5]
 end
 
 p1=plot(TIME, V_WIND,    label="v_wind [m/s]",   width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
