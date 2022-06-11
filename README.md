@@ -79,7 +79,7 @@ kite controllable, also a minimal tether force limit has to be kept. Depending o
 ### Upper Force Controller
 <p align="center"><img src="./docs/upper_force_controller.png" width="500" /></p>
 
-### WinchController - Usage
+### WinchController - Usage -
 The WinchController combines the three controllers, mentioned above.
 It can be operated in two modes of operation:
 - position control
