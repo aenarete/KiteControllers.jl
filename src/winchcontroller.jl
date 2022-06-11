@@ -1,8 +1,6 @@
 # Winch winch controller component, implemented as described in the PhD thesis of Uwe Fechner. 
-
 @enum WinchControllerState wcsLowerForceLimit wcsSpeedControl wcsUpperForceLimit
-    
-        
+
 # Basic winch controller. Works in one of the three modes wcsLowerForceLimit, wcsSpeedControl and
 # wcsUpperForceLimit.
 @with_kw mutable struct WinchController @deftype Float64
