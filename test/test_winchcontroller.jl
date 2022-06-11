@@ -54,6 +54,10 @@ for i in 1:SAMPLES
     v_set = calc_v_set(wc, v_act, force, f_low)
     on_timer(wc)
 
+    # update model
+    set_v_set(winch, v_set)
+    on_timer(winch)
+
     # logging
     acc   = get_acc(winch)
     ACC[i] = acc 
