@@ -42,6 +42,8 @@ Settings of the WinchController
     ktf_low = 8.0
     "lower force limit [N]"
     f_low = 350
+    "set force for reel-in phase [N]"
+    f_reelin = 1500
     "upper force limit [N]"
     f_high = 3650
     "P constant of upper force controller"

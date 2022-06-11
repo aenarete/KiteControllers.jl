@@ -798,7 +798,11 @@ function on_new_systate(ssc::SystemStateControl, sys_state)
 end
 
 function calc_v_set(ssc::SystemStateControl)
-    f_low = ssc.wc.wcs.f_low
+    if ssc.state == ssReelIn
+        f_low = ssc.wc.wcs.f_reelin
+    else
+        f_low = ssc.wc.wcs.f_low
+    end
     force = ssc.sys_state.force
     v_act = ssc.sys_state.v_reelout
     calc_v_set(ssc.wc, v_act, force, f_low)
