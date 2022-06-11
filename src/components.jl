@@ -184,6 +184,6 @@ wcsLowerForceControl = 0 # input b selected
 wcsSpeedControl = 1      # input a selected
 wcsUpperForceControl = 2 # input c selected
 """
-function get_state(m3)
+function get_state(m3::Mixer_3CH)
     Int(! m3.select_b && ! m3.select_c) + 2 * Int(m3.select_c)
 end
