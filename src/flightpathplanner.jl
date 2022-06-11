@@ -805,7 +805,9 @@ function calc_v_set(ssc::SystemStateControl)
     end
     force = ssc.sys_state.force
     v_act = ssc.sys_state.v_reelout
-    calc_v_set(ssc.wc, v_act, force, f_low)
+    v_set = calc_v_set(ssc.wc, v_act, force, f_low)
+    println(v_set)
+    v_set
 end
 
 function switch(ssc::SystemStateControl, state)
