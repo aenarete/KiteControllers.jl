@@ -84,6 +84,7 @@ The WinchController combines the three controllers, mentioned above.
 It can be operated in two modes of operation:
 - position control
 - power production
+
 In position control mode it requires a set speed as input. Upper and lower force limits
 are respected.
 In power production mode it does not require any input but the measured tether force.
