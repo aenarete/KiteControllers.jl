@@ -811,7 +811,7 @@ function calc_v_set(ssc::SystemStateControl)
         v_set = calc_v_set(ssc.wc, v_act, force, f_low)
     end
     on_timer(ssc.wc)
-    println(v_set)
+    # println(v_set)
     v_set
 end
 

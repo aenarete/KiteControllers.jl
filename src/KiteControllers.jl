@@ -19,7 +19,7 @@ export get_f_set_low                                                  # methods 
 export get_f_set_upper                                                # methods of UpperForceController
 export calc_vro, set_vset_pc                                          # functions for winch control
 export calc_v_set, get_set_force, get_status                          # methods of WinchController
-export on_autopilot, on_parking, on_stop, on_new_systate              # methods of SystemStateControl
+export on_autopilot, on_parking, on_reelin, on_stop, on_new_systate   # methods of SystemStateControl
 
 abstract type AbstractForceController end
 const AFC = AbstractForceController

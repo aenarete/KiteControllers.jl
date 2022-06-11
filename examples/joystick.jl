@@ -7,8 +7,6 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, Joysticks
 
-const ssc = SystemStateControl(WCSettings())
-
 # change this to KPS3 or KPS4
 const Model = KPS4
 
@@ -20,6 +18,8 @@ if ! @isdefined js;
     const jsbuttons = JSButtonState()
     async_read!(js, jsaxes, jsbuttons)
 end
+const wcs = WCSettings(); wcs.dt = 1/se().sample_freq
+const ssc = SystemStateControl(WCSettings())
 
 # the following values can be changed to match your interest
 dt = 0.05
@@ -117,6 +117,9 @@ on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 
 on(jsbuttons.btn1) do val; if val async_play() end; end
 on(jsbuttons.btn2) do val; if val stop(viewer) end; end
+on(jsbuttons.btn3) do val; if val autopilot() end; end
+on(jsbuttons.btn4) do val; if val on_reelin(ssc) end; end
+on(jsbuttons.btn5) do val; if val on_parking(ssc) end; end
 
 play()
 stop(viewer)
