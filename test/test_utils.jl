@@ -158,18 +158,20 @@ function speed_controller_step3!(pid1, pid2, winch, calc, i, last_force, last_v_
 end
 
 function speed_controller_step4!(pid1, pid2, pid3, mix3, winch, calc, i, last_force, last_v_set_out, V_WIND, STARTUP, V_RO, ACC, FORCE, V_SET_OUT, STATE, V_ERR, F_ERR)
-    # calc v_set_in of the speed controller
-    set_vset_pc(calc, nothing, last_force[])
-    v_set_in = calc_output(calc)
-    set_v_set_in(pid1, v_set_in)
     # get the input (the wind speed)
     v_wind = V_WIND[i]
     v_ro = get_speed(winch)
     acc = get_acc(winch)
+    
     V_RO[i] = v_ro
     ACC[i] = acc
     force = calc_force(v_wind, v_ro)
     FORCE[i] = force
+    # calc v_set_in of the speed controller
+    set_vset_pc(calc, nothing, force)
+    v_set_in = calc_output(calc)
+    set_v_set_in(pid1, v_set_in)
+
     set_force(winch, force)
     # calculate v_set_out_A from the speed controller
     set_v_act(pid1, v_ro)
