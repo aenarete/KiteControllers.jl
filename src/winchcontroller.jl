@@ -69,6 +69,7 @@ function calc_v_set(wc::WinchController, v_act, force, f_low, v_set_pc=nothing)
     v_set_out_C = get_v_set_out(wc.pid3)
     wc.v_set = calc_output(wc.mix3, v_set_out_A, v_set_out_B, v_set_out_C)
     wc.v_set_out = v_set_out_A # for logging, store the output of the speed controller
+    wc.v_set
 end
 
 function on_timer(wc::WinchController)
@@ -93,4 +94,15 @@ function get_set_force(wc::WinchController)
     else
         return nothing
     end
+end
+
+# for logging and debugging
+function get_status(wc::WinchController)
+    result = [false, false, 0.0, 0.0, 0.0]
+    result[1] = wc.pid3.reset
+    result[2] = wc.pid3.active
+    result[3] = wc.pid3.force
+    result[4] = wc.pid3.f_set
+    result[5] = wc.pid3.v_set_out
+    result
 end
