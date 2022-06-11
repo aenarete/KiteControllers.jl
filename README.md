@@ -82,6 +82,18 @@ kite controllable, also a minimal tether force limit has to be kept. Depending o
 ### Upper Force Controller
 <p align="center"><img src="./docs/upper_force_controller.png" width="500" /></p>
 
+### WinchController
+The WinchController combines the three controllers, mentioned above.
+It can be operated in two modes of operation:
+- position control
+- power production
+In position control mode it requires a set speed as input. Upper and lower force limits
+are respected.
+In power production mode it does not require any input but the measured tether force.
+Output is the set speed of the asynchronous motor.
+
+For a usage example look at the script [test_winchcontroller.jl](./test/test_winchcontroller.jl) .
+
 ## Scientific background
 [A Methodology for the Design of Kite-Power Control Systems](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) Chapter 6.3 Winch control (WC)
 
