@@ -46,10 +46,10 @@ function simulate(integrator)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
+        sys_state = SysState(kps4)
+        last_force = sys_state.force
+        last_v_act = sys_state.v_reelout
         if mod(i, TIME_LAPSE_RATIO) == 0 
-            sys_state = SysState(kps4)
-            last_force = sys_state.force
-            last_v_act = sys_state.v_reelout
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
