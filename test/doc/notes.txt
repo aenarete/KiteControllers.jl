@@ -1,0 +1,13 @@
+Correct sequence when using test_forcspeedcontroller2.jl
+
+1. v_ro = get_speed(winch)
+2. force = calc_force(v_wind, v_ro)
+3. set_force(winch, force)
+4. set_v_act(pid3, v_ro)
+5. set_force(pid3, force)
+6. v_set_out_C = get_v_set_out(pid3)
+7. v_set_out = calc_output(mix3, v_set_out_A, v_set_out_B, v_set_out_C)
+8. v_set = STARTUP[i] * v_set_out
+9. set_v_set(winch, v_set)
+10. on_timer(winch)
+11. on_timer(pid3)
