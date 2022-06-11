@@ -764,10 +764,11 @@ end
 
 #     Highest level state machine
 #     Minimal set of states:
-#     ssManualOperation, ssParking, ssPowerProduction
+#     ssParking, ssPowerProduction, ssReelIn
 @with_kw mutable struct SystemStateControl @deftype Float64
     wc::WinchController
-    state::Observable(SystemState)[]       = ssManualOperation
+    sys_state::Union{Nothing, SysState}    = nothing
+    state::Observable(SystemState)[]       = ssParking
     tether_length::Union{Nothing, Float64} = nothing
 end
 
@@ -784,8 +785,23 @@ function on_autopilot(ssc::SystemStateControl)
     switch(ssc, ssPowerProduction)
 end
 
+function on_reelin(ssc::SystemStateControl)
+    switch(ssc, ssReelIn)
+end
+
 function on_stop(ssc::SystemStateControl)
     switch(ssc, ssManualOperation)
+end
+
+function on_new_systate(ssc::SystemStateControl, sys_state)
+    ssc.sys_state=sys_state
+end
+
+function calc_v_set(ssc::SystemStateControl)
+    f_low = ssc.wc.wcs.f_low
+    force = ssc.sys_state.force
+    v_act = ssc.sys_state.v_reelout
+    calc_v_set(ssc.wc, v_act, force, f_low)
 end
 
 function switch(ssc::SystemStateControl, state)

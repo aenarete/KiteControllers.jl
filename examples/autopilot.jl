@@ -34,21 +34,19 @@ function simulate(integrator)
     GC.gc()
     max_time = 0
     t_gc_tot = 0
-    last_force = 300.0
-    last_v_act = 0.0
+    sys_state = SysState(kps4)
+    on_new_systate(ssc, sys_state)
     while true
         v_ro = 0.0
-        f_low = ssc.wc.wcs.f_low
         # execute winch controller
-        # v_ro = calc_v_set(ssc.wc, last_v_act, last_force, f_low)
+        v_ro = calc_v_set(ssc)
         #
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
         sys_state = SysState(kps4)
-        last_force = sys_state.force
-        last_v_act = sys_state.v_reelout
+        on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0 
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
