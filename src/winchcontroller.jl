@@ -8,7 +8,6 @@
 @with_kw mutable struct WinchController @deftype Float64
     wcs::WCSettings
     time = 0
-    last_force = 0
     v_set_pc::Union{Float64, Nothing} = nothing # last set value from the position controller (can be nothing)
     v_set_in = 0.0  # input of the speed controller
     v_set_out = 0.0 # output of the speed controller
@@ -40,42 +39,39 @@ function calc_v_set(wc::WinchController, v_act, force, f_low, v_set_pc=nothing)
     set_f_set(wc.pid2, f_low)
     wc.v_act = v_act
     wc.force = force
+    set_vset_pc(wc.calc, v_set_pc, wc.force)
+    v_set_in = calc_output(wc.calc)
+    # set the inputs of pid1
+    set_v_set_in(wc.pid1, v_set_in)
+    set_v_act(wc.pid1, v_act)
+    if wc.time <= wc.wcs.t_startup
+        reset = true
+    else
+        reset = false
+    end
+    # set the inputs of pid2 and pid3    
+    set_reset(wc.pid2, reset)
+    set_v_sw(wc.pid2, calc_vro(wc.wcs, wc.pid2.f_set) * 1.05)
+    set_v_sw(wc.pid3, calc_vro(wc.wcs, wc.pid3.f_set) * 0.95)
+    set_v_act(wc.pid2, v_act)
+    set_v_act(wc.pid3, v_act)
+    # set tracking and force for all controllers
+    set_tracking(wc.pid1, wc.v_set)
+    set_tracking(wc.pid2, wc.v_set)
+    set_tracking(wc.pid3, wc.v_set)
+    set_force(wc.pid2, force)
+    set_force(wc.pid3, force)
+    # activate or deactivate the speed controller
+    set_inactive(wc.pid1, wc.pid2.active || wc.pid3.active)    
+    # calculate the output, using the mixer
+    select_b(wc.mix3, wc.pid2.active)
+    select_c(wc.mix3, wc.pid3.active)
+    v_set_out_A = get_v_set_out(wc.pid1)
+    v_set_out_B = get_v_set_out(wc.pid2)
+    v_set_out_C = get_v_set_out(wc.pid3)
+    wc.v_set = calc_output(wc.mix3, v_set_out_A, v_set_out_B, v_set_out_C)
+    wc.v_set_out = v_set_out_A # for logging, store the output of the speed controller
 end
-
-#         self.calc.setVSetPc_Force(v_set_pc, force)
-#         v_set_in = self.calc.getVSetIn()
-#         # set the inputs of pid1
-#         self.pid1.setVSetIn(v_set_in)       
-#         self.pid1.setVAct(v_act)
-#         if self.time <= STARTUP_TIME:
-#             reset = True
-#         else:
-#             reset = False
-#         # set the inputs of pid2 and pid3    
-#         self.pid2.setReset(reset)
-#         self.pid2.setV_SW(calcV_ro(self.pid2._f_set, self.f_high, self.f_low) * 1.05)  
-#         self.pid3.setV_SW(calcV_ro(self.pid3._f_set, self.f_high, self.f_low) * 0.95)
-#         self.pid2.setVAct(v_act)
-#         self.pid3.setVAct(v_act)
-#         # set tracking and force for all controllers
-#         self.pid1.setTracking(self.mix3.getDirectOutput())
-#         self.pid2.setTracking(self.mix3.getDirectOutput())
-#         self.pid3.setTracking(self.mix3.getDirectOutput())            
-#         self.pid2.setForce(force)
-#         self.pid3.setForce(force)        
-#         # activate or deactivate the speed controller
-#         self.pid1.setInactive((self.pid2._active or self.pid3._active))           
-#         # calculate the output, using the mixer
-#         self.mix3.setInputA(self.pid1.getVSetOut()    ) # from speed controller
-#         self.mix3.setInputB(self.pid2.getVSetOut())     # from lower force controller
-#         self.mix3.setInputC(self.pid3.getVSetOut())     # from upper force controller
-#         self.mix3.selectB(self.pid2._active)  # 
-#         self.mix3.selectC(self.pid3._active)  # 
-#         self.pid1.setInactive((self.pid2._active or self.pid3._active))        
-#         self.v_set_out = self.mix3.getOutput()        
-        
-#         self.last_force = force
-#         return self.v_set_out
         
 #     def onTimer(self, period_time):
 #         self.time += period_time
