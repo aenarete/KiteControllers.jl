@@ -66,9 +66,6 @@ The control commands are usually recived from the FlightPathPlanner, the output 
 [Flight path control of kite power systems in a turbulent wind environment](https://ieeexplore.ieee.org/document/7525563)
 
 ## Winch controller
-```
-WinchController
-```
 For a kite power system, the reel-out speed of the winch must be controlled such that the
 maximal tether force is never exceeded, while the reel out speed should be optimized for
 maximal power over the full cycle at wind speeds below rated wind speed. To keep the
@@ -82,7 +79,7 @@ kite controllable, also a minimal tether force limit has to be kept. Depending o
 ### Upper Force Controller
 <p align="center"><img src="./docs/upper_force_controller.png" width="500" /></p>
 
-### WinchController
+### WinchController - Usage
 The WinchController combines the three controllers, mentioned above.
 It can be operated in two modes of operation:
 - position control
