@@ -72,37 +72,27 @@ function calc_v_set(wc::WinchController, v_act, force, f_low, v_set_pc=nothing)
     wc.v_set = calc_output(wc.mix3, v_set_out_A, v_set_out_B, v_set_out_C)
     wc.v_set_out = v_set_out_A # for logging, store the output of the speed controller
 end
-        
-#     def onTimer(self, period_time):
-#         self.time += period_time
-#         self.pid1.onTimer()   
-#         self.pid2.onTimer()
-#         self.pid3.onTimer()
-#         self.mix3.onTimer()
-#         self.calc.onTimer()    
 
-#     def getWinchControlState(self):
-#         return self.mix3.getControllerState()
-        
-#     def getSetForce(self):
-#         state = self.mix3.getControllerState()        
-#         if state == 0:
-#             return self.pid2._f_set
-#         elif state == 2:
-#             return self.pid3._f_set
-#         return None            
-    
-#     def getStatus(self):
-#         result = np.zeros(8)
-#         result[0] = self.f_high
-#         result[1] = self.f_low
-#         result[2] = self.k_v
-#         if self.v_set_pc is None:
-#             result[3] = np.nan
-#         else:
-#             result[3] = self.v_set_pc
-#         result[4] = self.v_set_in
-#         result[5] = self.v_set_out
-#         result[6] = self.v_set_ufc
-#         result[7] = self.v_set_lfc
-#         return result
+function on_timer(wc::WinchController)
+    wc.time += wc.wcs.dt
+    on_timer(wc.calc)
+    on_timer(wc.pid1)
+    on_timer(wc.pid2)
+    on_timer(wc.pid3)
+    on_timer(wc.mix3)    
+end
+
+function get_state(wc::WinchController)
+    get_state(wc.mix3)
+end
+
+function get_set_force(wc::WinchController)
+    state = get_state(wc)
+    if state == 0
+        return wc.pid2.f_set 
+    elseif state == 2
+        return wc.pid3.f_set
+    else
+        return nothing
+    end
+end

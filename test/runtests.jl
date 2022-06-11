@@ -272,4 +272,7 @@ end
     force = 500.0
     f_low = wcs.f_low
     calc_v_set(wc, v_act, force, f_low)
+    on_timer(wc)
+    @test get_state(wc) == 1 # wcsSpeedControl
+    @test isnothing(get_set_force(wc))
 end

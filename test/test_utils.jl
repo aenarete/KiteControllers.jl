@@ -223,7 +223,3 @@ function speed_controller_step4!(pid1, pid2, pid3, mix3, winch, calc, i, last_fo
     last_force[] = force
     last_v_set_out[] = v_set_out            
 end
-
-    #         ACC_SET[i] = (v_set_out - last_v_set_out) / PERIOD_TIME
-            
-    # return TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE, STATE, V_ERR, F_ERR 
