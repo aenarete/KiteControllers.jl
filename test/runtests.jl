@@ -44,25 +44,6 @@ end
     @test int3.last_output == 2.05
 end
 
-@testset "FlightPathController" begin
-    fpc = FlightPathController() 
-    on_control_command(fpc)
-    phi = 0.0
-    beta = 0.0
-    psi = 0.0
-    chi = 0.0
-    omega = 0.0
-    v_a = 0.0
-    on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a, u_d=0.236)
-    KiteControllers.navigate(fpc)
-    psi_dot = 0.0
-    KiteControllers.linearize(fpc, psi_dot)
-    x = [0, 0]
-    KiteControllers.calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
-    parking = false
-    KiteControllers.calc_steering(fpc, parking)
-end
-
 @testset "WinchController" begin
     wcs = WCSettings()
     cvi = CalcVSetIn(wcs)
@@ -275,4 +256,24 @@ end
     on_timer(wc)
     @test get_state(wc) == 1 # wcsSpeedControl
     @test isnothing(get_set_force(wc))
+end
+
+@testset "FlightPathController" begin
+    fcs = FPCSettings()
+    fpc = FlightPathController(fcs) 
+    on_control_command(fpc)
+    phi = 0.0
+    beta = 0.0
+    psi = 0.0
+    chi = 0.0
+    omega = 0.0
+    v_a = 0.0
+    on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a, u_d=0.236)
+    KiteControllers.navigate(fpc)
+    psi_dot = 0.0
+    KiteControllers.linearize(fpc, psi_dot)
+    x = [0, 0]
+    KiteControllers.calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
+    parking = false
+    KiteControllers.calc_steering(fpc, parking)
 end

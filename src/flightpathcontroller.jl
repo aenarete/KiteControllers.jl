@@ -4,8 +4,6 @@
 const TAU = 0.95   # time constant for psi_dot_set
 const TAU_VA = 0.0 # time constant for averaging the apparent wind velocity
 
-const cc = FPCSettings()
-
 """
 FlightPathController as specified in chapter six of the PhD thesis of Uwe Fechner.
 
@@ -21,15 +19,15 @@ Once per time step the method
 must be called.
 
 See also:
-../doc/flight_path_controller_I.png and
-../doc/flight_path_controller_II.png and
-../doc/flight_path_controller_III.png
+docs/flight_path_controller_I.png and
+docs/flight_path_controller_II.png and
+docs/flight_path_controller_III.png
 """
 @with_kw mutable struct FlightPathController @deftype Float64
+    "struct holding the settings of the flight path controller"
+    fcs::FPCSettings
     "cycle number"
     count::Int64                               = 0
-    "period time"
-    dt                                         = 1.0 / se().sample_freq 
     "attractor coordinates, azimuth and elevation in radian"
     attractor::MVector{2, Float64}             = zeros(2)
     "desired turn rate in rad per second or nothing"
@@ -65,11 +63,11 @@ See also:
     k_ds                                       = se().k_ds # was 2.0
     "actual depower setting (0..1)"
     u_d                                        = 0.01 * se().depower
-    k_c2                                       = cc.k_c2
-    k_c2_int                                   = cc.k_c2_int
-    k_c2_hight                                 = cc.k_c2_high
-    c1                                         = cc.c1 * cc.k_c1  # identified value for hydra kite from paper [rad/m]
-    c2                                         = cc.c2 * cc.k_c2
+    k_c2                                       = fcs.k_c2
+    k_c2_int                                   = fcs.k_c2_int
+    k_c2_hight                                 = fcs.k_c2_high
+    c1                                         = fcs.c1 * fcs.k_c1  # identified value for hydra kite from paper [rad/m]
+    c2                                         = fcs.c2 * fcs.k_c2
     intermediate::Bool                         = true
     "apparent wind speed at the kite"
     va                                         = 0.0
@@ -80,17 +78,9 @@ See also:
     "quotient of the output and the input of the NDI block"
     ndi_gain                                   = 1.0
     "integrator for the I part of the pid controller"
-    int::Integrator                            = Integrator(dt)
+    int::Integrator                            = Integrator(fcs.dt)
     "integrator for the D part of the pid controller"
-    int2::Integrator                           = Integrator(dt)
-    "P gain of the PID controller"
-    p                                          = cc.p
-    "I gain of the PID controller"
-    i                                          = cc.i
-    "D gain of the PID controller"
-    d                                          = cc.d
-    "additional factor for P, I and D"
-    gain                                       = cc.gain
+    int2::Integrator                           = Integrator(fcs.dt)
     "anti-windup gain for limited steering signal"
     k_u                                        =  5.0
     "anti-windup gatin for limited turn rate"
@@ -114,6 +104,10 @@ See also:
     _i                                         = 0
 end
 
+function FlightPathController(fcs::FPCSettings)
+    FlightPathController(fcs=fcs)
+end
+
 """
     on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
 
@@ -123,12 +117,12 @@ or psi_dot, the set value for the turn rate in degrees per second.
 """
 function on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
     fpc.intermediate = intermediate
-    if cc.use_radius && ! isnothing(radius)
+    if fpc.fcs.use_radius && ! isnothing(radius)
         psi_dot_set = rad2deg(fpc.omega / radius) # desired turn rate during the turns
     end
     if ! isnothing(psi_dot_set) && ! isnothing(radius)
         temp = fpc.omega / radius
-        if cc.prn
+        if fpc.fcs.prn
             @printf "--->>--->> temp, psi_dot_set %.2f %.2f %.2f %.2f" temp psi_dot_set omega radius
         end
     end
@@ -173,7 +167,7 @@ function on_est_sysstate(fpc, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_p
             delta += 2π
         elseif delta > π
             delta -= 2π
-            fpc.est_psi_dot = delta / fpc.dt
+            fpc.est_psi_dot = delta / fpc.fcs.dt
         end
     end
     fpc.psi = psi
@@ -189,13 +183,13 @@ function on_est_sysstate(fpc, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_p
     # print some debug info every 2.5 seconds
     fpc.count += 1
     if fpc.count >= 50
-        if cc.prn_ndi_gain
+        if fpc.fcs.prn_ndi_gain
             @printf "ndi_gain: %.2f" fpc.ndi_gain
         end
-        if cc.prn_est_psi_dot
+        if fpc.fcs.prn_est_psi_dot
             @printf "est_psi_dot: %.2f" degrees(fpc.est_psi_dot)
         end
-        if cc.prn_va
+        if fpc.fcs.prn_va
             @printf "va, va_av: %.2f, %.2f" va fpc.va_av
         end
         fpc.count = 0
@@ -252,13 +246,13 @@ function linearize(fpc::FlightPathController, psi_dot; fix_va=false)
     end
     if fpc.intermediate
         k = (va_fix - 22) / 3.8
-        c2 = cc.c2 * (fpc.k_c2_int + k)
+        c2 = fpc.fcs.c2 * (fpc.k_c2_int + k)
     else
         k = (va_fix - 22) / 3.5 # was: 4
         if fpc.beta < radians(30)
-            c2 = cc.c2 * (fpc.k_c2 + k)
+            c2 = fpc.fcs.c2 * (fpc.k_c2 + k)
         else
-            c2 = cc.c2 * (fpc.k_c2_high + k)
+            c2 = fpc.fcs.c2 * (fpc.k_c2_high + k)
         end
     end
     u_s = (1.0 + fpc.k_ds * fpc.u_d_prime) / (fpc.c1 * va_hat) * (psi_dot - c2 / va_fix * sin(fpc.psi) * cos(fpc.beta))
@@ -275,7 +269,7 @@ end
 """
     calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
 
-see: ./01_doc/flight_path_controller_II.png
+see: docs/flight_path_controller_II.png
 
 Parameters:
 - x: vector of k_u_in, k_psi_in and int2_in
@@ -285,15 +279,15 @@ function calc_sat1in_sat1out_sat2in_sat2out(fpc::FlightPathController, x)
     k_psi_in = x[2]
 
     # calculate I part
-    int_in = fpc.i * fpc.err + fpc.k_u * k_u_in + fpc.k_psi * k_psi_in
+    int_in = fpc.fcs.i * fpc.err + fpc.k_u * k_u_in + fpc.k_psi * k_psi_in
     int_out = calc_output(fpc.int, int_in)
 
     # calculate D part
-    int2_in = fpc._n * (fpc.err * fpc.d - fpc.int2.last_output) / (1.0 + fpc._n * fpc.dt)
+    int2_in = fpc._n * (fpc.err * fpc.fcs.d - fpc.int2.last_output) / (1.0 + fpc._n * fpc.fcs.dt)
     calc_output(fpc.int2, int2_in)
 
     # calculate P, I, D output
-    sat1_in = (fpc.p * fpc.err + int_out + int2_in) * fpc.gain
+    sat1_in = (fpc.fcs.p * fpc.err + int_out + int2_in) * fpc.fcs.gain
 
     # calcuate saturated set value of the turn rate psi_dot
     sat1_out = saturate(sat1_in, -fpc.psi_dot_max, fpc.psi_dot_max)
@@ -342,21 +336,21 @@ function calc_steering(fpc::FlightPathController, parking)
         chi_factor = 0.85
     end
     fpc.chi_factor = chi_factor
-    if cc.use_chi && ! parking
+    if fpc.fcs.use_chi && ! parking
         control_var = merge_angles(fpc.psi, fpc.chi, chi_factor)
     else
         fpc.chi_factor = 0.0
         control_var = fpc.psi
     end
     fpc.err = wrap2pi(fpc.chi_set - control_var)
-    if cc.reset_int1 && (fpc._i == 0) || fpc.reset_int1
-        if cc.reset_int1_to_zero
-            if cc.prn
+    if fpc.fcs.reset_int1 && (fpc._i == 0) || fpc.reset_int1
+        if fpc.fcs.reset_int1_to_zero
+            if fpc.fcs.prn
                 @printf "===>>> Reset integrator to zero!"
             end
             reset(fpc.int, 0.0)
         else
-            if cc.prn
+            if fpc.fcs.prn
                 @printf "est_psi_dot: %.3f" fpc.est_psi_dot
                 @printf "initial integrator output: %.3f" (fpc.est_psi_dot / fpc.gain - fpc.err * fpc.P)
             end
@@ -364,13 +358,13 @@ function calc_steering(fpc::FlightPathController, parking)
         end
         fpc.reset_int1 = false
     end
-    if cc.reset_int2 && fpc._i == 1
-        if cc.prn
+    if fpc.fcs.reset_int2 && fpc._i == 1
+        if fpc.fcs.prn
             @printf "initial output of integrator two: %.3f" fpc.err * fpc.D
         end
         fpc.int2.reset((fpc.err * fpc.D))
     end
-    if cc.init_opt_to_zero
+    if fpc.fcs.init_opt_to_zero
         res = nlsolve(residual!, [ 0.0; 0.0], ftol=1e-14)
         @assert converged(res)
         x = res.zero
@@ -387,7 +381,7 @@ function calc_steering(fpc::FlightPathController, parking)
     # @printf "sat1_in, sat1_out, sat2_in, sat2_out: %.3f, %.3f, %.3f, %.3f", sat1_in, sat1_out, sat2_in, sat2_out
     fpc.int_in = int_in
     if ! isnothing(fpc.psi_dot_set)
-        if cc.use_radius && ! isnothing(fpc.radius)
+        if fpc.fcs.use_radius && ! isnothing(fpc.radius)
             fpc.psi_dot_set_final = fpc.omega / fpc.radius # desired turn rate during the turns
         end
         fpc.psi_dot_set = fpc.psi_dot_set * TAU + fpc.psi_dot_set_final * (1-TAU)
