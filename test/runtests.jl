@@ -375,4 +375,19 @@ end
     fcs.dt = 0.02
     km = KiteControllers.KiteModel(fcs)
     @test km.omega == 0.08
+    x = [0.0, 0]
+    x0, x1, psi_dot = KiteControllers.calc_x0_x1_psi_dot(km, x)
+    @test x0 ≈ 1.5707963267948966
+    @test x1 ≈ 0.5759586531581288
+    @test psi_dot ≈ 0.0
+    x = [0.1, 0]
+    x0, x1, psi_dot = KiteControllers.calc_x0_x1_psi_dot(km, x)
+    @test x0 ≈ 1.571422282317272
+    @test x1 ≈ 0.5759576516293584
+    @test psi_dot ≈ 0.031297776118780624
+    x = [0.1, 0.1]
+    x0, x1, psi_dot = KiteControllers.calc_x0_x1_psi_dot(km, x)
+    @test x0 ≈ 1.571419155146939
+    @test x1 ≈ 0.5759576566328299
+    @test psi_dot ≈ 0.031141417602125847
 end
