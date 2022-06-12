@@ -5,31 +5,31 @@
 # v_a: the apparent wind speed
 # omega: the angular velocity of the kite
 # implements the simulink diagram docs/kite_model.png
+@with_kw mutable struct KiteModel @deftype Float64
+    fcs::FPCSettings
+    int_beta::Integrator = Integrator(fcs.dt, 1.0, deg2rad(33.0)) # integrator output: the elevation angle beta
+    int_psi::Integrator  = Integrator(fcs.dt, 1.0, deg2rad(90.0)) # integrator output: heading angle psi, not normalized
+    int_phi::Integrator  = Integrator(fcs.dt, 1.0, deg2rad(0.0))  # integrator output: azimuth angle phi
+    u_s = 0.0
+    v_a = 0.0
+    u_d_prime = 0.2
+    k_d_s = 1.5    
+    omega = 0.08
+    c0 = 0.0
+    c1 = 0.262
+    c2 = 6.27
+    psi_dot = 0.0
+    a = 0.0
+    m1 = 0
 
-# class KiteModel(object):
-#     r""" Class, that calculates the position of the kite (elevation angle beta and azimuth angle phi) and the
-#     orientation of the kite (psi and psi_dot) as function of:
-#     u_s: the relative steering, output of the KCU model (KCU: kite control unit)
-#     u_d_prime: the normalized depower settings
-#     v_a: the apparent wind speed
-#     omega: the angular velocity of the kite
-#     implements the simulink diagram ./01_doc/kite_model.png
-#     """
+end
+
+function KiteModel(fcs::FPCSettings)
+    km = KiteModel(fcs=fcs)
+    km.m1 = km.c2 / 20.0
+end
+
 #     def __init__(self, beta_0=33.0, psi_0=90.0, phi_0=0.0, K_d_s=1.5, c1=0.262, c2=6.27, omega=0.08):
-#         self.int_beta = Integrator(x_0=radians(beta_0)) # integrator output: the elevation angle beta
-#         self.int_psi =  Integrator(x_0=radians(psi_0))  # integrator output: heading angle psi, not normalized
-#         self.int_phi =  Integrator(x_0=radians(phi_0))  # integrator output: azimuth angle phi
-#         self.u_s = 0.0
-#         self.v_a = 0.0
-#         self.u_d_prime = 0.2
-#         self.k_d_s = K_d_s
-#         self.omega = omega
-#         self.c0 = 0.0
-#         self.c1 = c1
-#         self.c2 = c2
-#         self.psi_dot = 0.0
-#         self.a = 0.0
-#         self.m1 = self.c2 / 20.0
 #         self.res = np.zeros(2)
 #         self.psi = radians(psi_0)
 #         self.psi_dot = 0.0

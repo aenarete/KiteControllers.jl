@@ -369,3 +369,9 @@ end
     KiteControllers.navigate(fpc)
     @test rad2deg(fpc.chi_set) ≈ 30.68205617643342
 end
+
+@testset "KiteModel" begin
+    fcs = FPCSettings()
+    fcs.dt = 0.02
+    km = KiteControllers.KiteModel(fcs)
+end
