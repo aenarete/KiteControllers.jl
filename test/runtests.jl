@@ -390,4 +390,7 @@ end
     @test x0 ≈ 1.571419155146939
     @test x1 ≈ 0.5759576566328299
     @test psi_dot ≈ 0.031141417602125847
+    KiteControllers.solve(km)
+    @test km.psi_dot ≈ 0.262921024533129
+    on_timer(km)
 end

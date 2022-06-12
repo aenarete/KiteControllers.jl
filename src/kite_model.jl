@@ -42,7 +42,7 @@ function calc_x0_x1_psi_dot(km::KiteModel, x)
 end
 
 function solve(km::KiteModel)
-    function residual(F, x)
+    function residual!(F, x)
         x0, x1, psi_dot = calc_x0_x1_psi_dot(km, x)
         F[begin]   = (x0 - x[begin]) * 0.5
         F[begin+1] = (x1 - x[begin+1])
@@ -56,7 +56,7 @@ function solve(km::KiteModel)
     x = res.zero
     x0, x1, psi_dot = calc_x0_x1_psi_dot(km, x)
     km.psi_dot = psi_dot
-    km.psi = wrap_to_pi(x0)
+    km.psi = wrap2pi(x0)
     km.x0 = x0
     km.beta = x1
     km.phi = calc_output(km.int_phi, -(sin(x0) * km.omega))

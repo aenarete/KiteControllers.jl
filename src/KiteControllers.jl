@@ -23,6 +23,7 @@ export on_autopilot, on_parking, on_reelin, on_stop, on_new_systate   # methods 
 
 abstract type AbstractForceController end
 const AFC = AbstractForceController
+const EPSILON = 1e-6
 
 @enum SystemState begin ssManualOperation; ssParking; ssPower; ssKiteReelOut; 
                         ssWaitUntil;    # wait until high elevation
