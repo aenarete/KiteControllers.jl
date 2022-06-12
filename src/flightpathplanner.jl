@@ -797,6 +797,9 @@ function on_new_systate(ssc::SystemStateControl, sys_state)
 end
 
 function calc_v_set(ssc::SystemStateControl)
+    if isnothing(ssc.sys_state)
+        return nothing
+    end
     if ssc.state == ssReelIn
         f_low = ssc.wc.wcs.f_reelin
     else

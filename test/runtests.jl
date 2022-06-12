@@ -1,4 +1,4 @@
-using KiteControllers, KiteUtils
+using KiteControllers, KiteUtils, KiteModels
 using Test
 
 cd("..")
@@ -40,7 +40,7 @@ end
     @test int3.i == 2.0
     int3 = Integrator(dt, 2, 2)
     calc_output(int3, 0.5) == 2.05
-    on_timer(int3)
+    KiteControllers.on_timer(int3)
     @test int3.last_output == 2.05
 end
 
@@ -60,7 +60,7 @@ end
     set_vset_pc(cvi, v_out_set)
     @test calc_output(cvi) ≈ wcs.vf_max
     for i in 1:15
-        on_timer(cvi)
+        KiteControllers.on_timer(cvi)
     end
     @test calc_output(cvi) ≈ v_out_set
 end
@@ -69,7 +69,7 @@ end
     ud = UnitDelay()
     for i in 1:3
         out=calc_output(ud, i)
-        on_timer(ud)
+        KiteControllers.on_timer(ud)
         @test out == i-1
     end
     reset(ud)
@@ -83,7 +83,7 @@ end
     out = zeros(16)
     for i in 1:16
         out[i] = calc_output(rl, input[i])
-        on_timer(rl)
+        KiteControllers.on_timer(rl)
         # println(input[i], " ", out[i])
     end
     @test out == [0,0,0.5,1,1.5,2,2.5,3,3,2.5,2,1.5,1,0.5,0,0]
@@ -99,7 +99,7 @@ end
         in2=y[i]
         out[i] = calc_output(m2, x[i], y[i])
         select_b(m2, i > 2)
-        on_timer(m2)
+        KiteControllers.on_timer(m2)
     end
     @test all(out .≈ [1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0, 2.0])
 end
@@ -114,7 +114,7 @@ end
         in2=y[i]
         out[i] = calc_output(m3, x[i], y[i], 0)
         select_b(m3, i > 2)
-        on_timer(m3)
+        KiteControllers.on_timer(m3)
     end
     @test all(out .≈ [1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0, 2.0])
     m3 = Mixer_3CH(0.2, 1.0)
@@ -126,7 +126,7 @@ end
         in2=y[i]
         out[i] = calc_output(m3, x[i], 0, y[i])
         select_c(m3, i > 2)
-        on_timer(m3)
+        KiteControllers.on_timer(m3)
     end
     @test all(out .≈ [1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.0, 2.0])    
 end
@@ -157,7 +157,7 @@ end
     v_set_out = get_v_set_out(pid1)
     @test v_set_out ≈ -0.16
     set_v_act(pid1, 1.1)
-    on_timer(pid1)
+    KiteControllers.on_timer(pid1)
     v_set_out = get_v_set_out(pid1)
     @test get_v_error(pid1) ≈ 2.9
 end
@@ -171,7 +171,7 @@ end
     force = 1000.0
     set_force(w, force)
     @test w.force == force
-    on_timer(w)
+    KiteControllers.on_timer(w)
     @test get_speed(w) ≈ 0.8988387476775817
     @test get_acc(w) ≈ 44.94193738387908
 end
@@ -206,7 +206,7 @@ end
     @test get_f_set_low(lfc) == 0.0
     KiteControllers._set(lfc)
     @test get_f_set_low(lfc) == 400.0
-    on_timer(lfc)
+    KiteControllers.on_timer(lfc)
     set_f_set(lfc, 330.0)
     @test lfc.f_set == 330.0
 end
@@ -241,7 +241,7 @@ end
     @test get_f_set_upper(ufc) == 0.0
     KiteControllers._set(ufc)
     @test get_f_set_upper(ufc) == 3300.0
-    on_timer(ufc)
+    KiteControllers.on_timer(ufc)
     set_f_set(ufc, 330.0)
     @test ufc.f_set == 330.0
 end
@@ -253,7 +253,7 @@ end
     force = 500.0
     f_low = wcs.f_low
     calc_v_set(wc, v_act, force, f_low)
-    on_timer(wc)
+    KiteControllers.on_timer(wc)
     @test get_state(wc) == 1 # wcsSpeedControl
     @test isnothing(get_set_force(wc))
 end
@@ -336,7 +336,7 @@ end
     on_est_sysstate(fpc, phi, beta, psi, chi, omega, va; u_d=u_d)
     @test fpc.u_d_max ≈ 0.422
     @test fpc.va_av ≈ 24.0
-    on_timer(fpc)
+    KiteControllers.on_timer(fpc)
     us = calc_steering(fpc, PARKING)
     @test us == 0.99
 end
@@ -395,7 +395,7 @@ end
     @test psi_dot ≈ 0.031141417602125847
     KiteControllers.solve(km)
     @test km.psi_dot ≈ 0.262921024533129
-    on_timer(km)
+    KiteControllers.on_timer(km)
 end
 
 @testset "SystemStateControl" begin
@@ -409,10 +409,24 @@ end
     @test ssc.state == ssReelIn
     on_stop(ssc)
     @test ssc.state == ssManualOperation
+    v_set = calc_v_set(ssc)
+    @test isnothing(v_set)
+    kcu = KCU(se())
+    kps4 = KPS4(kcu)
+    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+    sys_state = SysState(kps4)
+    on_new_systate(ssc, sys_state)
+    v_set = calc_v_set(ssc)
+    @test v_set > 0.0 && v_set < 0.1
 end
 
 @testset "FlightPathCalculator" begin
     fcs = FPCSettings()
     fpc = FlightPathController(fcs)
     fpcc = FlightPathCalculator(fpc=fpc)
+    vec=[1.0,2]
+    res = KiteControllers.addy(vec, 0.5)
+    @test res == [1.0, 2.5]
+    res = KiteControllers.addxy(vec, 1.5, 1.0)
+    @test res == [2.5, 3.0]
 end
