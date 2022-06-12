@@ -2,8 +2,9 @@
 Settings of the FlightPathController
 """
 @with_kw mutable struct FPCSettings @deftype Float64
+    "period time"
     dt                       = 1.0 / se().sample_freq 
-    prn::Bool                = false
+    prn::Bool                = true
     prn_ndi_gain::Bool       = false
     prn_est_psi_dot::Bool    = false
     prn_va::Bool             = false
@@ -34,4 +35,6 @@ Settings of the FlightPathController
     k_c2_high = 12.0
     "C2 for the intermediate phase LOW_RIGHT, LOW_TURN, LOW_LEFT"
     k_c2_int  =  0.6
+    "influence of the depower angle on the steering sensitivity"
+    k_ds = 2.0
 end
