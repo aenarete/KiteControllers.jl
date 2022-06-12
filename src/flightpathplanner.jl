@@ -101,6 +101,7 @@ end
 #     b) when the set value of the elevation changes (call of the method publish(beta_set))
 #     See also: docs/planned_fligh_path.png
 @with_kw mutable struct FlightPathCalculator @deftype Float64
+    fpc::FlightPathController
     _beta_min = 20.0 # minimal elevation angle of the center of the figure of eight
     _beta_max = 60.0 # maximal elevation angle of the center of the figure of eight
 
@@ -153,8 +154,6 @@ end
     _elevation_offset_t2 = ELEVATION_OFFSET_T2
     fig8 = 0 # number of the current figure of eight
     _sys_state::SystemState = ssManualOperation
-    # TODO: find correct parameters
-    fpc::FlightPathController = FlightPathController()
     high = false
     elevation_offset = ELEVATION_OFFSET
 end

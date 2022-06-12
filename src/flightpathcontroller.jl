@@ -407,19 +407,3 @@ function get_state(fpc::FlightPathController)
     end
     turning, value
 end
-
-# if __name__ == "__main__":
-#     fpc = FlightPathController()
-#     u_s = fpc.calcSteering(False, 0.02)
-#     print "u_s:", form(u_s)
-#     u_d = 0.24
-#     v_a = 24.0
-#     beta = radians(70.0)
-#     psi = radians(90.0)
-#     chi = psi
-#     phi = 0.0
-#     omega = 5.0
-#     fpc.onNewEstSysState(phi, beta, psi, chi, omega, v_a, u_d=u_d)
-#     fpc.onTimer()
-#     u_s = fpc.calcSteering(False, 0.02)
-#     print "u_s:", form(u_s)

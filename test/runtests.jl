@@ -276,6 +276,9 @@ end
     KiteControllers.calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
     parking = false
     KiteControllers.calc_steering(fpc, parking)
+    turning, value = KiteControllers.get_state(fpc)
+    @test ! turning
+    @test value == [0.0, 0.0]
 end
 
 @testset "FPC_01" begin
@@ -393,4 +396,23 @@ end
     KiteControllers.solve(km)
     @test km.psi_dot ≈ 0.262921024533129
     on_timer(km)
+end
+
+@testset "SystemStateControl" begin
+    wcs = WCSettings()
+    ssc = SystemStateControl(wcs)
+    on_parking(ssc)
+    @test ssc.state == ssParking
+    on_autopilot(ssc)
+    @test ssc.state == ssPowerProduction
+    on_reelin(ssc)
+    @test ssc.state == ssReelIn
+    on_stop(ssc)
+    @test ssc.state == ssManualOperation
+end
+
+@testset "FlightPathCalculator" begin
+    fcs = FPCSettings()
+    fpc = FlightPathController(fcs)
+    fpcc = FlightPathCalculator(fpc=fpc)
 end
