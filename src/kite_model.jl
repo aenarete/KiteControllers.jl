@@ -1,3 +1,11 @@
+# Component, that calculates the position of the kite (elevation angle beta and azimuth angle phi) and the
+# orientation of the kite (psi and psi_dot) as function of:
+# u_s: the relative steering, output of the KCU model (KCU: kite control unit)
+# u_d_prime: the normalized depower settings
+# v_a: the apparent wind speed
+# omega: the angular velocity of the kite
+# implements the simulink diagram docs/kite_model.png
+
 # class KiteModel(object):
 #     r""" Class, that calculates the position of the kite (elevation angle beta and azimuth angle phi) and the
 #     orientation of the kite (psi and psi_dot) as function of:
