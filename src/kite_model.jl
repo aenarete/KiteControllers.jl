@@ -64,33 +64,37 @@
 #     def getX0(self):
 #         return self.x0
         
-#     def calcX0_X1_psi_dot(self, x):
-#         x0, x1 = x[0], x[1]
-#         psi_dot = self.a + self.m1 * sin(x0) * cos(x1)
-#         x0 = self.int_psi.calcOutput(psi_dot)
-#         x1 = self.int_beta.calcOutput(self.omega * cos(x0))
-#         return x0, x1, psi_dot
+function calc_x0_x1_psi_dot(km::KiteModel, x)
+    x0, x1 = x[1], x[2]
+    psi_dot = km.a + km.m1 * sin(x0) * cos(x1)
+    x0 = calc_output(km.int_psi, psi_dot)             # self.int_psi.calcOutput(psi_dot)
+    x1 = calc_output(km.int_beta, km.omega * cos(x0)) # self.int_beta.calcOutput(self.omega * cos(x0))
+    x0, x1, psi_dot
+end
 
-#     def calcResidual(self, x):
-#         x0, x1, psi_dot = self.calcX0_X1_psi_dot(x)
-#         self.res[0] = (x0 - x[0]) * 0.5
-#         self.res[1] = (x1 - x[1]) 
-#         return self.res
+function solve(km::KiteModel)
+    function residual(F, x)
+        x0, x1, psi_dot = calc_x0_x1_psi_dot(km, x)
+        F[begin]   = (x0 - x[begin]) * 0.5
+        F[begin+1] = (x1 - x[begin+1])
+    end
+    divisor = km.u_d_prime * km.k_d_s + 1.0
+    @assert abs(divisor) > EPSILON
+    km.a = (km.u_s - km.c0) * km.v_a * km.c1 / divisor
+    km.m1 = km.c2 / 20.0
+    res = nlsolve(residual!, [ km.x0; km.beta], ftol=1e-14)
+    @assert converged(res)
+    x = res.zero
+    x0, x1, psi_dot = calc_x0_x1_psi_dot(km, x)
+    km.psi_dot = psi_dot
+    km.psi = wrap_to_pi(x0)
+    km.x0 = x0
+    km.beta = x1
+    km.phi = calc_output(km.int_phi, -(sin(x0) * km.omega))
+end
 
-#     def solve(self):
-#         divisor = self.u_d_prime * self.k_d_s + 1.0
-#         assert abs(divisor) > EPSILON
-#         self.a = (self.u_s - self.c0) * self.v_a * self.c1 / divisor
-#         self.m1 = self.c2 / 20.0
-#         x = scipy.optimize.broyden1(self.calcResidual, [self.x0, self.beta], f_tol=1e-14)
-#         x0, x1, psi_dot = self.calcX0_X1_psi_dot(x)
-#         self.psi_dot = psi_dot
-#         self.psi = wrapToPi(x0)
-#         self.x0 = x0
-#         self.beta = x1
-#         self.phi = self.int_phi.calcOutput(-(sin(x0) * self.omega))
-
-#     def onTimer(self):
-#         self.int_beta.onTimer()
-#         self.int_psi.onTimer()
-#         self.int_phi.onTimer()
+function on_timer(km::KiteModel)
+    on_timer(km.int_beta)
+    on_timer(km.int_psi)
+    on_timer(km.int_phi)
+end
