@@ -59,8 +59,6 @@ docs/flight_path_controller_III.png
     u_s_max                                    = 0.99
     "maximal value of the turn rate in radians per second"
     psi_dot_max                                = 3.0
-    "influence of the depower settings on the steering sensitivity"
-    k_ds                                       = se().k_ds # was 2.0
     "actual depower setting (0..1)"
     u_d                                        = 0.01 * se().depower
     k_c2                                       = fcs.k_c2
@@ -231,7 +229,6 @@ Parameters:
   simulink tests.
 """
 function linearize(fpc::FlightPathController, psi_dot; fix_va=false)
-
     # Eq. 6.13: calculate va_hat
     va_hat = fpc.va_min
     if fpc.va_av >= fpc.va_min
@@ -255,7 +252,7 @@ function linearize(fpc::FlightPathController, psi_dot; fix_va=false)
             c2 = fpc.fcs.c2 * (fpc.k_c2_high + k)
         end
     end
-    u_s = (1.0 + fpc.k_ds * fpc.u_d_prime) / (fpc.c1 * va_hat) * (psi_dot - c2 / va_fix * sin(fpc.psi) * cos(fpc.beta))
+    u_s = (1.0 + fpc.fcs.k_ds * fpc.u_d_prime) / (fpc.c1 * va_hat) * (psi_dot - c2 / va_fix * sin(fpc.psi) * cos(fpc.beta))
     if abs(psi_dot) < 1e-6
         psi_dot = 1e-6
     end
@@ -315,7 +312,7 @@ function calc_steering(fpc::FlightPathController, parking)
     """
         residual!(fpc, x)
 
-    see: ../doc/flight_path_controller_II.png
+    see: docs/flight_path_controller_II.png
     x: vector of k_u_in, k_psi_in and int2_in
     """
     function residual!(F, x)
@@ -342,11 +339,12 @@ function calc_steering(fpc::FlightPathController, parking)
         fpc.chi_factor = 0.0
         control_var = fpc.psi
     end
+    # println("control_var: ", control_var)
     fpc.err = wrap2pi(fpc.chi_set - control_var)
     if fpc.fcs.reset_int1 && (fpc._i == 0) || fpc.reset_int1
         if fpc.fcs.reset_int1_to_zero
             if fpc.fcs.prn
-                @printf "===>>> Reset integrator to zero!"
+                @printf "===>>> Reset integrator to zero!\n"
             end
             reset(fpc.int, 0.0)
         else
@@ -373,6 +371,7 @@ function calc_steering(fpc::FlightPathController, parking)
         @assert converged(res)
         x = res.zero
     end
+    # println("x: $x") # x:  [-0.65423668 -5.46166397]
     sat1_in, sat1_out, sat2_in, sat2_out, int_in = calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
     fpc.k_u_in = (sat2_out - sat2_in) / fpc.ndi_gain
     fpc.k_psi_in = sat1_out - sat1_in
