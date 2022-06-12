@@ -374,4 +374,5 @@ end
     fcs = FPCSettings()
     fcs.dt = 0.02
     km = KiteControllers.KiteModel(fcs)
+    @test km.omega == 0.08
 end

@@ -7,9 +7,12 @@
 # implements the simulink diagram docs/kite_model.png
 @with_kw mutable struct KiteModel @deftype Float64
     fcs::FPCSettings
-    int_beta::Integrator = Integrator(fcs.dt, 1.0, deg2rad(33.0)) # integrator output: the elevation angle beta
-    int_psi::Integrator  = Integrator(fcs.dt, 1.0, deg2rad(90.0)) # integrator output: heading angle psi, not normalized
-    int_phi::Integrator  = Integrator(fcs.dt, 1.0, deg2rad(0.0))  # integrator output: azimuth angle phi
+    beta
+    psi
+    phi
+    int_beta::Integrator = Integrator(fcs.dt, 1.0, beta) # integrator output: the elevation angle beta
+    int_psi::Integrator  = Integrator(fcs.dt, 1.0, psi) # integrator output: heading angle psi, not normalized
+    int_phi::Integrator  = Integrator(fcs.dt, 1.0, phi)  # integrator output: azimuth angle phi
     u_s = 0.0
     v_a = 0.0
     u_d_prime = 0.2
@@ -18,52 +21,18 @@
     c0 = 0.0
     c1 = 0.262
     c2 = 6.27
-    psi_dot = 0.0
     a = 0.0
     m1 = 0
-
+    psi_dot = 0
+    x0 = 0
 end
 
-function KiteModel(fcs::FPCSettings)
-    km = KiteModel(fcs=fcs)
+function KiteModel(fcs::FPCSettings; beta_0=33.0, psi_0=90.0, phi_0=0.0)
+    km = KiteModel(fcs=fcs, beta=deg2rad(beta_0), psi=deg2rad(psi_0), phi=deg2rad(phi_0))
     km.m1 = km.c2 / 20.0
+    km
 end
 
-#     def __init__(self, beta_0=33.0, psi_0=90.0, phi_0=0.0, K_d_s=1.5, c1=0.262, c2=6.27, omega=0.08):
-#         self.res = np.zeros(2)
-#         self.psi = radians(psi_0)
-#         self.psi_dot = 0.0
-#         self.beta = radians(beta_0)
-#         self.phi = radians(phi_0)
-#         self.x0 = 0.0
-
-#     def setUS(self, u_s):
-#         self.u_s = u_s
-
-#     def setUD_prime(self, u_d_prime):
-#         self.u_d_prime = u_d_prime
-
-#     def setVA(self, v_a):
-#         self.v_a = v_a
-
-#     def setOmega(self, omega):
-#         self.omega = omega
-
-#     def getPsiDot(self):
-#         return self.psi_dot
-
-#     def getPsi(self):
-#         return self.psi
-        
-#     def getBeta(self):
-#         return self.beta
-        
-#     def getPhi(self):
-#         return self.phi
-        
-#     def getX0(self):
-#         return self.x0
-        
 function calc_x0_x1_psi_dot(km::KiteModel, x)
     x0, x1 = x[1], x[2]
     psi_dot = km.a + km.m1 * sin(x0) * cos(x1)
