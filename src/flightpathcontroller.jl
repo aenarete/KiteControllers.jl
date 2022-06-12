@@ -113,7 +113,7 @@ Input:
 Either the attractor point (MVector of azimuth and elevation in radian),
 or psi_dot, the set value for the turn rate in degrees per second.
 """
-function on_control_command(fpc, attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
+function on_control_command(fpc; attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
     fpc.intermediate = intermediate
     if fpc.fcs.use_radius && ! isnothing(radius)
         psi_dot_set = rad2deg(fpc.omega / radius) # desired turn rate during the turns
@@ -384,7 +384,7 @@ function calc_steering(fpc::FlightPathController, parking)
             fpc.psi_dot_set_final = fpc.omega / fpc.radius # desired turn rate during the turns
         end
         fpc.psi_dot_set = fpc.psi_dot_set * TAU + fpc.psi_dot_set_final * (1-TAU)
-        fpc.u_s = saturation(fpc._linearize(fpc.psi_dot_set), -1.0, 1.0)
+        fpc.u_s = saturate(linearize(fpc, fpc.psi_dot_set), -1.0, 1.0)
     else
         fpc.u_s = sat2_out
     end

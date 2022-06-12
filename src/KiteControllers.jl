@@ -4,7 +4,7 @@ using KiteUtils, WinchModels, Parameters, Observables, StaticArrays, NLsolve, Pr
 import Base.reset
 
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types
-export WinchController
+export WinchController, KiteModel
 export UnitDelay, RateLimiter, Mixer_2CH, Mixer_3CH, CalcVSetIn
 export Winch, SpeedController, LowerForceController, UpperForceController
 export FlightPathCalculator, SystemStateControl, SystemState
