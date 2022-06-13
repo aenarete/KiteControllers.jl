@@ -30,31 +30,44 @@ u_s = 0.0
 attractor = zeros(2)
 attractor[1] = deg2rad(25.0) # phi_set
 attractor[1] = deg2rad(32.0) # beta_set
-on_control_command(attractor=attractor)
+on_control_command(fpc, attractor=attractor)
 PSI, BETA, PHI, PSI_DOT = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 ERR, K_PSI_OUT, K_U_OUT = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 INT_IN, INT_OUT, X0, U_S = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 u_s = 0.0
-for i in range(SAMPLES)
+for i in 1:SAMPLES
     global u_s
     kite.u_s = u_s
     kite.v_a = v_a
     KiteControllers.solve(kite)
-#             psi_dot = kite.getPsiDot(); PSI_DOT[i] = degrees(psi_dot)
-#             psi = kite.getPsi(); PSI[i] = degrees(psi)
-#             beta = kite.getBeta(); BETA[i] = degrees(beta)
-#             phi = kite.getPhi(); PHI[i] = degrees(phi)
-#             chi = psi
-#             omega = 0.0
-#             fpc.onNewEstSysState(phi, beta, psi, chi, omega, v_a, u_d=u_d_prime, period_time=PERIOD_TIME)            
-#             # fpc.onNewSystemState(phi, beta, psi, v_a, u_d_prime=u_d_prime)
-#             u_s = fpc.calcSteering(False, PERIOD_TIME); U_S[i] = u_s
-#             err = fpc.getErr(); ERR[i] = degrees(err)
-#             K_PSI_OUT[i], K_U_OUT[i] = fpc.getKpsi_out(), fpc.getKu_out()
+    kite.u_s = u_s
+    kite.v_a = v_a
+    KiteControllers.solve(kite)
+    PSI_DOT[i] = kite.psi_dot
+    PSI[i]     = rad2deg(kite.psi)
+    BETA[i]    = rad2deg(kite.beta)
+    PHI[i]     = rad2deg(kite.phi)
+    chi = kite.psi
+    omega = 0.0
+    on_est_sysstate(fpc, kite.phi, kite.beta, kite.psi, chi, omega, v_a; u_d=u_d_prime)
+    u_s = calc_steering(fpc, false); U_S[i] = u_s
+    ERR[i] = rad2deg(fpc.err)
+    K_PSI_OUT[i], K_U_OUT[i], = fpc.k_psi_out, fpc.k_u_out
 #             INT_IN[i], INT_OUT[i] = fpc.getIntIn(), fpc.getIntOut()
 #             X0[i] = degrees(kite.getX0())
-#             # print u_s
-#             fpc.onTimer()
-#             kite.onTimer()
+    on_timer(fpc)
+    on_timer(kite)
 end
+p1=plot(TIME, PSI, label="heading angle psi [°]", width=2, xtickfontsize=12, ytickfontsize=12, legend=false)
+pIDR = display(p1)           # Display with InspectDR and keep plot object
+resize!(pIDR.wnd, 1200, 700) # Resize GTK window directly
+
+p2=plot(TIME, BETA, label="elevation β [°]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+plot!(TIME, PHI,    label="azimuth ϕ   [°]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+pIDR2 = display(p2)           # Display with InspectDR and keep plot object
+resize!(pIDR2.wnd, 1200, 700) # Resize GTK window directly
+
+p3=plot(TIME, PSI_DOT, label="psi_dot [rad/s]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+pIDR3 = display(p3)           # Display with InspectDR and keep plot object
+resize!(pIDR3.wnd, 1200, 700) # Resize GTK window directly
 #     return TIME, PSI, BETA, PHI, PSI_DOT, ERR, K_PSI_OUT, K_U_OUT, INT_IN, INT_OUT, X0, U_S
