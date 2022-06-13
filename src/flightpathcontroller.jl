@@ -127,7 +127,7 @@ function on_control_command(fpc; attractor=nothing, psi_dot_set=nothing, radius=
     fpc.radius = radius
     if isnothing(psi_dot_set) && ! isnothing(fpc.psi_dot_set)
         # reset integrator
-        fpc.reset_int1 = True
+        fpc.reset_int1 = true
     end
     if ! isnothing(attractor)
         fpc.attractor .= attractor
