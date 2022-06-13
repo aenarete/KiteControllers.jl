@@ -51,7 +51,7 @@ function solve(km::KiteModel)
     @assert abs(divisor) > EPSILON
     km.a = (km.u_s - km.c0) * km.v_a * km.c1 / divisor
     km.m1 = km.c2 / 20.0
-    res = nlsolve(residual!, [ km.x0; km.beta], ftol=1e-14)
+    res = nlsolve(residual!, [ km.x0; km.beta], ftol=1e-10)
     @assert converged(res)
     x = res.zero
     x0, x1, psi_dot = calc_x0_x1_psi_dot(km, x)
