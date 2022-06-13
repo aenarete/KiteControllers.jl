@@ -27,21 +27,19 @@ on_control_command(fpc, psi_dot_set=51.566)
 PSI, BETA, PHI, PSI_DOT = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 u_s = 0.0
 
-#     attractor = np.zeros(2)
-#     attractor[0] = radians(25.0) # phi_set
-#     attractor[1] = radians(32.0) # beta_set
-# #    attractor[0] = radians(0.0) # phi_set
-# #    attractor[1] = radians(89.0) # beta_set
-#     fpc.onNewControlCommand(attractor=attractor)
-#     PSI, BETA, PHI, PSI_DOT = np.zeros(SAMPLES), np.zeros(SAMPLES), np.zeros(SAMPLES), np.zeros(SAMPLES)
-#     ERR, K_PSI_OUT, K_U_OUT = np.zeros(SAMPLES), np.zeros(SAMPLES), np.zeros(SAMPLES)
-#     INT_IN, INT_OUT, X0, U_S = np.zeros(SAMPLES), np.zeros(SAMPLES), np.zeros(SAMPLES), np.zeros(SAMPLES)
-#     u_s = 0.0
-#     with Timer() as t1:
-#         for i in range(SAMPLES):
-#             kite.setUS(u_s)
-#             kite.setVA(v_a)
-#             kite.solve()
+attractor = zeros(2)
+attractor[1] = deg2rad(25.0) # phi_set
+attractor[1] = deg2rad(32.0) # beta_set
+on_control_command(attractor=attractor)
+PSI, BETA, PHI, PSI_DOT = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
+ERR, K_PSI_OUT, K_U_OUT = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
+INT_IN, INT_OUT, X0, U_S = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
+u_s = 0.0
+for i in range(SAMPLES)
+    global u_s
+    kite.u_s = u_s
+    kite.v_a = v_a
+    KiteControllers.solve(kite)
 #             psi_dot = kite.getPsiDot(); PSI_DOT[i] = degrees(psi_dot)
 #             psi = kite.getPsi(); PSI[i] = degrees(psi)
 #             beta = kite.getBeta(); BETA[i] = degrees(beta)
@@ -58,6 +56,5 @@ u_s = 0.0
 #             # print u_s
 #             fpc.onTimer()
 #             kite.onTimer()
-#     print("time for executing the flight path control loop in us: ", form((t1.secs)  / SAMPLES * 1e6))
-#     print("Passed test 05...")
+end
 #     return TIME, PSI, BETA, PHI, PSI_DOT, ERR, K_PSI_OUT, K_U_OUT, INT_IN, INT_OUT, X0, U_S
