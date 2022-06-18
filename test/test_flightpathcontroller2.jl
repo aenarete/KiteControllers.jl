@@ -29,7 +29,7 @@ u_s = 0.0
 
 attractor = zeros(2)
 attractor[1] = deg2rad(25.0) # phi_set
-attractor[1] = deg2rad(32.0) # beta_set
+attractor[2] = deg2rad(32.0) # beta_set
 on_control_command(fpc, attractor=attractor)
 PSI, BETA, PHI, PSI_DOT = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 ERR, K_PSI_OUT, K_U_OUT = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
@@ -71,6 +71,6 @@ p4=plot(TIME, PSI_DOT, label="psi_dot [rad/s]",     width=2, xtickfontsize=12, y
 pIDR4 = display(p4)           # Display with InspectDR and keep plot object
 resize!(pIDR4.wnd, 1200, 700) # Resize GTK window directly
 
-# p5=plot(TIME, PSI_DOT, label="psi_dot [rad/s]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-# pIDR5 = display(p5)           # Display with InspectDR and keep plot object
-# resize!(pIDR5.wnd, 1200, 700) # Resize GTK window directly
+p5=plot(PHI, BETA, xlabel="azimuth ϕ [°]", ylabel="elevation β [°]", width=2, xtickfontsize=12, guidefontsize=18, ytickfontsize=12, legend=false)
+pIDR5 = display(p5)           # Display with InspectDR and keep plot object
+resize!(pIDR5.wnd, 1000, 700) # Resize GTK window directly
