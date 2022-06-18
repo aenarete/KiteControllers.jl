@@ -363,11 +363,11 @@ function calc_steering(fpc::FlightPathController, parking)
         fpc.int2.reset((fpc.err * fpc.D))
     end
     if fpc.fcs.init_opt_to_zero
-        res = nlsolve(residual!, [ 0.0; 0.0], ftol=1e-14)
+        res = nlsolve(residual!, [ 0.0; 0.0], ftol=FTOL)
         @assert converged(res)
         x = res.zero
     else
-        res = nlsolve(residual!, [fpc.k_u_in; fpc.k_psi_in], ftol=1e-14)
+        res = nlsolve(residual!, [fpc.k_u_in; fpc.k_psi_in], ftol=FTOL)
         @assert converged(res)
         x = res.zero
     end
