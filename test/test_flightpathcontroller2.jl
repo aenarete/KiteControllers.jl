@@ -58,7 +58,7 @@ for i in 1:SAMPLES
     on_timer(fpc)
     on_timer(kite)
 end
-p1=plot(TIME, PSI, label="heading angle psi [°]", width=2, xtickfontsize=12, ytickfontsize=12, legend=false)
+p1=plot(TIME, PSI, label="heading angle psi [°]", width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 pIDR = display(p1)           # Display with InspectDR and keep plot object
 resize!(pIDR.wnd, 1200, 700) # Resize GTK window directly
 
@@ -67,7 +67,10 @@ plot!(TIME, PHI,    label="azimuth ϕ   [°]",     width=2, xtickfontsize=12, yt
 pIDR2 = display(p2)           # Display with InspectDR and keep plot object
 resize!(pIDR2.wnd, 1200, 700) # Resize GTK window directly
 
-p3=plot(TIME, PSI_DOT, label="psi_dot [rad/s]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-pIDR3 = display(p3)           # Display with InspectDR and keep plot object
-resize!(pIDR3.wnd, 1200, 700) # Resize GTK window directly
-#     return TIME, PSI, BETA, PHI, PSI_DOT, ERR, K_PSI_OUT, K_U_OUT, INT_IN, INT_OUT, X0, U_S
+p4=plot(TIME, PSI_DOT, label="psi_dot [rad/s]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+pIDR4 = display(p4)           # Display with InspectDR and keep plot object
+resize!(pIDR4.wnd, 1200, 700) # Resize GTK window directly
+
+# p5=plot(TIME, PSI_DOT, label="psi_dot [rad/s]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+# pIDR5 = display(p5)           # Display with InspectDR and keep plot object
+# resize!(pIDR5.wnd, 1200, 700) # Resize GTK window directly

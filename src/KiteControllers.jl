@@ -25,6 +25,7 @@ export ssParking, ssPowerProduction, ssReelIn, ssManualOperation
 abstract type AbstractForceController end
 const AFC = AbstractForceController
 const EPSILON = 1e-6
+const FTOL    = 1e-8 # tolerance of residual for nonlinar solver
 
 @enum SystemState begin ssManualOperation; ssParking; ssPower; ssKiteReelOut; 
                         ssWaitUntil;    # wait until high elevation
