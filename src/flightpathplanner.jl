@@ -174,6 +174,7 @@ function on_new_system_state(fpp::FlightPathCalculator, new_state, internal = fa
     end
 end
             
+# TODO: Implement set_v_wind_gnd
 #     def setVWindGnd(self, v_wind_gnd):
 #         """
 #         Set the ground wind speed at 6 m height.
@@ -209,6 +210,7 @@ end
 #             self._elevation_offset_t2 = -0.5
 #             self._azimuth_offset_phi1 =  4.0
 
+# TODO: Implement set_azimuth_elevation
 #     def setAzimuthElevation(self, phi, beta, period_time):
 #         """ Set the kite position in spherical coordinates in the wind reference frame. """
 #         self._phi =  -degrees(phi)
@@ -218,6 +220,7 @@ end
 #         self._last_beta = self._beta
 #         self._last_phi = self._phi
 
+# TODO: implement _calc_beta_c1
 #     def _calcBetaC1(self, beta_set):
 #         """ Calculate the elevation angle of the turning point as function of the set value of the
 #         average elevation angle during reel-out. """
@@ -240,6 +243,7 @@ end
 #         self._k = k
 #         return beta_c1, k, beta_cw
 
+# TODO: Implement _calc_k2_k3
 #     def _calcK2K3(self, beta_set):
 #         if beta_set > 40.0:
 #             k2 = beta_set - 40.0
@@ -251,6 +255,7 @@ end
 #             k3 = 0.0
 #         return k2, k3
 
+# TODO: Implement _calc_t1
 #     def _calcT1(self, beta_set):
 #         """
 #         Calculate azimuth and elevation of the point T1, where the first turn starts.
@@ -261,6 +266,7 @@ end
 #         self._t1[0] = (self._beta_int * k + phi_c1 - beta_c1 * k) / (k*k + 1.0)
 #         self._t1[1] = self._beta_int - self._t1[0] * k
 
+# TODO: Implement calc_p1
 #     def calcP1(self, beta_set):
 #         """
 #         Calculate azimuth and elevation of the intermediate attractor point P1.
@@ -271,6 +277,7 @@ end
 #         self._p1[0] = self._t1[0] + self._delta_phi
 #         self._p1[1] = self._t1[1] - self._delta_beta + ELEVATION_OFFSET_P1
 
+# TODO: Implement calc_p2
 #     def calcP2(self, beta_set):
 #         """
 #         Calculate azimuth and elevation of the second attractor point P2.
@@ -282,6 +289,7 @@ end
 #         self._p2[0] = self._t2[0] - self._delta_phi
 #         self._p2[1] = (self._t2[1] - self._delta_beta)
 
+# TODO: Implement calc_p3
 #     def calcP3(self):
 #         """
 #         Calculate azimuth and elevation of the third attractor point P3.
@@ -298,6 +306,7 @@ end
 #         self._p3_zero_high[1] = self._p3[1] + ELEVATION_OFFSET_P3_ZERO_HIGH
 #         self._p3_one_high[1] = self._p3[1] + ELEVATION_OFFSET_P3_ONE_HIGH
 
+# TODO: Implement calc_p4
 #     def calcP4(self):
 #         """
 #         Calculate azimuth and elevation of the forth attractor point P4.
@@ -314,6 +323,7 @@ end
 #         self._p4_one_high[1] = self._p4[1] + ELEVATION_OFFSET_P4_ONE_HIGH
 #         self._p4_zero[1] = self._p4[1] + ELEVATION_OFFSET_P4_ZERO
 
+# TODO: Implement calc_t5
 #     def calcT5(self, beta_set):
 #         """
 #         Calculate azimuth and elevation of the point T5, where the up-turn starts.
@@ -322,6 +332,7 @@ end
 #         self._t5[0] = r - sqrt(k * k * r * r / (k * k + 1.0))
 #         self._t5[1] = beta_set - k * self._t5[0]
 
+# TODO: Implement publish
 #     def publish(self, beta_set = BETA_SET):
 #         """ Calculate and publish the planned flight path. Must be called each time when
 #         the winch controller calculates a new set value for the elevation, but also, when beta_int
@@ -358,7 +369,6 @@ end
 #         if TRANS_FACTOR >= 1.5:
 #             self._t1[0] /= TRANS_FACTOR
 #         self._p1[0] /= TRANS_FACTOR
-#         # self._p1[1] -= 2.5
 #         phi_1 = self._t1[0]
 #         if PRINT:
 #             print "phi_1, _p1[0], beta_set, beta_int", form(phi_1), form(self._p1[0]), form(beta_set), \
