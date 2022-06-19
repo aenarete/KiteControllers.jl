@@ -21,9 +21,9 @@ end
 const wcs = WCSettings(); wcs.dt = 1/se().sample_freq
 const fcs = FPCSettings(); fcs.dt = wcs.dt
 const ssc = SystemStateControl(wcs, fcs)
+dt = wcs.dt
 
 # the following values can be changed to match your interest
-dt = wcs.dt
 if ! @isdefined MAX_TIME; MAX_TIME=3600; end
 TIME_LAPSE_RATIO = 1
 SHOW_KITE = true

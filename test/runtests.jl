@@ -434,4 +434,7 @@ end
     @test res == [2.5, 3.0]
     KiteControllers.set_v_wind_gnd(fpca, 8.3)
     @test fpca._elevation_offset_p2 ==  4.0
+    phi = deg2rad(0)
+    beta = deg2rad(30)
+    KiteControllers.set_azimuth_elevation(fpca, phi, beta)
 end

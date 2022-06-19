@@ -174,7 +174,6 @@ function on_new_system_state(fpca::FlightPathCalculator, new_state, internal = f
     end
 end
             
-# TODO: Implement set_v_wind_gnd
 # Set the ground wind speed at 6 m height
 function set_v_wind_gnd(fpca::FlightPathCalculator, v_wind_gnd)
     fpca._v_wind_gnd = v_wind_gnd
@@ -210,15 +209,16 @@ function set_v_wind_gnd(fpca::FlightPathCalculator, v_wind_gnd)
 
 end
 
-# TODO: Implement set_azimuth_elevation
-#     def setAzimuthElevation(self, phi, beta, period_time):
-#         """ Set the kite position in spherical coordinates in the wind reference frame. """
-#         self._phi =  -degrees(phi)
-#         self._beta = degrees(beta)
-#         self._omega = sqrt(((self._beta - self._last_beta) / period_time)**2 \
-#                            + ((self._phi - self._last_phi) / period_time)**2 * (cos(beta))**2)
-#         self._last_beta = self._beta
-#         self._last_phi = self._phi
+# Set the kite position in spherical coordinates in the wind reference frame. 
+function set_azimuth_elevation(fpca::FlightPathCalculator, phi, beta)
+    period_time = fpca.fpc.fcs.dt
+    fpca._phi = -rad2deg(phi)
+    fpca._beta = rad2deg(beta)
+    fpca._omega = sqrt(((fpca._beta - fpca._last_beta) / period_time)^2 
+                            + ((fpca._phi - fpca._last_phi) / period_time)^2 * (cos(beta))^2)
+    fpca._last_beta = fpca._beta
+    fpca._last_phi = fpca._phi
+end
 
 # TODO: implement _calc_beta_c1
 #     def _calcBetaC1(self, beta_set):
