@@ -400,7 +400,8 @@ end
 
 @testset "SystemStateControl" begin
     wcs = WCSettings()
-    ssc = SystemStateControl(wcs)
+    fcs = FPCSettings()
+    ssc = SystemStateControl(wcs, fcs)
     on_parking(ssc)
     @test ssc.state == ssParking
     on_autopilot(ssc)
@@ -418,6 +419,8 @@ end
     on_new_systate(ssc, sys_state)
     v_set = calc_v_set(ssc)
     @test v_set > 0.0 && v_set < 0.1
+    u_s = calc_steering(ssc)
+    println(u_s)
 end
 
 @testset "FlightPathCalculator" begin

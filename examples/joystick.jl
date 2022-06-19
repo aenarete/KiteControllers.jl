@@ -19,7 +19,8 @@ if ! @isdefined js;
     async_read!(js, jsaxes, jsbuttons)
 end
 const wcs = WCSettings(); wcs.dt = 1/se().sample_freq
-const ssc = SystemStateControl(WCSettings())
+const fcs = FPCSettings(); fcs.dt = wcs.dt
+const ssc = SystemStateControl(wcs, fcs)
 
 # the following values can be changed to match your interest
 dt = 0.05

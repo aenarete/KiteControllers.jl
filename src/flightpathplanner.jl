@@ -766,13 +766,14 @@ end
 #     ssParking, ssPowerProduction, ssReelIn
 @with_kw mutable struct SystemStateControl @deftype Float64
     wc::WinchController
+    fpc::FlightPathController
     sys_state::Union{Nothing, SysState}    = nothing
     state::Observable(SystemState)[]       = ssParking
     tether_length::Union{Nothing, Float64} = nothing
 end
 
-function SystemStateControl(wcs::WCSettings)
-    SystemStateControl(wc=WinchController(wcs))
+function SystemStateControl(wcs::WCSettings, fcs::FPCSettings)
+    SystemStateControl(wc=WinchController(wcs), fpc=FlightPathController(fcs))
 end
 
 function on_parking(ssc::SystemStateControl, tether_length=nothing)
@@ -815,6 +816,22 @@ function calc_v_set(ssc::SystemStateControl)
     on_timer(ssc.wc)
     # println(v_set)
     v_set
+end
+
+function calc_steering(ssc::SystemStateControl)
+    if isnothing(ssc.sys_state)
+        return 0.0
+    end
+    phi  = ssc.sys_state.azimuth
+    beta = ssc.sys_state.elevation
+    psi = ssc.sys_state.heading
+    v_a = ssc.sys_state.v_app
+    chi = ssc.sys_state.course
+    u_d = ssc.sys_state.depower
+    omega = 0.0
+    on_est_sysstate(ssc.fpc, phi, beta, psi, chi, omega, v_a; u_d=u_d)
+    u_s = calc_steering(ssc.fpc, false)
+    u_s
 end
 
 function switch(ssc::SystemStateControl, state)
