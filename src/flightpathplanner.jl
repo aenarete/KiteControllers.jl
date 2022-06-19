@@ -206,7 +206,6 @@ function set_v_wind_gnd(fpca::FlightPathCalculator, v_wind_gnd)
         fpca._elevation_offset_t2 = -0.5
         fpca._azimuth_offset_phi1 =  4.0
     end
-
 end
 
 # Set the kite position in spherical coordinates in the wind reference frame. 
@@ -220,28 +219,27 @@ function set_azimuth_elevation(fpca::FlightPathCalculator, phi, beta)
     fpca._last_phi = fpca._phi
 end
 
-# TODO: implement _calc_beta_c1
-#     def _calcBetaC1(self, beta_set):
-#         """ Calculate the elevation angle of the turning point as function of the set value of the
-#         average elevation angle during reel-out. """
-#         self._radius = self._r_max - (self._r_max - self._r_min) * (beta_set - self._beta_min) / \
-#                                                               (self._beta_max - self._beta_min)
-#         try:
-#             assert self._radius >= 2.8
-#             assert self._radius <= 5.2
-#         except:
-#             print self._r_max, self._r_min, beta_set, self._beta_min, self._beta_max, self._radius
-#         phi_c3 = self._w_fig/2.0 - self._radius
-#         self._phi_c3 = phi_c3
-#         delta_phi = self._radius**2 / phi_c3
-#         phi_sw = phi_c3 - self._radius**2 / phi_c3
-#         self._phi_sw = phi_sw
-#         beta_sw = sqrt(self._radius**2 - (phi_sw - phi_c3)**2) + beta_set
-#         k = sqrt((phi_c3 - phi_sw) / phi_sw)
-#         beta_cw = beta_sw + k * (phi_c3 + delta_phi)
-#         beta_c1 = 0.5 * (self._beta_int + beta_cw)
-#         self._k = k
-#         return beta_c1, k, beta_cw
+# Calculate the elevation angle of the turning point as function of the set value of the
+# average elevation angle during reel-out in degrees. 
+function _calc_beta_c1(fpca::FlightPathCalculator, beta_set)
+    fpca._radius = fpca._r_max - (fpca._r_max - fpca._r_min) * (beta_set - fpca._beta_min) /
+                   (fpca._beta_max - fpca._beta_min)
+    try
+        @assert fpca._radius >= 2.8 # radius of the turns in degrees
+        @assert fpca._radius <= 5.2
+    catch
+        println(fpca._r_max, fpca._r_min, beta_set, fpca._beta_min, fpca._beta_max, fpca._radius)
+    end
+    fpca._phi_c3 = fpca._w_fig/2.0 - fpca._radius
+    delta_phi = fpca._radius^2 /fpca._phi_c3
+    fpca._phi_sw = fpca._phi_c3 - fpca._radius^2 / fpca._phi_c3
+    beta_sw = sqrt(fpca._radius^2 - (fpca._phi_sw - fpca._phi_c3)^2) + beta_set
+    k = sqrt((fpca._phi_c3 - fpca._phi_sw) / fpca._phi_sw)
+    beta_cw = beta_sw + k * (fpca._phi_c3 + delta_phi)
+    beta_c1 = 0.5 * (fpca._beta_int + beta_cw)
+    fpca._k = k
+    beta_c1, beta_cw
+end
 
 # TODO: Implement _calc_k2_k3
 #     def _calcK2K3(self, beta_set):
