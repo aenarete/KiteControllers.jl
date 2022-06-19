@@ -47,7 +47,9 @@ function simulate(integrator)
         if i > 100
             depower = 0.25 - jsaxes.y*0.4
             if depower < 0.25; depower = 0.25; end
-            set_depower_steering(kps4.kcu, depower, jsaxes.x)
+            steering = calc_steering(ssc)
+            set_depower_steering(kps4.kcu, depower, steering+jsaxes.x)
+            # set_depower_steering(kps4.kcu, depower, jsaxes.x)
             # v_ro = jsaxes.u * 8.0 
         end  
         # execute winch controller

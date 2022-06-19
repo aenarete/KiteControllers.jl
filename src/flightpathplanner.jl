@@ -773,7 +773,13 @@ end
 end
 
 function SystemStateControl(wcs::WCSettings, fcs::FPCSettings)
-    SystemStateControl(wc=WinchController(wcs), fpc=FlightPathController(fcs))
+    # fcs.gain = 0.01
+    res = SystemStateControl(wc=WinchController(wcs), fpc=FlightPathController(fcs))
+    attractor = zeros(2)
+    # attractor[1] = deg2rad(25.0) # phi_set
+    attractor[2] = deg2rad(80.0) # beta_set
+    on_control_command(res.fpc, attractor=attractor)
+    res
 end
 
 function on_parking(ssc::SystemStateControl, tether_length=nothing)
@@ -829,8 +835,11 @@ function calc_steering(ssc::SystemStateControl)
     chi = ssc.sys_state.course
     u_d = ssc.sys_state.depower
     omega = 0.0
+    # println("phi: $phi, beta: $beta, psi: $psi, chi: $chi, u_d: $u_d")
     on_est_sysstate(ssc.fpc, phi, beta, psi, chi, omega, v_a; u_d=u_d)
-    u_s = calc_steering(ssc.fpc, false)
+    u_s = -calc_steering(ssc.fpc, false)
+    on_timer(ssc.fpc)
+    println(u_s)
     u_s
 end
 
