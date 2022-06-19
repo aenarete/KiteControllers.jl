@@ -238,7 +238,7 @@ function _calc_beta_c1(fpca::FlightPathCalculator, beta_set)
     beta_cw = beta_sw + k * (fpca._phi_c3 + delta_phi)
     beta_c1 = 0.5 * (fpca._beta_int + beta_cw)
     fpca._k = k
-    beta_c1, beta_cw
+    beta_c1, k, beta_cw
 end
 
 function _calc_k2_k3(fpca::FlightPathCalculator, beta_set)
@@ -255,16 +255,14 @@ function _calc_k2_k3(fpca::FlightPathCalculator, beta_set)
     k2, k3
 end
 
-# TODO: Implement _calc_t1
-#     def _calcT1(self, beta_set):
-#         """
-#         Calculate azimuth and elevation of the point T1, where the first turn starts.
-#         """
-#         k2, k3 = self._calcK2K3(beta_set)
-#         beta_c1, k, beta_cw = self._calcBetaC1(beta_set)
-#         phi_c1 = (beta_c1 - beta_cw - 10.0 * self._k1 * (0.1 * self._radius)**1.2) / k #- k2 * k3 * self._k4
-#         self._t1[0] = (self._beta_int * k + phi_c1 - beta_c1 * k) / (k*k + 1.0)
-#         self._t1[1] = self._beta_int - self._t1[0] * k
+# Calculate azimuth and elevation of the point T1, where the first turn starts.
+function _calc_t1(fpca::FlightPathCalculator, beta_set)
+    k2, k3 = _calc_k2_k3(fpca, beta_set)
+    beta_c1, k, beta_cw = _calc_beta_c1(fpca, beta_set)
+    phi_c1 = (beta_c1 - beta_cw - 10.0 * fpca._k1 * (0.1 * fpca._radius)^1.2) / k 
+    fpca._t1[begin+0] = (fpca._beta_int * k + phi_c1 - beta_c1 * k) / (k*k + 1.0)
+    fpca._t1[begin+1] = fpca._beta_int - fpca._t1[begin+0] * k
+end
 
 # TODO: Implement calc_p1
 #     def calcP1(self, beta_set):
