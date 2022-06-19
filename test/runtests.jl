@@ -439,4 +439,5 @@ end
     KiteControllers.set_azimuth_elevation(fpca, phi, beta)
     beta_set = 30.0
     KiteControllers._calc_beta_c1(fpca, beta_set)
+    KiteControllers._calc_k2_k3(fpca, beta_set)
 end
