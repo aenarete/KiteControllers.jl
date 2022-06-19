@@ -426,10 +426,12 @@ end
 @testset "FlightPathCalculator" begin
     fcs = FPCSettings()
     fpc = FlightPathController(fcs)
-    fpcc = FlightPathCalculator(fpc=fpc)
+    fpca = FlightPathCalculator(fpc=fpc)
     vec=[1.0,2]
     res = KiteControllers.addy(vec, 0.5)
     @test res == [1.0, 2.5]
     res = KiteControllers.addxy(vec, 1.5, 1.0)
     @test res == [2.5, 3.0]
+    KiteControllers.set_v_wind_gnd(fpca, 8.3)
+    @test fpca._elevation_offset_p2 ==  4.0
 end
