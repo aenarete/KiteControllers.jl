@@ -160,55 +160,55 @@ end
 
 # Event handler for events, received from the GUI. The flight path planner
 # must be in sync with the central system state.
-function on_new_system_state(fpp::FlightPathCalculator, new_state, internal = false)
-    if fpp._sys_state.value == new_state
+function on_new_system_state(fpc::FlightPathCalculator, new_state, internal = false)
+    if fpc._sys_state.value == new_state
         return
     end
-    fpp._sys_state = SystemState(new_state)
+    fpc._sys_state = SystemState(new_state)
     if new_state == Int(ssPower)
-        fpp._beta_int = fpp._beta
+        fpc._beta_int = fpc._beta
         # calculate and publish the flight path for the next cycle
-        publish(fpp, fpp._beta_set)
+        publish(fpc, fpc._beta_set)
     elseif new_state == Int(ssParking) && ! internal
-        _switch(fpp, PARKING)
+        _switch(fpc, PARKING)
     end
 end
             
 # TODO: Implement set_v_wind_gnd
-#     def setVWindGnd(self, v_wind_gnd):
-#         """
-#         Set the ground wind speed at 6 m height.
-#         """
-#         # print "----> FPP.setVWindGnd:", v_wind_gnd
-#         self._v_wind_gnd = v_wind_gnd
-#         if v_wind_gnd > 8.2: 
-#             self._elevation_offset_p2 =  4.0
-#             self._elevation_offset_t2 = 10.5
-#             self._azimuth_offset_phi1 =  0.0               
-#         elif v_wind_gnd > 8.06: # T505: 8.16
-#             self._elevation_offset_p2 = 3.0
-#             self._elevation_offset_t2 = 9.5
-#             self._azimuth_offset_phi1 = 0.0            
-#         elif v_wind_gnd > 7.2: # T412
-#             self._elevation_offset_p2 = 1.7
-#             self._elevation_offset_t2 = 7.3
-#             self._azimuth_offset_phi1 = 0.0            
-#         elif v_wind_gnd > 6.2: # T503: 6.27
-#             self._elevation_offset_p2 =  0.5
-#             self._elevation_offset_t2 =  4.2
-#             self._azimuth_offset_phi1 =  1.5
-#         elif v_wind_gnd > 5.2: # T502: 5.3
-#             self._elevation_offset_p2 = -4.0
-#             self._elevation_offset_t2 =  3.0
-#             self._azimuth_offset_phi1 =  3.0
-#         elif v_wind_gnd > 3.7: # T501: 3.78  
-#             self._elevation_offset_p2 = -4.0 
-#             self._elevation_offset_t2 =  1.5
-#             self._azimuth_offset_phi1 =  3.0
-#         else:
-#             self._elevation_offset_p2 = -6.0 
-#             self._elevation_offset_t2 = -0.5
-#             self._azimuth_offset_phi1 =  4.0
+# Set the ground wind speed at 6 m height
+function set_v_wind_gnd(fpc::FlightPathCalculator, v_wind_gnd)
+    fpc._v_wind_gnd = v_wind_gnd
+    if v_wind_gnd > 8.2
+        fpc._elevation_offset_p2 =  4.0
+        fpc._elevation_offset_t2 = 10.5
+        fpc._azimuth_offset_phi1 =  0.0               
+    elseif v_wind_gnd > 8.06
+        fpc._elevation_offset_p2 = 3.0
+        fpc._elevation_offset_t2 = 9.5
+        fpc._azimuth_offset_phi1 = 0.0
+    elseif v_wind_gnd > 7.2
+        fpc._elevation_offset_p2 = 1.7
+        fpc._elevation_offset_t2 = 7.3
+        fpc._azimuth_offset_phi1 = 0.0
+    elseif v_wind_gnd > 6.2
+        fpc._elevation_offset_p2 =  0.5
+        fpc._elevation_offset_t2 =  4.2
+        fpc._azimuth_offset_phi1 =  1.5
+    elseif v_wind_gnd > 5.2
+        fpc._elevation_offset_p2 = -4.0
+        fpc._elevation_offset_t2 =  3.0
+        fpc._azimuth_offset_phi1 =  3.0
+    elseif v_wind_gnd > 3.7
+        fpc._elevation_offset_p2 = -4.0 
+        fpc._elevation_offset_t2 =  1.5
+        fpc._azimuth_offset_phi1 =  3.0
+    else
+        fpc._elevation_offset_p2 = -6.0 
+        fpc._elevation_offset_t2 = -0.5
+        fpc._azimuth_offset_phi1 =  4.0
+    end
+
+end
 
 # TODO: Implement set_azimuth_elevation
 #     def setAzimuthElevation(self, phi, beta, period_time):
