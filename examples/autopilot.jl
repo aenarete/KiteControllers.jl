@@ -7,16 +7,18 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels
 
-const ssc = SystemStateControl(WCSettings())
-
 # change this to KPS3 or KPS4
 const Model = KPS4
 
 if ! @isdefined kcu;    const kcu = KCU(se());   end
 if ! @isdefined kps4;   const kps4 = Model(kcu); end
 
+const wcs = WCSettings(); wcs.dt = 1/se().sample_freq
+const fcs = FPCSettings(); fcs.dt = wcs.dt
+const ssc = SystemStateControl(wcs, fcs)
+
 # the following values can be changed to match your interest
-dt = 0.05
+dt = wcs.dt
 if ! @isdefined MAX_TIME; MAX_TIME=3600; end
 TIME_LAPSE_RATIO = 1
 SHOW_KITE = true
@@ -37,7 +39,11 @@ function simulate(integrator)
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     while true
-        v_ro = 0.0
+        if i > 100
+            depower = 0.25
+            steering = calc_steering(ssc)
+            set_depower_steering(kps4.kcu, depower, steering)
+        end 
         # execute winch controller
         v_ro = calc_v_set(ssc)
         #

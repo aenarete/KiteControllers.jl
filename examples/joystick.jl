@@ -23,7 +23,7 @@ const fcs = FPCSettings(); fcs.dt = wcs.dt
 const ssc = SystemStateControl(wcs, fcs)
 
 # the following values can be changed to match your interest
-dt = 0.05
+dt = wcs.dt
 if ! @isdefined MAX_TIME; MAX_TIME=3600; end
 TIME_LAPSE_RATIO = 1
 SHOW_KITE = true
