@@ -8,7 +8,7 @@ export WinchController, KiteModel
 export UnitDelay, RateLimiter, Mixer_2CH, Mixer_3CH, CalcVSetIn
 export Winch, SpeedController, LowerForceController, UpperForceController
 export FlightPathCalculator, SystemStateControl, SystemState
-export FlightPathPlanner, FPPSettings
+export FlightPathPlanner, FPPSettings, POWER
 export saturate, wrap2pi                                              # utility function
 export reset, calc_output, on_timer, select_b, select_c, get_state    # methods of Integrator, UnitDelay etc.
 export on_control_command, on_est_sysstate, on_timer, calc_steering   # methods of FlightPathController 

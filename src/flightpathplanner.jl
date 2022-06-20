@@ -476,37 +476,34 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     phi_2 = fpp.fpca._phi_2
     phi_3 = fpp.fpca._phi_3
     state = fpp._state
+    if fpp.fpca.fig8 == 0
+        dphi = fpp.fpca._dphi + 5.0 
+    elseif fpp.fpca.fig8 <= 2
+        dphi = fpp.fpca._dphi + 3.0
+    else
+        dphi = fpp.fpca._dphi + 2.0
+    end
+    # see: Table 5.3, 5.4
+    if state == POWER
+        fpp.finish = false
+        # use the intermediate point only if we have to fly down more than 20 degrees
+        delta_beta = beta - fpp.fpca._beta_set - fpp.fpca._radius
+        if (beta > fpp.fpca._beta_set + 25.0 + fpp.fpca._radius) && ! DIRECT
+            if depower < fpp.u_d_ro + fpp.delta_depower + fpp.const_dd * (fpp.u_d_ri - fpp.u_d_ro - fpp.delta_depower)
+                fpp.fpca.fig8 = -1
+                fpp.fpca.high = false
+                _switch(fpp, UPPER_TURN)
+            end
+        elseif depower < fpp.u_d_ro + fpp.delta_depower + fpp.const_dd * (fpp.u_d_ri - fpp.u_d_ro - fpp.delta_depower)
+            fpp.fpca.fig8 = -1
+            fpp.fpca.high = true
+            _switch(fpp, FLY_LEFT, delta_beta)
+
+        end
+    end
 end
 
-#         if fpp.fig8 == 0:
-#             dphi = fpp._dphi + 5.0 
-#         elif fpp.fig8 <= 2:
-#             dphi = fpp._dphi + 3.0
-#         else:
-#             dphi = fpp._dphi + 2.0
-#         #if PRINT:
-#         #    print "dphi: ", form(dphi)
-#         # see: Table 5.3, 5.4
-#         if state == FPPS.POWER:
-#             fpp.finish = false
-#             # use the intermediate point only if we have to fly down more than 20 degrees
-#             delta_beta = beta - fpp._beta_set - fpp._radius
-#             if (beta > fpp._beta_set + 25.0 + fpp._radius) and not DIRECT:
-#                 if depower < fpp.u_d_ro + fpp.delta_depower + fpp.const_dd * \
-#                                                            (fpp.u_d_ri - fpp.u_d_ro - fpp.delta_depower):
-#                     if PRINT_DELTA_BETA:
-#                         print "Delta beta large: ", form(delta_beta)  
-#                     fpp.fig8 = -1
-#                     fpp.high = false
-#                     fpp._switch(FPPS.UPPER_TURN)
-#             else:
-#                 if depower < fpp.u_d_ro + fpp.delta_depower + fpp.const_dd * \
-#                                                            (fpp.u_d_ri - fpp.u_d_ro - fpp.delta_depower):
-#                     if PRINT_DELTA_BETA:
-#                         print "Delta beta low: ", form(delta_beta)                                                          
-#                     fpp.fig8 = -1
-#                     fpp.high = true
-#                     fpp._switch(FPPS.FLY_LEFT, delta_beta)
+
 #         elif state == FPPS.UPPER_TURN and psi > pi and psi < radians(HEADING_UPPER_TURN):
 #             fpp._switch(FPPS.LOW_RIGHT)
 #         elif state == FPPS.LOW_RIGHT and phi < -phi_1 + fpp._azimuth_offset_phi1:
@@ -646,6 +643,8 @@ end
 #         self.pub.publishBearing(p1, p2, p3)
 #         return result
 
+function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
+end
 #     def _switch(self, state, delta_beta = 0.0)
 #         """
 #         Switch the state of the FPP. Execute all actions, that are needed when the new state is entered.

@@ -470,4 +470,6 @@ end
     height = 100.0
     time = 0.0
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
+    fpp._state = POWER
+    KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
 end
