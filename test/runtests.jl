@@ -456,4 +456,18 @@ end
     fpca = FlightPathCalculator(fpc)
     fpp = FlightPathPlanner(fpps, fpca)
     @test fpp.u_d_ro == 0.22
+    @test ! KiteControllers.is_active(fpp)
+    @test KiteControllers.get_state(fpp) == 0
+    phi = 0.0
+    beta = 0.0
+    heading = 0.0
+    course = 0.0
+    v_a = 10.0
+    u_d = 0.25
+    on_new_systate(fpp, phi, beta, heading, course, v_a, u_d)
+    depower = u_d
+    length = 150.0
+    height = 100.0
+    time = 0.0
+    KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
 end
