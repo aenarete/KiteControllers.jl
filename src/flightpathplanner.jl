@@ -472,12 +472,12 @@ end
 function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, time)
     phi, psi  = fpp.fpca._phi, heading
     beta = fpp.fpca._beta
+    phi_1 = fpp.fpca._t1[begin]
+    phi_2 = fpp.fpca._phi_2
+    phi_3 = fpp.fpca._phi_3
+    state = fpp._state
 end
 
-#         phi_1 = fpp._t1[begin]
-#         phi_2 = fpp._phi_2
-#         phi_3 = fpp._phi_3
-#         state = fpp._state
 #         if fpp.fig8 == 0:
 #             dphi = fpp._dphi + 5.0 
 #         elif fpp.fig8 <= 2:
