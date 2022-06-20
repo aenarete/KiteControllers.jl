@@ -158,6 +158,10 @@ end
     elevation_offset = ELEVATION_OFFSET
 end
 
+function FlightPathCalculator(fpc::FlightPathController)
+    FlightPathCalculator(fpc=fpc)
+end
+
 # Event handler for events, received from the GUI. The flight path planner
 # must be in sync with the central system state.
 function on_new_system_state(fpca::FlightPathCalculator, new_state, internal = false)
@@ -391,47 +395,38 @@ end
 #     optional AttractorPoint attractor  = 4;  // the kite should fly towards this point
 # }
 
-
-
-# class FlightPathPlanner(FlightPathCalculator):
-#     """
-#     Class, that implements the state machine as described in the PhD thesis of Uwe Fechner, chapter
-#     five. It inherits from the flight path calculator. It uses the pre-calculated flight path together
+#     Component, that implements the state machine as described in the PhD thesis of Uwe Fechner, chapter
+#     five. It uses the pre-calculated flight path together
 #     with incoming kite state data to calculate the FPC_Command messages, if needed.
 
-#     Inputs:
-#     a) the inherited flight path and angular kite speed omega (on the unit circle)
-#     b) the actual depower value of the kite
-#     c) the actual reel-out length of the tether
-#     d) the actual orientation of the kite: the heading angle
-#     e) the height of the kite
+# Inputs:
+# a) the inherited flight path and angular kite speed omega (on the unit circle)
+# b) the actual depower value of the kite
+# c) the actual reel-out length of the tether
+# d) the actual orientation of the kite: the heading angle
+# e) the height of the kite
 
 #     Output:
 #     FPC_Command messages as defined above.
-#     """
-#     def __init__(self, pro, clear=false, publisher=None):
-#         if clear:
-#             super(FlightPathPlanner, self).clear(pro, publisher)
-#         else:
-#             super(FlightPathPlanner, self).__init__(pro)
-#         self._state = FPPS.INITIAL
-#         self.delta_depower = 0.0 # this value must be increased, if the power is too high
-#         self.const_dd      = 0.7 # greek delta_depower
-#         self.u_d_ro =  0.01 * pro._mode.min_depower  # min_depower
-#         self.u_d_ri =  0.01 * pro._mode.max_depower # max_depower
-#         self.u_d_pa = 0.25   # parking depower
-#         self.l_low = pro._mode.min_length   # lower length
-#         self.l_up  = pro._mode.max_length   # upper lenght
-#         self.z_up  = pro._mode.max_height   # upper height
-#         self.count = 0
-#         self.finish = false
+@with_kw mutable struct FlightPathPlanner @deftype Float64
+    fpps::FPPSettings
+    fpca::FlightPathCalculator
+    _state::FPPS = INITIAL
+    delta_depower = 0    # this value must be increased, if the power is too high
+    const_dd      = 0.7  # greek delta_depower
+    u_d_ro        = 0.01 * fpps.min_depower
+    u_d_ri        = 0.01 * fpps.max_depower
+    u_d_pa        = 0.25 # parking depower
+    l_low         = fpps.min_length
+    l_up          = fpps.max_length
+    z_up          = fpps.max_height
+    count         = 0
+    finish::Bool  = false
+end
 
-#     def clear(self, pro, publisher=None):
-#         self.__init__(pro, clear=true, publisher=publisher)
-
-#     def setLlowLup(self, l_low, l_up):
-#         self.l_low = l_low
-#         self.l_up = l_up
+function FlightPathPlanner(fpps::FPPSettings, fpca::FlightPathCalculator)
+    fpp = FlightPathPlanner(fpps=fpps, fpca=fpca)
+end
 
 #     def start(self):
 #         """

@@ -448,3 +448,12 @@ end
     KiteControllers.calc_t5(fpca, beta_set)
     KiteControllers.publish(fpca)
 end
+
+@testset "FlightPathPlanner" begin
+    fcs = FPCSettings()
+    fpps = FPPSettings()
+    fpc = FlightPathController(fcs)
+    fpca = FlightPathCalculator(fpc)
+    fpp = FlightPathPlanner(fpps, fpca)
+    @test fpp.u_d_ro == 0.22
+end
