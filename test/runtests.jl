@@ -441,4 +441,10 @@ end
     KiteControllers._calc_beta_c1(fpca, beta_set)
     KiteControllers._calc_k2_k3(fpca, beta_set)
     KiteControllers._calc_t1(fpca, beta_set)
+    KiteControllers.calc_p1(fpca, beta_set)
+    KiteControllers.calc_p2(fpca, beta_set)
+    KiteControllers.calc_p3(fpca)
+    KiteControllers.calc_p4(fpca)
+    KiteControllers.calc_t5(fpca, beta_set)
+    KiteControllers.publish(fpca)
 end

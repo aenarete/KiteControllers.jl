@@ -262,121 +262,120 @@ function _calc_t1(fpca::FlightPathCalculator, beta_set)
     phi_c1 = (beta_c1 - beta_cw - 10.0 * fpca._k1 * (0.1 * fpca._radius)^1.2) / k 
     fpca._t1[begin+0] = (fpca._beta_int * k + phi_c1 - beta_c1 * k) / (k*k + 1.0)
     fpca._t1[begin+1] = fpca._beta_int - fpca._t1[begin+0] * k
+    nothing
 end
 
-# TODO: Implement calc_p1
-#     def calcP1(self, beta_set):
-#         """
-#         Calculate azimuth and elevation of the intermediate attractor point P1.
-#         """
-#         self._calcT1(beta_set)
-#         self._delta_phi = sqrt(self._delta_min**2 / (1.0 + self._k**2))
-#         self._delta_beta = self._k * sqrt(self._delta_min**2 / (1.0 + self._k**2))
-#         self._p1[0] = self._t1[0] + self._delta_phi
-#         self._p1[1] = self._t1[1] - self._delta_beta + ELEVATION_OFFSET_P1
+# Calculate azimuth and elevation of the intermediate attractor point P1.
+function calc_p1(fpca::FlightPathCalculator, beta_set)
+    _calc_t1(fpca, beta_set)
+     fpca._delta_phi   = sqrt(fpca._delta_min^2 / (1.0 + fpca._k^2))
+     fpca._delta_beta  = fpca._k * sqrt(fpca._delta_min^2 / (1.0 + fpca._k^2))
+     fpca._p1[begin]   = fpca._t1[begin] + fpca._delta_phi
+     fpca._p1[begin+1] = fpca._t1[begin+1] - fpca._delta_beta + ELEVATION_OFFSET_P1
+     nothing
+end
 
-# TODO: Implement calc_p2
-#     def calcP2(self, beta_set):
-#         """
-#         Calculate azimuth and elevation of the second attractor point P2.
-#         """
-#         # Calculate azimuth and elevation of the point T2, where the figure-of-eight starts.
-#         phi_sw, r = self._phi_sw, self._radius
-#         self._t2[0] = -(self._phi_c3 - phi_sw) - self._phi_c3
-#         self._t2[1] = sqrt(r * r - (phi_sw - self._phi_c3)**2) + beta_set
-#         self._p2[0] = self._t2[0] - self._delta_phi
-#         self._p2[1] = (self._t2[1] - self._delta_beta)
+# Calculate azimuth and elevation of the second attractor point P2.
+function calc_p2(fpca::FlightPathCalculator, beta_set)
+    # Calculate azimuth and elevation of the point T2, where the figure-of-eight starts.
+    phi_sw, r         = fpca._phi_sw, fpca._radius
+    fpca._t2[begin]   = -(fpca._phi_c3 - phi_sw) - fpca._phi_c3
+    fpca._t2[begin+1] = sqrt(r * r - (phi_sw - fpca._phi_c3)^2) + beta_set
+    fpca._p2[begin]   = fpca._t2[begin]   - fpca._delta_phi
+    fpca._p2[begin+1] = fpca._t2[begin+1] - fpca._delta_beta
+    nothing
+end
 
-# TODO: Implement calc_p3
-#     def calcP3(self):
-#         """
-#         Calculate azimuth and elevation of the third attractor point P3.
-#         """
-#         # Calculate azimuth and elevation of the point T3, where the right turn starts.
-#         self._t3[0] = self._phi_sw
-#         self._t3[1] = self._t2[1]
-#         self._p3[0] = self._t3[0] + self._delta_phi
-#         self._p3_zero[0] = self._p3[0]
-#         self._p3_zero_high[0] = self._p3[0]
-#         self._p3_one_high[0] = self._p3[0]
-#         self._p3[1] = self._t3[1] + self._delta_beta
-#         self._p3_zero[1] = self._p3[1] + ELEVATION_OFFSET_P3_ZERO
-#         self._p3_zero_high[1] = self._p3[1] + ELEVATION_OFFSET_P3_ZERO_HIGH
-#         self._p3_one_high[1] = self._p3[1] + ELEVATION_OFFSET_P3_ONE_HIGH
+# Calculate azimuth and elevation of the third attractor point P3.
+function calc_p3(fpca::FlightPathCalculator)
+    # Calculate azimuth and elevation of the point T3, where the right turn starts.
+    fpca._t3[begin] = fpca._phi_sw
+    fpca._t3[begin+1] = fpca._t2[begin+1]
+    fpca._p3[begin] = fpca._t3[begin] + fpca._delta_phi
+    fpca._p3_zero[begin] = fpca._p3[begin]
+    fpca._p3_zero_high[begin] = fpca._p3[begin]
+    fpca._p3_one_high[begin] = fpca._p3[begin]
+    fpca._p3[begin+1] = fpca._t3[begin+1] + fpca._delta_beta
+    fpca._p3_zero[begin+1] = fpca._p3[begin+1] + ELEVATION_OFFSET_P3_ZERO
+    fpca._p3_zero_high[begin+1] = fpca._p3[begin+1] + ELEVATION_OFFSET_P3_ZERO_HIGH
+    fpca._p3_one_high[begin+1] = fpca._p3[begin+1] + ELEVATION_OFFSET_P3_ONE_HIGH
+    nothing
+end
 
-# TODO: Implement calc_p4
-#     def calcP4(self):
-#         """
-#         Calculate azimuth and elevation of the forth attractor point P4.
-#         """
-#         # Calculate azimuth and elevation of the point T4, where the left turn starts.
-#         self._t4[0] = - self._phi_sw
-#         self._t4[1] = self._t3[1]
-#         self._p4[0] = self._t4[0] - self._delta_phi
-#         self._p4_one[0] = self._p4[0]
-#         self._p4_one_high[0] = self._p4[0]
-#         self._p4_zero[0] = self._p4[0]
-#         self._p4[1] = (self._t4[1] + self._delta_beta) + self._elevation_offset_p4
-#         self._p4_one[1] = self._p4[1] + ELEVATION_OFFSET_P4_ONE
-#         self._p4_one_high[1] = self._p4[1] + ELEVATION_OFFSET_P4_ONE_HIGH
-#         self._p4_zero[1] = self._p4[1] + ELEVATION_OFFSET_P4_ZERO
+# Calculate azimuth and elevation of the forth attractor point P4.
+function calc_p4(fpca::FlightPathCalculator)
+    # Calculate azimuth and elevation of the point T4, where the left turn starts.
+    fpca._t4[begin] = - fpca._phi_sw
+    fpca._t4[begin+1] = fpca._t3[begin+1]
+    fpca._p4[begin] = fpca._t4[begin] - fpca._delta_phi
+    fpca._p4_one[begin] = fpca._p4[begin]
+    fpca._p4_one_high[begin] = fpca._p4[begin]
+    fpca._p4_zero[begin] = fpca._p4[begin]
+    fpca._p4[begin+1] = (fpca._t4[begin+1] + fpca._delta_beta) + fpca._elevation_offset_p4
+    fpca._p4_one[begin+1] = fpca._p4[begin+1] + ELEVATION_OFFSET_P4_ONE
+    fpca._p4_one_high[begin+1] = fpca._p4[begin+1] + ELEVATION_OFFSET_P4_ONE_HIGH
+    fpca._p4_zero[begin+1] = fpca._p4[begin+1] + ELEVATION_OFFSET_P4_ZERO
+    nothing
+end
 
-# TODO: Implement calc_t5
-#     def calcT5(self, beta_set):
-#         """
-#         Calculate azimuth and elevation of the point T5, where the up-turn starts.
-#         """
-#         r, k = self._radius, self._k
-#         self._t5[0] = r - sqrt(k * k * r * r / (k * k + 1.0))
-#         self._t5[1] = beta_set - k * self._t5[0]
+# Calculate azimuth and elevation of the point T5, where the up-turn starts.
+function calc_t5(fpca::FlightPathCalculator, beta_set)
+    r, k = fpca._radius, fpca._k
+    fpca._t5[begin] = r - sqrt(k * k * r * r / (k * k + 1.0))
+    fpca._t5[begin+1] = beta_set - k * fpca._t5[begin]
+    nothing
+end
 
-# TODO: Implement publish
-#     def publish(self, beta_set = BETA_SET):
-#         """ Calculate and publish the planned flight path. Must be called each time when
-#         the winch controller calculates a new set value for the elevation, but also, when beta_int
-#         changes (at the beginning of each intermediate phase). """
-#         if FIXED_ELEVATION:
-#             beta_set = BETA_SET
-#         if beta_set > 30.0:
-#             self._w_fig = W_FIG + 10.0
-#         if beta_set > 52.0:
-#             self._w_fig = W_FIG +  5.0            
-#         else:
-#             self._w_fig = W_FIG            
-#         if beta_set >= 47.5:
-#             self._heading_offset = HEADING_OFFSET_HIGH
-#             self._dphi = DPHI_HIGH
-#             self._elevation_offset_p4 = ELEVATION_OFFSET_P4_HIGH
-#         else:
-#             if self._v_wind_gnd > 9.2:
-#                 self._heading_offset = HEADING_OFFSET_LOW + 4.0
-#             else:
-#                 self._heading_offset = HEADING_OFFSET_LOW
-#             self._dphi = DPHI_LOW
-#             self._elevation_offset_p4 = 0.0
-#         rel_elevation = (beta_set - 20.0) / 20.0
-#         self._beta_set = beta_set
-#         self.elevation_offset = ELEVATION_OFFSET + rel_elevation * ELEVATION_OFFSET_40
-#         beta_set += self.elevation_offset
+# Calculate and publish the planned flight path. Must be called each time when
+# the winch controller calculates a new set value for the elevation, but also, when beta_int
+# changes (at the beginning of each intermediate phase).
+function publish(fpca::FlightPathCalculator, beta_set = BETA_SET)
+    if FIXED_ELEVATION
+        beta_set = BETA_SET
+    end
+    if beta_set > 30.0
+        fpca._w_fig = W_FIG + 10.0
+    end
+    if beta_set > 52.0
+        fpca._w_fig = W_FIG +  5.0
+    else
+        fpca._w_fig = W_FIG
+    end
+    if beta_set >= 47.5
+        fpca._heading_offset = HEADING_OFFSET_HIGH
+        fpca._dphi = DPHI_HIGH
+        fpca._elevation_offset_p4 = ELEVATION_OFFSET_P4_HIGH
+    else
+        if fpca._v_wind_gnd > 9.2
+            fpca._heading_offset = HEADING_OFFSET_LOW + 4.0
+        else
+            fpca._heading_offset = HEADING_OFFSET_LOW
+        end
+        fpca._dphi = DPHI_LOW
+        fpca._elevation_offset_p4 = 0.0
+    end
+    rel_elevation = (beta_set - 20.0) / 20.0
+    fpca._beta_set = beta_set
+    fpca.elevation_offset = ELEVATION_OFFSET + rel_elevation * ELEVATION_OFFSET_40
+    beta_set += fpca.elevation_offset
 
-#         self.calcP1(beta_set)
-#         self.calcP2(beta_set)
-#         self.calcP3()
-#         self.calcP4()
-#         self.calcT5(beta_set)
-#         if TRANS_FACTOR >= 1.5:
-#             self._t1[0] /= TRANS_FACTOR
-#         self._p1[0] /= TRANS_FACTOR
-#         phi_1 = self._t1[0]
-#         if PRINT:
-#             print "phi_1, _p1[0], beta_set, beta_int", form(phi_1), form(self._p1[0]), form(beta_set), \
-#                                                        form(self._beta_int)
-#         self._phi_2 = self._t2[0]
-#         self._phi_3 = self._t5[0]
-#         self._beta_ri = self._k5 + self._k6 * beta_set + ELEVATION_OFFSET
-#         if self.pub is not None:
-#             self.pub.publishPlannedFlightPath(self._p1, self._p2, self._p3, self._p4, self._t1[0], self._t2[0], \
-#                                               self._t5[0], self._phi_sw, self._beta_ri)
+    calc_p1(fpca, beta_set)
+    calc_p2(fpca, beta_set)
+    calc_p3(fpca)
+    calc_p4(fpca)
+    calc_t5(fpca, beta_set)
+    if TRANS_FACTOR >= 1.5
+        fpca._t1[begin] /= TRANS_FACTOR
+    end
+    fpca._p1[begin] /= TRANS_FACTOR
+    phi_1 = fpca._t1[begin]
+    fpca._phi_2 = fpca._t2[begin]
+    fpca._phi_3 = fpca._t5[begin]
+    fpca._beta_ri = fpca._k5 + fpca._k6 * beta_set + ELEVATION_OFFSET
+#   fpca.pub.publishPlannedFlightPath(fpca._p1, fpca._p2, fpca._p3, fpca._p4, fpca._t1[begin], fpca._t2[begin], \
+#                                     fpca._t5[begin], fpca._phi_sw, fpca._beta_ri)
+    nothing
+end
 
 # message AttractorPoint {
 #    required double azimuth   = 1; // Angle in radians. Zero straight downwind. Positive direction clockwise seen
@@ -585,7 +584,7 @@ end
 #                 if turning:
 #                     print "--> turning. psi_dot_set: ", form(degrees(value))
 #                 else:
-#                     print "--> no turn. attractor:   ", form(degrees(value[0])), form(degrees(value[1]))
+#                     print "--> no turn. attractor:   ", form(degrees(value[0])), form(degrees(value[begin+1]))
 #                 print "beta_set, intermediate", form(self._beta_set), self.fpc.intermediate
 #             self.count = 0
 
@@ -618,7 +617,7 @@ end
 #         By = cos(point2[1]) * sin(dazi)
 #         midpoint = np.zeros(2)
 #         midpoint[0] = point1[0] + atan2(By, cos(point1[1]) + Bx)
-#         midpoint[1] = atan2(sin(point1[1]) + sin(point2[1]), sqrt((cos(point1[1]) + Bx)**2) + By**2)
+#         midpoint[1] = atan2(sin(point1[1]) + sin(point2[1]), sqrt((cos(point1[1]) + Bx)^2) + By^2)
 #         return midpoint
 
 
