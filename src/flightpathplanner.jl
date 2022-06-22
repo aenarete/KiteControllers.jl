@@ -500,57 +500,52 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
             _switch(fpp, FLY_LEFT, delta_beta)
 
         end
-    elseif state == UPPER_TURN && psi > pi && psi < rad2deg(HEADING_UPPER_TURN)
+    elseif state == UPPER_TURN && psi > π && psi < rad2deg(HEADING_UPPER_TURN)
         fpp._switch(LOW_RIGHT)
-#         elseif state == LOW_RIGHT && phi < -phi_1 + fpp._azimuth_offset_phi1
-#             fpp.fig8 += 1
-#             print "LOW_TURN; phi, psi:", form(phi), form(degrees(psi))
-#             fpp._switch(LOW_TURN)
+    elseif state == LOW_RIGHT && phi < -phi_1 + fpp.fpca._azimuth_offset_phi1
+        fpp.fpca.fig8 += 1
+        # print "LOW_TURN; phi, psi:", form(phi), form(degrees(psi))
+        fpp._switch(LOW_TURN)
+    elseif state == LOW_TURN && psi < rad2deg(180.0 + HEADING_OFFSET_INT) # && phi > -phi_1 - DELTA_PHI_1:
+        # print "LOW_TURN_ENDS; phi, beta:", form(phi), form(degrees(psi))            
+        fpp._switch(LOW_LEFT)
+    elseif state == LOW_LEFT  && phi > -phi_2 + AZIMUTH_OFFSET_PHI_2 &&
+                                 beta < (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset +
+                                         fpp.fpca._elevation_offset_t2)
+        fpp._switch(TURN_LEFT)
+    # see: Table 5.5
+    elseif state == FLY_LEFT  && phi > fpp.fpca._phi_sw &&
+           beta > (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset - DELTA_BETA) &&
+           beta < (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset + 2.3)
+        fpp.fig8 += 1            
+        fpp._switch(TURN_LEFT)
+    elseif state == TURN_LEFT && psi > deg2rad(180.0 - fpp.fpca._heading_offset)# && phi < fpp._phi_sw + dphi
+        fpp._switch(FLY_RIGHT)
+    elseif state == FLY_RIGHT && phi >= phi_3
+        if ! fpp.finish
+            fpp.finish = (length > fpp.l_up || height > fpp.z_up)
+        end
+    elseif state == FLY_RIGHT && fpp.finish && phi < phi_3
+        fpp._switch(UP_TURN_LEFT)
+    elseif state == FLY_RIGHT && phi < -fpp.fpca._phi_sw && 
+           beta > (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset - DELTA_BETA)
+        fpp._switch(TURN_RIGHT)
+    elseif state == TURN_RIGHT && psi < deg2rad(180.0 + fpp.fpca._heading_offset) # && phi > -fpp._phi_sw - dphi
+        fpp._switch(FLY_LEFT)
+    # check, if the condition for finishing is fullfilled while still beeing on the left h&& side
+    #    of the wind window
+    elseif state == FLY_LEFT && phi <= -phi_3
+        if ! fpp.finish
+            fpp.finish = (length > fpp.l_up || height > fpp.z_up)
+        end
     end
 end
 
 
 
-#         elseif state == LOW_TURN  && psi < rad2deg(180.0 + HEADING_OFFSET_INT): # && phi > -phi_1 - DELTA_PHI_1:
-#             if PRINT
-#                 print "===>>> time, phi, _phi_sw + dphi, psi", form(time), form(phi), form(-phi_1 - DELTA_PHI_1), \
-#                                                             form(degrees(psi))
-#             print "LOW_TURN_ENDS; phi, beta:", form(phi), form(degrees(psi))            
-#             fpp._switch(LOW_LEFT)
-#         elseif state == LOW_LEFT  && phi > -phi_2 + AZIMUTH_OFFSET_PHI_2 \
-#                                      && beta < (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset + \
-#                                          fpp._elevation_offset_t2)
-#             fpp._switch(TURN_LEFT)
-#         # see: Table 5.5
-#         elseif state == FLY_LEFT  && phi > fpp._phi_sw \
-#                                      && beta > (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset - DELTA_BETA) \
-#                                      && beta < (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset + 2.3)
-#             fpp.fig8 += 1            
-#             fpp._switch(TURN_LEFT)
-#         elseif state == TURN_LEFT && psi > rad2deg(180.0 - fpp._heading_offset)# && phi < fpp._phi_sw + dphi
-#             if PRINT
-#                 print "===>>> time, phi, _phi_sw + dphi, psi, fig8", form(time), form(phi), \
-#                                               form(fpp._phi_sw + dphi), form(degrees(psi)), form(fpp.fig8)
-#             fpp._switch(FLY_RIGHT)
-#         elseif state == FLY_RIGHT && phi >= phi_3
-#             if not fpp.finish
-#                 fpp.finish = (length > fpp.l_up or height > fpp.z_up)
-#                 if fpp.finish && PRINT
-#                     print '=========> Set finish to true! '
-#         elseif state == FLY_RIGHT && fpp.finish && phi < phi_3
-#             fpp._switch(UP_TURN_LEFT)
-#         elseif state == FLY_RIGHT && phi < -fpp._phi_sw \
-#                                      && beta > (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset - DELTA_BETA)
-#             fpp._switch(TURN_RIGHT)
-#         elseif state == TURN_RIGHT && psi < rad2deg(180.0 + fpp._heading_offset) # && phi > -fpp._phi_sw - dphi
-#             fpp._switch(FLY_LEFT)
-#         # check, if the condition for finishing is fullfilled while still beeing on the left h&& side
-#         #    of the wind window
-#         elseif state == FLY_LEFT && phi <= -phi_3
-#             if not fpp.finish
-#                 fpp.finish = (length > fpp.l_up or height > fpp.z_up)
-#                 if fpp.finish && PRINT
-#                     print '=========> Set finish to true! '
+
+
+
 #         elseif state == FLY_LEFT && fpp.finish && phi > -phi_3
 #             fpp._switch(UP_TURN)
 #         elseif state == UP_TURN && (psi > rad2deg(360.0 - HEADING_OFFSET_UP) or psi < rad2deg(HEADING_OFFSET_UP))
@@ -708,11 +703,11 @@ end
 #             self._publishFPC_Command(true, psi_dot = psi_dot_turn, radius=radius, attractor = self._p4)
 #             sys_state = SystemState.ssKiteReelOut
 #         elseif state == FLY_LEFT
-#             if self.fig8 == 0 && not self.high
+#             if self.fig8 == 0 && ! self.high
                 
 #                 self._publishFPC_Command(false, attractor = self._p4_zero)
 #             if self.fig8 == 1
-#                 if not self.high
+#                 if ! self.high
 #                     self._publishFPC_Command(false, attractor = self._p4_one)
 #                 else
                     

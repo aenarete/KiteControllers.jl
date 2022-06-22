@@ -472,4 +472,12 @@ end
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
     fpp._state = POWER
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
+    fpp._state = LOW_LEFT
+    KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
+    fpp._state = FLY_LEFT
+    KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
+    fpp._state = TURN_LEFT
+    KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
+    fpp._state = FLY_RIGHT
+    KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
 end
