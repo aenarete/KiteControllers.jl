@@ -498,4 +498,30 @@ end
     fpp.count = 50
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)   
     KiteControllers.start(fpp)
+    KiteControllers._switch(fpp, POWER)
+    @test fpp._state == POWER
+    KiteControllers._switch(fpp, POWER)
+    KiteControllers._switch(fpp, LOW_RIGHT)
+    @test fpp._state == LOW_RIGHT
+    KiteControllers._switch(fpp, LOW_TURN)
+    @test fpp._state == LOW_TURN
+    KiteControllers._switch(fpp, LOW_LEFT)
+    @test fpp._state == LOW_LEFT
+    KiteControllers._switch(fpp, FLY_RIGHT)
+    @test fpp._state == FLY_RIGHT
+    KiteControllers._switch(fpp, TURN_LEFT)
+    @test fpp._state == TURN_LEFT
+    KiteControllers._switch(fpp, TURN_RIGHT)
+    @test fpp._state == TURN_RIGHT
+    KiteControllers._switch(fpp, FLY_LEFT)
+    @test fpp._state == FLY_LEFT
+    KiteControllers._switch(fpp, UP_TURN)
+    @test fpp._state == UP_TURN
+    KiteControllers._switch(fpp, UP_TURN_LEFT)
+    @test fpp._state == UP_TURN_LEFT
+    KiteControllers._switch(fpp, UP_FLY_UP)
+    @test fpp._state == UP_FLY_UP 
+    KiteControllers._switch(fpp, PARKING)
+    @test fpp._state == PARKING
+
 end

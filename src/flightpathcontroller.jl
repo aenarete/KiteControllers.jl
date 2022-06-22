@@ -121,7 +121,7 @@ function on_control_command(fpc::FlightPathController; attractor=nothing, psi_do
     if ! isnothing(psi_dot_set) && ! isnothing(radius)
         temp = fpc.omega / radius
         if fpc.fcs.prn
-            @printf "--->>--->> temp, psi_dot_set %.2f %.2f %.2f %.2f" temp psi_dot_set omega radius
+            @printf "--->>--->> temp, psi_dot_set %.2f %.2f %.2f %.2f\n" temp psi_dot_set fpc.omega radius
         end
     end
     fpc.radius = radius

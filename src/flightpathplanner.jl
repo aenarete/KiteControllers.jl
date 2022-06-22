@@ -668,7 +668,7 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
     elseif state == LOW_LEFT
         p2 = addy(fpp.fpca._p2, fpp.fpca._elevation_offset_p2)
         _publish_fpc_command(fpp, false, attractor = p2, intermediate = true)
-        sys_state = SystemState.ssIntermediate
+        sys_state = ssIntermediate
     # see Table 5.5
     elseif state == TURN_LEFT
         radius = -fpp.fpca._radius
@@ -681,7 +681,7 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
         _publish_fpc_command(fpp, true, psi_dot = -psi_dot_turn, radius=radius,  attractor = fpp.fpca._p3)
         sys_state = ssKiteReelOut
     elseif state == FLY_RIGHT
-        if self.fig8 == 0
+        if fpp.fpca.fig8 == 0
             if fpp.fpca.high
                 _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_zero_high)
                 # print "AAA"
@@ -689,7 +689,7 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
                 _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_zero)
                 # print "BBB"
             end
-        elseif self.fig8 == 1 && fpp.fpca.high
+        elseif fpp.fpca.fig8 == 1 && fpp.fpca.high
             _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_one_high)
             # print "CCC"
         else
@@ -727,7 +727,7 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
             if delta_beta > 0.0
 #              print "--->>> x, y=", form(x), form(y)
             end
-            _publish_fpc_command(fpp, false, attractor = addxy(self._p4, x, y))
+            _publish_fpc_command(fpp, false, attractor = addxy(fpp.fpca._p4, x, y))
         end
         sys_state = ssKiteReelOut
     # see Table 5.6
@@ -764,6 +764,10 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
 #             self.onNewSystemState(sys_state.value, true)
         sleep(0.001)
     end
+    if PRINT
+        println("Switching to: ", state)
+    end
+    fpp._state = state
 end
 
 #     def getFPP_State(self)
