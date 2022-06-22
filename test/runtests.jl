@@ -480,4 +480,12 @@ end
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
     fpp._state = FLY_RIGHT
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
+    fpp._state = UP_TURN
+    KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
+    fpp._state = UP_FLY_UP
+    KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
+    fpp._state = DEPOWER
+    KiteControllers.on_new_data(fpp, depower, length, heading, height, time)  
+    fpp.count = 50
+    KiteControllers.on_new_data(fpp, depower, length, heading, height, time)   
 end

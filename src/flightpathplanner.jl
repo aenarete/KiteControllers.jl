@@ -2,6 +2,8 @@
 # external use is FlightPathPlanner. Implementation as specified in chapter five of
 # the PhD thesis of Uwe Fechner.
 
+PRINT_EVERY_SECOND = true
+
 BETA_SET                 = 24.0 # for test 502
 FIXED_ELEVATION          = false
 CORRECT_RADIUS           = false
@@ -498,84 +500,80 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
             fpp.fpca.fig8 = -1
             fpp.fpca.high = true
             _switch(fpp, FLY_LEFT, delta_beta)
-
         end
     elseif state == UPPER_TURN && psi > π && psi < rad2deg(HEADING_UPPER_TURN)
-        fpp._switch(LOW_RIGHT)
+        _switch(fpp, LOW_RIGHT)
     elseif state == LOW_RIGHT && phi < -phi_1 + fpp.fpca._azimuth_offset_phi1
         fpp.fpca.fig8 += 1
         # print "LOW_TURN; phi, psi:", form(phi), form(degrees(psi))
-        fpp._switch(LOW_TURN)
+        _switch(fpp, LOW_TURN)
     elseif state == LOW_TURN && psi < rad2deg(180.0 + HEADING_OFFSET_INT) # && phi > -phi_1 - DELTA_PHI_1:
         # print "LOW_TURN_ENDS; phi, beta:", form(phi), form(degrees(psi))            
-        fpp._switch(LOW_LEFT)
+        _switch(fpp, LOW_LEFT)
     elseif state == LOW_LEFT  && phi > -phi_2 + AZIMUTH_OFFSET_PHI_2 &&
                                  beta < (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset +
                                          fpp.fpca._elevation_offset_t2)
-        fpp._switch(TURN_LEFT)
+        _switch(fpp, TURN_LEFT)
     # see: Table 5.5
     elseif state == FLY_LEFT  && phi > fpp.fpca._phi_sw &&
            beta > (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset - DELTA_BETA) &&
            beta < (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset + 2.3)
         fpp.fig8 += 1            
-        fpp._switch(TURN_LEFT)
+        _switch(fpp, TURN_LEFT)
     elseif state == TURN_LEFT && psi > deg2rad(180.0 - fpp.fpca._heading_offset)# && phi < fpp._phi_sw + dphi
-        fpp._switch(FLY_RIGHT)
+        _switch(fpp, FLY_RIGHT)
     elseif state == FLY_RIGHT && phi >= phi_3
         if ! fpp.finish
             fpp.finish = (length > fpp.l_up || height > fpp.z_up)
         end
     elseif state == FLY_RIGHT && fpp.finish && phi < phi_3
-        fpp._switch(UP_TURN_LEFT)
+        _switch(fpp, UP_TURN_LEFT)
     elseif state == FLY_RIGHT && phi < -fpp.fpca._phi_sw && 
            beta > (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset - DELTA_BETA)
-        fpp._switch(TURN_RIGHT)
+        _switch(fpp, TURN_RIGHT)
     elseif state == TURN_RIGHT && psi < deg2rad(180.0 + fpp.fpca._heading_offset) # && phi > -fpp._phi_sw - dphi
-        fpp._switch(FLY_LEFT)
+        _switch(fpp, FLY_LEFT)
     # check, if the condition for finishing is fullfilled while still beeing on the left h&& side
     #    of the wind window
     elseif state == FLY_LEFT && phi <= -phi_3
         if ! fpp.finish
             fpp.finish = (length > fpp.l_up || height > fpp.z_up)
         end
+    elseif state == FLY_LEFT && fpp.finish && phi > -phi_3
+        _switch(fpp, UP_TURN)
+    elseif state == UP_TURN && (psi > deg2rad(360.0 - HEADING_OFFSET_UP) || psi < deg2rad(HEADING_OFFSET_UP))
+        _switch(fpp, UP_FLY_UP)
+    elseif state == UP_TURN_LEFT && (psi > deg2rad(360.0 - HEADING_OFFSET_UP) || psi < deg2rad(HEADING_OFFSET_UP))
+        _switch(fpp, UP_FLY_UP)
+    elseif state == UP_FLY_UP && ((fpp.fpca._beta > fpp.fpca._beta_ri) || (height > fpp.z_up) || length > (fpp.l_up + 57.0))
+        _switch(fpp, DEPOWER)
+    # see: Table 5.3
+    elseif state == DEPOWER && length < fpp.l_low
+        fpp.fpca.fig8 = 0
+        _switch(fpp, POWER)
+    end
+    # print some debug info every second
+    fpp.count += 1
+    if fpp.count >= 50
+        u_s = fpp.fpca.fpc.u_s
+        chi_set = fpp.fpca.fpc.chi_set
+        chi_factor = fpp.fpca.fpc.chi_factor
+        if PRINT_EVERY_SECOND
+            # print "omega, phi, beta, state, chi_factor", form(fpp._omega), form(fpp._phi), form(fpp._beta),\
+            #                                                          fpp._state, form(chi_factor)
+            # print "--> heading, course, bearing, steering", form(degrees(fpp.fpca.fpc.psi)), \
+            #                     form(degrees(fpp.fpca.fpc.chi)), form(rad2deg(chi_set)), form(100 * u_s)
+            # turning, value = fpp.fpca.fpc.get_state()
+            # if turning
+            #     print "--> turning. psi_dot_set: ", form(degrees(value))
+            # else
+            #     print "--> no turn. attractor:   ", form(degrees(value[begin])), form(degrees(value[begin+1]))
+            #     print "beta_set, intermediate", form(fpp._beta_set), fpp.fpc.intermediate
+            # end
+        end
+        fpp.count = 0
     end
 end
-
-
-
-
-
-
-#         elseif state == FLY_LEFT && fpp.finish && phi > -phi_3
-#             fpp._switch(UP_TURN)
-#         elseif state == UP_TURN && (psi > rad2deg(360.0 - HEADING_OFFSET_UP) or psi < rad2deg(HEADING_OFFSET_UP))
-#             fpp._switch(UP_FLY_UP)
-#         elseif state == UP_TURN_LEFT && (psi > rad2deg(360.0 - HEADING_OFFSET_UP) or psi < rad2deg(HEADING_OFFSET_UP))
-#             fpp._switch(UP_FLY_UP)
-#         elseif state == UP_FLY_UP && ((fpp._beta > fpp._beta_ri) or (height > fpp.z_up) or length > (fpp.l_up + 57.0))
-#             fpp._switch(DEPOWER)
-#         # see: Table 5.3
-#         elseif state == DEPOWER && length < fpp.l_low
-#             fpp.fig8 = 0
-#             fpp._switch(POWER)
-#         # print some debug info every second
-#         fpp.count += 1
-#         if fpp.count >= 50
-#             u_s = fpp.fpc.getSteering()
-#             chi_set = fpp.fpc.chi_set
-#             chi_factor = fpp.fpc.getChiFactor()
-#             if PRINT_EVERY_SECOND
-#                 print "omega, phi, beta, state, chi_factor", form(fpp._omega), form(fpp._phi), form(fpp._beta),\
-#                                                          fpp._state, form(chi_factor)
-#                 print "--> heading, course, bearing, steering", form(degrees(fpp.fpc.psi)), \
-#                              form(degrees(fpp.fpc.chi)), form(degrees(chi_set)), form(100 * u_s)
-#                 turning, value = fpp.fpc.getState()
-#                 if turning
-#                     print "--> turning. psi_dot_set: ", form(degrees(value))
-#                 else
-#                     print "--> no turn. attractor:   ", form(degrees(value[begin])), form(degrees(value[begin+1]))
-#                 print "beta_set, intermediate", form(fpp._beta_set), fpp.fpc.intermediate
-#             fpp.count = 0
 
 #     def _publishFPC_Command(self, turn, attractor=None, psi_dot=None, radius=None, intermediate = false)
 #         """
