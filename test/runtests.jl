@@ -432,6 +432,14 @@ end
     @test res == [1.0, 2.5]
     res = KiteControllers.addxy(vec, 1.5, 1.0)
     @test res == [2.5, 3.0]
+    KiteControllers.set_v_wind_gnd(fpca, 8.2)
+    KiteControllers.set_v_wind_gnd(fpca, 8.06)
+    KiteControllers.set_v_wind_gnd(fpca, 8.3)
+    KiteControllers.set_v_wind_gnd(fpca, 7.2)
+    KiteControllers.set_v_wind_gnd(fpca, 6.2)
+    KiteControllers.set_v_wind_gnd(fpca, 5.2)
+    KiteControllers.set_v_wind_gnd(fpca, 3.7)
+    KiteControllers.set_v_wind_gnd(fpca, 3.6)
     KiteControllers.set_v_wind_gnd(fpca, 8.3)
     @test fpca._elevation_offset_p2 ==  4.0
     phi = deg2rad(0)
