@@ -113,7 +113,7 @@ Input:
 Either the attractor point (MVector of azimuth and elevation in radian),
 or psi_dot, the set value for the turn rate in degrees per second.
 """
-function on_control_command(fpc; attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
+function on_control_command(fpc::FlightPathController; attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
     fpc.intermediate = intermediate
     if fpc.fcs.use_radius && ! isnothing(radius)
         psi_dot_set = rad2deg(fpc.omega / radius) # desired turn rate during the turns
@@ -154,7 +154,7 @@ Parameters:
 
 Either u_d or u_d_prime must be provided.
 """
-function on_est_sysstate(fpc, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_prime=nothing)
+function on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_prime=nothing)
     fpc.phi = phi
     fpc.chi = chi
     fpc.omega = omega

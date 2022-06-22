@@ -2,7 +2,10 @@
 # external use is FlightPathPlanner. Implementation as specified in chapter five of
 # the PhD thesis of Uwe Fechner.
 
+const depower = [0.0] # set value of the depower value, 0 .. 1
+
 PRINT_EVERY_SECOND = true
+PRINT = false
 
 BETA_SET                 = 24.0 # for test 502
 FIXED_ELEVATION          = false
@@ -575,25 +578,26 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     end
 end
 
-#     def _publishFPC_Command(self, turn, attractor=None, psi_dot=None, radius=None, intermediate = false)
-#         """
-#         Publish a new command of the flight path planner and call the related method of the
-#         flight path controller directly. Publishing is currently only relevant for logging and debugging.
-#         """
-#         if psi_dot is not None
-#             psi_dot = degrees(psi_dot)
-#         fpc_attactor = attractor * np.array((-1.0, 1.0))
-#         self.pub2.publishFPC_Command(turn, fpc_attactor, psi_dot)
-#         self.fpc.onNewControlCommand(attractor=np.rad2deg(fpc_attactor), psi_dot_set=psi_dot, radius=radius, intermediate = intermediate)
-#         if PRINT
-#             print "New FPC command. Intermediate ", intermediate
-#             if psi_dot is None
+#  Call the related method of the flight path controller directly.
+function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, psi_dot=nothing, radius=nothing, intermediate = false)
+    if ! isnothing(psi_dot)
+        psi_dot = rad2deg(psi_dot)
+    end
+    fpc_attractor = attractor .* [-1.0, 1.0]
+    on_control_command(fpp.fpca.fpc, attractor=rad2deg.(fpc_attractor), psi_dot_set=psi_dot, radius=radius, intermediate=intermediate)
+    if PRINT
+#             print "New FPC command. Intermediate: ", intermediate
+#             if isnothing(psi_dot)
 #                 print "New attractor point", form(fpc_attactor[begin]), form(fpc_attactor[begin+1])
 #             else
-#                 if radius is None
+#                 if isnothing(radius)
 #                     print "New psi_dot_set [°/s] ", form(psi_dot)
 #                 else
 #                     print "New psi_dot_set [°/s], radius [°] ", form(psi_dot), form(radius)
+#                 end
+#             end
+    end
+end
 
 #     def _calcMidPoint(self, point1, point2)
 #         """
@@ -637,121 +641,130 @@ end
 #         self.pub.publishBearing(p1, p2, p3)
 #         return result
 
+#  Switch the state of the FPP. Execute all actions, that are needed when the new state is entered.
+#  Return immidiately, if the new state is equal to the old state.
 function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
-end
-#     def _switch(self, state, delta_beta = 0.0)
-#         """
-#         Switch the state of the FPP. Execute all actions, that are needed when the new state is entered.
-#         Return immidiately, if the new state is equal to the old state.
-#         """
-#         if state == self._state
-#             return
-#         psi_dot_turn = self._omega / self._radius # desired turn rate during the turns
-#         # see Table 5.3
-#         if state == POWER
-#             depower = self.u_d_ro + self.delta_depower
-#             self.pub2.sendEvent(system.KITE_CTRL_CMD, depower = depower * 100.0) # Table 5.3
-#             sys_state = SystemState.ssPower
-#         if state == UPPER_TURN
-#             self._publishFPC_Command(true, psi_dot = PSI_DOT_MAX, attractor = self._p1, \
-#             intermediate = true)
-#             sys_state = SystemState.ssIntermediate
-#         # see Table 5.4
-#         elseif state == LOW_RIGHT
-#             self._publishFPC_Command(false, attractor = self._p1, intermediate = true)
-#             sys_state = SystemState.ssIntermediate
-#         elseif state == LOW_TURN
-#             p2 = addy(self._p2, self._elevation_offset_p2)
-#             self._publishFPC_Command(true, psi_dot = psi_dot_turn, radius=self._radius, attractor = p2, intermediate = true)
-#             sys_state = SystemState.ssIntermediate
-#         elseif state == LOW_LEFT
-#             p2 = addy(self._p2, self._elevation_offset_p2)
-#             self._publishFPC_Command(false, attractor = p2, intermediate = true)
-#             sys_state = SystemState.ssIntermediate
-#         # see Table 5.5
-#         elseif state == TURN_LEFT
-#             radius = -self._radius
-#             if CORRECT_RADIUS && self.fig8 == 0
-#                 radius *= 0.8
-#             if PRINT
-#                 print "======>>> self.fig8, radius", self.fig8, form(radius)
-#             self._publishFPC_Command(true, psi_dot = -psi_dot_turn, radius=radius,  attractor = self._p3)
-#             sys_state = SystemState.ssKiteReelOut
-#         elseif state == FLY_RIGHT
-#             if self.fig8 == 0
-#                 if self.high
-#                     self._publishFPC_Command(false, attractor = self._p3_zero_high)
-#                     # print "AAA"
-#                 else
-#                     self._publishFPC_Command(false, attractor = self._p3_zero)
-#                     # print "BBB"
-#             elseif self.fig8 == 1 && self.high
-#                 self._publishFPC_Command(false, attractor = self._p3_one_high)
-#                 # print "CCC"
-#             else
-#                 self._publishFPC_Command(false, attractor = self._p3)
-#                 # print "DDD"
-#             sys_state = SystemState.ssKiteReelOut
-#         elseif state == TURN_RIGHT
-#             radius = self._radius
-#             if CORRECT_RADIUS
-#                 radius += (self._beta - (self._t2[begin+1])) * 0.5
-#                 if radius < 1.5
-#                     radius = 1.5
-#             self._publishFPC_Command(true, psi_dot = psi_dot_turn, radius=radius, attractor = self._p4)
-#             sys_state = SystemState.ssKiteReelOut
-#         elseif state == FLY_LEFT
-#             if self.fig8 == 0 && ! self.high
-                
-#                 self._publishFPC_Command(false, attractor = self._p4_zero)
-#             if self.fig8 == 1
-#                 if ! self.high
-#                     self._publishFPC_Command(false, attractor = self._p4_one)
-#                 else
-                    
-#                     self._publishFPC_Command(false, attractor = self._p4_one_high)
-#             else
-#                 if delta_beta < 10.0
-#                     delta_beta = 0.0
-#                 else
-#                     delta_beta -= 10.0
-#                 y = -1.5 * delta_beta
-#                 x = delta_beta
-#                 if delta_beta > 0.0
-#                     print "--->>> x, y=", form(x), form(y)
-#                 self._publishFPC_Command(false, attractor = addxy(self._p4, x, y))
-#             sys_state = SystemState.ssKiteReelOut
-#         # see Table 5.6
-#         elseif state == UP_TURN
-#             self._publishFPC_Command(true, psi_dot = psi_dot_turn, radius=self._radius, attractor = self._zenith)
-#             sys_state = SystemState.ssWaitUntil
-#         elseif state == UP_TURN_LEFT
-#             self._publishFPC_Command(true, psi_dot = -psi_dot_turn, radius=-self._radius, attractor = self._zenith)
-#             sys_state = SystemState.ssWaitUntil
-#         elseif state == UP_FLY_UP
-#             self._publishFPC_Command(false, attractor = self._zenith)
-#             sys_state = SystemState.ssWaitUntil
-#         elseif state == DEPOWER
-#             self._publishFPC_Command(false, attractor = self._zenith)
-#             self.pub2.sendEvent(system.KITE_CTRL_CMD, depower = self.u_d_ri * 100.0) # Table 5.3
-#             sys_state = SystemState.ssDepower
-#         elseif state == PARKING
-#             self._publishFPC_Command(false, attractor = self._zenith)
-#             self.pub2.sendEvent(system.KITE_CTRL_CMD, depower = self.u_d_pa * 100.0) # Table 5.3
-#             sys_state = SystemState.ssParking
+    global depower
+    if state == fpp._state
+        return
+    end
+    psi_dot_turn = fpp.fpca._omega / fpp.fpca._radius # desired turn rate during the turns
+    sys_state = fpp.fpca._sys_state
+    # see Table 5.3
+    if state == POWER
+        depower[] = fpp.u_d_ro + fpp.delta_depower
+        sys_state = ssPower
+    elseif state == UPPER_TURN
+        _publish_fpc_command(fpp, true, psi_dot = PSI_DOT_MAX, attractor=fpp.fpca._p1, intermediate=true)
+        sys_state = ssIntermediate
+        # see Table 5.4
+    elseif state == LOW_RIGHT
+        _publish_fpc_command(fpp, false, attractor = fpp.fpca._p1, intermediate = true)
+        sys_state = ssIntermediate
+    elseif state == LOW_TURN
+        p2 = addy(fpp.fpca._p2, fpp.fpca._elevation_offset_p2)
+        _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=fpp.fpca._radius, attractor = p2, intermediate = true)
+        sys_state = ssIntermediate
+    elseif state == LOW_LEFT
+        p2 = addy(fpp.fpca._p2, fpp.fpca._elevation_offset_p2)
+        _publish_fpc_command(fpp, false, attractor = p2, intermediate = true)
+        sys_state = SystemState.ssIntermediate
+    # see Table 5.5
+    elseif state == TURN_LEFT
+        radius = -fpp.fpca._radius
+        if CORRECT_RADIUS && self.fig8 == 0
+            radius *= 0.8
+        end
+        if PRINT
+#                 println("======>>> self.fig8, radius", self.fig8, form(radius))
+        end
+        _publish_fpc_command(fpp, true, psi_dot = -psi_dot_turn, radius=radius,  attractor = fpp.fpca._p3)
+        sys_state = ssKiteReelOut
+    elseif state == FLY_RIGHT
+        if self.fig8 == 0
+            if fpp.fpca.high
+                _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_zero_high)
+                # print "AAA"
+            else
+                _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_zero)
+                # print "BBB"
+            end
+        elseif self.fig8 == 1 && fpp.fpca.high
+            _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_one_high)
+            # print "CCC"
+        else
+            _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3)
+            # print "DDD"             
+        end
+        sys_state = ssKiteReelOut
+    elseif state == TURN_RIGHT
+        radius = fpp.fpca._radius
+        if CORRECT_RADIUS
+            radius += (fpp.fpca._beta - (fpp.fpca._t2[begin+1])) * 0.5
+            if radius < 1.5
+                radius = 1.5
+            end
+        end
+        _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=radius, attractor = fpp.fpca._p4)
+        sys_state = ssKiteReelOut        
+    elseif state == FLY_LEFT
+        if fpp.fpca.fig8 == 0 && ! fpp.fpca.high               
+            _publish_fpc_command(fpp, false, attractor = fpp.fpca._p4_zero)
+        elseif fpp.fpca.fig8 == 1
+            if ! fpp.fpca.high
+                _publish_fpc_command(fpp, false, attractor = fpp.fpca._p4_one)
+            else                    
+                _publish_fpc_command(fpp, false, attractor = fpp.fpca._p4_one_high)
+            end
+        else
+            if delta_beta < 10.0
+                delta_beta = 0.0
+            else
+                delta_beta -= 10.0
+            end
+            y = -1.5 * delta_beta
+            x = delta_beta
+            if delta_beta > 0.0
+#              print "--->>> x, y=", form(x), form(y)
+            end
+            _publish_fpc_command(fpp, false, attractor = addxy(self._p4, x, y))
+        end
+        sys_state = ssKiteReelOut
+    # see Table 5.6
+    elseif state == UP_TURN
+        _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=fpp.fpca._radius, attractor = fpp.fpca._zenith)
+        sys_state = ssWaitUntil
+    elseif state == UP_TURN_LEFT
+        _publish_fpc_command(fpp, true, psi_dot = -psi_dot_turn, radius=-fpp.fpca._radius, attractor = fpp.fpca._zenith)
+        sys_state = ssWaitUntil
+    elseif state == UP_FLY_UP
+        _publish_fpc_command(fpp, false, attractor = fpp.fpca._zenith)
+        sys_state = ssWaitUntil
+    elseif state == UP_TURN_LEFT
+        _publish_fpc_command(fpp, true, psi_dot = -psi_dot_turn, radius=-fpp.fpca._radius, attractor = fpp.fpca._zenith)
+        sys_state = SystemState.ssWaitUntil
+    elseif state == UP_FLY_UP
+        _publish_fpc_command(fpp, false, attractor = fpp.fpca._zenith)
+        sys_state = SystemState.ssWaitUntil
+    elseif state == DEPOWER
+        _publish_fpc_command(fpp, false, attractor = fpp.fpca._zenith)
+        depower[] = fpp.u_d_ri # Table 5.3
+        sys_state = ssDepower
+    elseif state == PARKING
+        _publish_fpc_command(fpp, false, attractor = fpp.fpca._zenith)
+        depower[] = fpp.u_d_pa # Table 5.3
+        sys_state = ssParking
+    end
 
-#         if sys_state.value != self._sys_state.value
-#             if PRINT
-#                 print "############## -->>>>>>>", sys_state, self._sys_state
-#             self._sys_state = sys_state
+    if sys_state != fpp.fpca._sys_state
+        if PRINT
+            println("############## -->>>>>>>", sys_state, fpp.fpca._sys_state)
+        end
+        fpp.fpca._sys_state = sys_state
 #             self.onNewSystemState(sys_state.value, true)
-#             self.pub2.sendEvent(system.NEW_SYSTEM_STATE, system_state=sys_state.value)
-#             time.sleep(0.001)
-
-
-#         if PRINT
-#             print "Switching to ", state
-#         self._state = state
+        sleep(0.001)
+    end
+end
 
 #     def getFPP_State(self)
 #         """ Return the state of the flight path planner (instance of the enum FPPS). """
