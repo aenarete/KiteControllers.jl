@@ -488,4 +488,5 @@ end
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)  
     fpp.count = 50
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)   
+    KiteControllers.start(fpp)
 end

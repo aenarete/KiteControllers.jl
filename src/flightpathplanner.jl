@@ -435,7 +435,7 @@ end
 
 # Start automated power production; Precondition: The kite is parking at a high elevation angle.
 function start(fpp::FlightPathPlanner)
-    if fpp._sys_state == SystemState.ssManualOperation || fpp._sys_state == SystemState.ssParking
+    if fpp.fpca._sys_state == ssManualOperation || fpp.fpca._sys_state == ssParking
         # see: Table 5.3
         _switch(fpp, POWER)
     end
