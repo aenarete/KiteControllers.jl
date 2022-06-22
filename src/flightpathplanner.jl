@@ -432,7 +432,7 @@ end
 function start(fpp::FlightPathPlanner)
     if fpp._sys_state == SystemState.ssManualOperation || fpp._sys_state == SystemState.ssParking
         # see: Table 5.3
-        _switch(fpp, FPPS.POWER)
+        _switch(fpp, POWER)
     end
 end
 
@@ -500,83 +500,84 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
             _switch(fpp, FLY_LEFT, delta_beta)
 
         end
+    elseif state == UPPER_TURN && psi > pi && psi < rad2deg(HEADING_UPPER_TURN)
+        fpp._switch(LOW_RIGHT)
+#         elseif state == LOW_RIGHT && phi < -phi_1 + fpp._azimuth_offset_phi1
+#             fpp.fig8 += 1
+#             print "LOW_TURN; phi, psi:", form(phi), form(degrees(psi))
+#             fpp._switch(LOW_TURN)
     end
 end
 
 
-#         elif state == FPPS.UPPER_TURN and psi > pi and psi < radians(HEADING_UPPER_TURN):
-#             fpp._switch(FPPS.LOW_RIGHT)
-#         elif state == FPPS.LOW_RIGHT and phi < -phi_1 + fpp._azimuth_offset_phi1:
-#             fpp.fig8 += 1
-#             print "LOW_TURN; phi, psi:", form(phi), form(degrees(psi))
-#             fpp._switch(FPPS.LOW_TURN)
-#         elif state == FPPS.LOW_TURN  and psi < radians(180.0 + HEADING_OFFSET_INT): # and phi > -phi_1 - DELTA_PHI_1:
-#             if PRINT:
+
+#         elseif state == LOW_TURN  && psi < rad2deg(180.0 + HEADING_OFFSET_INT): # && phi > -phi_1 - DELTA_PHI_1:
+#             if PRINT
 #                 print "===>>> time, phi, _phi_sw + dphi, psi", form(time), form(phi), form(-phi_1 - DELTA_PHI_1), \
 #                                                             form(degrees(psi))
 #             print "LOW_TURN_ENDS; phi, beta:", form(phi), form(degrees(psi))            
-#             fpp._switch(FPPS.LOW_LEFT)
-#         elif state == FPPS.LOW_LEFT  and phi > -phi_2 + AZIMUTH_OFFSET_PHI_2 \
-#                                      and beta < (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset + \
-#                                          fpp._elevation_offset_t2):
-#             fpp._switch(FPPS.TURN_LEFT)
+#             fpp._switch(LOW_LEFT)
+#         elseif state == LOW_LEFT  && phi > -phi_2 + AZIMUTH_OFFSET_PHI_2 \
+#                                      && beta < (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset + \
+#                                          fpp._elevation_offset_t2)
+#             fpp._switch(TURN_LEFT)
 #         # see: Table 5.5
-#         elif state == FPPS.FLY_LEFT  and phi > fpp._phi_sw \
-#                                      and beta > (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset - DELTA_BETA) \
-#                                      and beta < (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset + 2.3):
+#         elseif state == FLY_LEFT  && phi > fpp._phi_sw \
+#                                      && beta > (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset - DELTA_BETA) \
+#                                      && beta < (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset + 2.3)
 #             fpp.fig8 += 1            
-#             fpp._switch(FPPS.TURN_LEFT)
-#         elif state == FPPS.TURN_LEFT and psi > radians(180.0 - fpp._heading_offset):# and phi < fpp._phi_sw + dphi:
-#             if PRINT:
+#             fpp._switch(TURN_LEFT)
+#         elseif state == TURN_LEFT && psi > rad2deg(180.0 - fpp._heading_offset)# && phi < fpp._phi_sw + dphi
+#             if PRINT
 #                 print "===>>> time, phi, _phi_sw + dphi, psi, fig8", form(time), form(phi), \
 #                                               form(fpp._phi_sw + dphi), form(degrees(psi)), form(fpp.fig8)
-#             fpp._switch(FPPS.FLY_RIGHT)
-#         elif state == FPPS.FLY_RIGHT and phi >= phi_3:
-#             if not fpp.finish:
+#             fpp._switch(FLY_RIGHT)
+#         elseif state == FLY_RIGHT && phi >= phi_3
+#             if not fpp.finish
 #                 fpp.finish = (length > fpp.l_up or height > fpp.z_up)
-#                 if fpp.finish and PRINT:
+#                 if fpp.finish && PRINT
 #                     print '=========> Set finish to true! '
-#         elif state == FPPS.FLY_RIGHT and fpp.finish and phi < phi_3:
-#             fpp._switch(FPPS.UP_TURN_LEFT)
-#         elif state == FPPS.FLY_RIGHT and phi < -fpp._phi_sw \
-#                                      and beta > (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset - DELTA_BETA):
-#             fpp._switch(FPPS.TURN_RIGHT)
-#         elif state == FPPS.TURN_RIGHT and psi < radians(180.0 + fpp._heading_offset): # and phi > -fpp._phi_sw - dphi:
-#             fpp._switch(FPPS.FLY_LEFT)
-#         # check, if the condition for finishing is fullfilled while still beeing on the left hand side
+#         elseif state == FLY_RIGHT && fpp.finish && phi < phi_3
+#             fpp._switch(UP_TURN_LEFT)
+#         elseif state == FLY_RIGHT && phi < -fpp._phi_sw \
+#                                      && beta > (fpp._beta_set + fpp._radius + 0.5 * fpp.elevation_offset - DELTA_BETA)
+#             fpp._switch(TURN_RIGHT)
+#         elseif state == TURN_RIGHT && psi < rad2deg(180.0 + fpp._heading_offset) # && phi > -fpp._phi_sw - dphi
+#             fpp._switch(FLY_LEFT)
+#         # check, if the condition for finishing is fullfilled while still beeing on the left h&& side
 #         #    of the wind window
-#         elif state == FPPS.FLY_LEFT and phi <= -phi_3:
-#             if not fpp.finish:
+#         elseif state == FLY_LEFT && phi <= -phi_3
+#             if not fpp.finish
 #                 fpp.finish = (length > fpp.l_up or height > fpp.z_up)
-#                 if fpp.finish and PRINT:
+#                 if fpp.finish && PRINT
 #                     print '=========> Set finish to true! '
-#         elif state == FPPS.FLY_LEFT and fpp.finish and phi > -phi_3:
-#             fpp._switch(FPPS.UP_TURN)
-#         elif state == FPPS.UP_TURN and (psi > radians(360.0 - HEADING_OFFSET_UP) or psi < radians(HEADING_OFFSET_UP)):
-#             fpp._switch(FPPS.UP_FLY_UP)
-#         elif state == FPPS.UP_TURN_LEFT and (psi > radians(360.0 - HEADING_OFFSET_UP) or psi < radians(HEADING_OFFSET_UP)):
-#             fpp._switch(FPPS.UP_FLY_UP)
-#         elif state == FPPS.UP_FLY_UP and ((fpp._beta > fpp._beta_ri) or (height > fpp.z_up) or length > (fpp.l_up + 57.0)):
-#             fpp._switch(FPPS.DEPOWER)
+#         elseif state == FLY_LEFT && fpp.finish && phi > -phi_3
+#             fpp._switch(UP_TURN)
+#         elseif state == UP_TURN && (psi > rad2deg(360.0 - HEADING_OFFSET_UP) or psi < rad2deg(HEADING_OFFSET_UP))
+#             fpp._switch(UP_FLY_UP)
+#         elseif state == UP_TURN_LEFT && (psi > rad2deg(360.0 - HEADING_OFFSET_UP) or psi < rad2deg(HEADING_OFFSET_UP))
+#             fpp._switch(UP_FLY_UP)
+#         elseif state == UP_FLY_UP && ((fpp._beta > fpp._beta_ri) or (height > fpp.z_up) or length > (fpp.l_up + 57.0))
+#             fpp._switch(DEPOWER)
 #         # see: Table 5.3
-#         elif state == FPPS.DEPOWER and length < fpp.l_low:
+#         elseif state == DEPOWER && length < fpp.l_low
 #             fpp.fig8 = 0
-#             fpp._switch(FPPS.POWER)
+#             fpp._switch(POWER)
 #         # print some debug info every second
 #         fpp.count += 1
-#         if fpp.count >= 50:
+#         if fpp.count >= 50
 #             u_s = fpp.fpc.getSteering()
 #             chi_set = fpp.fpc.chi_set
 #             chi_factor = fpp.fpc.getChiFactor()
-#             if PRINT_EVERY_SECOND:
+#             if PRINT_EVERY_SECOND
 #                 print "omega, phi, beta, state, chi_factor", form(fpp._omega), form(fpp._phi), form(fpp._beta),\
 #                                                          fpp._state, form(chi_factor)
 #                 print "--> heading, course, bearing, steering", form(degrees(fpp.fpc.psi)), \
 #                              form(degrees(fpp.fpc.chi)), form(degrees(chi_set)), form(100 * u_s)
 #                 turning, value = fpp.fpc.getState()
-#                 if turning:
+#                 if turning
 #                     print "--> turning. psi_dot_set: ", form(degrees(value))
-#                 else:
+#                 else
 #                     print "--> no turn. attractor:   ", form(degrees(value[begin])), form(degrees(value[begin+1]))
 #                 print "beta_set, intermediate", form(fpp._beta_set), fpp.fpc.intermediate
 #             fpp.count = 0
@@ -590,7 +591,7 @@ end
 #             psi_dot = degrees(psi_dot)
 #         fpc_attactor = attractor * np.array((-1.0, 1.0))
 #         self.pub2.publishFPC_Command(turn, fpc_attactor, psi_dot)
-#         self.fpc.onNewControlCommand(attractor=np.radians(fpc_attactor), psi_dot_set=psi_dot, radius=radius, intermediate = intermediate)
+#         self.fpc.onNewControlCommand(attractor=np.rad2deg(fpc_attactor), psi_dot_set=psi_dot, radius=radius, intermediate = intermediate)
 #         if PRINT
 #             print "New FPC command. Intermediate ", intermediate
 #             if psi_dot is None
@@ -654,36 +655,36 @@ end
 #             return
 #         psi_dot_turn = self._omega / self._radius # desired turn rate during the turns
 #         # see Table 5.3
-#         if state == FPPS.POWER
+#         if state == POWER
 #             depower = self.u_d_ro + self.delta_depower
 #             self.pub2.sendEvent(system.KITE_CTRL_CMD, depower = depower * 100.0) # Table 5.3
 #             sys_state = SystemState.ssPower
-#         if state == FPPS.UPPER_TURN
+#         if state == UPPER_TURN
 #             self._publishFPC_Command(true, psi_dot = PSI_DOT_MAX, attractor = self._p1, \
 #             intermediate = true)
 #             sys_state = SystemState.ssIntermediate
 #         # see Table 5.4
-#         elif state == FPPS.LOW_RIGHT
+#         elseif state == LOW_RIGHT
 #             self._publishFPC_Command(false, attractor = self._p1, intermediate = true)
 #             sys_state = SystemState.ssIntermediate
-#         elif state == FPPS.LOW_TURN
+#         elseif state == LOW_TURN
 #             p2 = addy(self._p2, self._elevation_offset_p2)
 #             self._publishFPC_Command(true, psi_dot = psi_dot_turn, radius=self._radius, attractor = p2, intermediate = true)
 #             sys_state = SystemState.ssIntermediate
-#         elif state == FPPS.LOW_LEFT
+#         elseif state == LOW_LEFT
 #             p2 = addy(self._p2, self._elevation_offset_p2)
 #             self._publishFPC_Command(false, attractor = p2, intermediate = true)
 #             sys_state = SystemState.ssIntermediate
 #         # see Table 5.5
-#         elif state == FPPS.TURN_LEFT
+#         elseif state == TURN_LEFT
 #             radius = -self._radius
-#             if CORRECT_RADIUS and self.fig8 == 0
+#             if CORRECT_RADIUS && self.fig8 == 0
 #                 radius *= 0.8
 #             if PRINT
 #                 print "======>>> self.fig8, radius", self.fig8, form(radius)
 #             self._publishFPC_Command(true, psi_dot = -psi_dot_turn, radius=radius,  attractor = self._p3)
 #             sys_state = SystemState.ssKiteReelOut
-#         elif state == FPPS.FLY_RIGHT
+#         elseif state == FLY_RIGHT
 #             if self.fig8 == 0
 #                 if self.high
 #                     self._publishFPC_Command(false, attractor = self._p3_zero_high)
@@ -691,14 +692,14 @@ end
 #                 else
 #                     self._publishFPC_Command(false, attractor = self._p3_zero)
 #                     # print "BBB"
-#             elif self.fig8 == 1 and self.high
+#             elseif self.fig8 == 1 && self.high
 #                 self._publishFPC_Command(false, attractor = self._p3_one_high)
 #                 # print "CCC"
 #             else
 #                 self._publishFPC_Command(false, attractor = self._p3)
 #                 # print "DDD"
 #             sys_state = SystemState.ssKiteReelOut
-#         elif state == FPPS.TURN_RIGHT
+#         elseif state == TURN_RIGHT
 #             radius = self._radius
 #             if CORRECT_RADIUS
 #                 radius += (self._beta - (self._t2[begin+1])) * 0.5
@@ -706,8 +707,8 @@ end
 #                     radius = 1.5
 #             self._publishFPC_Command(true, psi_dot = psi_dot_turn, radius=radius, attractor = self._p4)
 #             sys_state = SystemState.ssKiteReelOut
-#         elif state == FPPS.FLY_LEFT
-#             if self.fig8 == 0 and not self.high
+#         elseif state == FLY_LEFT
+#             if self.fig8 == 0 && not self.high
                 
 #                 self._publishFPC_Command(false, attractor = self._p4_zero)
 #             if self.fig8 == 1
@@ -728,20 +729,20 @@ end
 #                 self._publishFPC_Command(false, attractor = addxy(self._p4, x, y))
 #             sys_state = SystemState.ssKiteReelOut
 #         # see Table 5.6
-#         elif state == FPPS.UP_TURN
+#         elseif state == UP_TURN
 #             self._publishFPC_Command(true, psi_dot = psi_dot_turn, radius=self._radius, attractor = self._zenith)
 #             sys_state = SystemState.ssWaitUntil
-#         elif state == FPPS.UP_TURN_LEFT
+#         elseif state == UP_TURN_LEFT
 #             self._publishFPC_Command(true, psi_dot = -psi_dot_turn, radius=-self._radius, attractor = self._zenith)
 #             sys_state = SystemState.ssWaitUntil
-#         elif state == FPPS.UP_FLY_UP
+#         elseif state == UP_FLY_UP
 #             self._publishFPC_Command(false, attractor = self._zenith)
 #             sys_state = SystemState.ssWaitUntil
-#         elif state == FPPS.DEPOWER
+#         elseif state == DEPOWER
 #             self._publishFPC_Command(false, attractor = self._zenith)
 #             self.pub2.sendEvent(system.KITE_CTRL_CMD, depower = self.u_d_ri * 100.0) # Table 5.3
 #             sys_state = SystemState.ssDepower
-#         elif state == FPPS.PARKING
+#         elseif state == PARKING
 #             self._publishFPC_Command(false, attractor = self._zenith)
 #             self.pub2.sendEvent(system.KITE_CTRL_CMD, depower = self.u_d_pa * 100.0) # Table 5.3
 #             sys_state = SystemState.ssParking
