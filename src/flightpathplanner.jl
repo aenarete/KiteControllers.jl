@@ -776,14 +776,19 @@ end
 @with_kw mutable struct SystemStateControl @deftype Float64
     wc::WinchController
     fpc::FlightPathController
+    fpp::FlightPathPlanner
     sys_state::Union{Nothing, SysState}    = nothing
     state::Observable(SystemState)[]       = ssParking
     tether_length::Union{Nothing, Float64} = nothing
 end
 
-function SystemStateControl(wcs::WCSettings, fcs::FPCSettings)
+function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings)
     # fcs.gain = 0.01
-    res = SystemStateControl(wc=WinchController(wcs), fpc=FlightPathController(fcs))
+    fpc = FlightPathController(fcs)
+    fpca = FlightPathCalculator(fpc)
+    fpp = FlightPathPlanner(fpps, fpca)
+
+    res = SystemStateControl(wc=WinchController(wcs), fpc=fpc, fpp=fpp)
     attractor = zeros(2)
     # attractor[begin+1] = deg2rad(25.0) # phi_set
     attractor[2] = deg2rad(80.0) # beta_set

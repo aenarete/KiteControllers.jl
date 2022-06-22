@@ -20,7 +20,8 @@ if ! @isdefined js;
 end
 const wcs = WCSettings(); wcs.dt = 1/se().sample_freq
 const fcs = FPCSettings(); fcs.dt = wcs.dt
-const ssc = SystemStateControl(wcs, fcs)
+const fpps = FPPSettings()
+const ssc = SystemStateControl(wcs, fcs, fpps)
 dt = wcs.dt
 
 # the following values can be changed to match your interest

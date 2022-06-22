@@ -401,7 +401,8 @@ end
 @testset "SystemStateControl" begin
     wcs = WCSettings()
     fcs = FPCSettings()
-    ssc = SystemStateControl(wcs, fcs)
+    fpps = FPPSettings()
+    ssc = SystemStateControl(wcs, fcs, fpps)
     on_parking(ssc)
     @test ssc.state == ssParking
     on_autopilot(ssc)
