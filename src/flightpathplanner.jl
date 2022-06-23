@@ -169,11 +169,11 @@ end
 
 # Event handler for events, received from the GUI. The flight path planner
 # must be in sync with the central system state.
-function on_new_system_state(fpca::FlightPathCalculator, new_state, internal = false)
-    if fpca._sys_state.value == new_state
+function on_new_system_state(fpca::FlightPathCalculator, new_state::SystemState, internal = false)
+    if fpca._sys_state == new_state
         return
     end
-    fpca._sys_state = SystemState(new_state)
+    fpca._sys_state = new_state
     if new_state == Int(ssPower)
         fpca._beta_int = fpca._beta
         # calculate and publish the flight path for the next cycle
@@ -875,6 +875,10 @@ function switch(ssc::SystemStateControl, state)
     # publish new system state
     if state == ssPowerProduction
         start(ssc.fpp)
+    end
+    if state == ssParking
+        on_new_system_state(ssc.fpp.fpca, state, true)
+        _switch(ssc.fpp, PARKING)
     end
     println("New system state: ", Symbol(ssc.state))
 end
