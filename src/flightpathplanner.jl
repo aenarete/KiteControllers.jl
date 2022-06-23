@@ -5,7 +5,7 @@
 const depower = [0.0] # set value of the depower value, 0 .. 1
 
 PRINT_EVERY_SECOND = true
-PRINT = false
+PRINT = true
 
 BETA_SET                 = 24.0 # for test 502
 FIXED_ELEVATION          = false
@@ -474,7 +474,7 @@ end
 # fpp.fpca._phi:   azimuth in degrees
 # fpp.fpca._beta:  elevation in degrees
 # fpp.fpca._omega: angular speed in degrees per second
-function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, time)
+function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, time=0.0)
     phi, psi  = fpp.fpca._phi, heading
     beta = fpp.fpca._beta
     phi_1 = fpp.fpca._t1[begin]
@@ -852,12 +852,18 @@ function calc_steering(ssc::SystemStateControl)
     v_a = ssc.sys_state.v_app
     chi = ssc.sys_state.course
     u_d = ssc.sys_state.depower
+    length = ssc.sys_state.l_tether
+    height = ssc.sys_state.Z[end]
     omega = 0.0
     # println("phi: $phi, beta: $beta, psi: $psi, chi: $chi, u_d: $u_d")
-    on_est_sysstate(ssc.fpc, phi, beta, psi, chi, omega, v_a; u_d=u_d)
-    u_s = -calc_steering(ssc.fpc, false)
+    # on_est_sysstate(ssc.fpc, phi, beta, psi, chi, omega, v_a; u_d=u_d)
+    on_new_systate(ssc.fpp, phi, beta, psi, chi, v_a, u_d)
+    if ssc.state == ssPowerProduction
+        on_new_data(ssc.fpp, u_d, length, psi, height)
+    end
+    u_s = calc_steering(ssc.fpc, ssc.state == ssParking)
     on_timer(ssc.fpc)
-    println(u_s)
+    # println(u_s)
     u_s
 end
 
@@ -867,5 +873,8 @@ function switch(ssc::SystemStateControl, state)
     end
     ssc.state = state
     # publish new system state
+    if state == ssPowerProduction
+        start(ssc.fpp)
+    end
     println("New system state: ", Symbol(ssc.state))
 end
