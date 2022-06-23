@@ -586,16 +586,16 @@ function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, p
     fpc_attractor = attractor .* [-1.0, 1.0]
     on_control_command(fpp.fpca.fpc, attractor=rad2deg.(fpc_attractor), psi_dot_set=psi_dot, radius=radius, intermediate=intermediate)
     if PRINT
-#             print "New FPC command. Intermediate: ", intermediate
-#             if isnothing(psi_dot)
-#                 print "New attractor point", form(fpc_attactor[begin]), form(fpc_attactor[begin+1])
-#             else
-#                 if isnothing(radius)
-#                     print "New psi_dot_set [°/s] ", form(psi_dot)
-#                 else
-#                     print "New psi_dot_set [°/s], radius [°] ", form(psi_dot), form(radius)
-#                 end
-#             end
+        println("New FPC command. Intermediate: ", intermediate)
+            if isnothing(psi_dot)
+                @printf "New attractor point:  [%.2f,  %.2f]\n" fpc_attractor[begin] fpc_attractor[begin+1]
+            else
+                if isnothing(radius)
+                    @printf "New psi_dot_set: %.3f [°/s]\n" psi_dot
+                else
+                    @printf "New psi_dot_set: %.3f [°/s], radius: %.3f [°]\n" psi_dot radius
+                end
+            end
     end
 end
 
