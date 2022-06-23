@@ -287,6 +287,7 @@ end
 # Calculate azimuth and elevation of the second attractor point P2.
 function calc_p2(fpca::FlightPathCalculator, beta_set)
     # Calculate azimuth and elevation of the point T2, where the figure-of-eight starts.
+    println("===> calc_p2(fpca)")
     phi_sw, r         = fpca._phi_sw, fpca._radius
     fpca._t2[begin]   = -(fpca._phi_c3 - phi_sw) - fpca._phi_c3
     fpca._t2[begin+1] = sqrt(r * r - (phi_sw - fpca._phi_c3)^2) + beta_set
@@ -663,10 +664,12 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
         sys_state = ssIntermediate
     elseif state == LOW_TURN
         p2 = addy(fpp.fpca._p2, fpp.fpca._elevation_offset_p2)
+        println("LOW_TURN, p2: ", p2, "fpp.fpca._p2: ", fpp.fpca._p2)
         _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=fpp.fpca._radius, attractor = p2, intermediate = true)
         sys_state = ssIntermediate
     elseif state == LOW_LEFT
         p2 = addy(fpp.fpca._p2, fpp.fpca._elevation_offset_p2)
+        println("LOW_LEFT, p2: ", p2, "fpp.fpca._p2: ", fpp.fpca._p2)
         _publish_fpc_command(fpp, false, attractor = p2, intermediate = true)
         sys_state = ssIntermediate
     # see Table 5.5
@@ -797,6 +800,7 @@ function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings
     # attractor[begin+1] = deg2rad(25.0) # phi_set
     attractor[2] = deg2rad(80.0) # beta_set
     on_control_command(res.fpc, attractor=attractor)
+    publish(fpca) # initialise the flight path calculator
     res
 end
 
