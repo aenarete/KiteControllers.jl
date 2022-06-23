@@ -761,7 +761,7 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
 
     if sys_state != fpp.fpca._sys_state
         if PRINT
-            println("############## -->>>>>>>", sys_state, fpp.fpca._sys_state)
+            println("############## -->>", sys_state, ", ", fpp.fpca._sys_state)
         end
         fpp.fpca._sys_state = sys_state
 #             self.onNewSystemState(sys_state.value, true)
@@ -878,7 +878,7 @@ function switch(ssc::SystemStateControl, state)
     ssc.state = state
     # publish new system state
     if state == ssPowerProduction
-        start(ssc.fpp)
+        # start(ssc.fpp)
     end
     if state == ssParking
         on_new_system_state(ssc.fpp.fpca, state, true)
