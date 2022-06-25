@@ -25,6 +25,10 @@ TIME_LAPSE_RATIO = 1
 SHOW_KITE = true
 # end of user parameter section #
 
+phi_set = -25
+# on_control_command(ssc.fpp.fpca.fpc, attractor=[deg2rad(phi_set), deg2rad(80.0)])
+# on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
+
 if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE); end
 
 steps = 0
