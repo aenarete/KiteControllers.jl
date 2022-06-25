@@ -479,6 +479,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     phi, psi  = fpp.fpca._phi, heading
     beta = fpp.fpca._beta
     phi_1 = fpp.fpca._t1[begin]
+    # println("phi_1, phi: ", phi_1, ", ", phi)
     phi_2 = fpp.fpca._phi_2
     phi_3 = fpp.fpca._phi_3
     state = fpp._state
@@ -584,7 +585,7 @@ function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, p
     if ! isnothing(psi_dot)
         psi_dot = rad2deg(psi_dot)
     end
-    fpc_attractor = attractor .* [-1.0, 1.0]
+    fpc_attractor = attractor #.* [-1.0, 1.0]
     on_control_command(fpp.fpca.fpc, attractor=rad2deg.(fpc_attractor), psi_dot_set=psi_dot, radius=radius, intermediate=intermediate)
     if PRINT
         println("New FPC command. Intermediate: ", intermediate)
@@ -660,16 +661,17 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
         sys_state = ssIntermediate
         # see Table 5.4
     elseif state == LOW_RIGHT
+        println("LOW_RIGHT, p1: ", fpp.fpca._p1)
         _publish_fpc_command(fpp, false, attractor = fpp.fpca._p1, intermediate = true)
         sys_state = ssIntermediate
     elseif state == LOW_TURN
         p2 = addy(fpp.fpca._p2, fpp.fpca._elevation_offset_p2)
-        println("LOW_TURN, p2: ", p2, "fpp.fpca._p2: ", fpp.fpca._p2)
+        println("LOW_TURN, p2: ", p2, ", fpp.fpca._p2: ", fpp.fpca._p2)
         _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=fpp.fpca._radius, attractor = p2, intermediate = true)
         sys_state = ssIntermediate
     elseif state == LOW_LEFT
         p2 = addy(fpp.fpca._p2, fpp.fpca._elevation_offset_p2)
-        println("LOW_LEFT, p2: ", p2, "fpp.fpca._p2: ", fpp.fpca._p2)
+        println("LOW_LEFT, p2: ", p2, ", fpp.fpca._p2: ", fpp.fpca._p2)
         _publish_fpc_command(fpp, false, attractor = p2, intermediate = true)
         sys_state = ssIntermediate
     # see Table 5.5
@@ -861,6 +863,7 @@ function calc_steering(ssc::SystemStateControl)
     omega = 0.0
     # println("phi: $phi, beta: $beta, psi: $psi, chi: $chi, u_d: $u_d")
     # on_est_sysstate(ssc.fpc, phi, beta, psi, chi, omega, v_a; u_d=u_d)
+    set_azimuth_elevation(ssc.fpp.fpca, phi, beta)
     on_new_systate(ssc.fpp, phi, beta, psi, chi, v_a, u_d)
     if ssc.state == ssPowerProduction
         on_new_data(ssc.fpp, u_d, length, psi, height)
@@ -878,7 +881,7 @@ function switch(ssc::SystemStateControl, state)
     ssc.state = state
     # publish new system state
     if state == ssPowerProduction
-        # start(ssc.fpp)
+        start(ssc.fpp)
     end
     if state == ssParking
         on_new_system_state(ssc.fpp.fpca, state, true)
