@@ -784,7 +784,7 @@ end
 #     ssParking, ssPowerProduction, ssReelIn
 @with_kw mutable struct SystemStateControl @deftype Float64
     wc::WinchController
-    fpc::FlightPathController
+    # fpc::FlightPathController
     fpp::FlightPathPlanner
     sys_state::Union{Nothing, SysState}    = nothing
     state::Observable(SystemState)[]       = ssParking
@@ -797,11 +797,11 @@ function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings
     fpca = FlightPathCalculator(fpc)
     fpp = FlightPathPlanner(fpps, fpca)
 
-    res = SystemStateControl(wc=WinchController(wcs), fpc=fpc, fpp=fpp)
+    res = SystemStateControl(wc=WinchController(wcs), fpp=fpp)
     attractor = zeros(2)
     # attractor[begin+1] = deg2rad(25.0) # phi_set
     attractor[2] = deg2rad(80.0) # beta_set
-    on_control_command(res.fpc, attractor=attractor)
+    on_control_command(fpca.fpc, attractor=attractor)
     publish(fpca) # initialise the flight path calculator
     res
 end
@@ -868,8 +868,8 @@ function calc_steering(ssc::SystemStateControl)
     if ssc.state == ssPowerProduction
         on_new_data(ssc.fpp, u_d, length, psi, height)
     end
-    u_s = calc_steering(ssc.fpc, ssc.state == ssParking)
-    on_timer(ssc.fpc)
+    u_s = calc_steering(ssc.fpp.fpca.fpc, ssc.state == ssParking)
+    on_timer(ssc.fpp.fpca.fpc)
     # println(u_s)
     u_s
 end
