@@ -159,7 +159,7 @@ end
     _elevation_offset_t2 = ELEVATION_OFFSET_T2
     fig8 = 0 # number of the current figure of eight
     _sys_state::SystemState = ssManualOperation
-    high = false
+    high::Bool = false
     elevation_offset = ELEVATION_OFFSET
 end
 
@@ -515,9 +515,9 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     elseif state == LOW_TURN && psi < rad2deg(180.0 + HEADING_OFFSET_INT) # && phi > -phi_1 - DELTA_PHI_1:
         # print "LOW_TURN_ENDS; phi, beta:", form(phi), form(degrees(psi))            
         _switch(fpp, LOW_LEFT)
-    elseif state == LOW_LEFT  && phi > -phi_2 + AZIMUTH_OFFSET_PHI_2 &&
-                                 beta < (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset +
-                                         fpp.fpca._elevation_offset_t2)
+    elseif state == LOW_LEFT  && phi > -phi_2 + AZIMUTH_OFFSET_PHI_2 # &&
+                                 # beta < (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset +
+                                 #         fpp.fpca._elevation_offset_t2)
         _switch(fpp, TURN_LEFT)
     # see: Table 5.5
     elseif state == FLY_LEFT  && phi > fpp.fpca._phi_sw &&
@@ -585,12 +585,15 @@ function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, p
     if ! isnothing(psi_dot)
         psi_dot = rad2deg(psi_dot)
     end
-    fpc_attractor = attractor #.* [-1.0, 1.0]
-    on_control_command(fpp.fpca.fpc, attractor=rad2deg.(fpc_attractor), psi_dot_set=psi_dot, radius=radius, intermediate=intermediate)
+    if ! isnothing(attractor)
+        attractor=rad2deg.(attractor)
+        # attractor = attractor #.* [-1.0, 1.0]
+    end
+    on_control_command(fpp.fpca.fpc, attractor=attractor, psi_dot_set=psi_dot, radius=radius, intermediate=intermediate)
     if PRINT
         println("New FPC command. Intermediate: ", intermediate)
             if isnothing(psi_dot)
-                @printf "New attractor point:  [%.2f,  %.2f]\n" fpc_attractor[begin] fpc_attractor[begin+1]
+                @printf "New attractor point:  [%.2f,  %.2f]\n" attractor[begin] attractor[begin+1]
             else
                 if isnothing(radius)
                     @printf "New psi_dot_set: %.3f [°/s]\n" psi_dot
@@ -683,7 +686,7 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
         if PRINT
 #                 println("======>>> self.fig8, radius", self.fig8, form(radius))
         end
-        _publish_fpc_command(fpp, true, psi_dot = -psi_dot_turn, radius=radius,  attractor = fpp.fpca._p3)
+        _publish_fpc_command(fpp, true, psi_dot = -psi_dot_turn, radius=radius) #,  attractor = fpp.fpca._p3)
         sys_state = ssKiteReelOut
     elseif state == FLY_RIGHT
         if fpp.fpca.fig8 == 0
