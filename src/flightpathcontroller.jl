@@ -130,7 +130,7 @@ function on_control_command(fpc::FlightPathController; attractor=nothing, psi_do
         fpc.reset_int1 = true
     end
     if ! isnothing(attractor)
-        fpc.attractor .= attractor
+        fpc.attractor .= attractor .* [-1.0, 1.0]
     end
     if ! isnothing(psi_dot_set)
         fpc.psi_dot_set_final = deg2rad(psi_dot_set)

@@ -10,7 +10,7 @@ PRINT = true
 BETA_SET                 = 24.0 # for test 502
 FIXED_ELEVATION          = false
 CORRECT_RADIUS           = false
-W_FIG                    = 28.0 # valid values: 36, 28
+W_FIG                    = 36.0 # valid values: 36, 28
 
 TRANS_FACTOR             = 2.3 # 1.5
 DIRECT                   = false # skip intermediate target point
@@ -523,7 +523,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     elseif state == FLY_LEFT  && phi > fpp.fpca._phi_sw &&
            beta > (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset - DELTA_BETA) &&
            beta < (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset + 2.3)
-        fpp.fig8 += 1            
+        fpp.fpca.fig8 += 1            
         _switch(fpp, TURN_LEFT)
     elseif state == TURN_LEFT && psi > deg2rad(180.0 - fpp.fpca._heading_offset)# && phi < fpp._phi_sw + dphi
         _switch(fpp, FLY_RIGHT)
@@ -533,8 +533,8 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         end
     elseif state == FLY_RIGHT && fpp.finish && phi < phi_3
         _switch(fpp, UP_TURN_LEFT)
-    elseif state == FLY_RIGHT && phi < -fpp.fpca._phi_sw && 
-           beta > (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset - DELTA_BETA)
+    elseif state == FLY_RIGHT && phi < -fpp.fpca._phi_sw # && 
+           # beta > (fpp.fpca._beta_set + fpp.fpca._radius + 0.5 * fpp.fpca.elevation_offset - DELTA_BETA)
         _switch(fpp, TURN_RIGHT)
     elseif state == TURN_RIGHT && psi < deg2rad(180.0 + fpp.fpca._heading_offset) # && phi > -fpp._phi_sw - dphi
         _switch(fpp, FLY_LEFT)
@@ -586,14 +586,13 @@ function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, p
         psi_dot = rad2deg(psi_dot)
     end
     if ! isnothing(attractor)
-        attractor=rad2deg.(attractor)
-        # attractor = attractor #.* [-1.0, 1.0]
+        attractor=deg2rad.(attractor)
     end
     on_control_command(fpp.fpca.fpc, attractor=attractor, psi_dot_set=psi_dot, radius=radius, intermediate=intermediate)
     if PRINT
         println("New FPC command. Intermediate: ", intermediate)
             if isnothing(psi_dot)
-                @printf "New attractor point:  [%.2f,  %.2f]\n" attractor[begin] attractor[begin+1]
+                @printf "New attractor point:  [%.2f,  %.2f]\n" rad2deg(attractor[begin]) rad2deg(attractor[begin+1])
             else
                 if isnothing(radius)
                     @printf "New psi_dot_set: %.3f [°/s]\n" psi_dot
@@ -680,7 +679,7 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
     # see Table 5.5
     elseif state == TURN_LEFT
         radius = -fpp.fpca._radius
-        if CORRECT_RADIUS && self.fig8 == 0
+        if CORRECT_RADIUS && fpp.fpca.fig8 == 0
             radius *= 0.8
         end
         if PRINT
@@ -692,17 +691,17 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
         if fpp.fpca.fig8 == 0
             if fpp.fpca.high
                 _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_zero_high)
-                # print "AAA"
+                # println("AAA")
             else
                 _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_zero)
-                # print "BBB"
+                # println("BBB")
             end
         elseif fpp.fpca.fig8 == 1 && fpp.fpca.high
             _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_one_high)
-            # print "CCC"
+            # println("CCC")
         else
             _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3)
-            # print "DDD"             
+            # println("DDD")             
         end
         sys_state = ssKiteReelOut
     elseif state == TURN_RIGHT
@@ -766,10 +765,10 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
 
     if sys_state != fpp.fpca._sys_state
         if PRINT
-            println("############## -->>", sys_state, ", ", fpp.fpca._sys_state)
+            println("############## -->> ", sys_state)
         end
         fpp.fpca._sys_state = sys_state
-#             self.onNewSystemState(sys_state.value, true)
+        on_new_system_state(fpp.fpca, sys_state, true)
         sleep(0.001)
     end
     if PRINT
@@ -834,7 +833,7 @@ function calc_v_set(ssc::SystemStateControl)
     if isnothing(ssc.sys_state)
         return nothing
     end
-    if ssc.state == ssReelIn
+    if ssc.state == ssReelIn || ssc.fpp.fpca._sys_state == ssDepower
         f_low = ssc.wc.wcs.f_reelin
     else
         f_low = ssc.wc.wcs.f_low

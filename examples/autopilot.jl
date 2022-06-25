@@ -25,8 +25,8 @@ TIME_LAPSE_RATIO = 1
 SHOW_KITE = true
 # end of user parameter section #
 
-phi_set = -25
-# on_control_command(ssc.fpp.fpca.fpc, attractor=[deg2rad(phi_set), deg2rad(80.0)])
+phi_set = 21.48
+# on_control_command(ssc.fpp.fpca.fpc, attractor=[deg2rad(phi_set), deg2rad(51.88)])
 # on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
 
 if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE); end
@@ -45,9 +45,10 @@ function simulate(integrator)
     on_new_systate(ssc, sys_state)
     while true
         if i > 100
-            depower = 0.25
+            dp = KiteControllers.get_depower(ssc)
+            if dp < 0.22 dp = 0.22 end
             steering = calc_steering(ssc)
-            set_depower_steering(kps4.kcu, depower, steering)
+            set_depower_steering(kps4.kcu, dp, steering)
         end 
         # execute winch controller
         v_ro = calc_v_set(ssc)
@@ -59,7 +60,7 @@ function simulate(integrator)
         sys_state = SysState(kps4)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0 
-            KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
+            KiteViewers.update_system(viewer, sys_state; scale = 0.04, kite_scale=6.0)
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
             if i > 10/dt 
