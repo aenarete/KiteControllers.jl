@@ -22,6 +22,7 @@ export get_f_set_upper                                                # methods 
 export calc_vro, set_vset_pc                                          # functions for winch control
 export calc_v_set, get_set_force, get_status                          # methods of WinchController
 export on_autopilot, on_parking, on_reelin, on_stop, on_new_systate   # methods of SystemStateControl
+export get_depower                                                    # methods of SystemStateControl
 export ssParking, ssPowerProduction, ssReelIn, ssManualOperation
 
 abstract type AbstractForceController end

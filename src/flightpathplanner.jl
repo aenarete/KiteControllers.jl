@@ -889,3 +889,7 @@ function switch(ssc::SystemStateControl, state)
     end
     println("New system state: ", Symbol(ssc.state))
 end
+
+function get_depower(ssc::SystemStateControl)
+    return depower[]
+end
