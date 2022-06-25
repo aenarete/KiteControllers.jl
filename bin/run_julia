@@ -5,7 +5,7 @@ if [[ $(basename $(pwd)) == "bin" ]]; then
 fi
 
 if [[ $HOSTNAME == "tuxedi" ]]; then
-    sudo performance.sh
+    echo sudo performance.sh
 fi
 
 julia_version=$(julia --version | awk '{print($3)}')

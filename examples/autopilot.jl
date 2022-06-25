@@ -13,7 +13,7 @@ const Model = KPS4
 if ! @isdefined kcu;    const kcu = KCU(se());   end
 if ! @isdefined kps4;   const kps4 = Model(kcu); end
 
-const wcs = WCSettings(); wcs.dt = 1/se().sample_freq
+wcs = WCSettings(); wcs.dt = 1/se().sample_freq
 const fcs = FPCSettings(); fcs.dt = wcs.dt
 const fpps = FPPSettings()
 const ssc = SystemStateControl(wcs, fcs, fpps)
