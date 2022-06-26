@@ -75,23 +75,6 @@ end
 #     POWER                      = 13 # ssPower
 #     PARKING                    = 14 # ssParking
 
-# message AttractorPoint {
-#    required double azimuth   = 1; // Angle in radians. Zero straight downwind. Positive direction clockwise seen
-#                                   // from above. Valid range: -pi .. pi.
-#                                   // Upwind is the direction the wind is coming from.
-#    required double elevation = 2; // Angle in radians above the horizon. Valid range: -pi/2 to pi/2.
-# }
-# message PlannedFlightPath {
-#     optional AttractorPoint p1         = 2;
-#     optional AttractorPoint p2         = 3;
-#     optional AttractorPoint p3         = 4;
-#     optional AttractorPoint p4         = 5;
-#     optional double phi_1              = 9;  // in degrees
-#     optional double phi_2              = 10; // in degrees
-#     optional double phi_3              = 11; // in degrees
-#     optional double phi_sw             = 12; // in degrees
-#     optional double beta_ri            = 13; // in degrees
-# }
 
 #     Component, that calculates the planned flight path as specified in the PhD thesis of
 #     Uwe Fechner in chapter five.
@@ -394,13 +377,6 @@ end
 #    required double elevation = 2; // Angle in radians above the horizon. Valid range: -pi/2 to pi/2.
 # }
 
-# message FPC_Command {
-#     required bool turn                 = 2;  // if true, than a turn rate must be given, otherwise an attractor 
-#                                                 point
-#     optional double psi_dot            = 3;  // desired turn rate in degrees per second
-#     optional AttractorPoint attractor  = 4;  // the kite should fly towards this point
-# }
-
 #     Component, that implements the state machine as described in the PhD thesis of Uwe Fechner, chapter
 #     five. It uses the pre-calculated flight path together
 #     with incoming kite state data to calculate the FPC_Command messages, if needed.
@@ -603,48 +579,6 @@ function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, p
     end
 end
 
-#     def _calcMidPoint(self, point1, point2)
-#         """
-#         Calculate the mid point of two points on a sphere.
-#         """
-#         dazi = point2[begin] - point1[begin]
-#         Bx = cos(point2[begin+1]) * cos(dazi)
-#         By = cos(point2[begin+1]) * sin(dazi)
-#         midpoint = np.zeros(2)
-#         midpoint[begin] = point1[begin] + atan2(By, cos(point1[begin+1]) + Bx)
-#         midpoint[begin+1] = atan2(sin(point1[begin+1]) + sin(point2[begin+1]), sqrt((cos(point1[begin+1]) + Bx)^2) + By^2)
-#         return midpoint
-
-
-#     """
-#     message WayPoint {
-#        required double azimuth   = 1; // Angle in radians. Zero straight downwind. Positive direction clockwise seen
-#                                       // from above. Valid range -pi .. pi.
-#                                       // Upwind is the direction the wind is coming from.
-#        required double elevation = 2; // Angle in radians above the horizon. Valid range -pi/2 to pi/2.
-#     }
-
-#     // track from the current kite position to nearest waypoint of the desired high level trajectory
-#     message Bearing {
-#         required int32 counter              = 1; // sequence number of the package; limited to 16 bit
-#         repeated WayPoint bearing           = 2; // list of waypoints, recalculated on every FAST_CLOCK event,
-#                                                  // when an autopilot is active
-#         required double time_sent           = 3; // time, when the bearing was sent from the controller
-#     }
-#     """
-#     def calcSteering(self, parking, period_time)
-#         """
-#         Calculate the steering and send a bearing vector to be drawn in frontview.
-#         Bearing vector Desired trajectory to the next attractor point.
-#         """
-#         result = self.fpc.calcSteering(parking, period_time)
-#         p1, p3 = np.zeros(2), np.zeros(2)
-#         p1[begin], p1[begin+1] = -self.fpc.phi, self.fpc.beta
-#         p3 = self.fpc.attractor * np.array((-1.0, 1.0))
-#         p2 = self._calcMidPoint(p1, p3)
-#         self.pub.publishBearing(p1, p2, p3)
-#         return result
-
 #  Switch the state of the FPP. Execute all actions, that are needed when the new state is entered.
 #  Return immidiately, if the new state is equal to the old state.
 function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
@@ -776,10 +710,6 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
     end
     fpp._state = state
 end
-
-#     def getFPP_State(self)
-#         """ Return the state of the flight path planner (instance of the enum FPPS). """
-#         return self._state
 
 #     Highest level state machine
 #     Minimal set of states
