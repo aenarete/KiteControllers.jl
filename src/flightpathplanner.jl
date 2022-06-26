@@ -7,14 +7,14 @@ const depower = [0.0] # set value of the depower value, 0 .. 1
 PRINT_EVERY_SECOND = true
 PRINT = true
 
-BETA_SET                 = 24.0 # for test 502
+BETA_SET                 = 26.0
 FIXED_ELEVATION          = false
-CORRECT_RADIUS           = false
+CORRECT_RADIUS           = true
 W_FIG                    = 36.0 # valid values: 36, 28
 
 TRANS_FACTOR             = 2.3 # 1.5
 DIRECT                   = false # skip intermediate target point
-CLEAN                    = true  # do not use any correction
+CLEAN                    = false  # do not use any correction
 
 PSI_DOT_MAX = 3.0
 
