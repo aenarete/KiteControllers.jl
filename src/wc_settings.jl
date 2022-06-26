@@ -43,7 +43,7 @@ Settings of the WinchController
     "lower force limit [N]"
     f_low = 350
     "set force for reel-in phase [N]"
-    f_reelin = 1500
+    f_reelin = 700
     "upper force limit [N]"
     f_high = 3650
     "P constant of upper force controller"
