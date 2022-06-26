@@ -21,7 +21,7 @@ dt = wcs.dt
 
 # the following values can be changed to match your interest
 if ! @isdefined MAX_TIME; MAX_TIME=3600; end
-TIME_LAPSE_RATIO = 1
+TIME_LAPSE_RATIO = 2
 SHOW_KITE = true
 # end of user parameter section #
 
@@ -49,7 +49,10 @@ function simulate(integrator)
             if dp < 0.22 dp = 0.22 end
             steering = calc_steering(ssc)
             set_depower_steering(kps4.kcu, dp, steering)
-        end 
+        end
+        if i == 200
+            on_autopilot(ssc)
+        end
         # execute winch controller
         v_ro = calc_v_set(ssc)
         #
@@ -60,7 +63,7 @@ function simulate(integrator)
         sys_state = SysState(kps4)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0 
-            KiteViewers.update_system(viewer, sys_state; scale = 0.04, kite_scale=6.0)
+            KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
             if i > 10/dt 
