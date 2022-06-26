@@ -19,9 +19,9 @@ Settings of the WinchController
     "limitation of the reel-out speed error, used by the input saturation block of the speed controller"
     v_sat_error = 1.0
     "limitation of the reel-out speed , used by the output saturation block of the speed controller"
-    v_sat = 12.0 # was: 8.0
+    v_sat = 8.0 # was: 8.0
     "maximal reel-in speed [m/s]"
-    v_ri_max = 12.0
+    v_ri_max = 8.0
     "P value of the speed controller"
     p_speed = 0.125
     "I value of the speed controller"
@@ -45,7 +45,7 @@ Settings of the WinchController
     "set force for reel-in phase [N]"
     f_reelin = 700
     "upper force limit [N]"
-    f_high = 3650
+    f_high = 3800
     "P constant of upper force controller"
     pf_high = 1.44e-4*1.6
     "I constant of upper force controller"
