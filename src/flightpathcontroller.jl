@@ -329,9 +329,7 @@ function calc_steering(fpc::FlightPathController, parking)
     if fpc.omega > 0.8
             chi_factor = (fpc.omega - 0.8) / 1.2
     end
-    if chi_factor > 0.85
-        chi_factor = 0.85
-    end
+    @limit chi_factor 0.85
     fpc.chi_factor = chi_factor
     if fpc.fcs.use_chi && ! parking
         control_var = merge_angles(fpc.psi, fpc.chi, chi_factor)

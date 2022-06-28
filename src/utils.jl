@@ -20,6 +20,23 @@ function saturate(value, min_, max_)
     result
 end
 
+""" 
+Limit the value of a variable. 
+
+Usage:
+@limit x 1 4 # limits the value to the range    1 .. 4,  modifies x
+@limit x 10  # limits the value to the range -inf .. 10, modifies x
+
+"""
+macro limit(name, min, max=nothing)
+    if isnothing(max)
+        max = min
+        min = :(typemin($min))
+    end
+
+    return esc( :($name = clamp($name, $min, $max)) )
+end
+
 """
     wrap2pi(angle)
 

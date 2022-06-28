@@ -10,7 +10,7 @@ export Winch, SpeedController, LowerForceController, UpperForceController
 export FlightPathCalculator, SystemStateControl, SystemState
 export FlightPathPlanner, FPPSettings, POWER, LOW_LEFT, FLY_LEFT, TURN_LEFT, LOW_RIGHT, LOW_TURN 
 export FLY_RIGHT, TURN_RIGHT, UP_TURN, UP_TURN_LEFT, UP_FLY_UP, UPPER_TURN, DEPOWER, PARKING
-export saturate, wrap2pi                                              # utility function
+export saturate, @limit, wrap2pi                                       # utility function
 export reset, calc_output, on_timer, select_b, select_c, get_state    # methods of Integrator, UnitDelay etc.
 export on_control_command, on_est_sysstate, on_timer, calc_steering   # methods of FlightPathController 
 export set_tracking, set_v_set, set_inactive, set_v_act, set_v_set_in # methods of SpeedController
