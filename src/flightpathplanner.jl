@@ -51,11 +51,11 @@ DELTA_PHI_1 =  6.0           # azimuth offset for finishing the turn around the 
 DELTA_BETA = 1.0
 
 function addy(vec, y)
-    @SVector [vec[begin], vec[begin+1]+y]
+    SVector(vec[begin], vec[begin+1]+y)
 end
   
 function addxy(vec, x, y)
-    @SVector [vec[begin]+x, vec[begin+1]+y]
+    SVector(vec[begin]+x, vec[begin+1]+y)
 end
 
 @enum FPPS INITIAL=0 UPPER_TURN LOW_RIGHT LOW_TURN LOW_LEFT TURN_LEFT FLY_RIGHT TURN_RIGHT FLY_LEFT UP_TURN UP_TURN_LEFT UP_FLY_UP DEPOWER POWER PARKING
@@ -129,7 +129,7 @@ end
     _p4_zero::MVector{2, Float64} = zeros(2)
     _p4_one::MVector{2, Float64} = zeros(2)
     _p4_one_high::MVector{2, Float64} = zeros(2)
-    _zenith::MVector{2, Float64} = [0.0, 90] # desired elevation angle at zenith
+    _zenith::MVector{2, Float64} = MVector(0.0, 90) # desired elevation angle at zenith
     _phi_2 = 0.0
     _phi_3 = 0.0
     _phi_sw = 0.0
@@ -727,8 +727,7 @@ function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings
 
     res = SystemStateControl(wc=WinchController(wcs), fpp=fpp)
     attractor = zeros(2)
-    # attractor[begin+1] = deg2rad(25.0) # phi_set
-    attractor[2] = deg2rad(80.0) # beta_set
+    attractor[end] = deg2rad(80.0) # beta_set
     on_control_command(fpca.fpc, attractor=attractor)
     publish(fpca) # initialise the flight path calculator
     res
