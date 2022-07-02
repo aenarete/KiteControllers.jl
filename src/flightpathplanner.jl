@@ -797,9 +797,10 @@ function calc_steering(ssc::SystemStateControl, manual_steering = 0.0)
     if ssc.state == ssPowerProduction
         on_new_data(ssc.fpp, u_d, length, psi, height)
     end
-    if ssc.state == ssParking
+    if ssc.state in (ssParking, ssPowerProduction)
         u_s = calc_steering(ssc.fpp.fpca.fpc, ssc.state == ssParking)
-    else u_s = manual_steering
+    else 
+        u_s = manual_steering
     end
     on_timer(ssc.fpp.fpca.fpc)
     # println(u_s)
