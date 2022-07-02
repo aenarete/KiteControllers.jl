@@ -712,7 +712,6 @@ end
 #     ssParking, ssPowerProduction, ssReelIn
 @with_kw mutable struct SystemStateControl @deftype Float64
     wc::WinchController
-    # fpc::FlightPathController
     fpp::FlightPathPlanner
     sys_state::Union{Nothing, SysState}    = nothing
     state::Observable(SystemState)[]       = ssParking
@@ -720,7 +719,6 @@ end
 end
 
 function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings)
-    # fcs.gain = 0.01
     fpc = FlightPathController(fcs)
     fpca = FlightPathCalculator(fpc)
     fpp = FlightPathPlanner(fpps, fpca)
@@ -740,6 +738,10 @@ end
 
 function on_autopilot(ssc::SystemStateControl)
     switch(ssc, ssPowerProduction)
+end
+
+function on_winchcontrol(ssc::SystemStateControl)
+    switch(ssc, ssWinchControl)
 end
 
 function on_reelin(ssc::SystemStateControl)
@@ -775,7 +777,7 @@ function calc_v_set(ssc::SystemStateControl)
     v_set
 end
 
-function calc_steering(ssc::SystemStateControl)
+function calc_steering(ssc::SystemStateControl, manual_steering = 0.0)
     if isnothing(ssc.sys_state)
         return 0.0
     end
@@ -795,7 +797,10 @@ function calc_steering(ssc::SystemStateControl)
     if ssc.state == ssPowerProduction
         on_new_data(ssc.fpp, u_d, length, psi, height)
     end
-    u_s = calc_steering(ssc.fpp.fpca.fpc, ssc.state == ssParking)
+    if ssc.state == ssParking
+        u_s = calc_steering(ssc.fpp.fpca.fpc, ssc.state == ssParking)
+    else u_s = manual_steering
+    end
     on_timer(ssc.fpp.fpca.fpc)
     # println(u_s)
     u_s
@@ -813,6 +818,12 @@ function switch(ssc::SystemStateControl, state)
     if state == ssParking
         on_new_system_state(ssc.fpp.fpca, state, true)
         _switch(ssc.fpp, PARKING)
+    elseif state == ssReelIn
+        on_new_system_state(ssc.fpp.fpca, state, true)
+        _switch(ssc.fpp, DEPOWER)
+    elseif state == ssWinchControl
+        on_new_system_state(ssc.fpp.fpca, state, true)
+        _switch(ssc.fpp, POWER)
     end
     println("New system state: ", Symbol(ssc.state))
 end

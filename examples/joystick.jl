@@ -46,12 +46,12 @@ function simulate(integrator)
     on_new_systate(ssc, sys_state)
     while true
         if i > 100
-            depower = 0.22 - jsaxes.y*0.4
-            dp = KiteControllers.get_depower(ssc)
+            # depower = 0.22 - jsaxes.y*0.4
+            depower = KiteControllers.get_depower(ssc)
             # println("dp: ", dp)
             if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc)
-            set_depower_steering(kps4.kcu, depower, steering+jsaxes.x)
+            steering = calc_steering(ssc, jsaxes.x)
+            set_depower_steering(kps4.kcu, depower, steering)
             # set_depower_steering(kps4.kcu, depower, jsaxes.x)
             # v_ro = jsaxes.u * 8.0 
         end  
@@ -113,7 +113,7 @@ function parking()
 end
 
 function autopilot()
-    on_autopilot(ssc)
+    on_winchcontrol(ssc)
 end
 
 on(viewer.btn_PLAY.clicks) do c; async_play(); end
