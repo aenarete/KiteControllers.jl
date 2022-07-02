@@ -30,7 +30,7 @@ TIME_LAPSE_RATIO = 1
 SHOW_KITE = true
 # end of user parameter section #
 
-if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE); end
+if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE, "WinchON"); end
 
 steps = 0
 
@@ -64,6 +64,7 @@ function simulate(integrator)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
+            set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
             if i > 10/dt 
