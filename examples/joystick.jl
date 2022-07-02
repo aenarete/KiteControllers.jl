@@ -37,8 +37,7 @@ steps = 0
 function simulate(integrator)
     start_time_ns = time_ns()
     clear_viewer(viewer)
-    i=1
-    j=0; k=0
+    i=1; j=0; k=0
     GC.gc()
     max_time = 0
     t_gc_tot = 0
@@ -63,7 +62,7 @@ function simulate(integrator)
         end
         sys_state = SysState(kps4)
         on_new_systate(ssc, sys_state)
-        if mod(i, TIME_LAPSE_RATIO) == 0 
+        if mod(i, TIME_LAPSE_RATIO) == 0
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
@@ -95,7 +94,15 @@ function play()
     global steps
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     toc()
-    steps = simulate(integrator)
+    try
+        steps = simulate(integrator)
+    catch e
+        if isa(e, AssertionError)
+            println("AssertionError! Halting simulation.")
+        else
+            println("Exception! Halting simulation.")
+        end
+    end
     GC.enable(true)
 end
 
