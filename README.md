@@ -92,6 +92,18 @@ Output is the set speed of the asynchronous motor.
 
 For a usage example look at the script [test_winchcontroller.jl](./test/test_winchcontroller.jl) .
 
+### Flight Path Calculator (FPCA)
+The FPCA is a stateless component that calculates the coordinates of the attractor points and turn points that
+determine the flight path. In addition it calculates the desired turn radius of the turns.
+
+### Flight Path Planner (FPP)
+The Flight Path Planner executes the planned flight path using a state machine.
+
+### SystemStateControl (SSC)
+While the Flight Path Planner is in charge of calculating the flight path during automated power production, this
+component handles other system states, like fully manual operation, automated winch control combined with manual 
+steering, parking etc.
+
 ## Scientific background
 [A Methodology for the Design of Kite-Power Control Systems](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) Chapter 6.3 Winch control (WC)
 
