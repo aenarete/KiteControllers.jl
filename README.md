@@ -58,7 +58,7 @@ on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a; u_d=nothing, u_d_prime=not
 on_timer(fpc)
 calc_steering(fpc, parking)
 ```
-The control commands are usually recived from the FlightPathPlanner, the output of the model or the system state estimator must call `on_est_systate()` each timestep.
+The control commands are usually received from the FlightPathPlanner, the output of the model or the system state estimator must call `on_est_systate()` each time-step.
 <p align="center"><img src="./docs/flight_path_controller_I.png" width="500" /></p>
 <p align="center"><img src="./docs/flight_path_controller_II.png" width="500" /></p>
 
