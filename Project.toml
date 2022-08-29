@@ -17,7 +17,7 @@ WinchModels = "7dcfa46b-7979-4771-bbf4-0aee0da42e1f"
 [compat]
 KiteUtils = "0.4"
 NLsolve = "4.5"
-Observables = "0.3, 0.4"
+Observables = "0.3, 0.4, 0.5"
 Parameters = "0.12"
 StaticArrays = "1"
 TestEnv = "1"
