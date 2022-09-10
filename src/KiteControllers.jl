@@ -1,6 +1,7 @@
 module KiteControllers
 
 using KiteUtils, WinchModels, Parameters, Observables, StaticArrays, NLsolve, Printf
+using YAML, StructTypes
 import Base.reset
 
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types
@@ -24,6 +25,7 @@ export calc_v_set, get_set_force, get_status                          # methods 
 export on_autopilot, on_parking, on_reelin, on_stop, on_new_systate   # methods of SystemStateControl
 export on_winchcontrol, get_depower                                   # methods of SystemStateControl
 export ssParking, ssPowerProduction, ssReelIn, ssManualOperation
+export update
 
 abstract type AbstractForceController end
 const AFC = AbstractForceController

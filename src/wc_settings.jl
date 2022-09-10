@@ -74,5 +74,12 @@ function if_low_scaled(wcs::WCSettings)
    wcs.if_low * wcs.fac
 end
 
-function update(wcs::WCSettings, config_file)
+StructTypes.StructType(::Type{WCSettings}) = StructTypes.Mutable()
+
+function update(wcs::WCSettings, config_file="data/wc_settings.yaml")
+    # TODO 1. replace / with \\ if windows
+    # TODO 2. do nothing, but print warning if config file does not exist
+    dict = YAML.load_file(config_file)
+    sec_dict = Dict(Symbol(k) => v for (k, v) in dict["wc_settings"])
+    StructTypes.constructfrom!(wcs, sec_dict)
 end
