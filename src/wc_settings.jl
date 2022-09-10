@@ -77,8 +77,13 @@ end
 StructTypes.StructType(::Type{WCSettings}) = StructTypes.Mutable()
 
 function update(wcs::WCSettings, config_file="data/wc_settings.yaml")
-    # TODO 1. replace / with \\ if windows
-    # TODO 2. do nothing, but print warning if config file does not exist
+    if Sys.iswindows()
+        config_file = replace(config_file, "/" => "\\")
+    end
+    if ! isfile(config_file)
+        println("Warning: $config_file not found, using default settings.")
+        return
+    end
     dict = YAML.load_file(config_file)
     sec_dict = Dict(Symbol(k) => v for (k, v) in dict["wc_settings"])
     StructTypes.constructfrom!(wcs, sec_dict)
