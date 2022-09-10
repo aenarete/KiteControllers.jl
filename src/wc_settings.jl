@@ -73,3 +73,6 @@ end
 function if_low_scaled(wcs::WCSettings)
    wcs.if_low * wcs.fac
 end
+
+function update(wcs::WCSettings, config_file)
+end

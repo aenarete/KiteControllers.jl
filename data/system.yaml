@@ -1,3 +1,4 @@
 system:
-    project: "settings.yaml"  # simulator settings
+    project:     "settings.yaml"    # model and simulator settings
+    wc_settings: "wc_settings.yaml" # winch controller settings
  
