@@ -2,6 +2,7 @@
 using Pkg
 if ! ("Plots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
+    Pkg.resolve()
 end
 
 @info "Loading packages ..."
