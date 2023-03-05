@@ -9,7 +9,7 @@ using KiteUtils
 se().abs_tol=0.00000006
 se().rel_tol=0.0000001
 
-using KiteControllers, KiteViewers, KiteModels, Joysticks
+using KiteControllers, KiteViewers, KiteModels, Plots
 
 
 if ! @isdefined kcu;    const kcu = KCU(se());   end
@@ -29,6 +29,8 @@ SHOW_KITE = true
 if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE, "WinchON"); end
 
 steps = 0
+if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
     start_time_ns = time_ns()
@@ -57,6 +59,8 @@ function simulate(integrator)
             t_gc_tot += @elapsed GC.gc(false)
         end
         sys_state = SysState(kps4)
+        T[i] = dt * i
+        AZIMUTH[i] = sys_state.azimuth        
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
@@ -126,3 +130,5 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 
 play()
 stop(viewer)
+
+plot(T, rad2deg.(AZIMUTH))
