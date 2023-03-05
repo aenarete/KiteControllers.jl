@@ -19,6 +19,11 @@ const fpps = FPPSettings()
 const ssc = SystemStateControl(wcs, fcs, fpps)
 dt = wcs.dt
 
+# result of tuning, factor 0.9 to increase robustness
+fcs.p = 13.63*0.9
+fcs.i = 0.0
+fcs.d = 27.75*0.9
+
 # the following values can be changed to match your interest
 if ! @isdefined MAX_TIME; MAX_TIME=3600; end
 TIME_LAPSE_RATIO = 2
