@@ -6,12 +6,11 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, Joysticks
-
-# change this to KPS3 or KPS4
-const Model = KPS4
+se().abs_tol=0.0000006
+se().rel_tol=0.000001
 
 if ! @isdefined kcu;    const kcu = KCU(se());   end
-if ! @isdefined kps4;   const kps4 = Model(kcu); end
+if ! @isdefined kps4;   const kps4 = KPS4(kcu); end
 const wcs = WCSettings(); wcs.dt = 1/se().sample_freq
 const fcs = FPCSettings(); fcs.dt = wcs.dt
 const fpps = FPPSettings()
@@ -19,7 +18,7 @@ const ssc = SystemStateControl(wcs, fcs, fpps)
 dt = wcs.dt
 
 # the following values can be changed to match your interest
-if ! @isdefined MAX_TIME; MAX_TIME=3600; end
+if ! @isdefined MAX_TIME; MAX_TIME=60; end
 TIME_LAPSE_RATIO = 1
 SHOW_KITE = true
 # end of user parameter section #
@@ -39,17 +38,18 @@ function simulate(integrator)
     on_new_systate(ssc, sys_state)
     while true
         if i > 100
-            # depower = 0.22 - jsaxes.y*0.4
             depower = KiteControllers.get_depower(ssc)
-            # println("dp: ", dp)
             if depower < 0.22; depower = 0.22; end
             steering = calc_steering(ssc, 0)
+            time = i * dt
+            # disturbance
+            if time > 20 && time < 21
+                steering = 0.1
+            end            
             set_depower_steering(kps4.kcu, depower, steering)
-            # set_depower_steering(kps4.kcu, depower, jsaxes.x)
-            # v_ro = jsaxes.u * 8.0 
         end  
         # execute winch controller
-        v_ro = calc_v_set(ssc)
+        v_ro = 0.0
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
