@@ -11,7 +11,7 @@ se().rel_tol=0.000001
 using KiteControllers, KiteModels, Plots, BayesOpt
 
 if ! @isdefined kcu;   const kcu = KCU(se());   end
-if ! @isdefined kps;   const kps = KPS3(kcu); end
+if ! @isdefined kps;   const kps = KPS4(kcu); end
 wcs = WCSettings(); wcs.dt = 1/se().sample_freq
 fcs = FPCSettings(); fcs.dt = wcs.dt
 fpps = FPPSettings()
@@ -68,7 +68,7 @@ function test_parking()
     simulate(integrator)
     res=sum(abs2.(rad2deg.(AZIMUTH)))/40
     if res < 200
-        println(res, " p: ", fcs.p, " d: ", fcs.d)
+        println(res, " p: ", fcs.p, " i: ", fcs.i, " d: ", fcs.d)
         display(show_result())
     end
     res
@@ -85,20 +85,20 @@ function f(x)
     test_parking()
 end
 
-function tune_1p()
+function tune_4p()
     config = ConfigParameters()         # calls initialize_parameters_to_default of the C API
     config.noise=1e-2
     # config.n_inner_iterations=UInt(95)
     println(config.noise)
-    println(config.n_inner_iterations)
-    # set_kernel!(config, "kMaternARD5")  # calls set_kernel of the C API
-    # config.sc_type = SC_MAP
-    lowerbound = [10., 0., 10.]; upperbound = [30., 1.0, 40.]
+    # println(config.n_inner_iterations)
+    lowerbound = [10., 0., 0.]; upperbound = [100., 4.0, 40.]
     optimizer, optimum = bayes_optimization(f, lowerbound, upperbound, config)
+    println("Opimal parameters: p = $(optimizer[1]), i = $(optimizer[2]), d = $(optimizer[3])")
+    println("Optimum value    : $(optimum)")
 end
 
-fcs.p=13.63*0.9
+fcs.p=100   *0.6
 fcs.i=0.0
-fcs.d=27.75*0.9
+fcs.d=35.81 *0.6
 println(test_parking())
 show_result()

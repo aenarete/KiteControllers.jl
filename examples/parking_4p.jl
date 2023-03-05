@@ -17,6 +17,11 @@ const fpps = FPPSettings()
 const ssc = SystemStateControl(wcs, fcs, fpps)
 dt = wcs.dt
 
+# result of tuning, factor 0.6 to increase robustness
+fcs.p=100   * 0.6
+fcs.i=0.0
+fcs.d=35.81 * 0.6
+
 # the following values can be changed to match your interest
 if ! @isdefined MAX_TIME; MAX_TIME=60; end
 TIME_LAPSE_RATIO = 1
@@ -81,7 +86,7 @@ function simulate(integrator)
             t_gc_tot = 0
         end
         if viewer.stop break end
-        if i*dt > MAX_TIME break end
+        if i*dt >= MAX_TIME break end
         i += 1
     end
     misses = j/k * 100

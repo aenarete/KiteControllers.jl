@@ -11,7 +11,6 @@ se().rel_tol=0.0000001
 
 using KiteControllers, KiteViewers, KiteModels, Plots
 
-
 if ! @isdefined kcu;    const kcu = KCU(se());   end
 if ! @isdefined kps4;   const kps4 = KPS3(kcu); end
 const wcs = WCSettings(); wcs.dt = 1/se().sample_freq
@@ -19,6 +18,11 @@ const fcs = FPCSettings(); fcs.dt = wcs.dt
 const fpps = FPPSettings()
 const ssc = SystemStateControl(wcs, fcs, fpps)
 dt = wcs.dt
+
+# result of tuning, factor 0.9 to increase robustness
+fcs.p = 13.63*0.9
+fcs.i = 0.0
+fcs.d = 27.75*0.9
 
 # the following values can be changed to match your interest
 if ! @isdefined MAX_TIME; MAX_TIME=60; end
@@ -83,7 +87,7 @@ function simulate(integrator)
             t_gc_tot = 0
         end
         if viewer.stop break end
-        if i*dt > MAX_TIME break end
+        if i*dt >= MAX_TIME break end
         i += 1
     end
     misses = j/k * 100
