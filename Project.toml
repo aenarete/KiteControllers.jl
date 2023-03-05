@@ -4,6 +4,7 @@ authors = ["Uwe Fechner <fechner@aenarete.eu> and contributors"]
 version = "0.1.7"
 
 [deps]
+BayesOpt = "8b8fa57b-2f72-5ccd-8d28-750de228707b"
 KiteUtils = "90980105-b163-44e5-ba9f-8b1c83bb0533"
 NLsolve = "2774e3e8-f4cf-5e23-947b-6d7e65073b56"
 Observables = "510215fc-4207-5dde-b226-833fc4488ee2"
