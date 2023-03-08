@@ -21,7 +21,7 @@ dt = wcs.dt
 # the following values can be changed to match your interest
 if ! @isdefined MAX_TIME; MAX_TIME=60; end
 TIME_LAPSE_RATIO = 1
-MAX_ITER = 80
+MAX_ITER = 90
 SHOW_KITE = false
 # end of user parameter section #
 
@@ -64,7 +64,7 @@ function simulate(integrator)
     return 1
 end
 
-function calc_res(az, suppress_overshoot_factor, t1=20, t2=60)
+function calc_res(az, suppress_overshoot_factor, suppress_tail=48, t1=20, t2=40)
     n1=Int(t1/dt)
     n2=Int(t2/dt)
     n = length(az)
@@ -76,13 +76,19 @@ function calc_res(az, suppress_overshoot_factor, t1=20, t2=60)
         end
     end
     res += sum(abs2.(rad2deg.(overshoot)))/40 * suppress_overshoot_factor
-    # if res > 500 res = 500.0 end
+    tail = zeros(n-n2)
+    for i in 1:n-n2
+        tail[i] = abs(az[i])
+    end
+    res += sum(rad2deg.(tail))/20 * suppress_tail
+    println("res: $res")
+    res = 1.0 - 100 / res
     res
 end
 
 # tests the parking controller and returns the sum of the square of 
 # the azimuth error in degrees squared and divided by the test duration
-function test_parking(suppress_overshoot_factor = 3.0)
+function test_parking(suppress_overshoot_factor = 6.0)
     global LAST_RES
     global  AZIMUTH
     global  ITER
@@ -132,11 +138,11 @@ function tune_1p()
     # config.sc_type = SC_MAP
     # lowerbound = [10., 10.]; upperbound = [30., 50.]
     # x, optimum = bayes_optimization(f, lowerbound, upperbound, config)
-    res=bboptimize(f; SearchRange = [(10.0, 30.0), (10.0, 50.0)], NumDimensions = 2, 
-                   Method = :generating_set_search, MaxFuncEvals = MAX_ITER, ftol = 1e-3) 
-                   # :generating_set_search  Fitness 138.05      
-                   # :adaptive_de_rand_1_bin Fitness 138.3
-                   # BayesOpt                Fitness 124.532
+    res=bboptimize(f; SearchRange = [(5.0, 30.0), (10.0, 50.0)], NumDimensions = 2, 
+                   Method = :adaptive_de_rand_1_bin, MaxFuncEvals = MAX_ITER, ftol = 1e-3) 
+                   # :generating_set_search  res     
+                   # :adaptive_de_rand_1_bin res 155.8
+                   # BayesOpt                res 143.6
     x =  best_candidate(res)
     fcs.p = x[1]
     fcs.d = x[2]
@@ -156,13 +162,13 @@ function est_noise(n=10)
 end
 
 function plot_res()
-    plot(1:90, P)
-    plot!(1:90, D)
-    plot!(1:90, RES)
+    plot(1:MAX_ITER+10, P)
+    plot!(1:MAX_ITER+10, D)
+    plot!(1:MAX_ITER+10, 10*RES)
 end
 
-fcs.p=13.63
-fcs.i=0.0
-fcs.d=27.75
+fcs.p=14.34 # 13.58 # 14.15 # 11.0
+fcs.i=0.2
+fcs.d=44.95 # 20.73 # 43.38 # 25.4
 println(test_parking())
 show_result()

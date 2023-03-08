@@ -65,7 +65,7 @@ function simulate(integrator)
     return 1
 end
 
-function calc_res(az, suppress_overshoot_factor, t1=20, t2=60)
+function calc_res(az, suppress_overshoot_factor, suppress_tail=48, t1=20, t2=40)
     n1=Int(t1/dt)
     n2=Int(t2/dt)
     n = length(az)
@@ -77,13 +77,19 @@ function calc_res(az, suppress_overshoot_factor, t1=20, t2=60)
         end
     end
     res += sum(abs2.(rad2deg.(overshoot)))/40 * suppress_overshoot_factor
-    # if res > 500 res = 500.0 end
+    tail = zeros(n-n2)
+    for i in 1:n-n2
+        tail[i] = abs(az[i])
+    end
+    res += sum(rad2deg.(tail))/20 * suppress_tail
+    println("res: $res")
+    res = 1.0 - 100 / res
     res
 end
 
 # tests the parking controller and returns the sum of the square of 
 # the azimuth error in degrees squared and divided by the test duration
-function test_parking(suppress_overshoot_factor = 3.0)
+function test_parking(suppress_overshoot_factor = 6.0)
     global LAST_RES
     global  AZIMUTH
     global  ITER
@@ -131,7 +137,7 @@ function tune_1p()
     println(config.n_inner_iterations)
     set_kernel!(config, "kMaternARD5")  # calls set_kernel of the C API
     config.sc_type = SC_MAP
-    lowerbound = [10., 10.]; upperbound = [30., 50.]
+    lowerbound = [5., 10.]; upperbound = [30., 50.]
     x, optimum = bayes_optimization(f, lowerbound, upperbound, config)
     fcs.p = x[1]
     fcs.d = x[2]
@@ -153,11 +159,11 @@ end
 function plot_res()
     plot(1:90, P)
     plot!(1:90, D)
-    plot!(1:90, RES)
+    plot!(1:90, 10*RES)
 end
 
-fcs.p=13.63
-fcs.i=0.0
-fcs.d=27.75
+fcs.p=14.35 # 13.68 # 13.87 # 14.99 # 13.63
+fcs.i=0.2
+fcs.d=19.61 # 25.94 # 50 # 23.09 # 27.75
 println(test_parking())
 show_result()
