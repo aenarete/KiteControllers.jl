@@ -4,6 +4,7 @@ authors = ["Uwe Fechner <fechner@aenarete.eu> and contributors"]
 version = "0.1.7"
 
 [deps]
+BlackBoxOptim = "a134a8b2-14d6-55f6-9291-3336d3ab0209"
 KiteUtils = "90980105-b163-44e5-ba9f-8b1c83bb0533"
 Memoize = "c03570c3-d221-55d1-a50c-7939bbd78826"
 NLsolve = "2774e3e8-f4cf-5e23-947b-6d7e65073b56"

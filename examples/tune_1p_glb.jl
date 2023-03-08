@@ -8,8 +8,7 @@ using KiteUtils
 se().abs_tol=0.0000006
 se().rel_tol=0.000001
 
-using KiteControllers, KiteModels, Plots, BayesOpt
-# using Memoize
+using KiteControllers, KiteModels, Plots, BlackBoxOptim
 
 if ! @isdefined kcu;   const kcu = KCU(se());   end
 if ! @isdefined kps;   const kps = KPS3(kcu); end
@@ -111,9 +110,9 @@ function f(x)
     fcs.d = x[2]
     P[ITER] = fcs.p
     D[ITER] = fcs.d
-    println("x: ", x)
     res = test_parking()
     RES[ITER] = res
+    println("x: ", x, " res: ", res)
     ITER+=1
     res
 end
@@ -124,15 +123,21 @@ function tune_1p()
     ITER = 1
     LAST_RES = 1e10
     fcs.i = 0.2
-    config = ConfigParameters()         # calls initialize_parameters_to_default of the C API
-    config.noise = 1e-4
-    config.n_iterations = MAX_ITER
-    println(config.noise)
-    println(config.n_inner_iterations)
-    set_kernel!(config, "kMaternARD5")  # calls set_kernel of the C API
-    config.sc_type = SC_MAP
-    lowerbound = [10., 10.]; upperbound = [30., 50.]
-    x, optimum = bayes_optimization(f, lowerbound, upperbound, config)
+    # config = ConfigParameters()         # calls initialize_parameters_to_default of the C API
+    # config.noise = 1e-4
+    # config.n_iterations = MAX_ITER
+    # println(config.noise)
+    # println(config.n_inner_iterations)
+    # set_kernel!(config, "kMaternARD5")  # calls set_kernel of the C API
+    # config.sc_type = SC_MAP
+    # lowerbound = [10., 10.]; upperbound = [30., 50.]
+    # x, optimum = bayes_optimization(f, lowerbound, upperbound, config)
+    res=bboptimize(f; SearchRange = [(10.0, 30.0), (10.0, 50.0)], NumDimensions = 2, 
+                   Method = :generating_set_search, MaxFuncEvals = MAX_ITER, ftol = 1e-3) 
+                   # :generating_set_search  Fitness 138.05      
+                   # :adaptive_de_rand_1_bin Fitness 138.3
+                   # BayesOpt                Fitness 124.532
+    x =  best_candidate(res)
     fcs.p = x[1]
     fcs.d = x[2]
     test_parking()
