@@ -21,6 +21,7 @@ dt = wcs.dt
 # the following values can be changed to match your interest
 if ! @isdefined MAX_TIME; MAX_TIME=60; end
 TIME_LAPSE_RATIO = 1
+MAX_ITER = 80
 SHOW_KITE = false
 # end of user parameter section #
 
@@ -58,16 +59,32 @@ function simulate(integrator)
     return 1
 end
 
+function calc_res(az, suppress_overshoot_factor, t1=20, t2=60)
+    n1=Int(t1/dt)
+    n2=Int(t2/dt)
+    n = length(az)
+    res = sum(abs2.(rad2deg.(az[n1:n])))/40
+    overshoot = zeros(n-n1)
+    for i in 1:n-n1
+        if az[i] < 0
+            overshoot[i] = -az[i]
+        end
+    end
+    res += sum(abs2.(rad2deg.(overshoot)))/40 * suppress_overshoot_factor
+    # if res > 500 res = 500.0 end
+    res
+end
+
 # tests the parking controller and returns the sum of the square of 
 # the azimuth error in degrees squared and divided by the test duration
-function test_parking()
+function test_parking(suppress_overshoot_factor = 3.0)
     global LAST_RES
     clear!(kps)
     init_kcu(kcu, se())
     AZIMUTH .= zeros(Int64(MAX_TIME/dt))
     integrator = KiteModels.init_sim!(kps, stiffness_factor=0.04)
     simulate(integrator)
-    res=sum(abs2.(rad2deg.(AZIMUTH)))/40
+    res = calc_res(AZIMUTH, suppress_overshoot_factor)
     if res < LAST_RES
         LAST_RES = res
         println(res, " p: ", fcs.p, " i: ", fcs.i, " d: ", fcs.d)
@@ -84,6 +101,7 @@ function f(x)
     fcs.p = x[1]
     fcs.i = x[2]
     fcs.d = x[3]
+    println("x: ", x)
     test_parking()
 end
 
@@ -91,8 +109,8 @@ function tune_4p()
     global LAST_RES
     LAST_RES = 1e10
     config = ConfigParameters()         # calls initialize_parameters_to_default of the C API
-    config.noise=1e-2
-    config.n_iterations = 95
+    config.noise=1e-4
+    config.n_iterations = MAX_ITER
     println(config.noise)
     # println(config.n_inner_iterations)
     lowerbound = [10., 0., 0.]; upperbound = [120., 4.0, 50.]
