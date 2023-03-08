@@ -111,6 +111,8 @@ function tune_4p()
     config = ConfigParameters()         # calls initialize_parameters_to_default of the C API
     config.noise=1e-4
     config.n_iterations = MAX_ITER
+    config.sc_type = SC_MAP
+    set_kernel!(config, "kMaternARD5")
     println(config.noise)
     # println(config.n_inner_iterations)
     lowerbound = [10., 0., 0.]; upperbound = [120., 4.0, 50.]
