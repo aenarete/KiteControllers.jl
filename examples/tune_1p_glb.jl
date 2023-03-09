@@ -21,7 +21,7 @@ dt = wcs.dt
 # the following values can be changed to match your interest
 if ! @isdefined MAX_TIME; MAX_TIME=60; end
 TIME_LAPSE_RATIO = 1
-MAX_ITER = 90
+MAX_ITER = 70
 SHOW_KITE = false
 # end of user parameter section #
 
@@ -64,31 +64,33 @@ function simulate(integrator)
     return 1
 end
 
-function calc_res(az, suppress_overshoot_factor, suppress_tail=48, t1=20, t2=40)
+
+function calc_res(az, suppress_overshoot=10, suppress_tail=10, t1=20, t2=40)
     n1=Int(t1/dt)
     n2=Int(t2/dt)
     n = length(az)
     res = sum(abs2.(rad2deg.(az[n1:n])))/40
     overshoot = zeros(n-n1)
-    for i in 1:n-n1
-        if az[i] < 0
-            overshoot[i] = -az[i]
+    for i in 1:(n-n1)
+        if az[i+n1] < 0
+            overshoot[i] = -az[i+n1]
         end
     end
-    res += sum(abs2.(rad2deg.(overshoot)))/40 * suppress_overshoot_factor
+    res += sum(abs.(rad2deg.(overshoot)))/40 * suppress_overshoot
     tail = zeros(n-n2)
-    for i in 1:n-n2
-        tail[i] = abs(az[i])
+    for i in 1:(n-n2)
+        tail[i] = abs(az[i+n2])
     end
-    res += sum(rad2deg.(tail))/20 * suppress_tail
-    println("res: $res")
+    tail = sum(rad2deg.(tail))/20 * suppress_tail
+    res += tail
+    println("res: $(res), tail: $tail")
     res = 1.0 - 100 / res
     res
 end
 
 # tests the parking controller and returns the sum of the square of 
 # the azimuth error in degrees squared and divided by the test duration
-function test_parking(suppress_overshoot_factor = 6.0)
+function test_parking()
     global LAST_RES
     global  AZIMUTH
     global  ITER
@@ -97,7 +99,7 @@ function test_parking(suppress_overshoot_factor = 6.0)
     AZIMUTH .= zeros(Int64(MAX_TIME/dt))
     integrator = KiteModels.init_sim!(kps, stiffness_factor=0.04)
     simulate(integrator)
-    res = calc_res(AZIMUTH, suppress_overshoot_factor)
+    res = calc_res(AZIMUTH)
     if res < LAST_RES
         LAST_RES = res
         println(res, " p: ", fcs.p, " d: ", fcs.d)
@@ -113,7 +115,7 @@ end
 function f(x)
     global ITER, RES
     fcs.p = x[1]
-    fcs.d = x[2]
+    fcs.d = x[2]*x[1]
     P[ITER] = fcs.p
     D[ITER] = fcs.d
     res = test_parking()
@@ -128,26 +130,15 @@ function tune_1p()
     global ITER
     ITER = 1
     LAST_RES = 1e10
-    fcs.i = 0.2
-    # config = ConfigParameters()         # calls initialize_parameters_to_default of the C API
-    # config.noise = 1e-4
-    # config.n_iterations = MAX_ITER
-    # println(config.noise)
-    # println(config.n_inner_iterations)
-    # set_kernel!(config, "kMaternARD5")  # calls set_kernel of the C API
-    # config.sc_type = SC_MAP
-    # lowerbound = [10., 10.]; upperbound = [30., 50.]
-    # x, optimum = bayes_optimization(f, lowerbound, upperbound, config)
-    res=bboptimize(f; SearchRange = [(5.0, 30.0), (10.0, 50.0)], NumDimensions = 2, 
-                   Method = :adaptive_de_rand_1_bin, MaxFuncEvals = MAX_ITER, ftol = 1e-3) 
-                   # :generating_set_search  res     
-                   # :adaptive_de_rand_1_bin res 155.8
-                   # BayesOpt                res 143.6
+    fcs.i = 0.5
+    res=bboptimize(f; SearchRange = [(10.0, 30.0), (0.0, 1.8)], NumDimensions = 2, 
+                   Method = :generating_set_search, MaxFuncEvals = MAX_ITER, ftol = 1e-3) 
+                   # :generating_set_search  res 244.3 3.0% undershoot
+                   # :adaptive_de_rand_1_bin res 204.9 5.0% undershoot
+                   # BayesOpt                res 191   2.5% undershoot
     x =  best_candidate(res)
     fcs.p = x[1]
-    fcs.d = x[2]
-    test_parking()
-    show_result()
+    fcs.d = x[2]*x[1]
 end
 
 function est_noise(n=10)
@@ -167,8 +158,8 @@ function plot_res()
     plot!(1:MAX_ITER+10, 10*RES)
 end
 
-fcs.p=14.34 # 13.58 # 14.15 # 11.0
-fcs.i=0.2
-fcs.d=44.95 # 20.73 # 43.38 # 25.4
+fcs.p=11.29 # 10.60 # 13.84 # 15.59 # 14.53 # 14.34 # 13.58 # 14.15 # 11.0
+fcs.i=0.5
+fcs.d=16.68 * 19.07 # 13.36 # 17.89 # 19.89 # 44.95 # 20.73 # 43.38 # 25.4
 println(test_parking())
 show_result()
