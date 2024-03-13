@@ -1,7 +1,7 @@
 name = "KiteControllers"
 uuid = "b19fd437-5b3a-4cca-b199-c3ded0f20ded"
 authors = ["Uwe Fechner <fechner@aenarete.eu> and contributors"]
-version = "0.1.7"
+version = "0.2.0"
 
 [deps]
 KiteUtils = "90980105-b163-44e5-ba9f-8b1c83bb0533"
@@ -12,23 +12,24 @@ Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 StaticArrayInterface = "0d7ed370-da01-4f52-bd93-41d350b8b718"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StructTypes = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
-TestEnv = "1e6cf692-eddd-4d53-88a5-2d735e33781b"
 Timers = "21f18d07-b854-4dab-86f0-c15a3821819a"
 WinchModels = "7dcfa46b-7979-4771-bbf4-0aee0da42e1f"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [compat]
-KiteModels = "0.4.7"
-KiteUtils = "0.4"
+KiteModels = "0.5.2"
+KiteUtils = "0.5"
 NLsolve = "4.5"
 Observables = "0.3, 0.4"
 Parameters = "0.12"
 Plots = "1.29"
-StaticArrays = "=1.2.5, ~1.3.1, ~1.4, 1.5.0 - 1.5.12"
-TestEnv = "1"
+StaticArrayInterface = "1.5"
+StaticArrays = "1.9"
+StructTypes = "1.10"
 Timers = "0.1"
-WinchModels = "0.1"
-julia = "1.6, 1.7, 1.8"
+WinchModels = "0.2"
+YAML = "0.4.9"
+julia = "1.9,1.10"
 
 [extras]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
