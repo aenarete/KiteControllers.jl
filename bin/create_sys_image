@@ -18,6 +18,9 @@ fi
 
 julia_version=$(julia --version | awk '{print($3)}')
 julia_major=${julia_version:0:3} 
+if [[ $julia_major == "1.1" ]]; then
+    julia_major=${julia_version:0:4} 
+fi
 branch=$(git rev-parse --abbrev-ref HEAD)
 if test -f "kps-image-${julia_major}-${branch}.so"; then
     mv bin/kps-image-${julia_major}-${branch}.so kps-image-${julia_major}-${branch}.so.bak
@@ -30,15 +33,12 @@ if [[ $update == true ]]; then
     fi
     julia --project -e "include(\"./test/update_packages.jl\");"
 else
-    if [[ $julia_major == "1.7" ]]; then
-        cp Manifest-1.7.toml.default Manifest.toml
-        echo "Using Manifest-1.7.toml.default ..."
-    elif [[ $julia_major == "1.8" ]]; then
-        cp Manifest-1.8.toml.default Manifest.toml
-        echo "Using Manifest-1.8.toml.default ..."
-    else
+    if [[ $julia_major == "1.9" ]]; then
         cp Manifest-1.9.toml.default Manifest.toml
         echo "Using Manifest-1.9.toml.default ..."
+    elif [[ $julia_major == "1.10" ]]; then
+        cp Manifest-1.10.toml.default Manifest.toml
+        echo "Using Manifest-1.10.toml.default ..."
     fi
 fi
 julia --project -e "using Pkg; Pkg.resolve(); Pkg.precompile()"
