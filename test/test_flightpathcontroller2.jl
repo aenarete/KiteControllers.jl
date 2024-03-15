@@ -56,12 +56,8 @@ for i in 1:SAMPLES
     on_timer(kite)
 end
 include("plot.jl")
-plot1(TIME, PSI, label="heading angle psi [°]", fig="test_fpc2")
-
-# p2=plot(TIME, BETA, label="elevation β [°]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-# plot!(TIME, PHI,    label="azimuth ϕ   [°]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-# pIDR2 = display(p2)           # Display with InspectDR and keep plot object
-# resize!(pIDR2.wnd, 1200, 700) # Resize GTK window directly
+plot2(TIME, PSI, BETA; labels=["heading angle psi [°]", "elevation β [°]"], 
+      fig="test_fpc2")
 
 # p4=plot(TIME, PSI_DOT, label="psi_dot [rad/s]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
 # pIDR4 = display(p4)           # Display with InspectDR and keep plot object
