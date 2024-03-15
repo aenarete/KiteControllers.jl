@@ -13,10 +13,7 @@ TIME = range(0.0, DURATION, SAMPLES)
 
 # Test the flight path controller against the simplified kite model as shown
 # in diagram docs/flight_path_controller_test1.png .
-using KiteControllers, Plots, BenchmarkTools
-inspectdr()
-InspectDR.defaults.xaxiscontrol_visible = false
-InspectDR.defaults.pointdropmatrix = InspectDR.PDM_DEFAULTS[:never]
+using KiteControllers, PyPlot, BenchmarkTools
 fpc = FlightPathController(fcs)
 kite = KiteModel(fcs)
 kite.omega = 0.08
@@ -43,17 +40,10 @@ for i in 1:SAMPLES
     on_timer(kite)
 end
 
-p1=plot(TIME, PSI, label="heading angle psi [°]", width=2, xtickfontsize=12, ytickfontsize=12, legend=false)
-pIDR = display(p1)           # Display with InspectDR and keep plot object
-resize!(pIDR.wnd, 1200, 700) # Resize GTK window directly
+include("plot.jl")
 
-p2=plot(TIME, BETA, label="elevation β [°]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-plot!(TIME, PHI,    label="azimuth ϕ   [°]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-pIDR2 = display(p2)           # Display with InspectDR and keep plot object
-resize!(pIDR2.wnd, 1200, 700) # Resize GTK window directly
-
-p3=plot(TIME, PSI_DOT, label="psi_dot [rad/s]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-pIDR3 = display(p3)           # Display with InspectDR and keep plot object
-resize!(pIDR3.wnd, 1200, 700) # Resize GTK window directly
+p1 = plot1(TIME, PSI; label="heading angle psi [°]", fig = "heading")
+p2 = plot1(TIME, BETA, label="elevation β [°]",      fig = "elevation")
+p3 = plot1(TIME, PSI_DOT, label="psi_dot [rad/s]",   fig = "psi_dot") 
 
 #     return TIME, PSI, BETA, PHI, PSI_DOT

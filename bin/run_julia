@@ -8,6 +8,8 @@ if [[ $HOSTNAME == "tuxedi" ]]; then
     sudo performance.sh
 fi
 
+export MPLBACKEND=qt5agg
+
 # instead of 8, use the number of fast CPU cores you have
 GCT="--gcthreads=7,1"
 

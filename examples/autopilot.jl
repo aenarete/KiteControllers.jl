@@ -31,6 +31,8 @@ phi_set = 21.48
 if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE); end
 
 steps = 0
+if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined DELTA_T; const DELTA_T = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
     start_time_ns = time_ns()
@@ -57,6 +59,10 @@ function simulate(integrator)
         #
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
         sys_state = SysState(kps4)
+        if i <= length(T)
+            T[i] = dt * i
+            DELTA_T[i] = time_ns() - start_time_ns - 1e9*dt
+        end
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0 
             KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
@@ -119,3 +125,7 @@ on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 
 play()
 stop(viewer)
+
+include("../test/plot.jl")
+p1   = plot1(T, DELTA_T)
+
