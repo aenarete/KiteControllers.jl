@@ -29,3 +29,25 @@ function plot2(X, Y1, Y2; labels=["", ""], fig="", title="")
     xlim(0, X[end])
     tight_layout()
 end
+
+function plot3(X, Y1, Y2, Y3; labels=["", "", ""], fig="", title="")
+    fig_ = PyPlot.figure(fig, figsize=(8, 6))
+    ax1 = PyPlot.subplot(311) 
+    PyPlot.suptitle(title, fontsize=14) # Super title
+    PyPlot.plot(X, Y1, label=labels[1]); 
+    ylabel(labels[1], fontsize=14);          
+    PyPlot.grid(true)
+    setp(ax1.get_xticklabels(), visible=false)
+    ax2 = PyPlot.subplot(312, sharex = ax1)
+    PyPlot.plot(X, Y2, label=labels[2])
+    PyPlot.grid(true)
+    ylabel(labels[2], fontsize=14);    grid(true)
+    setp(ax2.get_xticklabels(), visible=false)
+    ax3 = PyPlot.subplot(313, sharex = ax1)
+    PyPlot.plot(X, Y3, label=labels[3])
+    PyPlot.grid(true)
+    ylabel(labels[3], fontsize=14);    grid(true)
+    xlabel("time [s]", fontsize=14)
+    xlim(0, X[end])
+    tight_layout()
+end

@@ -42,8 +42,8 @@ end
 
 include("plot.jl")
 
-plot2(TIME, PSI, BETA; labels=["heading angle psi [°]","elevation β [°]"], 
+plot3(TIME, PSI, BETA, PSI_DOT; 
+      labels=["heading angle psi [°]","elevation β [°]", "psi_dot [rad/s]"], 
       fig = "test_fpc1")
-# p3 = plot1(TIME, PSI_DOT, label="psi_dot [rad/s]",   fig = "psi_dot") 
 
 #     return TIME, PSI, BETA, PHI, PSI_DOT
