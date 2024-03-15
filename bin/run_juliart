@@ -8,17 +8,8 @@ if [[ $HOSTNAME == "tuxedi" ]]; then
     sudo performance.sh
 fi
 
-# instead of 8, use the number of fast CPU cores you have
+# instead of 7, use the number of fast CPU cores you have minus one
 GCT="--gcthreads=7,1"
+JULIA="/home/ufechner/.julia/juliaup/julia-1.10.2+0.x64.linux.gnu/bin/julia"
 
-julia_version=$(/home/ufechner/.juliaup/bin/julia --version | awk '{print($3)}')
-julia_major=${julia_version:0:3} 
-branch=$(git rev-parse --abbrev-ref HEAD)
-
-if test -f "bin/kps-image-${julia_major}-${branch}.so"; then
-    echo "Found system image!"
-    julia -J  bin/kps-image-${julia_major}-${branch}.so -t 8,1 $GCT --project
-else
-    sudo chrt -r 70 /home/ufechner/.juliaup/bin/julia --project -t 7,1 $GCT
-    # julia --project
-fi
+sudo chrt -r 70 $JULIA --project -t 7,1 $GCT
