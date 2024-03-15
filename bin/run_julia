@@ -19,5 +19,6 @@ if test -f "bin/kps-image-${julia_major}-${branch}.so"; then
     echo "Found system image!"
     julia -J  bin/kps-image-${julia_major}-${branch}.so -t 8,1 $GCT --project
 else
-    julia --project -t 7,1 $GCT 
+    julia --project -t 7,1 $GCT
+    # julia --project
 fi
