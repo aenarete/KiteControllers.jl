@@ -14,10 +14,7 @@ TIME = range(0.0, DURATION, SAMPLES)
 # Test the flight path controller against the simplified kite model as shown
 # in diagram docs/flight_path_controller_test1.png. Steer towards an
 # attractor point.
-using KiteControllers, Plots, BenchmarkTools
-inspectdr()
-InspectDR.defaults.xaxiscontrol_visible = false
-InspectDR.defaults.pointdropmatrix = InspectDR.PDM_DEFAULTS[:never]
+using KiteControllers, BenchmarkTools
 fpc = FlightPathController(fcs)
 kite = KiteModel(fcs)
 kite.omega = 0.08
@@ -58,19 +55,18 @@ for i in 1:SAMPLES
     on_timer(fpc)
     on_timer(kite)
 end
-p1=plot(TIME, PSI, label="heading angle psi [°]", width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-pIDR = display(p1)           # Display with InspectDR and keep plot object
-resize!(pIDR.wnd, 1200, 700) # Resize GTK window directly
+include("plot.jl")
+plot1(TIME, PSI, label="heading angle psi [°]", fig="test_fpc2")
 
-p2=plot(TIME, BETA, label="elevation β [°]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-plot!(TIME, PHI,    label="azimuth ϕ   [°]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-pIDR2 = display(p2)           # Display with InspectDR and keep plot object
-resize!(pIDR2.wnd, 1200, 700) # Resize GTK window directly
+# p2=plot(TIME, BETA, label="elevation β [°]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+# plot!(TIME, PHI,    label="azimuth ϕ   [°]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+# pIDR2 = display(p2)           # Display with InspectDR and keep plot object
+# resize!(pIDR2.wnd, 1200, 700) # Resize GTK window directly
 
-p4=plot(TIME, PSI_DOT, label="psi_dot [rad/s]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-pIDR4 = display(p4)           # Display with InspectDR and keep plot object
-resize!(pIDR4.wnd, 1200, 700) # Resize GTK window directly
+# p4=plot(TIME, PSI_DOT, label="psi_dot [rad/s]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+# pIDR4 = display(p4)           # Display with InspectDR and keep plot object
+# resize!(pIDR4.wnd, 1200, 700) # Resize GTK window directly
 
-p5=plot(PHI, BETA, xlabel="azimuth ϕ [°]", ylabel="elevation β [°]", width=2, xtickfontsize=12, guidefontsize=18, ytickfontsize=12, legend=false)
-pIDR5 = display(p5)           # Display with InspectDR and keep plot object
-resize!(pIDR5.wnd, 1000, 700) # Resize GTK window directly
+# p5=plot(PHI, BETA, xlabel="azimuth ϕ [°]", ylabel="elevation β [°]", width=2, xtickfontsize=12, guidefontsize=18, ytickfontsize=12, legend=false)
+# pIDR5 = display(p5)           # Display with InspectDR and keep plot object
+# resize!(pIDR5.wnd, 1000, 700) # Resize GTK window directly
