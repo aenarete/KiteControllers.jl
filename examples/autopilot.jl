@@ -7,7 +7,6 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels
 
-# change this to KPS3 or KPS4
 const Model = KPS4
 
 if ! @isdefined kcu;    const kcu = KCU(se());   end
@@ -20,7 +19,7 @@ const ssc = SystemStateControl(wcs, fcs, fpps)
 dt = wcs.dt
 
 # the following values can be changed to match your interest
-if ! @isdefined MAX_TIME; MAX_TIME=3600; end
+if ! @isdefined MAX_TIME; MAX_TIME=460; end
 TIME_LAPSE_RATIO = 2
 SHOW_KITE = true
 # end of user parameter section #
