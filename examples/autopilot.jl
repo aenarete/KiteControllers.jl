@@ -147,3 +147,10 @@ println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
 #     Mean    time per timestep: 3.1066040097826084 ms
 #     Maximum time per timestep: 11.13074 ms
 #     Maximum for t>12s        : 11.13074 ms
+
+# GC disabled, Ryzen 7950X, 4x realtime, GMRES
+# abs_tol: 0.0003, rel_tol: 0.0005
+# Missed the deadline for 0.04 %. Max time: 172.1 ms
+#     Mean    time per timestep: 3.5648891855434783 ms
+#     Maximum time per timestep: 14.024168999999999 ms
+#     Maximum for t>12s        : 14.024168999999999 ms
