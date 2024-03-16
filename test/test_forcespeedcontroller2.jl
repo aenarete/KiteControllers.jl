@@ -67,6 +67,7 @@ for i in 1:SAMPLES
     speed_controller_step4!(pid1, pid2, pid3, mix3, winch, calc, i, last_force, last_v_set_out, V_WIND, STARTUP, V_RO, ACC, FORCE, V_SET_OUT, STATE, V_ERR, F_ERR)
 end
 
+include("plot.jl")
 plotx(TIME, V_WIND, V_RO, V_SET_OUT; 
       labels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]"], 
       fig="test_forcespeed_2a")

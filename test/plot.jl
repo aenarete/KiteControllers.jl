@@ -26,7 +26,7 @@ end
 
 function plotx(X, Y...; labels=nothing, fig="", title="")
     len=length(Y)
-    fig_ = plt.figure(fig, figsize=(8, 6))
+    fig_ = plt.figure(fig, figsize=(8, len*2))
     i=1
     ax=[]
     for y in Y
