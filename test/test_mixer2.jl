@@ -1,6 +1,8 @@
 using KiteControllers, Plots
 
-m2 = Mixer_2CH(1.0)
+PERIOD_TIME = 0.05
+
+m2 = KiteControllers.Mixer_2CH(PERIOD_TIME, 1.0)
 x = ones(10)
 y = 2*x
 out = zeros(10)
