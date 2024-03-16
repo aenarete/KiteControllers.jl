@@ -60,6 +60,4 @@ plot3(TIME, PSI, BETA, PSI_DOT;
       labels=["heading angle psi [°]", "elevation β [°]", "psi_dot [rad/s]"], 
       fig="test_fpc2")
 
-# p5=plot(PHI, BETA, xlabel="azimuth ϕ [°]", ylabel="elevation β [°]", width=2, xtickfontsize=12, guidefontsize=18, ytickfontsize=12, legend=false)
-# pIDR5 = display(p5)           # Display with InspectDR and keep plot object
-# resize!(pIDR5.wnd, 1000, 700) # Resize GTK window directly
+plotxy(PHI, BETA, xlabel="azimuth ϕ [°]", ylabel="elevation β [°]", fig="test_fpc2_xy")
