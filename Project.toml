@@ -40,7 +40,8 @@ KiteViewers = "2e593061-95e7-45e4-95f4-df0491f2e601"
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "BenchmarkTools", "Plots", "PyPlot", "PackageCompiler", "KiteViewers", "KitePodModels", "KiteModels", "Joysticks"]
+test = ["Test", "BenchmarkTools", "Plots", "PyPlot", "PackageCompiler", "KiteViewers", "KitePodModels", "KiteModels", "Joysticks", "StatsBase"]
