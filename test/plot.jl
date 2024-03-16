@@ -2,52 +2,54 @@ using Pkg
 if ! ("Plots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
-import PyPlot; 
+import PyPlot as plt
 
 function plot1(X, Y; label="", width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12, fig="")
     if fig != ""
-        PyPlot.figure(fig)
+        plt.figure(fig)
     end
-    p = PyPlot.plot(X, Y; label)
-    PyPlot.grid(true)
+    p = plt.plot(X, Y; label)
+    plt.grid(true)
     p
 end
 
 function plot2(X, Y1, Y2; labels=["", ""], fig="", title="")
-    fig_ = PyPlot.figure(fig, figsize=(8, 6))
-    ax1 = PyPlot.subplot(211) 
-    PyPlot.suptitle(title, fontsize=14) # Super title
-    PyPlot.plot(X, Y1, label=labels[1]); 
-    ylabel(labels[1], fontsize=14);          
-    PyPlot.grid(true)
-    setp(ax1.get_xticklabels(), visible=false)
-    ax2 = PyPlot.subplot(212, sharex = ax1)
-    PyPlot.plot(X, Y2, label=labels[2])
-    PyPlot.grid(true)
-    ylabel(labels[2], fontsize=14);    grid(true)
-    xlabel("time [s]", fontsize=14)
-    xlim(0, X[end])
-    tight_layout()
+    fig_ = plt.figure(fig, figsize=(8, 6))
+    ax1 = plt.subplot(211) 
+    plt.suptitle(title, fontsize=14) # Super title
+    plt.plot(X, Y1, label=labels[1]); 
+    plt.ylabel(labels[1], fontsize=14);        
+    plt.grid(true)
+    plt.setp(ax1.get_xticklabels(), visible=false)
+    ax2 = plt.subplot(212, sharex = ax1)
+    plt.plot(X, Y2, label=labels[2])
+    plt.grid(true)
+    plt.ylabel(labels[2], fontsize=14);    
+    plt.grid(true)
+    plt.xlabel("time [s]", fontsize=14)
+    plt.xlim(0, X[end])
+    plt.tight_layout()
 end
 
 function plot3(X, Y1, Y2, Y3; labels=["", "", ""], fig="", title="")
-    fig_ = PyPlot.figure(fig, figsize=(8, 6))
-    ax1 = PyPlot.subplot(311) 
-    PyPlot.suptitle(title, fontsize=14) # Super title
-    PyPlot.plot(X, Y1, label=labels[1]); 
+    fig_ = plt.figure(fig, figsize=(8, 6))
+    ax1 = plt.subplot(311) 
+    plt.suptitle(title, fontsize=14) # Super title
+    plt.plot(X, Y1, label=labels[1]); 
     ylabel(labels[1], fontsize=14);          
-    PyPlot.grid(true)
-    setp(ax1.get_xticklabels(), visible=false)
-    ax2 = PyPlot.subplot(312, sharex = ax1)
-    PyPlot.plot(X, Y2, label=labels[2])
-    PyPlot.grid(true)
+    plt.grid(true)
+    plt.setp(ax1.get_xticklabels(), visible=false)
+    ax2 = plt.subplot(312, sharex = ax1)
+    plt.plot(X, Y2, label=labels[2])
+    plt.grid(true)
     ylabel(labels[2], fontsize=14);    grid(true)
-    setp(ax2.get_xticklabels(), visible=false)
-    ax3 = PyPlot.subplot(313, sharex = ax1)
-    PyPlot.plot(X, Y3, label=labels[3])
-    PyPlot.grid(true)
-    ylabel(labels[3], fontsize=14);    grid(true)
-    xlabel("time [s]", fontsize=14)
-    xlim(0, X[end])
-    tight_layout()
+    plt.setp(ax2.get_xticklabels(), visible=false)
+    ax3 = plt.subplot(313, sharex = ax1)
+    plt.plot(X, Y3, label=labels[3])
+    plt.grid(true)
+    plt.ylabel(labels[3], fontsize=14);    
+    plt.grid(true)
+    plt.xlabel("time [s]", fontsize=14)
+    plt.xlim(0, X[end])
+    plt.tight_layout()
 end

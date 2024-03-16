@@ -5,7 +5,7 @@ if ! ("Plots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels
+using KiteControllers, KiteViewers, KiteModels, StatsBase
 
 const Model = KPS4
 
@@ -20,7 +20,7 @@ dt = wcs.dt
 
 # the following values can be changed to match your interest
 if ! @isdefined MAX_TIME; MAX_TIME=460; end
-TIME_LAPSE_RATIO = 2
+TIME_LAPSE_RATIO = 4
 SHOW_KITE = true
 # end of user parameter section #
 
@@ -33,6 +33,7 @@ if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE); end
 steps = 0
 if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined DELTA_T; const DELTA_T = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
     start_time_ns = time_ns()
@@ -40,6 +41,10 @@ function simulate(integrator)
     i=1
     j=0; k=0
     GC.gc()
+    GC.gc()
+    if Sys.total_memory()/1e9 > 24 && MAX_TIME < 500
+        GC.enable(false)
+    end
     max_time = 0
     t_gc_tot = 0
     sys_state = SysState(kps4)
@@ -59,9 +64,11 @@ function simulate(integrator)
         #
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
         sys_state = SysState(kps4)
-        if i <= length(T)
+        if i <= length(T) && i > 10/dt 
             T[i] = dt * i
-            DELTA_T[i] = time_ns() - start_time_ns - 1e9*dt
+            # DELTA_T[i] = (time_ns() - start_time_ns - 1e9*dt)/1e6 + dt*1000
+            DELTA_T[i] = t_sim * 1000
+            STEERING[i] = sys_state.steering
         end
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0 
@@ -126,6 +133,16 @@ on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 play()
 stop(viewer)
 
+GC.enable(true)
 include("../test/plot.jl")
-p1   = plot1(T, DELTA_T)
+p1   = plot2(T, DELTA_T, STEERING, labels=["t_sim [ms]", "steering [-]"])
+println("Mean    time per timestep: $(mean(DELTA_T)) ms")
+println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
+index=Int64(round(12/dt))
+println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
 
+# GC disabled, Ryzen 7950X, 4x realtime
+# Missed the deadline for 0.04 %. Max time: 166.1 ms
+#     Mean    time per timestep: 3.0985575495652173 ms
+#     Maximum time per timestep: 11.14224 ms
+#     Maximum for t>12s        : 11.14224 ms
