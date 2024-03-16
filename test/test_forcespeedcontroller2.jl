@@ -67,15 +67,15 @@ for i in 1:SAMPLES
     speed_controller_step4!(pid1, pid2, pid3, mix3, winch, calc, i, last_force, last_v_set_out, V_WIND, STARTUP, V_RO, ACC, FORCE, V_SET_OUT, STATE, V_ERR, F_ERR)
 end
 
-plot3(TIME, V_WIND, V_RO, V_SET_OUT; 
+plotx(TIME, V_WIND, V_RO, V_SET_OUT; 
       labels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]"], 
       fig="test_forcespeed_2a")
 
-plot2(TIME, F_ERR*0.001, V_ERR;
+plotx(TIME, F_ERR*0.001, V_ERR;
       labels=["f_err [kN]", "v_error [m/s]"],
       fig="test_forcespeed_2b")
 
-plot3(TIME, ACC, FORCE*0.001, STATE;
+plotx(TIME, ACC, FORCE*0.001, STATE;
       labels=["acc [m/s²]", "force [kN]", "state"],
       fig="test_forcespeed_2c")
 

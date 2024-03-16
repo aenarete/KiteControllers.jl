@@ -56,15 +56,15 @@ for i in 1:SAMPLES
 end
 
 include("plot.jl")
-plot3(TIME, V_WIND, V_RO, V_SET_OUT,
+plotx(TIME, V_WIND, V_RO, V_SET_OUT,
       labels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]"], 
       fig="test_forcespeed_1a")
 
-plot2(TIME, F_ERR*0.001, V_ERR, 
+plotx(TIME, F_ERR*0.001, V_ERR, 
       labels=["f_err [kN]", "v_error [m/s"],
       fig="test_forcespeed_1b")
 
-plot2(TIME, ACC, FORCE*0.001,
+plotx(TIME, ACC, FORCE*0.001,
       labels=["acc [m/s²]", "force [kN]"],
       fig="test_forcespeed_1c")
 

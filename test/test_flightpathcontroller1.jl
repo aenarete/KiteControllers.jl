@@ -42,7 +42,7 @@ end
 
 include("plot.jl")
 
-plot3(TIME, PSI, BETA, PSI_DOT; 
+plotx(TIME, PSI, BETA, PSI_DOT; 
       labels=["heading angle psi [°]","elevation β [°]", "psi_dot [rad/s]"], 
       fig = "test_fpc1")
 

@@ -56,7 +56,7 @@ for i in 1:SAMPLES
     on_timer(kite)
 end
 include("plot.jl")
-plot3(TIME, PSI, BETA, PSI_DOT; 
+plotx(TIME, PSI, BETA, PSI_DOT; 
       labels=["heading angle psi [°]", "elevation β [°]", "psi_dot [rad/s]"], 
       fig="test_fpc2")
 
