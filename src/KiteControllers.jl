@@ -40,6 +40,10 @@ const FTOL    = 1e-8 # tolerance of residual for nonlinar solver
                         ssWinchControl  # automated winch control, manual steering 
                   end
 
+function __init__()
+    set_data_path(joinpath(pwd(), "data"))
+end
+
 include("utils.jl")
 include("components.jl")
 include("fpc_settings.jl")
