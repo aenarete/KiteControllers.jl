@@ -141,8 +141,9 @@ println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
 index=Int64(round(12/dt))
 println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
 
-# GC disabled, Ryzen 7950X, 4x realtime
-# Missed the deadline for 0.04 %. Max time: 166.1 ms
-#     Mean    time per timestep: 3.0985575495652173 ms
-#     Maximum time per timestep: 11.14224 ms
-#     Maximum for t>12s        : 11.14224 ms
+# GC disabled, Ryzen 7950X, 4x realtime, GMRES
+# abs_tol: 0.0006, rel_tol: 0.001
+# Missed the deadline for 0.04 %. Max time: 160.4 ms
+#     Mean    time per timestep: 3.1066040097826084 ms
+#     Maximum time per timestep: 11.13074 ms
+#     Maximum for t>12s        : 11.13074 ms
