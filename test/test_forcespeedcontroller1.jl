@@ -9,8 +9,6 @@ using Timers; tic()
 # Input: A varying wind speed. Implements the simulink block diagram, shown in
 # docs/force_speed_controller_test1.png
 using KiteControllers, Plots, BenchmarkTools
-inspectdr()
-InspectDR.defaults.xaxiscontrol_visible = false
 
 wcs = WCSettings()
 wcs.test = true
@@ -57,29 +55,24 @@ for i in 1:SAMPLES
     speed_controller_step3!(pid1, pid2, winch, calc, i, last_force, last_v_set_out, V_WIND, STARTUP, V_RO, ACC, FORCE, V_SET_OUT, V_SET_OUT_B, STATE, V_ERR, F_ERR)
 end
 
-p1=plot(TIME, V_WIND,    label="v_wind [m/s]",   width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-plot!(TIME, V_RO,      label="v_reel_out [m/s]", width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-plot!(TIME, V_SET_OUT, label="v_set_out [m/s]",  width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+include("plot.jl")
+plot3(TIME, V_WIND, V_RO, V_SET_OUT,
+      labels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]"], 
+      fig="test_forcespeed_1a")
 
-p2=plot(TIME, F_ERR*0.001, label="f_err [kN]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-plot!(TIME, V_ERR, label="v_error [m/s]",        width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+plot2(TIME, F_ERR*0.001, V_ERR, 
+      labels=["f_err [kN]", "v_error [m/s"],
+      fig="test_forcespeed_1b")
 
-p3=plot(TIME, ACC,       label="acc [m/s²]",       width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-plot!(TIME, FORCE*0.001, label="force [kN]",     width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-# plot!(TIME, STATE,       label="state",          width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-# plot!(TIME, V_ERR, label="v_error [m/s]",        width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-# plot!(TIME, F_ERR*0.001, label="f_error [kN]",   width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
+plot2(TIME, ACC, FORCE*0.001,
+      labels=["acc [m/s²]", "force [kN]"],
+      fig="test_forcespeed_1c")
 
-pIDR = display(p1)           # Display with InspectDR and keep plot object
-resize!(pIDR.wnd, 1200, 700) # Resize GTK window directly
+# plot!(TIME, STATE,       label="state")
+# plot!(TIME, V_ERR, label="v_error [m/s]")
+# plot!(TIME, F_ERR*0.001, label="f_error [kN]")
 
-pIDR2 = display(p2)           # Display with InspectDR and keep plot object
-resize!(pIDR2.wnd, 1200, 700) # Resize GTK window directly
-
-# display(p3)
 toc()
 
 println("Max iterations needed: $(wcs.iter)")
-            
-#     return TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE, STATE, V_ERR, F_ERR
     
