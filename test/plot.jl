@@ -31,7 +31,11 @@ function plotx(X, Y...; labels=nothing, fig="", title="")
     ax=[]
     for y in Y
         subplot=100len+10+i
-        push!(ax, plt.subplot(subplot))
+        if i==1
+            push!(ax, plt.subplot(subplot))
+        else
+            push!(ax, plt.subplot(subplot, sharex=ax[1]))
+        end
         if i==1
             plt.suptitle(title, fontsize=14) # Super title
         end
@@ -43,6 +47,9 @@ function plotx(X, Y...; labels=nothing, fig="", title="")
         plt.plot(X, y, label=lbl)
         plt.ylabel(lbl, fontsize=14);  
         plt.grid(true)
+        if i < len
+            plt.setp(ax[i].get_xticklabels(), visible=false)
+        end
         i+=1
     end
     plt.xlabel("time [s]", fontsize=14)
