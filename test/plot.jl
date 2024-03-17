@@ -4,7 +4,7 @@ if ! ("Plots" ∈ keys(Pkg.project().dependencies))
 end
 import PyPlot as plt
 
-function plot1(X, Y; label="", width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12, fig="")
+function plot1(X, Y; label="", fig="")
     if fig != ""
         plt.figure(fig)
     end
