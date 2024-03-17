@@ -83,9 +83,6 @@ plotx(TIME, FORCE*0.001, STATE;
       labels=["force [kN]","state"],
       fig="test_winchcontroller_c")
 
-# plot!(TIME, V_ERR, label="v_error [m/s]")
-# plot!(TIME, F_ERR*0.001, label="f_error [kN]")
-
 toc()
 
 println("Max iterations needed: $(wcs.iter)")
