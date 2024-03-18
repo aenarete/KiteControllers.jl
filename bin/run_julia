@@ -4,10 +4,6 @@ if [[ $(basename $(pwd)) == "bin" ]]; then
     cd ..
 fi
 
-if [[ $HOSTNAME == "tuxedi" ]]; then
-    sudo performance.sh
-fi
-
 export MPLBACKEND=qt5agg
 
 if command -v nproc &> /dev/null; then
