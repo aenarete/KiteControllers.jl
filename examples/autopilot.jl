@@ -31,9 +31,10 @@ phi_set = 21.48
 if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE); end
 
 steps = 0
-if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined DELTA_T; const DELTA_T = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined T;        const T = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined DELTA_T;  const DELTA_T = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
     start_time_ns = time_ns()
@@ -67,8 +68,9 @@ function simulate(integrator)
         if i <= length(T) && i > 10/dt 
             T[i] = dt * i
             # DELTA_T[i] = (time_ns() - start_time_ns - 1e9*dt)/1e6 + dt*1000
-            DELTA_T[i] = t_sim * 1000
+            DELTA_T[i]  = t_sim * 1000
             STEERING[i] = sys_state.steering
+            DEPOWER_[i] = sys_state.depower
         end
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0 
@@ -135,7 +137,9 @@ stop(viewer)
 
 GC.enable(true)
 include("../test/plot.jl")
-p1   = plot2(T, DELTA_T, STEERING, labels=["t_sim [ms]", "steering [-]"])
+plotx(T, DELTA_T, 100*STEERING, 100*DEPOWER_, 
+      labels=["t_sim [ms]", "steering [%]", "depower [%]"], 
+      fig="simulation_timing")
 println("Mean    time per timestep: $(mean(DELTA_T)) ms")
 println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
 index=Int64(round(12/dt))

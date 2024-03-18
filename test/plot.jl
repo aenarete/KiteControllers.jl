@@ -8,9 +8,9 @@ function plot1(X, Y; label="", fig="")
     if fig != ""
         plt.figure(fig)
     end
-    p = plt.plot(X, Y; label)
+    plt.plot(X, Y; label)
     plt.grid(true)
-    p
+    nothing
 end
 
 function plotxy(X, Y; xlabel="", ylabel, fig="")
@@ -22,6 +22,7 @@ function plotxy(X, Y; xlabel="", ylabel, fig="")
     plt.ylabel(ylabel, fontsize=14);  
     plt.grid(true)
     plt.tight_layout()
+    nothing
 end
 
 function plotx(X, Y...; labels=nothing, fig="", title="")
@@ -55,4 +56,5 @@ function plotx(X, Y...; labels=nothing, fig="", title="")
     plt.xlabel("time [s]", fontsize=14)
     plt.xlim(0, X[end])
     plt.tight_layout()
+    nothing
 end
