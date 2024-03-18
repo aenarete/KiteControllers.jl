@@ -10,9 +10,12 @@ fi
 
 export MPLBACKEND=qt5agg
 
-FAST_CORES=7
+if command -v nproc &> /dev/null; then
+    FAST_CORES=$(($(nproc) / 2 - 1))
+else
+    FAST_CORES=3 # default value
+fi
 
-# instead of 7, use the number of fast CPU cores you have minus one
 GCT="--gcthreads=$FAST_CORES,1"
 
 julia_version=$(julia --version | awk '{print($3)}')
