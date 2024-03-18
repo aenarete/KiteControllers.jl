@@ -10,8 +10,10 @@ fi
 
 export MPLBACKEND=qt5agg
 
+FAST_CORES=7
+
 # instead of 7, use the number of fast CPU cores you have minus one
-GCT="--gcthreads=7,1"
+GCT="--gcthreads=$FAST_CORES,1"
 
 julia_version=$(julia --version | awk '{print($3)}')
 julia_major=${julia_version:0:3} 
@@ -24,8 +26,8 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 
 if test -f "bin/kps-image-${julia_major}-${branch}.so"; then
     echo "Found system image!"
-    julia -J  bin/kps-image-${julia_major}-${branch}.so -t 7,1 $GCT --project
+    julia -J  bin/kps-image-${julia_major}-${branch}.so -t $FAST_CORES,1 $GCT --project
 else
-    julia --project -t 7,1 $GCT
+    julia --project -t $FAST_CORES,1 $GCT
     # julia --project
 fi
