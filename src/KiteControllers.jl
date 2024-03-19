@@ -41,7 +41,9 @@ const FTOL    = 1e-8 # tolerance of residual for nonlinar solver
                   end
 
 function __init__()
-    set_data_path(joinpath(pwd(), "data"))
+    if isdir(joinpath(pwd(), "data")) && isfile(joinpath(pwd(), "data", "system.yaml"))
+        set_data_path(joinpath(pwd(), "data"))
+    end
 end
 
 include("utils.jl")
