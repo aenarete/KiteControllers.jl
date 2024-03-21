@@ -17,9 +17,9 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
 dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
-if ! @isdefined MAX_TIME; MAX_TIME=460; end
-TIME_LAPSE_RATIO = 4
-SHOW_KITE = true
+MAX_TIME::Float64 = 460
+TIME_LAPSE_RATIO  = 4
+SHOW_KITE         = true
 # end of user parameter section #
 
 phi_set = 21.48

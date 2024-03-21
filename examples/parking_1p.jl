@@ -25,9 +25,9 @@ fcs.i = 0.0
 fcs.d = 27.75*0.9
 
 # the following values can be changed to match your interest
-if ! @isdefined MAX_TIME; MAX_TIME=60; end
-TIME_LAPSE_RATIO = 1
-SHOW_KITE = true
+MAX_TIME::Float64 = 60
+TIME_LAPSE_RATIO  = 1
+SHOW_KITE         = true
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
