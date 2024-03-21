@@ -1,4 +1,4 @@
-MAX_TIME = 5
+MAX_TIME::Float64 = 5
 let
     include("test_speedcontroller1.jl")
     include("../examples/autopilot.jl")
