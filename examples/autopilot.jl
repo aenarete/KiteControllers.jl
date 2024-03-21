@@ -13,10 +13,10 @@ if ! @isdefined kcu;    const kcu = KCU(se());   end
 if ! @isdefined kps4;   const kps4 = Model(kcu); end
 
 wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
-const fcs = FPCSettings(); fcs.dt = wcs.dt
-const fpps = FPPSettings()
-const ssc = SystemStateControl(wcs, fcs, fpps)
-dt = wcs.dt
+fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
+fpps::FPPSettings = FPPSettings()
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
 if ! @isdefined MAX_TIME; MAX_TIME=460; end
@@ -28,7 +28,7 @@ phi_set = 21.48
 # on_control_command(ssc.fpp.fpca.fpc, attractor=[deg2rad(phi_set), deg2rad(51.88)])
 # on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
 
-if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE); end
+viewer::Viewer3D = Viewer3D(SHOW_KITE)
 
 steps = 0
 if ! @isdefined T;        const T = zeros(Int64(MAX_TIME/dt)); end
