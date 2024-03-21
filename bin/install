@@ -4,12 +4,12 @@ if [ $(uname) != "Linux" ] ; then
     exit 1
 fi
 
-echo "Install KiteViewer.desktop in the folder ~/.local/share/applications"
+echo "Install KiteController.desktop in the folder ~/.local/share/applications"
 
 # determine the directory of this script
 APPDIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-# # "Copy KiteViewer.desktop.template"
+# "Copy KiteController.desktop.template"
 cp ${APPDIR}/KiteController.desktop.template ~/.local/share/applications
 
 # "Replace @APPDIR@ with APPDIR"
