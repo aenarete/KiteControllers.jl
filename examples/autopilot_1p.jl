@@ -7,17 +7,14 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels
 
-# change this to KPS3 or KPS4
-const Model = KPS3
-
 if ! @isdefined kcu;    const kcu = KCU(se());   end
-if ! @isdefined kps4;   const kps4 = Model(kcu); end
+if ! @isdefined kps3;   const kps3 = KPS3(kcu); end
 
 wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
-const fcs = FPCSettings(); fcs.dt = wcs.dt
-const fpps = FPPSettings()
-const ssc = SystemStateControl(wcs, fcs, fpps)
-dt = wcs.dt
+fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
+fpps::FPPSettings = FPPSettings()
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+dt::Float64 = wcs.dt
 
 # result of tuning, factor 0.9 to increase robustness
 fcs.p = 13.63*0.9
@@ -34,7 +31,7 @@ phi_set = 21.48
 # on_control_command(ssc.fpp.fpca.fpc, attractor=[deg2rad(phi_set), deg2rad(51.88)])
 # on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
 
-if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE); end
+viewer::Viewer3D = Viewer3D(SHOW_KITE)
 
 steps = 0
 
@@ -46,14 +43,14 @@ function simulate(integrator)
     GC.gc()
     max_time = 0
     t_gc_tot = 0
-    sys_state = SysState(kps4)
+    sys_state = SysState(kps3)
     on_new_systate(ssc, sys_state)
     while true
         if i > 100
             dp = KiteControllers.get_depower(ssc)
             if dp < 0.22 dp = 0.22 end
             steering = calc_steering(ssc)
-            set_depower_steering(kps4.kcu, dp, steering)
+            set_depower_steering(kps3.kcu, dp, steering)
         end
         if i == 200
             on_autopilot(ssc)
@@ -61,11 +58,8 @@ function simulate(integrator)
         # execute winch controller
         v_ro = calc_v_set(ssc)
         #
-        t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
-        if t_sim < 0.3*dt
-            t_gc_tot += @elapsed GC.gc(false)
-        end
-        sys_state = SysState(kps4)
+        t_sim = @elapsed KiteModels.next_step!(kps3, integrator, v_ro=v_ro, dt=dt)
+        sys_state = SysState(kps3)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0 
             KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
@@ -87,7 +81,7 @@ function simulate(integrator)
             start_time_ns = time_ns()
             t_gc_tot = 0
         end
-        if viewer.stop break end
+        if ! isopen(viewer.fig.scene) break end
         if i*dt > MAX_TIME break end
         i += 1
     end
@@ -98,7 +92,7 @@ end
 
 function play()
     global steps
-    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+    integrator = KiteModels.init_sim!(kps3, stiffness_factor=0.04)
     toc()
     steps = simulate(integrator)
     GC.enable(true)

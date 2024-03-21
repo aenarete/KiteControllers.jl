@@ -85,7 +85,7 @@ function simulate(integrator)
             start_time_ns = time_ns()
             t_gc_tot = 0
         end
-        if viewer.stop break end
+        if ! isopen(viewer.fig.scene) break end
         if i*dt >= MAX_TIME break end
         i += 1
     end

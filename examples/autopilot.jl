@@ -7,10 +7,8 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, StatsBase
 
-const Model = KPS4
-
 if ! @isdefined kcu;    const kcu = KCU(se());   end
-if ! @isdefined kps4;   const kps4 = Model(kcu); end
+if ! @isdefined kps4;   const kps4 = KPS4(kcu); end
 
 wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
 fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
@@ -97,7 +95,7 @@ function simulate(integrator)
             start_time_ns = time_ns()
             t_gc_tot = 0
         end
-        if viewer.stop break end
+        if ! isopen(viewer.fig.scene) break end
         if i*dt > MAX_TIME break end
         i += 1
     end

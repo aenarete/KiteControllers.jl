@@ -30,7 +30,7 @@ TIME_LAPSE_RATIO = 1
 SHOW_KITE = true
 # end of user parameter section #
 
-if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE, "WinchON"); end
+viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
 steps = 0
 
@@ -82,7 +82,7 @@ function simulate(integrator)
             start_time_ns = time_ns()
             t_gc_tot = 0
         end
-        if viewer.stop break end
+        if ! isopen(viewer.fig.scene) break end
         if i*dt > MAX_TIME break end
         i += 1
     end
