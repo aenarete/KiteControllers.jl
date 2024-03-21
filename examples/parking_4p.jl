@@ -23,9 +23,9 @@ fcs.i=0.0
 fcs.d=35.81 * 0.6
 
 # the following values can be changed to match your interest
-if ! @isdefined MAX_TIME; MAX_TIME=60; end
-TIME_LAPSE_RATIO = 1
-SHOW_KITE = true
+MAX_TIME::Float64 = 60
+TIME_LAPSE_RATIO  =  1
+SHOW_KITE         = true
 # end of user parameter section #
 
 if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE, "WinchON"); end

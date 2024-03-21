@@ -12,21 +12,21 @@ using KiteControllers, KiteModels, Plots, BayesOpt
 
 if ! @isdefined kcu;   const kcu = KCU(se());   end
 if ! @isdefined kps;   const kps = KPS3(kcu); end
-wcs::WCSettings = WCSettings(); wcs.dt = 1/se().sample_freq
-fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
+wcs::WCSettings   = WCSettings();  wcs.dt = 1/se().sample_freq
+fcs::FPCSettings  = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
 dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
-if ! @isdefined MAX_TIME; MAX_TIME=60; end
-TIME_LAPSE_RATIO = 1
-MAX_ITER = 60
-SHOW_KITE = false
+MAX_TIME::Float64 = 60
+TIME_LAPSE_RATIO  =  1
+MAX_ITER          = 60
+SHOW_KITE         = false
 # end of user parameter section #
 
 LAST_RES = 1e10
-ITER=1
+ITER = 1
 if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined P; const P = zeros(Int64(MAX_ITER+11)); end
