@@ -19,4 +19,4 @@ mv ~/.local/share/applications/KiteController.desktop.template ~/.local/share/ap
 
 # install icon
 mkdir -p ~/.local/share/icons
-cp ${APPDIR}/KiteViewer.png ~/.local/share/icons
+cp ${APPDIR}/KiteController.png ~/.local/share/icons
