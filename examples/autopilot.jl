@@ -136,6 +136,7 @@ on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 
 play()
 stop(viewer)
+KiteViewers.GLMakie.closeall()
 
 GC.enable(true)
 
@@ -148,8 +149,9 @@ if maximum(DELTA_T) > 0
     println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
     index=Int64(round(12/dt))
     println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
+    plt.pause(0.01)
+    plt.show(block=true)
 end
-sleep(5)
 
 # GC disabled, Ryzen 7950X, 4x realtime, GMRES
 # abs_tol: 0.0006, rel_tol: 0.001
