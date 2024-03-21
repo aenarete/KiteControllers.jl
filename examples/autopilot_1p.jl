@@ -22,7 +22,7 @@ fcs.i = 0.0
 fcs.d = 27.75*0.9
 
 # the following values can be changed to match your interest
-if ! @isdefined MAX_TIME; MAX_TIME=3600; end
+MAX_TIME::Float64=3600
 TIME_LAPSE_RATIO = 2
 SHOW_KITE = true
 # end of user parameter section #
