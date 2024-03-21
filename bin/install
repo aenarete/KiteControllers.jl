@@ -17,6 +17,6 @@ APPDIR2=${APPDIR//\//\\/} # escape all / characters with \
 sed -i "s/@APPDIR@/${APPDIR2}/g" ~/.local/share/applications/KiteController.desktop.template
 mv ~/.local/share/applications/KiteController.desktop.template ~/.local/share/applications/KiteController.desktop
 
-# # install icon
-# mkdir -p ~/.local/share/icons
-# cp ${APPDIR}/data/KiteViewer.png ~/.local/share/icons
+# install icon
+mkdir -p ~/.local/share/icons
+cp ${APPDIR}/KiteViewer.png ~/.local/share/icons
