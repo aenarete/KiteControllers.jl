@@ -140,7 +140,7 @@ KiteViewers.GLMakie.closeall()
 
 GC.enable(true)
 
-if maximum(DELTA_T) > 0
+if maximum(DELTA_T) > 0 && haskey(ENV, "PLOT")
     include("../test/plot.jl")
     plotx(T, DELTA_T, 100*STEERING, 100*DEPOWER_, 
         labels=["t_sim [ms]", "steering [%]", "depower [%]"], 
