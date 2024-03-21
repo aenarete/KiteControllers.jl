@@ -60,7 +60,11 @@ function calc_v_set(wc::WinchController, v_act, force, f_low, v_set_pc=nothing)
     set_force(wc.pid2, force)
     set_force(wc.pid3, force)
     # activate or deactivate the speed controller
-    set_inactive(wc.pid1, wc.pid2.active || wc.pid3.active)    
+    set_inactive(wc.pid1, (wc.pid2.active || wc.pid3.active) && isnothing(v_set_pc)) 
+    if ! isnothing(v_set_pc)
+        wc.pid2.active=false
+        wc.pid3.active=false
+    end   
     # calculate the output, using the mixer
     select_b(wc.mix3, wc.pid2.active)
     select_c(wc.mix3, wc.pid3.active)
