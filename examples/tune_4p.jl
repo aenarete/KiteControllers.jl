@@ -8,7 +8,8 @@ using KiteUtils
 se().abs_tol=0.0000006
 se().rel_tol=0.000001
 
-using KiteControllers, KiteModels, Plots, BayesOpt
+using KiteControllers, KiteModels, BayesOpt
+import PyPlot as plt
 
 if ! @isdefined kcu;   const kcu = KCU(se());   end
 if ! @isdefined kps;   const kps = KPS4(kcu); end
@@ -94,7 +95,7 @@ function test_parking(suppress_overshoot_factor = 3.0)
 end
 
 function show_result()
-    plot(T, rad2deg.(AZIMUTH))
+    plt.plot(T, rad2deg.(AZIMUTH))
 end
 
 function f(x)

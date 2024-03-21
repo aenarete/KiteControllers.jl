@@ -8,7 +8,8 @@ using KiteUtils
 se().abs_tol=0.0000006
 se().rel_tol=0.000001
 
-using KiteControllers, KiteModels, Plots, BayesOpt
+using KiteControllers, KiteModels, BayesOpt
+import PyPlot as plt
 
 if ! @isdefined kcu;   const kcu = KCU(se());   end
 if ! @isdefined kps;   const kps = KPS3(kcu); end
@@ -108,7 +109,7 @@ function test_parking()
 end
 
 function show_result()
-    plot(T, rad2deg.(AZIMUTH))
+    plt.plot(T, rad2deg.(AZIMUTH))
 end
 
 function f(x)
@@ -157,9 +158,9 @@ function est_noise(n=10)
 end
 
 function plot_res()
-    plot(1:71, P)
-    plot!(1:71, D)
-    plot!(1:71, 10*RES)
+    plt.plot(1:71, P)
+    plt.plot!(1:71, D)
+    plt.plot!(1:71, 10*RES)
 end
 
 fcs.p=17.33 # 14.36 # 15.61 # 14.43 # 13.65 # 14.08 # 14.72 # 15.41 # 14.74 # 14.35 # 13.68 # 13.87 # 14.99 # 13.63
