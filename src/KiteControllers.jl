@@ -56,6 +56,7 @@ include("wc_components.jl")
 include("winchcontroller.jl")
 include("fpp_settings.jl")
 include("flightpathplanner.jl")
+include("systemstatecontrol.jl")
 
 precompile(SystemStateControl, (WCSettings,))
 precompile(on_parking, (SystemStateControl,))
