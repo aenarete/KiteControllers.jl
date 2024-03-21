@@ -132,7 +132,7 @@ function autopilot()
 end
 
 on(viewer.btn_PLAY.clicks) do c; async_play(); end
-on(viewer.btn_STOP.clicks) do c; stop(viewer); on_stop(ssc) end
+on(viewer.btn_STOP.clicks) do c; on_stop(ssc) end
 on(viewer.btn_PARKING.clicks) do c; parking(); end
 on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 
