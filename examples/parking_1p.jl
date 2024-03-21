@@ -13,11 +13,11 @@ using KiteControllers, KiteViewers, KiteModels, Plots
 
 if ! @isdefined kcu;    const kcu = KCU(se());   end
 if ! @isdefined kps4;   const kps4 = KPS3(kcu); end
-const wcs = WCSettings(); wcs.dt = 1/se().sample_freq
-const fcs = FPCSettings(); fcs.dt = wcs.dt
-const fpps = FPPSettings()
-const ssc = SystemStateControl(wcs, fcs, fpps)
-dt = wcs.dt
+wcs::WCSettings = WCSettings(); wcs.dt = 1/se().sample_freq
+fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
+fpps::FPPSettings = FPPSettings()
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+dt::Float64 = wcs.dt
 
 # result of tuning, factor 0.9 to increase robustness
 fcs.p = 13.63*0.9
