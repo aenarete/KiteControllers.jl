@@ -12,11 +12,11 @@ using KiteControllers, KiteModels, Plots, BayesOpt
 
 if ! @isdefined kcu;   const kcu = KCU(se());   end
 if ! @isdefined kps;   const kps = KPS4(kcu); end
-wcs = WCSettings(); wcs.dt = 1/se().sample_freq
-fcs = FPCSettings(); fcs.dt = wcs.dt
-fpps = FPPSettings()
-const ssc = SystemStateControl(wcs, fcs, fpps)
-dt = wcs.dt
+wcs::WCSettings = WCSettings(); wcs.dt = 1/se().sample_freq
+fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
+fpps::FPPSettings = FPPSettings()
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
 if ! @isdefined MAX_TIME; MAX_TIME=60; end
