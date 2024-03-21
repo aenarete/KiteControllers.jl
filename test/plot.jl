@@ -54,7 +54,9 @@ function plotx(X, Y...; labels=nothing, fig="", title="")
         i+=1
     end
     plt.xlabel("time [s]", fontsize=14)
-    plt.xlim(0, X[end])
+    if X[end] > 0
+        plt.xlim(0, X[end])
+    end
     plt.tight_layout()
     nothing
 end

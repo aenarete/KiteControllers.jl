@@ -138,14 +138,18 @@ play()
 stop(viewer)
 
 GC.enable(true)
-include("../test/plot.jl")
-plotx(T, DELTA_T, 100*STEERING, 100*DEPOWER_, 
-      labels=["t_sim [ms]", "steering [%]", "depower [%]"], 
-      fig="simulation_timing")
-println("Mean    time per timestep: $(mean(DELTA_T)) ms")
-println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
-index=Int64(round(12/dt))
-println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
+
+if maximum(DELTA_T) > 0
+    include("../test/plot.jl")
+    plotx(T, DELTA_T, 100*STEERING, 100*DEPOWER_, 
+        labels=["t_sim [ms]", "steering [%]", "depower [%]"], 
+        fig="simulation_timing")
+    println("Mean    time per timestep: $(mean(DELTA_T)) ms")
+    println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
+    index=Int64(round(12/dt))
+    println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
+end
+sleep(5)
 
 # GC disabled, Ryzen 7950X, 4x realtime, GMRES
 # abs_tol: 0.0006, rel_tol: 0.001

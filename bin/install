@@ -1,0 +1,22 @@
+#!/bin/bash
+if [ $(uname) != "Linux" ] ; then
+    echo "For now, installation as app only working on Linux..."
+    exit 1
+fi
+
+echo "Install KiteViewer.desktop in the folder ~/.local/share/applications"
+
+# determine the directory of this script
+APPDIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
+# # "Copy KiteViewer.desktop.template"
+cp ${APPDIR}/KiteController.desktop.template ~/.local/share/applications
+
+# "Replace @APPDIR@ with APPDIR"
+APPDIR2=${APPDIR//\//\\/} # escape all / characters with \
+sed -i "s/@APPDIR@/${APPDIR2}/g" ~/.local/share/applications/KiteController.desktop.template
+mv ~/.local/share/applications/KiteController.desktop.template ~/.local/share/applications/KiteController.desktop
+
+# # install icon
+# mkdir -p ~/.local/share/icons
+# cp ${APPDIR}/data/KiteViewer.png ~/.local/share/icons

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=KiteController
+GenericName=KiteController
+Comment=Viewer with automated controller for airborne wind energy systems
+Exec=@APPDIR@/autopilot
+Categories=Development;Science;
+Icon=KiteController
+Terminal=false
+StartupNotify=true
