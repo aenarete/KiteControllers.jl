@@ -49,55 +49,59 @@ function simulate(integrator)
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     while true
-        if i > 100
-            dp = KiteControllers.get_depower(ssc)
-            if dp < 0.22 dp = 0.22 end
-            steering = calc_steering(ssc)
-            set_depower_steering(kps4.kcu, dp, steering)
-        end
-        if i == 200
-            on_autopilot(ssc)
-        end
-        # execute winch controller
-        v_ro = calc_v_set(ssc)
-        #
-        t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
-        sys_state = SysState(kps4)
-        if i <= length(T) && i > 10/dt 
-            T[i] = dt * i
-            # DELTA_T[i] = (time_ns() - start_time_ns - 1e9*dt)/1e6 + dt*1000
-            DELTA_T[i]  = t_sim * 1000
-            STEERING[i] = sys_state.steering
-            DEPOWER_[i] = sys_state.depower
-        end
-        on_new_systate(ssc, sys_state)
-        if mod(i, TIME_LAPSE_RATIO) == 0 
-            KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
-            set_status(viewer, String(Symbol(ssc.state)))
-            # turn garbage collection back on if we are short of memory
-            if Sys.free_memory()/1e9 < 2.0
-                GC.enable(true)
+        if viewer.stop
+            sleep(dt)
+        else
+            if i > 100
+                dp = KiteControllers.get_depower(ssc)
+                if dp < 0.22 dp = 0.22 end
+                steering = calc_steering(ssc)
+                set_depower_steering(kps4.kcu, dp, steering)
             end
-            wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
-            mtime = 0
-            if i > 10/dt 
-                # if we missed the deadline by more than 5 ms
-                mtime = time_ns() - start_time_ns
-                if mtime > dt*1e9 + 5e6
-                    print(".")
-                    j += 1
+            if i == 200
+                on_autopilot(ssc)
+            end
+            # execute winch controller
+            v_ro = calc_v_set(ssc)
+            #
+            t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+            sys_state = SysState(kps4)
+            if i <= length(T) && i > 10/dt 
+                T[i] = dt * i
+                # DELTA_T[i] = (time_ns() - start_time_ns - 1e9*dt)/1e6 + dt*1000
+                DELTA_T[i]  = t_sim * 1000
+                STEERING[i] = sys_state.steering
+                DEPOWER_[i] = sys_state.depower
+            end
+            on_new_systate(ssc, sys_state)
+            if mod(i, TIME_LAPSE_RATIO) == 0 
+                KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
+                set_status(viewer, String(Symbol(ssc.state)))
+                # turn garbage collection back on if we are short of memory
+                if Sys.free_memory()/1e9 < 2.0
+                    GC.enable(true)
                 end
-                k +=1
+                wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
+                mtime = 0
+                if i > 10/dt 
+                    # if we missed the deadline by more than 5 ms
+                    mtime = time_ns() - start_time_ns
+                    if mtime > dt*1e9 + 5e6
+                        print(".")
+                        j += 1
+                    end
+                    k +=1
+                end
+                if mtime > max_time
+                    max_time = mtime
+                end            
+                start_time_ns = time_ns()
+                t_gc_tot = 0
             end
-            if mtime > max_time
-                max_time = mtime
-            end            
-            start_time_ns = time_ns()
-            t_gc_tot = 0
+            i += 1
         end
         if ! isopen(viewer.fig.scene) break end
         if i*dt > MAX_TIME break end
-        i += 1
     end
     misses = j/k * 100
     println("\nMissed the deadline for $(round(misses, digits=2)) %. Max time: $(round((max_time*1e-6), digits=1)) ms")
@@ -106,6 +110,7 @@ end
 
 function play()
     global steps
+    viewer.stop=false
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     toc()
     steps = simulate(integrator)
@@ -122,6 +127,7 @@ function async_play()
 end
 
 function parking()
+    viewer.stop=false
     on_parking(ssc)
 end
 
@@ -129,8 +135,8 @@ function autopilot()
     on_autopilot(ssc)
 end
 
-on(viewer.btn_PLAY.clicks) do c; async_play(); end
-on(viewer.btn_STOP.clicks) do c; on_stop(ssc) end
+on(viewer.btn_PLAY.clicks) do c; viewer.stop=false; end
+# on(viewer.btn_STOP.clicks) do c; on_stop(ssc) end
 on(viewer.btn_PARKING.clicks) do c; parking(); end
 on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 
