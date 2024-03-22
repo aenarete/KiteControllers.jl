@@ -33,8 +33,10 @@ if ! @isdefined T;        const T = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined DELTA_T;  const DELTA_T = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(Int64(MAX_TIME/dt)); end
+LAST_I::Int64=0
 
 function simulate(integrator)
+    global LAST_I
     start_time_ns = time_ns()
     clear_viewer(viewer)
     i=1
@@ -66,12 +68,14 @@ function simulate(integrator)
             #
             t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
             sys_state = SysState(kps4)
-            if i <= length(T) && i > 10/dt 
+            if i <= length(T)
                 T[i] = dt * i
-                # DELTA_T[i] = (time_ns() - start_time_ns - 1e9*dt)/1e6 + dt*1000
-                DELTA_T[i]  = t_sim * 1000
-                STEERING[i] = sys_state.steering
-                DEPOWER_[i] = sys_state.depower
+                if i > 10/dt
+                    DELTA_T[i]  = t_sim * 1000
+                    STEERING[i] = sys_state.steering
+                    DEPOWER_[i] = sys_state.depower
+                    LAST_I=i
+                end
             end
             on_new_systate(ssc, sys_state)
             if mod(i, TIME_LAPSE_RATIO) == 0 
@@ -135,6 +139,9 @@ function autopilot()
     on_autopilot(ssc)
 end
 
+on_stop(ssc)
+parking()
+clear!(kps4)
 on(viewer.btn_PLAY.clicks) do c; viewer.stop=false; end
 # on(viewer.btn_STOP.clicks) do c; on_stop(ssc) end
 on(viewer.btn_PARKING.clicks) do c; parking(); end
@@ -148,7 +155,7 @@ GC.enable(true)
 
 if maximum(DELTA_T) > 0 && haskey(ENV, "PLOT")
     include("../test/plot.jl")
-    plotx(T, DELTA_T, 100*STEERING, 100*DEPOWER_, 
+    plotx(T[1:LAST_I], DELTA_T[1:LAST_I], 100*STEERING[1:LAST_I], 100*DEPOWER_[1:LAST_I], 
         labels=["t_sim [ms]", "steering [%]", "depower [%]"], 
         fig="simulation_timing")
     println("Mean    time per timestep: $(mean(DELTA_T)) ms")
