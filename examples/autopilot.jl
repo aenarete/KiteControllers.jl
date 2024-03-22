@@ -7,8 +7,8 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, StatsBase
 
-if ! @isdefined kcu;    const kcu = KCU(se());   end
-if ! @isdefined kps4;   const kps4 = KPS4(kcu); end
+kcu::KCU   = KCU(se())
+kps4::KPS4 = KPS4(kcu)
 
 wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
 fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
@@ -38,7 +38,10 @@ LAST_I::Int64=0
 function simulate(integrator)
     global LAST_I
     start_time_ns = time_ns()
+    tmp=viewer.stop
     clear_viewer(viewer)
+    viewer.stop=tmp
+    println("viewer.stop: ", viewer.stop)
     i=1
     j=0; k=0
     GC.gc()
@@ -50,6 +53,7 @@ function simulate(integrator)
     t_gc_tot = 0
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
+    KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
     while true
         if viewer.stop
             sleep(dt)
@@ -112,11 +116,12 @@ function simulate(integrator)
     return div(i, TIME_LAPSE_RATIO)
 end
 
-function play()
+function play(stop_=false)
     global steps
-    viewer.stop=false
+    viewer.stop=stop_
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     toc()
+    println("viewer.stop: ", viewer.stop)
     steps = simulate(integrator)
     GC.enable(true)
 end
@@ -140,14 +145,14 @@ function autopilot()
 end
 
 on_stop(ssc)
-parking()
+viewer.stop=true
 clear!(kps4)
 on(viewer.btn_PLAY.clicks) do c; viewer.stop=false; end
 # on(viewer.btn_STOP.clicks) do c; on_stop(ssc) end
 on(viewer.btn_PARKING.clicks) do c; parking(); end
 on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 
-play()
+play(true)
 stop(viewer)
 KiteViewers.GLMakie.closeall()
 
