@@ -35,13 +35,13 @@ if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(Int64(MAX_TIME/dt)); end
 LAST_I::Int64=0
 
-function simulate(integrator)
+function simulate(integrator, stopped=true)
     global LAST_I
     start_time_ns = time_ns()
-    tmp=viewer.stop
     clear_viewer(viewer)
-    viewer.stop=tmp
-    println("viewer.stop: ", viewer.stop)
+    if stopped
+        stop(viewer)  
+    end  
     i=1
     j=0; k=0
     GC.gc()
@@ -116,13 +116,11 @@ function simulate(integrator)
     return div(i, TIME_LAPSE_RATIO)
 end
 
-function play(stop_=false)
+function play(stopped=false)
     global steps
-    viewer.stop=stop_
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     toc()
-    println("viewer.stop: ", viewer.stop)
-    steps = simulate(integrator)
+    steps = simulate(integrator, stopped)
     GC.enable(true)
 end
 
@@ -145,10 +143,8 @@ function autopilot()
 end
 
 on_stop(ssc)
-viewer.stop=true
 clear!(kps4)
 on(viewer.btn_PLAY.clicks) do c; viewer.stop=false; end
-# on(viewer.btn_STOP.clicks) do c; on_stop(ssc) end
 on(viewer.btn_PARKING.clicks) do c; parking(); end
 on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 
