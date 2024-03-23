@@ -16,6 +16,16 @@ fpps::FPPSettings = FPPSettings()
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
 dt::Float64 = wcs.dt
 
+function init_globals()
+    global kcu, kps4, wcs, fcs, fpps, ssc
+    kcu   = KCU(se())
+    kps4 = KPS4(kcu)
+    wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
+    fcs = FPCSettings(); fcs.dt = wcs.dt
+    fpps = FPPSettings()
+    ssc = SystemStateControl(wcs, fcs, fpps)
+end
+
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 460
 TIME_LAPSE_RATIO  = 4
@@ -115,12 +125,10 @@ function simulate(integrator, stopped=true)
 end
 
 function play(stopped=false)
-    global steps, kcu, ssc, kps4, wcs
+    global steps, kcu, kps4, wcs, fcs, fpps, ssc
     while isopen(viewer.fig.scene)
-        kcu   = KCU(se())
-        wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
-        ssc = SystemStateControl(wcs, fcs, fpps)
-        kps4 = KPS4(kcu)
+        init_globals()
+        on_parking(ssc)
         integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
         toc()
         steps = simulate(integrator, stopped)
