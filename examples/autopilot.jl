@@ -144,6 +144,7 @@ end
 
 on_stop(ssc)
 clear!(kps4)
+KiteViewers.running[]=false
 on(viewer.btn_PLAY.clicks) do c
     viewer.stop = ! KiteViewers.running[]
 end
