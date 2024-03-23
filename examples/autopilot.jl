@@ -140,6 +140,9 @@ function play(stopped=false)
         steps = simulate(integrator, stopped)
         stopped = ! viewer.sw.active[]
         GC.enable(true)
+        if @isdefined __PRECOMPILE__
+            break
+        end
     end
 end
 
@@ -164,13 +167,18 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 on(viewer.btn_STOP.clicks) do c; stop_(); end
 
-play(true)
+if @isdefined __PRECOMPILE__
+    MAX_TIME = 30
+    play(false)
+else
+    play(true)
+end
 stop_()
 KiteViewers.GLMakie.closeall()
 
 GC.enable(true)
 
-if maximum(DELTA_T) > 0 && haskey(ENV, "PLOT")
+if maximum(DELTA_T) > 0 && haskey(ENV, "PLOT") && ! @isdefined __PRECOMPILE__
     include("../test/plot.jl")
     plotx(T[1:LAST_I], DELTA_T[1:LAST_I], 100*STEERING[1:LAST_I], 100*DEPOWER_[1:LAST_I], 
         labels=["t_sim [ms]", "steering [%]", "depower [%]"], 
