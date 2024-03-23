@@ -121,7 +121,7 @@ function simulate(integrator, stopped=true)
             i += 1
         end
         if ! isopen(viewer.fig.scene) break end
-        if KiteViewers.status[] == "Stopped" && i > 1 break end
+        if KiteViewers.status[] == "Stopped" && i > 10 break end
         if i*dt > MAX_TIME break end
     end
     misses = j/k * 100
