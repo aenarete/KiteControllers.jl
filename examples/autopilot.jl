@@ -37,6 +37,7 @@ phi_set = 21.48
 # on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
+PARKING::Bool = false
 
 steps = 0
 if ! @isdefined T;        const T = zeros(Int64(MAX_TIME/dt)); end
@@ -76,7 +77,7 @@ function simulate(integrator, stopped=true)
                 steering = calc_steering(ssc)
                 set_depower_steering(kps4.kcu, dp, steering)
             end
-            if i == 200
+            if i == 200 && ! PARKING
                 on_autopilot(ssc)
             end
             # execute winch controller
@@ -146,11 +147,16 @@ function play(stopped=false)
 end
 
 function parking()
+    global PARKING
+    PARKING = true
     viewer.stop=false
     on_parking(ssc)
 end
 
 function autopilot()
+    global PARKING
+    PARKING = false
+    viewer.stop=false
     on_autopilot(ssc)
 end
 
@@ -165,6 +171,12 @@ stop_()
 on(viewer.btn_PARKING.clicks) do c; parking(); end
 on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 on(viewer.btn_STOP.clicks) do c; stop_(); end
+on(viewer.btn_PLAY.clicks) do c;
+    global PARKING
+    if ! viewer.stop
+        PARKING = false
+    end
+end
 
 if @isdefined __PRECOMPILE__
     MAX_TIME = 30
