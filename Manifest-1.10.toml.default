@@ -945,9 +945,9 @@ version = "0.5.3"
 
 [[deps.KiteViewers]]
 deps = ["FileIO", "GLMakie", "GeometryBasics", "Joysticks", "KiteUtils", "LinearAlgebra", "Parameters", "Pkg", "PrecompileTools", "Printf", "Reexport", "Rotations", "StaticArrays", "Timers"]
-git-tree-sha1 = "13a669631db30f702c4fe0c555c98ec2a412b43f"
+git-tree-sha1 = "adab2bceddebc501a070b979c4f11b07dc9536ae"
 uuid = "2e593061-95e7-45e4-95f4-df0491f2e601"
-version = "0.3.3"
+version = "0.4.2"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1736,9 +1736,9 @@ version = "0.1.0"
 
 [[deps.SciMLBase]]
 deps = ["ADTypes", "ArrayInterface", "CommonSolve", "ConstructionBase", "Distributed", "DocStringExtensions", "EnumX", "FunctionWrappersWrappers", "IteratorInterfaceExtensions", "LinearAlgebra", "Logging", "Markdown", "PrecompileTools", "Preferences", "Printf", "RecipesBase", "RecursiveArrayTools", "Reexport", "RuntimeGeneratedFunctions", "SciMLOperators", "SciMLStructures", "StaticArraysCore", "Statistics", "SymbolicIndexingInterface", "Tables"]
-git-tree-sha1 = "48f724c6a3355f11dae5f762983073d367c8b934"
+git-tree-sha1 = "3daaea955c0905200943175637f184a968574a2d"
 uuid = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
-version = "2.30.1"
+version = "2.30.3"
 
     [deps.SciMLBase.extensions]
     SciMLBaseChainRulesCoreExt = "ChainRulesCore"
@@ -2070,9 +2070,9 @@ version = "0.6.8"
 
 [[deps.TimeZones]]
 deps = ["Artifacts", "Dates", "Downloads", "InlineStrings", "LazyArtifacts", "Mocking", "Printf", "Scratch", "TZJData", "Unicode", "p7zip_jll"]
-git-tree-sha1 = "89e64d61ef3cd9e80f7fc12b7d13db2d75a23c03"
+git-tree-sha1 = "cc54d5c9803309474014a8955a96e4adcd11bcf4"
 uuid = "f269a46b-ccf7-5d73-abea-4c690281aa53"
-version = "1.13.0"
+version = "1.14.0"
 weakdeps = ["RecipesBase"]
 
     [deps.TimeZones.extensions]
@@ -2085,9 +2085,9 @@ uuid = "21f18d07-b854-4dab-86f0-c15a3821819a"
 version = "0.1.5"
 
 [[deps.TranscodingStreams]]
-git-tree-sha1 = "a09c933bebed12501890d8e92946bbab6a1690f1"
+git-tree-sha1 = "14389d51751169994b2e1317d5c72f7dc4f21045"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.10.5"
+version = "0.10.6"
 weakdeps = ["Random", "Test"]
 
     [deps.TranscodingStreams.extensions]
