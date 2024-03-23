@@ -144,7 +144,12 @@ end
 
 on_stop(ssc)
 clear!(kps4)
-on(viewer.btn_PLAY.clicks) do c; viewer.stop=false; end
+on(viewer.btn_PLAY.clicks) do c
+    viewer.stop = ! KiteViewers.running[]
+end
+on(viewer.btn_STOP.clicks) do c
+    KiteViewers.running[] = false
+end
 on(viewer.btn_PARKING.clicks) do c; parking(); end
 on(viewer.btn_AUTO.clicks) do c; autopilot(); end
 
