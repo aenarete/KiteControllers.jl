@@ -49,6 +49,11 @@ function simulate(integrator, stopped=true)
     global LAST_I
     start_time_ns = time_ns()
     clear_viewer(viewer)
+    KiteViewers.running[] = ! stopped
+    viewer.stop = stopped
+    if ! stopped
+        set_status(viewer, "ssParking")
+    end
     i=1
     j=0; k=0
     GC.gc()
@@ -131,7 +136,9 @@ function play(stopped=false)
         on_parking(ssc)
         integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
         toc()
+        println("===> stopped: $stopped")
         steps = simulate(integrator, stopped)
+        stopped = ! viewer.sw.active[]
         GC.enable(true)
     end
 end
