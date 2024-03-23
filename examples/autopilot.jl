@@ -39,9 +39,6 @@ function simulate(integrator, stopped=true)
     global LAST_I
     start_time_ns = time_ns()
     clear_viewer(viewer)
-    if stopped
-        stop(viewer)  
-    end  
     i=1
     j=0; k=0
     GC.gc()
@@ -109,6 +106,7 @@ function simulate(integrator, stopped=true)
             i += 1
         end
         if ! isopen(viewer.fig.scene) break end
+        if KiteViewers.status[] == "Stopped" && i > 1 break end
         if i*dt > MAX_TIME break end
     end
     misses = j/k * 100
@@ -117,19 +115,16 @@ function simulate(integrator, stopped=true)
 end
 
 function play(stopped=false)
-    global steps
-    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
-    toc()
-    steps = simulate(integrator, stopped)
-    GC.enable(true)
-end
-
-function async_play()
-    if viewer.stop
-        @async begin
-            play()
-            stop(viewer)
-        end
+    global steps, kcu, ssc, kps4, wcs
+    while isopen(viewer.fig.scene)
+        kcu   = KCU(se())
+        wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
+        ssc = SystemStateControl(wcs, fcs, fpps)
+        kps4 = KPS4(kcu)
+        integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+        toc()
+        steps = simulate(integrator, stopped)
+        GC.enable(true)
     end
 end
 
@@ -142,20 +137,23 @@ function autopilot()
     on_autopilot(ssc)
 end
 
-on_stop(ssc)
-clear!(kps4)
-KiteViewers.running[]=false
+function stop_()
+    println("Stopping...")
+    on_stop(ssc)
+    clear!(kps4)
+    clear_viewer(viewer)
+end
+
+stop_()
 on(viewer.btn_PLAY.clicks) do c
     viewer.stop = ! KiteViewers.running[]
 end
-on(viewer.btn_STOP.clicks) do c
-    KiteViewers.running[] = false
-end
 on(viewer.btn_PARKING.clicks) do c; parking(); end
 on(viewer.btn_AUTO.clicks) do c; autopilot(); end
+on(viewer.btn_STOP.clicks) do c; stop_(); end
 
 play(true)
-stop(viewer)
+stop_()
 KiteViewers.GLMakie.closeall()
 
 GC.enable(true)
