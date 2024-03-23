@@ -178,16 +178,21 @@ KiteViewers.GLMakie.closeall()
 GC.enable(true)
 
 if maximum(DELTA_T) > 0 && haskey(ENV, "PLOT") && ! @isdefined __PRECOMPILE__
-    include("../test/plot.jl")
-    plotx(T[1:LAST_I], DELTA_T[1:LAST_I], 100*STEERING[1:LAST_I], 100*DEPOWER_[1:LAST_I], 
-        labels=["t_sim [ms]", "steering [%]", "depower [%]"], 
+    using ControlPlots
+    res=plotx(T[1:LAST_I], DELTA_T[1:LAST_I], 100*STEERING[1:LAST_I], 100*DEPOWER_[1:LAST_I], 
+        ylabels=["t_sim [ms]", "steering [%]", "depower [%]"], 
         fig="simulation_timing")
     println("Mean    time per timestep: $(mean(DELTA_T)) ms")
     println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
     index=Int64(round(12/dt))
     println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
-    plt.pause(0.01)
-    plt.show(block=true)
+    save("data/last_plot.jld2", res)
+    nothing
+end
+
+function last_plot()
+    res=load("data/last_plot.jld2")
+    res
 end
 
 # GC disabled, Ryzen 7950X, 4x realtime, GMRES
