@@ -136,7 +136,6 @@ function play(stopped=false)
         on_parking(ssc)
         integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
         toc()
-        println("===> stopped: $stopped")
         steps = simulate(integrator, stopped)
         stopped = ! viewer.sw.active[]
         GC.enable(true)
