@@ -48,4 +48,4 @@ julia --project -e "using Pkg; Pkg.precompile()"
 cd src
 touch *.jl # make sure all modules get recompiled in the next step
 cd ..
-julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using KiteUtils, KiteControllers"
+julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using KiteUtils, KiteControllers, PyPlot"
