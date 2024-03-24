@@ -1,11 +1,10 @@
-# activate the test environment if needed
 using Pkg
 if ! ("Plots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog
+using KiteControllers, KiteViewers, KiteModels, StatsBase
 
 kcu::KCU   = KCU(se())
 kps4::KPS4 = KPS4(kcu)
@@ -24,7 +23,6 @@ function init_globals()
     fcs = FPCSettings(); fcs.dt = wcs.dt
     fpps = FPPSettings()
     ssc = SystemStateControl(wcs, fcs, fpps)
-    KiteViewers.plot_file[]="data/last_plot.jld2"
 end
 
 # the following values can be changed to match your interest
@@ -133,19 +131,13 @@ end
 
 function play(stopped=false)
     global steps, kcu, kps4, wcs, fcs, fpps, ssc
-    while isopen(viewer.fig.scene)
-        init_globals()
-        on_parking(ssc)
-        integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
-        toc()
-        steps = simulate(integrator, stopped)
-        stopped = ! viewer.sw.active[]
-        GC.enable(true)
-        if @isdefined __PRECOMPILE__
-            break
-        end
-        plot_timing()
-    end
+    init_globals()
+    on_parking(ssc)
+    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+    toc()
+    steps = simulate(integrator, stopped)
+    stopped = ! viewer.sw.active[]
+    GC.enable(true)
 end
 
 function parking()
@@ -180,88 +172,10 @@ on(viewer.btn_PLAY.clicks) do c;
     end
 end
 
-function show_plot()
-    res=load(KiteViewers.plot_file[])
-    if length(res.X) > 0
-        display(res)
-        plt.pause(0.01)
-        plt.show(block=false)
-    end
-    nothing
-end
-
-function load_plot()
-end
-
-function save_plot()
-    res = load("data/last_plot.jld2")
-    @async begin
-        filename=save_file("data"; filterlist="jld2")
-        if filename != ""
-            ControlPlots.save(filename, res)
-            KiteViewers.set_status(viewer, "Saved plot as:")
-            KiteViewers.plot_file[]=filename
-        end
-    end
-end
-
-function plot_timing()
-    if maximum(DELTA_T) > 0
-        res=plotx(T[1:LAST_I], DELTA_T[1:LAST_I], 100*STEERING[1:LAST_I], 100*DEPOWER_[1:LAST_I], 
-            ylabels=["t_sim [ms]", "steering [%]", "depower [%]"], 
-            fig="simulation_timing")
-        println("Mean    time per timestep: $(mean(DELTA_T)) ms")
-        println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
-        index=Int64(round(12/dt))
-        println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
-        KiteViewers.plot_file[]="data/last_plot.jld2"
-        save(KiteViewers.plot_file[], res)
-    end
-    nothing
-end
-
-function load_plot()
-end
-
-on(viewer.btn_OK.clicks) do c
-    println(viewer.menu.i_selected[])
-    println(viewer.menu.selection[])
-    if viewer.menu.i_selected[] == 1
-        show_plot()
-    elseif viewer.menu.i_selected[] == 2
-        load_plot()
-    elseif viewer.menu.i_selected[] == 3    
-        save_plot()
-    end
-end
-
-if @isdefined __PRECOMPILE__
-    MAX_TIME = 30
-    play(false)
-else
-    play(true)
-end
+MAX_TIME = 30
+play(false)
 stop_()
 KiteViewers.GLMakie.closeall()
 
 GC.enable(true)
 
-if maximum(DELTA_T) > 0 && haskey(ENV, "PLOT") && ! @isdefined __PRECOMPILE__
-    plot_timing()
-end
-
-
-
-# GC disabled, Ryzen 7950X, 4x realtime, GMRES
-# abs_tol: 0.0006, rel_tol: 0.001
-# Missed the deadline for 0.04 %. Max time: 160.4 ms
-#     Mean    time per timestep: 3.1066040097826084 ms
-#     Maximum time per timestep: 11.13074 ms
-#     Maximum for t>12s        : 11.13074 ms
-
-# GC disabled, Ryzen 7950X, 4x realtime, GMRES
-# abs_tol: 0.0003, rel_tol: 0.0005
-# Missed the deadline for 0.04 %. Max time: 172.1 ms
-#     Mean    time per timestep: 3.5648891855434783 ms
-#     Maximum time per timestep: 14.024168999999999 ms
-#     Maximum for t>12s        : 14.024168999999999 ms

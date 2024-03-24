@@ -8,7 +8,7 @@ using Timers; tic()
 # Test the speed controller. 
 # Input: A varying wind speed. Implements the simulink block diagram, shown in
 # docs/speed_controller_test1.png
-using KiteControllers, Plots, BenchmarkTools
+using KiteControllers, ControlPlots, BenchmarkTools
 
 wcs = WCSettings()
 
@@ -46,9 +46,8 @@ else
     end
 end
 
-include("plot.jl")
 plotx(TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE*0.001;
-      labels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]", "acc [m/s²]", "force [kN]"],
+      ylabels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]", "acc [m/s²]", "force [kN]"],
       fig="test_speedcontroller1")
 
 println("Max iterations needed: $(wcs.iter)")
