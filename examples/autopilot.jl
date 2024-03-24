@@ -180,7 +180,8 @@ end
 
 function last_plot()
     res=load("data/last_plot.jld2")
-    res
+    display(res)
+    nothing
 end
 
 on(viewer.btn_OK.clicks) do c
