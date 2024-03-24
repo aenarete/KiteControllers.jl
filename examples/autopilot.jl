@@ -24,6 +24,7 @@ function init_globals()
     fcs = FPCSettings(); fcs.dt = wcs.dt
     fpps = FPPSettings()
     ssc = SystemStateControl(wcs, fcs, fpps)
+    KiteViewers.plot_file[]="data/last_plot.jld2"
 end
 
 # the following values can be changed to match your interest
@@ -143,6 +144,7 @@ function play(stopped=false)
         if @isdefined __PRECOMPILE__
             break
         end
+        plot_timing()
     end
 end
 
@@ -178,12 +180,15 @@ on(viewer.btn_PLAY.clicks) do c;
     end
 end
 
-function last_plot()
-    res=load("data/last_plot.jld2")
+function show_plot()
+    res=load(KiteViewers.plot_file[])
     display(res)
     plt.pause(0.01)
     plt.show(block=false)
     nothing
+end
+
+function load_plot()
 end
 
 function save_plot()
@@ -192,20 +197,37 @@ function save_plot()
         filename=save_file("data"; filterlist="jld2")
         if filename != ""
             ControlPlots.save(filename, res)
-            KiteViewers.set_status(viewer, "Saved plot as: $filename")
+            KiteViewers.set_status(viewer, "Saved plot as:")
+            KiteViewers.plot_file[]=filename
         end
     end
+end
+
+function plot_timing()
+    res=plotx(T[1:LAST_I], DELTA_T[1:LAST_I], 100*STEERING[1:LAST_I], 100*DEPOWER_[1:LAST_I], 
+        ylabels=["t_sim [ms]", "steering [%]", "depower [%]"], 
+        fig="simulation_timing")
+    println("Mean    time per timestep: $(mean(DELTA_T)) ms")
+    println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
+    index=Int64(round(12/dt))
+    println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
+    KiteViewers.plot_file[]="data/last_plot.jld2"
+    save(KiteViewers.plot_file[], res)
+    nothing
+end
+
+function load_plot()
 end
 
 on(viewer.btn_OK.clicks) do c
     println(viewer.menu.i_selected[])
     println(viewer.menu.selection[])
     if viewer.menu.i_selected[] == 1
-        last_plot()
+        show_plot()
     elseif viewer.menu.i_selected[] == 2
-        save_plot()
+        load_plot()
     elseif viewer.menu.i_selected[] == 3    
-        KiteViewers.set_status(viewer, "Saved plot as...")
+        save_plot()
     end
 end
 
@@ -221,16 +243,7 @@ KiteViewers.GLMakie.closeall()
 GC.enable(true)
 
 if maximum(DELTA_T) > 0 && haskey(ENV, "PLOT") && ! @isdefined __PRECOMPILE__
-    using ControlPlots
-    res=plotx(T[1:LAST_I], DELTA_T[1:LAST_I], 100*STEERING[1:LAST_I], 100*DEPOWER_[1:LAST_I], 
-        ylabels=["t_sim [ms]", "steering [%]", "depower [%]"], 
-        fig="simulation_timing")
-    println("Mean    time per timestep: $(mean(DELTA_T)) ms")
-    println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
-    index=Int64(round(12/dt))
-    println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
-    save("data/last_plot.jld2", res)
-    nothing
+    plot_timing()
 end
 
 
