@@ -5,7 +5,7 @@ if ! ("Plots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots
+using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog
 
 kcu::KCU   = KCU(se())
 kps4::KPS4 = KPS4(kcu)
@@ -187,6 +187,14 @@ function last_plot()
 end
 
 function save_plot()
+    res = load("data/last_plot.jld2")
+    @async begin
+        filename=save_file("data"; filterlist="jld2")
+        if filename != ""
+            ControlPlots.save(filename, res)
+            KiteViewers.set_status(viewer, "Saved plot as: $filename")
+        end
+    end
 end
 
 on(viewer.btn_OK.clicks) do c
@@ -196,6 +204,8 @@ on(viewer.btn_OK.clicks) do c
         last_plot()
     elseif viewer.menu.i_selected[] == 2
         save_plot()
+    elseif viewer.menu.i_selected[] == 3    
+        KiteViewers.set_status(viewer, "Saved plot as...")
     end
 end
 
