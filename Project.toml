@@ -39,10 +39,11 @@ Joysticks = "82f05805-4863-42dc-b1a7-0852bd62c632"
 KiteModels = "b94af626-7959-4878-9336-2adc27959007"
 KitePodModels = "9de5dc81-f971-414a-927b-652b2f41c539"
 KiteViewers = "2e593061-95e7-45e4-95f4-df0491f2e601"
+NativeFileDialog = "e1fe445b-aa65-4df4-81c1-2041507f0fd4"
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "BenchmarkTools", "Plots", "PackageCompiler", "KiteViewers", "KitePodModels", "KiteModels", "Joysticks", "StatsBase"]
+test = ["Test", "BenchmarkTools", "Plots", "PackageCompiler", "KiteViewers", "KitePodModels", "KiteModels", "Joysticks", "StatsBase", "NativeFileDialogs"]
