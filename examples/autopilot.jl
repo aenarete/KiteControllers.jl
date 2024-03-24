@@ -181,7 +181,12 @@ end
 function last_plot()
     res=load("data/last_plot.jld2")
     display(res)
+    plt.pause(0.01)
+    plt.show(block=false)
     nothing
+end
+
+function save_plot()
 end
 
 on(viewer.btn_OK.clicks) do c
@@ -189,6 +194,8 @@ on(viewer.btn_OK.clicks) do c
     println(viewer.menu.selection[])
     if viewer.menu.i_selected[] == 1
         last_plot()
+    elseif viewer.menu.i_selected[] == 2
+        save_plot()
     end
 end
 
