@@ -5,7 +5,7 @@ if ! ("Plots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, StatsBase
+using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots
 
 kcu::KCU   = KCU(se())
 kps4::KPS4 = KPS4(kcu)
@@ -178,6 +178,19 @@ on(viewer.btn_PLAY.clicks) do c;
     end
 end
 
+function last_plot()
+    res=load("data/last_plot.jld2")
+    res
+end
+
+on(viewer.btn_OK.clicks) do c
+    println(viewer.menu.i_selected[])
+    println(viewer.menu.selection[])
+    if viewer.menu.i_selected[] == 1
+        last_plot()
+    end
+end
+
 if @isdefined __PRECOMPILE__
     MAX_TIME = 30
     play(false)
@@ -202,10 +215,7 @@ if maximum(DELTA_T) > 0 && haskey(ENV, "PLOT") && ! @isdefined __PRECOMPILE__
     nothing
 end
 
-function last_plot()
-    res=load("data/last_plot.jld2")
-    res
-end
+
 
 # GC disabled, Ryzen 7950X, 4x realtime, GMRES
 # abs_tol: 0.0006, rel_tol: 0.001
