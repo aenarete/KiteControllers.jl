@@ -209,7 +209,7 @@ function load_log()
     end
 end
 
-function save_log()
+function save_log_()
     @async begin 
         filename = fetch(Threads.@spawn save_file("data"; filterlist="arrow"))
         if filename != ""
@@ -262,7 +262,7 @@ on(viewer.btn_OK.clicks) do c
     elseif viewer.menu.i_selected[] == 3
         load_plot()
     elseif viewer.menu.i_selected[] == 4    
-        save_plot()
+        save_log_()
     end
 end
 
