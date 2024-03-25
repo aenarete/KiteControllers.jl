@@ -41,11 +41,13 @@ viewer::Viewer3D = Viewer3D(SHOW_KITE)
 PARKING::Bool = false
 
 steps = 0
-if ! @isdefined T;        const T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined DELTA_T;  const DELTA_T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(Int64(MAX_TIME/dt)); end
+STEPS::Int64 = Int64(MAX_TIME/dt)
+if ! @isdefined T;        const T = zeros(STEPS); end
+if ! @isdefined DELTA_T;  const DELTA_T = zeros(STEPS); end
+if ! @isdefined STEERING; const STEERING = zeros(STEPS); end
+if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(STEPS); end
 LAST_I::Int64=0
+logger::Logger = Logger(se().segments + 5, STEPS) 
 
 function simulate(integrator, stopped=true)
     global LAST_I
@@ -68,6 +70,7 @@ function simulate(integrator, stopped=true)
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
+    log!(logger, sys_state)
     while true
         if viewer.stop
             sleep(dt)
@@ -96,6 +99,7 @@ function simulate(integrator, stopped=true)
                 end
             end
             on_new_systate(ssc, sys_state)
+            log!(logger, sys_state)
             if mod(i, TIME_LAPSE_RATIO) == 0 
                 KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
                 set_status(viewer, String(Symbol(ssc.state)))
@@ -211,6 +215,18 @@ function save_plot()
             KiteViewers.plot_file[] = replace(filename, homedir() => "~")
         end
     end
+end
+
+include("logging.jl")
+
+function plot_main()
+    log = short_log(logger)
+    sl = log.syslog
+    println(length(log.syslog.time))
+    display(ControlPlots.plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), sl.azimuth, sl.l_tether, sl.force, sl.v_reelout;
+            ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"]))
+    plt.pause(0.01)
+    plt.show(block=false)
 end
 
 function plot_timing()
