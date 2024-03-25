@@ -15,7 +15,6 @@ fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
 dt::Float64 = wcs.dt
-filename::String = ""
 
 function init_globals()
     global kcu, kps4, wcs, fcs, fpps, ssc
@@ -192,15 +191,24 @@ function show_plot()
     nothing
 end
 
-include("filedialogs.jl")
-function save_plot()
-    res = load("data/last_plot.jld2")
-    @async begin
-        filename = save_file("data"; filterlist="jld2")
+function load_plot()
+    @async begin 
+        filename = fetch(Threads.@spawn pick_file("data"; filterlist="jld2"))
         if filename != ""
+            short_filename = replace(filename, homedir() => "~")
+            KiteViewers.plot_file[] = short_filename
+        end
+    end
+end
+
+function save_plot()
+    @async begin 
+        filename = fetch(Threads.@spawn save_file("data"; filterlist="jld2"))
+        if filename != ""
+            res = load("data/last_plot.jld2")
             ControlPlots.save(filename, res)
             KiteViewers.set_status(viewer, "Saved plot as:")
-            KiteViewers.plot_file[]=filename
+            KiteViewers.plot_file[] = replace(filename, homedir() => "~")
         end
     end
 end
@@ -212,7 +220,7 @@ function plot_timing()
             fig="simulation_timing")
         println("Mean    time per timestep: $(mean(DELTA_T)) ms")
         println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
-        index=Int64(round(12/dt))
+        index = Int64(round(12/dt))
         println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
         KiteViewers.plot_file[]="data/last_plot.jld2"
         save(KiteViewers.plot_file[], res)
@@ -229,6 +237,16 @@ on(viewer.btn_OK.clicks) do c
         load_plot()
     elseif viewer.menu.i_selected[] == 3    
         save_plot()
+    end
+end
+
+on(viewer.menu.i_selected) do c
+    if c == 3
+        save_plot()
+    elseif c ==2
+        load_plot()
+    elseif c == 1
+        show_plot()
     end
 end
 
