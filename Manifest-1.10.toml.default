@@ -2,7 +2,7 @@
 
 julia_version = "1.10.2"
 manifest_format = "2.0"
-project_hash = "6be600fab956b3d905f163e0ca8b7cc3ee9bff80"
+project_hash = "ce061d05be54a6c4dcdb40f6e3c2375618cb215c"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "016833eb52ba2d6bea9fcb50ca295980e728ee24"
@@ -99,9 +99,9 @@ uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
 [[deps.AtmosphericModels]]
 deps = ["HypergeometricFunctions", "KiteUtils"]
-git-tree-sha1 = "c4ec8e019ff106e72b6a7699656582a8e3411a89"
+git-tree-sha1 = "23844c716f04448e8af3a8e81dcc0d5b175311a1"
 uuid = "c59cac55-771d-4f45-b14d-1c681463a295"
-version = "0.2.0"
+version = "0.2.1"
 
 [[deps.Automa]]
 deps = ["PrecompileTools", "TranscodingStreams"]
@@ -320,7 +320,7 @@ version = "0.6.2"
 
 [[deps.ControlPlots]]
 deps = ["JLD2", "PyPlot"]
-git-tree-sha1 = "9586bab5a5ac762253b391f61d59d708da7e83fc"
+git-tree-sha1 = "1194e5646260248fcdf3c3d78f1feafbf4660508"
 repo-rev = "main"
 repo-url = "https://github.com/aenarete/ControlPlots.jl"
 uuid = "23c2ee80-7a9e-4350-b264-8e670f12517c"
@@ -618,9 +618,9 @@ uuid = "a3f928ae-7b40-5064-980b-68af3947d34b"
 version = "2.13.93+0"
 
 [[deps.Format]]
-git-tree-sha1 = "f3cf88025f6d03c194d73f5d13fee9004a108329"
+git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
-version = "1.3.6"
+version = "1.3.7"
 
 [[deps.ForwardDiff]]
 deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions"]
@@ -761,9 +761,9 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "995f762e0182ebc50548c434c171a5bb6635f8e4"
+git-tree-sha1 = "8e59b47b9dc525b70550ca082ce85bcd7f5477cd"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.4"
+version = "1.10.5"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -951,35 +951,29 @@ git-tree-sha1 = "fee018a29b60733876eb557804b5b109dd3dd8a7"
 uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 version = "0.6.8"
 
-[[deps.KiteControllers]]
-deps = ["ControlPlots", "KiteUtils", "NLsolve", "Observables", "Parameters", "Printf", "StaticArrayInterface", "StaticArrays", "StructTypes", "Timers", "WinchModels", "YAML"]
-path = "/home/ufechner/repos/KiteControllers.jl"
-uuid = "b19fd437-5b3a-4cca-b199-c3ded0f20ded"
-version = "0.2.0"
-
 [[deps.KiteModels]]
 deps = ["AtmosphericModels", "Dierckx", "DiffEqBase", "DocStringExtensions", "KitePodModels", "KiteUtils", "LinearAlgebra", "NLsolve", "Parameters", "PrecompileTools", "Reexport", "Rotations", "StaticArrays", "Sundials", "WinchModels"]
-git-tree-sha1 = "c304fd5298632898cfcbd474e495e8f8815ec81c"
+git-tree-sha1 = "600932d54f038b7e86d3f456c8b43805d927cdf9"
 uuid = "b94af626-7959-4878-9336-2adc27959007"
-version = "0.5.3"
+version = "0.5.4"
 
 [[deps.KitePodModels]]
 deps = ["DocStringExtensions", "KiteUtils", "Reexport"]
-git-tree-sha1 = "a73d8428343ee7cbaaffdbff471815d928c60562"
+git-tree-sha1 = "58b72f872b81619687bccf3e0f5da4ff61695d1a"
 uuid = "9de5dc81-f971-414a-927b-652b2f41c539"
-version = "0.3.0"
+version = "0.3.1"
 
 [[deps.KiteUtils]]
 deps = ["Arrow", "CSV", "DocStringExtensions", "LinearAlgebra", "Parameters", "PrecompileTools", "RecursiveArrayTools", "Rotations", "StaticArrays", "StructArrays", "StructTypes", "YAML"]
-git-tree-sha1 = "5fc49b5b48c52ca44b9d4cbdee7f3b45ecbf65c0"
+git-tree-sha1 = "ebd24ee12ce31339d27b2a58fedafbb45d6a8e6d"
 uuid = "90980105-b163-44e5-ba9f-8b1c83bb0533"
-version = "0.5.3"
+version = "0.6.0"
 
 [[deps.KiteViewers]]
 deps = ["FileIO", "GLMakie", "GeometryBasics", "Joysticks", "KiteUtils", "LinearAlgebra", "Parameters", "Pkg", "PrecompileTools", "Printf", "Reexport", "Rotations", "StaticArrays", "Timers"]
-git-tree-sha1 = "57b4870990f8bd410c73ebadabb392f7fe227e8a"
+git-tree-sha1 = "506474e0bb8057a5eb48791c62e9e2bf362acb38"
 uuid = "2e593061-95e7-45e4-95f4-df0491f2e601"
-version = "0.4.6"
+version = "0.4.7"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1703,9 +1697,9 @@ version = "0.6.12"
 
 [[deps.RecursiveArrayTools]]
 deps = ["Adapt", "ArrayInterface", "DocStringExtensions", "GPUArraysCore", "IteratorInterfaceExtensions", "LinearAlgebra", "RecipesBase", "SparseArrays", "StaticArraysCore", "Statistics", "SymbolicIndexingInterface", "Tables"]
-git-tree-sha1 = "a94d22ca9ad49a7a169ecbc5419c59b9793937cc"
+git-tree-sha1 = "d8f131090f2e44b145084928856a561c83f43b27"
 uuid = "731186ca-8d62-57ce-b412-fbd966d074cd"
-version = "3.12.0"
+version = "3.13.0"
 
     [deps.RecursiveArrayTools.extensions]
     RecursiveArrayToolsFastBroadcastExt = "FastBroadcast"
@@ -1792,9 +1786,9 @@ version = "0.1.0"
 
 [[deps.SciMLBase]]
 deps = ["ADTypes", "ArrayInterface", "CommonSolve", "ConstructionBase", "Distributed", "DocStringExtensions", "EnumX", "FunctionWrappersWrappers", "IteratorInterfaceExtensions", "LinearAlgebra", "Logging", "Markdown", "PrecompileTools", "Preferences", "Printf", "RecipesBase", "RecursiveArrayTools", "Reexport", "RuntimeGeneratedFunctions", "SciMLOperators", "SciMLStructures", "StaticArraysCore", "Statistics", "SymbolicIndexingInterface", "Tables"]
-git-tree-sha1 = "3daaea955c0905200943175637f184a968574a2d"
+git-tree-sha1 = "d15c65e25615272e1b1c5edb1d307484c7942824"
 uuid = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
-version = "2.30.3"
+version = "2.31.0"
 
     [deps.SciMLBase.extensions]
     SciMLBaseChainRulesCoreExt = "ChainRulesCore"
@@ -2063,10 +2057,10 @@ uuid = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
 version = "5.2.2+0"
 
 [[deps.SymbolicIndexingInterface]]
-deps = ["MacroTools", "RuntimeGeneratedFunctions"]
-git-tree-sha1 = "f7b1fc9fc2bc938436b7684c243be7d317919056"
+deps = ["ArrayInterface", "MacroTools", "RuntimeGeneratedFunctions", "StaticArraysCore"]
+git-tree-sha1 = "dd94edee1542e9da422cb2f12494ef09ea823e48"
 uuid = "2efcf032-c050-4f8e-a9bb-153293bab1f5"
-version = "0.3.11"
+version = "0.3.13"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -2249,9 +2243,9 @@ version = "1.4.2"
 
 [[deps.WinchModels]]
 deps = ["KiteUtils", "Parameters"]
-git-tree-sha1 = "d0e32077e49f17c2ee12b9592308e0481304cd75"
+git-tree-sha1 = "81dca85baecc3d1bf078081458dab9aa4ea57a08"
 uuid = "7dcfa46b-7979-4771-bbf4-0aee0da42e1f"
-version = "0.2.0"
+version = "0.2.1"
 
 [[deps.WoodburyMatrices]]
 deps = ["LinearAlgebra", "SparseArrays"]
