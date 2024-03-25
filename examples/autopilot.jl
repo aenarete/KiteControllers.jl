@@ -181,7 +181,8 @@ on(viewer.btn_PLAY.clicks) do c;
 end
 
 function show_plot()
-    res=load(KiteViewers.plot_file[])
+    filename = KiteViewers.plot_file[]
+    res      = load(replace(filename, "~" => homedir()))
     if length(res.X) > 0
         display(res)
         plt.pause(0.01)
@@ -191,12 +192,18 @@ function show_plot()
 end
 
 function load_plot()
+    @async begin
+        filename      = pick_file("data"; filterlist="jld2")
+        short_filename = replace(filename, homedir() => "~")
+        KiteViewers.plot_file[] = short_filename
+        viewer.menu.i_selected[] = 1
+    end
 end
 
 function save_plot()
     res = load("data/last_plot.jld2")
     @async begin
-        filename=save_file("data"; filterlist="jld2")
+        filename = save_file("data"; filterlist="jld2")
         if filename != ""
             ControlPlots.save(filename, res)
             KiteViewers.set_status(viewer, "Saved plot as:")
@@ -218,9 +225,6 @@ function plot_timing()
         save(KiteViewers.plot_file[], res)
     end
     nothing
-end
-
-function load_plot()
 end
 
 on(viewer.btn_OK.clicks) do c
