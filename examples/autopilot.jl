@@ -47,7 +47,9 @@ if ! @isdefined DELTA_T;  const DELTA_T = zeros(STEPS); end
 if ! @isdefined STEERING; const STEERING = zeros(STEPS); end
 if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(STEPS); end
 LAST_I::Int64=0
-logger::Logger = Logger(se().segments + 5, STEPS) 
+PARTICLES::Int64 = se().segments + 5
+LOG_FILE_NAME="sim_log"
+logger::Logger = Logger(PARTICLES, STEPS) 
 
 function simulate(integrator, stopped=true)
     global LAST_I
@@ -148,7 +150,9 @@ function play(stopped=false)
         if @isdefined __PRECOMPILE__
             break
         end
-        plot_timing()
+        if logger.index > 100
+            save_log(logger)
+        end
     end
 end
 
@@ -195,9 +199,9 @@ function show_plot()
     nothing
 end
 
-function load_plot()
+function load_log()
     @async begin 
-        filename = fetch(Threads.@spawn pick_file("data"; filterlist="jld2"))
+        filename = fetch(Threads.@spawn pick_file("data"; filterlist="arrow"))
         if filename != ""
             short_filename = replace(filename, homedir() => "~")
             KiteViewers.plot_file[] = short_filename
@@ -205,29 +209,22 @@ function load_plot()
     end
 end
 
-function save_plot()
+function save_log()
     @async begin 
-        filename = fetch(Threads.@spawn save_file("data"; filterlist="jld2"))
+        filename = fetch(Threads.@spawn save_file("data"; filterlist="arrow"))
         if filename != ""
-            res = load("data/last_plot.jld2")
-            ControlPlots.save(filename, res)
-            KiteViewers.set_status(viewer, "Saved plot as:")
+            # log = load_log(PARTICLES, LOG_FILE_NAME)
+            # save_log(filename)
+            # source=path*LOG_FILE_NAME*.arrow
+            # dest  = filename
+            # cp(source, dest; force=true)
+            KiteViewers.set_status(viewer, "Saved log as:")
             KiteViewers.plot_file[] = replace(filename, homedir() => "~")
         end
     end
 end
 
 include("logging.jl")
-
-function plot_main()
-    log = short_log(logger)
-    sl = log.syslog
-    println(length(log.syslog.time))
-    display(ControlPlots.plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), sl.azimuth, sl.l_tether, sl.force, sl.v_reelout;
-            ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"]))
-    plt.pause(0.01)
-    plt.show(block=false)
-end
 
 function plot_timing()
     if maximum(DELTA_T) > 0
@@ -244,24 +241,37 @@ function plot_timing()
     nothing
 end
 
+function plot_main()
+    log = short_log(logger)
+    sl = log.syslog
+    println(length(log.syslog.time))
+    display(ControlPlots.plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), sl.azimuth, sl.l_tether, sl.force, sl.v_reelout;
+            ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"]))
+    plt.pause(0.01)
+    plt.show(block=false)
+    nothing
+end
+
 on(viewer.btn_OK.clicks) do c
     println(viewer.menu.i_selected[])
     println(viewer.menu.selection[])
     if viewer.menu.i_selected[] == 1
-        show_plot()
+        plot_main()
     elseif viewer.menu.i_selected[] == 2
+        show_plot()
+    elseif viewer.menu.i_selected[] == 3
         load_plot()
-    elseif viewer.menu.i_selected[] == 3    
+    elseif viewer.menu.i_selected[] == 4    
         save_plot()
     end
 end
 
 on(viewer.menu.i_selected) do c
-    if c == 3
+    if c == 4
         save_plot()
-    elseif c ==2
+    elseif c ==3
         load_plot()
-    elseif c == 1
+    elseif c == 2
         show_plot()
     end
 end
@@ -276,11 +286,6 @@ stop_()
 KiteViewers.GLMakie.closeall()
 
 GC.enable(true)
-
-if maximum(DELTA_T) > 0 && haskey(ENV, "PLOT") && ! @isdefined __PRECOMPILE__
-    plot_timing()
-end
-
 
 
 # GC disabled, Ryzen 7950X, 4x realtime, GMRES
