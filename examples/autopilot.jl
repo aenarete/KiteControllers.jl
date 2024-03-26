@@ -150,6 +150,7 @@ function play(stopped=false)
         steps = simulate(integrator, stopped)
         stopped = ! viewer.sw.active[]
         if logger.index > 100
+            KiteViewers.plot_file[]="last_sim_log"
             save_log(logger, KiteViewers.plot_file[])
         end
         if @isdefined __PRECOMPILE__
