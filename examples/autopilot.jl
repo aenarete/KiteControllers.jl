@@ -5,7 +5,7 @@ if ! ("Plots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog
+using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog, LaTeXStrings
 
 kcu::KCU   = KCU(se())
 kps4::KPS4 = KPS4(kcu)
