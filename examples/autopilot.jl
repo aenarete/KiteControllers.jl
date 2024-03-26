@@ -18,8 +18,8 @@ dt::Float64 = wcs.dt
 
 function init_globals()
     global kcu, kps4, wcs, fcs, fpps, ssc
-    se().rel_tol = 0.00025
-    se().abs_tol = 0.00015
+    # se().rel_tol = 0.00025/2
+    # se().abs_tol = 0.00015/2
     kcu   = KCU(se())
     kps4 = KPS4(kcu)
     wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
