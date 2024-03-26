@@ -93,7 +93,7 @@ function simulate(integrator, stopped=true)
             if i <= length(T)
                 T[i] = dt * i
                 if i > 10/dt
-                    DELTA_T[i]  = t_sim * 1000
+                    sys_state.t_sim  = t_sim * 1000
                     STEERING[i] = sys_state.steering
                     DEPOWER_[i] = sys_state.depower
                     LAST_I=i
@@ -220,31 +220,34 @@ function save_log_()
             KiteViewers.set_status(viewer, "Saved log as:")
             KiteViewers.plot_file[] = replace(filename, homedir() => "~")
         end
-    end
+    end#         println("Mean    time per timestep: $(mean(sl.t_sim)) ms")
+    #         println("Maximum time per timestep: $(maximum(sl.t_sim)) ms")
+    #         index = Int64(round(12/dt))
+    #         println("Maximum for t>12s        : $(maximum(sl.t_sim[index:end])) ms")
+    
 end
 
 include("logging.jl")
 
-# function plot_timing()
-#     if maximum(DELTA_T) > 0
-#         res=plotx(T[1:LAST_I], DELTA_T[1:LAST_I], 100*STEERING[1:LAST_I], 100*DEPOWER_[1:LAST_I], 
-#             ylabels=["t_sim [ms]", "steering [%]", "depower [%]"], 
-#             fig="simulation_timing")
-#         println("Mean    time per timestep: $(mean(DELTA_T)) ms")
-#         println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
-#         index = Int64(round(12/dt))
-#         println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
-#         KiteViewers.plot_file[]="data/last_plot.jld2"
-#         save(KiteViewers.plot_file[], res)
-#     end
-#     nothing
-# end
+function plot_timing()
+    log=load_log(PARTICLES, KiteViewers.plot_file[])
+    sl = log.syslog
+    display(ControlPlots.plotx(sl.time, sl.t_sim, 100*sl.steering, 100*sl.depower;
+                               ylabels=["t_sim [ms]", "steering [%]","depower [%]"]))
+    println("Mean    time per timestep: $(mean(sl.t_sim)) ms")
+    println("Maximum time per timestep: $(maximum(sl.t_sim)) ms")
+    index = Int64(round(12/dt))
+    println("Maximum for t>12s        : $(maximum(sl.t_sim[index:end])) ms")
+    plt.pause(0.01)
+    plt.show(block=false)
+    nothing
+end
 
 function plot_main()
     log=load_log(PARTICLES, KiteViewers.plot_file[])
     sl = log.syslog
     println(length(log.syslog.time))
-    display(ControlPlots.plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), sl.azimuth, sl.l_tether, sl.force, sl.v_reelout;
+    display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), sl.azimuth, sl.l_tether, sl.force, sl.v_reelout;
             ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"]))
     plt.pause(0.01)
     plt.show(block=false)
@@ -257,7 +260,7 @@ on(viewer.btn_OK.clicks) do c
     if viewer.menu.i_selected[] == 1
         plot_main()
     elseif viewer.menu.i_selected[] == 2
-        show_plot()
+        plot_timing()
     elseif viewer.menu.i_selected[] == 3
         load_log_()
     elseif viewer.menu.i_selected[] == 4    
@@ -271,7 +274,9 @@ on(viewer.menu.i_selected) do c
     elseif c ==3
         load_log_()
     elseif c == 2
-        show_plot()
+        plot_timing()
+    elseif c == 1
+        plot_main()
     end
 end
 

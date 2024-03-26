@@ -2,7 +2,7 @@
 
 julia_version = "1.10.2"
 manifest_format = "2.0"
-project_hash = "ce061d05be54a6c4dcdb40f6e3c2375618cb215c"
+project_hash = "ae980e6d5022026c2642b2bd9f31715e245db809"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "016833eb52ba2d6bea9fcb50ca295980e728ee24"
@@ -951,6 +951,12 @@ git-tree-sha1 = "fee018a29b60733876eb557804b5b109dd3dd8a7"
 uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 version = "0.6.8"
 
+[[deps.KiteControllers]]
+deps = ["ControlPlots", "KiteUtils", "NLsolve", "Observables", "Parameters", "Printf", "StaticArrayInterface", "StaticArrays", "StructTypes", "Timers", "WinchModels", "YAML"]
+path = "/home/ufechner/repos/KiteControllers.jl"
+uuid = "b19fd437-5b3a-4cca-b199-c3ded0f20ded"
+version = "0.2.0"
+
 [[deps.KiteModels]]
 deps = ["AtmosphericModels", "Dierckx", "DiffEqBase", "DocStringExtensions", "KitePodModels", "KiteUtils", "LinearAlgebra", "NLsolve", "Parameters", "PrecompileTools", "Reexport", "Rotations", "StaticArrays", "Sundials", "WinchModels"]
 git-tree-sha1 = "600932d54f038b7e86d3f456c8b43805d927cdf9"
@@ -965,9 +971,9 @@ version = "0.3.1"
 
 [[deps.KiteUtils]]
 deps = ["Arrow", "CSV", "DocStringExtensions", "LinearAlgebra", "Parameters", "PrecompileTools", "RecursiveArrayTools", "Rotations", "StaticArrays", "StructArrays", "StructTypes", "YAML"]
-git-tree-sha1 = "ebd24ee12ce31339d27b2a58fedafbb45d6a8e6d"
+git-tree-sha1 = "97d43dfe9dda3f705efd81f6fce3314903678b78"
 uuid = "90980105-b163-44e5-ba9f-8b1c83bb0533"
-version = "0.6.0"
+version = "0.6.2"
 
 [[deps.KiteViewers]]
 deps = ["FileIO", "GLMakie", "GeometryBasics", "Joysticks", "KiteUtils", "LinearAlgebra", "Parameters", "Pkg", "PrecompileTools", "Printf", "Reexport", "Rotations", "StaticArrays", "Timers"]
