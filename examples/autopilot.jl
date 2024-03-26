@@ -216,19 +216,14 @@ function save_log_()
     @async begin 
         filename = fetch(Threads.@spawn save_file("data"; filterlist="arrow"))
         if filename != ""
-            # log = load_log(PARTICLES, KiteViewers.plot_file[])
-            # save_log(filename)
-            # source=path*KiteViewers.plot_file[]*.arrow
-            # dest  = filename
-            # cp(source, dest; force=true)
+            source = joinpath(pwd(), "data", KiteViewers.plot_file[]) * ".arrow"
+            dest  = filename
+            println("Copying: ", source, " => ", dest)
+            cp(source, dest; force=true)
             KiteViewers.set_status(viewer, "Saved log as:")
             KiteViewers.plot_file[] = replace(filename, homedir() => "~")
         end
-    end#         println("Mean    time per timestep: $(mean(sl.t_sim)) ms")
-    #         println("Maximum time per timestep: $(maximum(sl.t_sim)) ms")
-    #         index = Int64(round(12/dt))
-    #         println("Maximum for t>12s        : $(maximum(sl.t_sim[index:end])) ms")
-    
+    end
 end
 
 include("logging.jl")
