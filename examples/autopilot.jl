@@ -247,7 +247,7 @@ function plot_main()
     log=load_log(PARTICLES, KiteViewers.plot_file[])
     sl = log.syslog
     println(length(log.syslog.time))
-    display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), sl.azimuth, sl.l_tether, sl.force, sl.v_reelout;
+    display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.l_tether, sl.force, sl.v_reelout;
             ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"]))
     plt.pause(0.01)
     plt.show(block=false)
@@ -255,8 +255,6 @@ function plot_main()
 end
 
 on(viewer.btn_OK.clicks) do c
-    println(viewer.menu.i_selected[])
-    println(viewer.menu.selection[])
     if viewer.menu.i_selected[] == 1
         plot_main()
     elseif viewer.menu.i_selected[] == 2
@@ -290,7 +288,7 @@ stop_()
 KiteViewers.GLMakie.closeall()
 
 GC.enable(true)
-
+nothing
 
 # GC disabled, Ryzen 7950X, 4x realtime, GMRES
 # abs_tol: 0.0006, rel_tol: 0.001
