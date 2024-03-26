@@ -40,6 +40,7 @@ phi_set = 21.48
 # on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
+viewer.menu.options[]=["plot_main", "plot_power", "plot_timing", "load simulation", "save simulation"]
 PARKING::Bool = false
 
 steps = 0
@@ -225,7 +226,8 @@ function plot_timing()
     log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(ControlPlots.plotx(sl.time, sl.t_sim, 100*sl.steering, 100*sl.depower;
-                               ylabels=["t_sim [ms]", "steering [%]","depower [%]"]))
+                               ylabels=["t_sim [ms]", "steering [%]","depower [%]"],
+                               fig="timing"))
     println("Mean    time per timestep: $(mean(sl.t_sim)) ms")
     println("Maximum time per timestep: $(maximum(sl.t_sim)) ms")
     index = Int64(round(12/dt))
@@ -239,7 +241,8 @@ function plot_main()
     log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.l_tether, sl.force, sl.v_reelout;
-            ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"]))
+            ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"],
+            fig="main"))
     plt.pause(0.01)
     plt.show(block=false)
     nothing
@@ -249,7 +252,8 @@ function plot_power()
     log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, sl.force, sl.v_reelout, sl.force.*sl.v_reelout;
-            ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]"]))
+            ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]"],
+            fig="power"))
     plt.pause(0.01)
     plt.show(block=false)
     nothing
@@ -259,21 +263,25 @@ on(viewer.btn_OK.clicks) do c
     if viewer.menu.i_selected[] == 1
         plot_main()
     elseif viewer.menu.i_selected[] == 2
-        plot_timing()
+        plot_power()
     elseif viewer.menu.i_selected[] == 3
+        plot_timing()
+    elseif viewer.menu.i_selected[] == 4
         select_log()
-    elseif viewer.menu.i_selected[] == 4    
+    elseif viewer.menu.i_selected[] == 5    
         save_log_as()
     end
 end
 
 on(viewer.menu.i_selected) do c
-    if c == 4
+    if c == 5
         save_log_as()
-    elseif c ==3
+    elseif c == 4 
         select_log()
-    elseif c == 2
+    elseif c == 3
         plot_timing()
+    elseif c == 2
+        plot_power()
     elseif c == 1
         plot_main()
     end
