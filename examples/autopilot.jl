@@ -245,6 +245,16 @@ function plot_main()
     nothing
 end
 
+function plot_power()
+    log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
+    sl  = log.syslog
+    display(plotx(log.syslog.time, sl.force, sl.v_reelout, sl.force.*sl.v_reelout;
+            ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]"]))
+    plt.pause(0.01)
+    plt.show(block=false)
+    nothing
+end
+
 on(viewer.btn_OK.clicks) do c
     if viewer.menu.i_selected[] == 1
         plot_main()
