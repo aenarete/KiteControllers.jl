@@ -18,6 +18,8 @@ dt::Float64 = wcs.dt
 
 function init_globals()
     global kcu, kps4, wcs, fcs, fpps, ssc
+    se().rel_tol = 0.00025
+    se().abs_tol = 0.00015
     kcu   = KCU(se())
     kps4 = KPS4(kcu)
     wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
@@ -131,8 +133,10 @@ function simulate(integrator, stopped=true)
         if KiteViewers.status[] == "Stopped" && i > 10 break end
         if i*dt > MAX_TIME break end
     end
-    misses = j/k * 100
-    println("\nMissed the deadline for $(round(misses, digits=2)) %. Max time: $(round((max_time*1e-6), digits=1)) ms")
+    if i > 10/dt
+        misses = j/k * 100
+        println("\nMissed the deadline for $(round(misses, digits=2)) %. Max time: $(round((max_time*1e-6), digits=1)) ms")
+    end
     return div(i, TIME_LAPSE_RATIO)
 end
 
@@ -246,7 +250,6 @@ end
 function plot_main()
     log=load_log(PARTICLES, KiteViewers.plot_file[])
     sl = log.syslog
-    println(length(log.syslog.time))
     display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.l_tether, sl.force, sl.v_reelout;
             ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"]))
     plt.pause(0.01)
