@@ -24,7 +24,7 @@ function init_globals()
     fcs = FPCSettings(); fcs.dt = wcs.dt
     fpps = FPPSettings()
     ssc = SystemStateControl(wcs, fcs, fpps)
-    KiteViewers.plot_file[]="data/last_plot.jld2"
+    KiteViewers.plot_file[]="last_sim_log"
 end
 
 # the following values can be changed to match your interest
@@ -48,7 +48,6 @@ if ! @isdefined STEERING; const STEERING = zeros(STEPS); end
 if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(STEPS); end
 LAST_I::Int64=0
 PARTICLES::Int64 = se().segments + 5
-LOG_FILE_NAME="sim_log"
 logger::Logger = Logger(PARTICLES, STEPS) 
 
 function simulate(integrator, stopped=true)
@@ -62,7 +61,7 @@ function simulate(integrator, stopped=true)
     end
     i=1
     j=0; k=0
-    GC.gc()
+    GC.enable(true)
     GC.gc()
     if Sys.total_memory()/1e9 > 24 && MAX_TIME < 500
         GC.enable(false)
@@ -146,14 +145,14 @@ function play(stopped=false)
         toc()
         steps = simulate(integrator, stopped)
         stopped = ! viewer.sw.active[]
-        GC.enable(true)
+        if logger.index > 100
+            save_log(logger, KiteViewers.plot_file[])
+        end
         if @isdefined __PRECOMPILE__
             break
         end
-        if logger.index > 100
-            save_log(logger)
-        end
     end
+    GC.enable(true)
 end
 
 function parking()
@@ -188,34 +187,34 @@ on(viewer.btn_PLAY.clicks) do c;
     end
 end
 
-function show_plot()
-    filename = KiteViewers.plot_file[]
-    res      = load(replace(filename, "~" => homedir()))
-    if length(res.X) > 0
-        display(res)
-        plt.pause(0.01)
-        plt.show(block=false)
-    end
-    nothing
-end
+# function show_plot()
+#     filename = KiteViewers.plot_file[]
+#     res      = load(replace(filename, "~" => homedir()))
+#     if length(res.X) > 0
+#         display(res)
+#         plt.pause(0.01)
+#         plt.show(block=false)
+#     end
+#     nothing
+# end
 
-function load_log_()
-    @async begin 
-        filename = fetch(Threads.@spawn pick_file("data"; filterlist="arrow"))
-        if filename != ""
-            short_filename = replace(filename, homedir() => "~")
-            KiteViewers.plot_file[] = short_filename
-        end
-    end
-end
+# function load_log_()
+#     @async begin 
+#         filename = fetch(Threads.@spawn pick_file("data"; filterlist="arrow"))
+#         if filename != ""
+#             short_filename = replace(filename, homedir() => "~")
+#             KiteViewers.plot_file[] = short_filename
+#         end
+#     end
+# end
 
 function save_log_()
     @async begin 
         filename = fetch(Threads.@spawn save_file("data"; filterlist="arrow"))
         if filename != ""
-            # log = load_log(PARTICLES, LOG_FILE_NAME)
+            # log = load_log(PARTICLES, KiteViewers.plot_file[])
             # save_log(filename)
-            # source=path*LOG_FILE_NAME*.arrow
+            # source=path*KiteViewers.plot_file[]*.arrow
             # dest  = filename
             # cp(source, dest; force=true)
             KiteViewers.set_status(viewer, "Saved log as:")
@@ -226,23 +225,23 @@ end
 
 include("logging.jl")
 
-function plot_timing()
-    if maximum(DELTA_T) > 0
-        res=plotx(T[1:LAST_I], DELTA_T[1:LAST_I], 100*STEERING[1:LAST_I], 100*DEPOWER_[1:LAST_I], 
-            ylabels=["t_sim [ms]", "steering [%]", "depower [%]"], 
-            fig="simulation_timing")
-        println("Mean    time per timestep: $(mean(DELTA_T)) ms")
-        println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
-        index = Int64(round(12/dt))
-        println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
-        KiteViewers.plot_file[]="data/last_plot.jld2"
-        save(KiteViewers.plot_file[], res)
-    end
-    nothing
-end
+# function plot_timing()
+#     if maximum(DELTA_T) > 0
+#         res=plotx(T[1:LAST_I], DELTA_T[1:LAST_I], 100*STEERING[1:LAST_I], 100*DEPOWER_[1:LAST_I], 
+#             ylabels=["t_sim [ms]", "steering [%]", "depower [%]"], 
+#             fig="simulation_timing")
+#         println("Mean    time per timestep: $(mean(DELTA_T)) ms")
+#         println("Maximum time per timestep: $(maximum(DELTA_T)) ms")
+#         index = Int64(round(12/dt))
+#         println("Maximum for t>12s        : $(maximum(DELTA_T[index:end])) ms")
+#         KiteViewers.plot_file[]="data/last_plot.jld2"
+#         save(KiteViewers.plot_file[], res)
+#     end
+#     nothing
+# end
 
 function plot_main()
-    log=load_log(PARTICLES, LOG_FILE_NAME)
+    log=load_log(PARTICLES, KiteViewers.plot_file[])
     sl = log.syslog
     println(length(log.syslog.time))
     display(ControlPlots.plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), sl.azimuth, sl.l_tether, sl.force, sl.v_reelout;
