@@ -212,7 +212,7 @@ end
 #     end
 # end
 
-function save_log_()
+function save_log_as()
     @async begin 
         filename = fetch(Threads.@spawn save_file("data"; filterlist="arrow"))
         if filename != ""
@@ -260,13 +260,13 @@ on(viewer.btn_OK.clicks) do c
     elseif viewer.menu.i_selected[] == 3
         load_log_()
     elseif viewer.menu.i_selected[] == 4    
-        save_log_()
+        save_log_as()
     end
 end
 
 on(viewer.menu.i_selected) do c
     if c == 4
-        save_log_()
+        save_log_as()
     elseif c ==3
         load_log_()
     elseif c == 2
