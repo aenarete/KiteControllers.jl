@@ -221,8 +221,8 @@ end
 include("logging.jl")
 
 function plot_timing()
-    log=load_log(PARTICLES, KiteViewers.plot_file[])
-    sl = log.syslog
+    log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
+    sl  = log.syslog
     display(ControlPlots.plotx(sl.time, sl.t_sim, 100*sl.steering, 100*sl.depower;
                                ylabels=["t_sim [ms]", "steering [%]","depower [%]"]))
     println("Mean    time per timestep: $(mean(sl.t_sim)) ms")
