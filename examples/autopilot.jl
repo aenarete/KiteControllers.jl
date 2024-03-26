@@ -251,8 +251,14 @@ end
 function plot_power()
     log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
     sl  = log.syslog
-    display(plotx(log.syslog.time, sl.force, sl.v_reelout, sl.force.*sl.v_reelout;
-            ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]"],
+    energy = similar(sl.v_reelout)
+    en=0.0
+    for i in eachindex(energy)
+        en +=  sl.force[i]*sl.v_reelout[i]
+        energy[i] = en
+    end
+    display(plotx(log.syslog.time, sl.force, sl.v_reelout, sl.force.*sl.v_reelout, energy./3600;
+            ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]", "Energy [Wh]"],
             fig="power"))
     plt.pause(0.01)
     plt.show(block=false)
