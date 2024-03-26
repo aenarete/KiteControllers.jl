@@ -191,32 +191,24 @@ on(viewer.btn_PLAY.clicks) do c;
     end
 end
 
-# function show_plot()
-#     filename = KiteViewers.plot_file[]
-#     res      = load(replace(filename, "~" => homedir()))
-#     if length(res.X) > 0
-#         display(res)
-#         plt.pause(0.01)
-#         plt.show(block=false)
-#     end
-#     nothing
-# end
-
-# function load_log_()
-#     @async begin 
-#         filename = fetch(Threads.@spawn pick_file("data"; filterlist="arrow"))
-#         if filename != ""
-#             short_filename = replace(filename, homedir() => "~")
-#             KiteViewers.plot_file[] = short_filename
-#         end
-#     end
-# end
+function select_log()
+    @async begin 
+        filename = fetch(Threads.@spawn pick_file("data"; filterlist="arrow"))
+        if filename != ""
+            short_filename = replace(filename, homedir() => "~")
+            KiteViewers.plot_file[] = short_filename
+        end
+    end
+end
 
 function save_log_as()
     @async begin 
         filename = fetch(Threads.@spawn save_file("data"; filterlist="arrow"))
         if filename != ""
-            source = joinpath(pwd(), "data", KiteViewers.plot_file[]) * ".arrow"
+            source = replace(KiteViewers.plot_file[], "~" => homedir())
+            if ! isfile(source)
+                source = joinpath(pwd(), "data", KiteViewers.plot_file[]) * ".arrow"
+            end
             dest  = filename
             println("Copying: ", source, " => ", dest)
             cp(source, dest; force=true)
@@ -243,8 +235,8 @@ function plot_timing()
 end
 
 function plot_main()
-    log=load_log(PARTICLES, KiteViewers.plot_file[])
-    sl = log.syslog
+    log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
+    sl  = log.syslog
     display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.l_tether, sl.force, sl.v_reelout;
             ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"]))
     plt.pause(0.01)
@@ -258,7 +250,7 @@ on(viewer.btn_OK.clicks) do c
     elseif viewer.menu.i_selected[] == 2
         plot_timing()
     elseif viewer.menu.i_selected[] == 3
-        load_log_()
+        select_log()
     elseif viewer.menu.i_selected[] == 4    
         save_log_as()
     end
@@ -268,7 +260,7 @@ on(viewer.menu.i_selected) do c
     if c == 4
         save_log_as()
     elseif c ==3
-        load_log_()
+        select_log()
     elseif c == 2
         plot_timing()
     elseif c == 1
