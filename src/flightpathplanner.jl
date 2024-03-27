@@ -14,7 +14,6 @@ W_FIG                    = 36.0 # valid values: 36, 28
 
 TRANS_FACTOR             = 2.3 # 1.5
 DIRECT                   = false # skip intermediate target point
-CLEAN                    = false  # do not use any correction
 
 PSI_DOT_MAX = 3.0
 
@@ -415,6 +414,7 @@ function start(fpp::FlightPathPlanner)
         # see: Table 5.3
         _switch(fpp, POWER)
     end
+    set_v_wind_gnd(fpp.fpca, se().v_wind)
 end
 
 #  Check, if the new flight path planner is active. 
