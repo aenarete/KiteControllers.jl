@@ -254,7 +254,7 @@ function plot_power()
     energy = similar(sl.v_reelout)
     en=0.0
     for i in eachindex(energy)
-        en +=  sl.force[i]*sl.v_reelout[i]
+        en +=  sl.force[i]*sl.v_reelout[i]*dt
         energy[i] = en
     end
     display(plotx(log.syslog.time, sl.force, sl.v_reelout, sl.force.*sl.v_reelout, energy./3600;
