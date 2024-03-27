@@ -18,8 +18,6 @@ dt::Float64 = wcs.dt
 
 function init_globals()
     global kcu, kps4, wcs, fcs, fpps, ssc
-    # se().rel_tol = 0.00025/2
-    # se().abs_tol = 0.00015/2
     kcu   = KCU(se())
     kps4 = KPS4(kcu)
     wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
@@ -41,6 +39,8 @@ phi_set = 21.48
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
 viewer.menu.options[]=["plot_main", "plot_power", "plot_timing", "load simulation", "save simulation"]
+viewer.menu_rel_tol.options[]=["0.0005","0.0001","0.00005", "0.00001","0.000005","0.000001"]
+viewer.menu_rel_tol.i_selected[]=1
 PARKING::Bool = false
 
 steps = 0
@@ -297,6 +297,14 @@ on(viewer.menu.i_selected) do c
     elseif c == 1
         plot_main()
     end
+end
+
+on(viewer.menu_rel_tol.selection) do c
+    rel_tol = parse(Float64, c)
+    factor = rel_tol/0.001
+    se().rel_tol = rel_tol
+    se().abs_tol = factor * 0.0006 
+    println(rel_tol)
 end
 
 if @isdefined __PRECOMPILE__
