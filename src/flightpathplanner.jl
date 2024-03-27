@@ -20,16 +20,16 @@ PSI_DOT_MAX = 3.0
 ELEVATION_OFFSET         =  0.0
 ELEVATION_OFFSET_40      =  0.0
 ELEVATION_OFFSET_P1      =  0.0
-ELEVATION_OFFSET_P2      = -4.0 # was: -4.4 
+ELEVATION_OFFSET_P2      =  0.0+5 # was: -4.4 
 ELEVATION_OFFSET_P4_HIGH =  0.0
 AZIMUTH_OFFSET_PHI_1     =  3.0
 AZIMUTH_OFFSET_PHI_2     = -5.0 # was: -5.0 
 AZIMUTH_OFFSET_PHI_2     =  0.0
-ELEVATION_OFFSET_T2      =  3.5
-ELEVATION_OFFSET_P3_ZERO = -2.4 # degrees; not used, when high elevation pattern is used
+ELEVATION_OFFSET_T2      =  3.5+5
+ELEVATION_OFFSET_P3_ZERO =  5 # degrees; not used, when high elevation pattern is used
 ELEVATION_OFFSET_P3_ZERO_HIGH = 0.0
 ELEVATION_OFFSET_P3_ONE_HIGH  = 0.0
-ELEVATION_OFFSET_P4_ZERO   = -2.0 # not used, when high elevation pattern is used
+ELEVATION_OFFSET_P4_ZERO   =  3.0 # not used, when high elevation pattern is used
 ELEVATION_OFFSET_P4_ONE   =   0.0
 ELEVATION_OFFSET_P4_ONE_HIGH  =  0.0
 
@@ -169,8 +169,8 @@ end
 function set_v_wind_gnd(fpca::FlightPathCalculator, v_wind_gnd)
     fpca._v_wind_gnd = v_wind_gnd
     if v_wind_gnd > 8.2
-        fpca._elevation_offset_p2 =  4.0
-        fpca._elevation_offset_t2 = 10.5
+        fpca._elevation_offset_p2 =  4.0+7
+        fpca._elevation_offset_t2 = 10.5+10
         fpca._azimuth_offset_phi1 =  0.0               
     elseif v_wind_gnd > 8.06
         fpca._elevation_offset_p2 = 3.0
