@@ -33,10 +33,6 @@ TIME_LAPSE_RATIO  = 4
 SHOW_KITE         = true
 # end of user parameter section #
 
-phi_set = 21.48
-# on_control_command(ssc.fpp.fpca.fpc, attractor=[deg2rad(phi_set), deg2rad(51.88)])
-# on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
-
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
 viewer.menu.options[]=["plot_main", "plot_power", "plot_elev_az", "plot_timing", "load simulation", "save simulation"]
 viewer.menu_rel_tol.options[]=["0.0005","0.0001","0.00005", "0.00001","0.000005","0.000001"]
@@ -273,6 +269,12 @@ end
 
 function plot_control()
     println("plot control...")
+    # elevation, azimuth
+    # depower, steering
+    # state
+end
+
+function plot_side_view()
 end
 
 function plot_elev_az()
