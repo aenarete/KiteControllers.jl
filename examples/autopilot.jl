@@ -38,7 +38,7 @@ phi_set = 21.48
 # on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
-viewer.menu.options[]=["plot_main", "plot_power", "plot_timing", "load simulation", "save simulation"]
+viewer.menu.options[]=["plot_main", "plot_power", "plot_elev_az", "plot_timing", "load simulation", "save simulation"]
 viewer.menu_rel_tol.options[]=["0.0005","0.0001","0.00005", "0.00001","0.000005","0.000001"]
 viewer.menu_rel_tol.i_selected[]=1
 PARKING::Bool = false
@@ -271,6 +271,22 @@ function plot_power()
     nothing
 end
 
+function plot_control()
+    println("plot control...")
+end
+
+function plot_elev_az()
+    log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
+    sl  = log.syslog
+    display(plotxy(rad2deg.(sl.azimuth), rad2deg.(sl.elevation);
+            ylabel="elevation [°]",
+            xlabel="azimuth [°]",
+            fig="elev_az"))
+    plt.pause(0.01)
+    plt.show(block=false)
+    nothing
+end
+
 function do_menu(c)
     if c == "save simulation"
         save_log_as()
@@ -280,6 +296,10 @@ function do_menu(c)
         plot_timing()
     elseif c == "plot_power"
         plot_power()
+    elseif c == "plot_control"
+        plot_control()
+    elseif c == "plot_elev_az"
+        plot_elev_az()
     elseif c == "plot_main"
         plot_main()
     end
