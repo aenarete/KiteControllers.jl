@@ -69,7 +69,7 @@ function simulate(integrator, stopped=true)
     t_gc_tot = 0
     sys_state = SysState(kps4)
     sys_state.e_mech = 0
-    sys_state.sys_state = Int16(ssc.state)
+    sys_state.sys_state = Int16(ssc.fpp._state)
     e_mech = 0.0
     on_new_systate(ssc, sys_state)
     logger = Logger(PARTICLES, STEPS) 
@@ -105,6 +105,7 @@ function simulate(integrator, stopped=true)
             on_new_systate(ssc, sys_state)
             e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt
             sys_state.e_mech = e_mech
+            sys_state.sys_state = Int16(ssc.fpp._state)
             log!(logger, sys_state)
             if mod(i, TIME_LAPSE_RATIO) == 0 
                 KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
@@ -276,7 +277,7 @@ function plot_control()
     log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), 100*sl.depower, 100*sl.steering, sl.sys_state;
-            ylabels=["elevation [°]", "azimuth [°]", "depower [%]", "steering [%]", "state"],
+            ylabels=["elevation [°]", "azimuth [°]", "depower [%]", "steering [%]", "fpp_state"],
             fig="control"))
     plt.pause(0.01)
     plt.show(block=false)
