@@ -54,7 +54,7 @@ PARTICLES::Int64 = se().segments + 5
 logger::Logger = Logger(PARTICLES, STEPS) 
 
 function simulate(integrator, stopped=true)
-    global LAST_I
+    global LAST_I, logger
     start_time_ns = time_ns()
     clear_viewer(viewer)
     KiteViewers.running[] = ! stopped
@@ -72,7 +72,10 @@ function simulate(integrator, stopped=true)
     max_time = 0
     t_gc_tot = 0
     sys_state = SysState(kps4)
+    sys_state.e_mech = 0
+    e_mech = 0.0
     on_new_systate(ssc, sys_state)
+    logger = Logger(PARTICLES, STEPS) 
     KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
     log!(logger, sys_state)
     while true
@@ -103,6 +106,8 @@ function simulate(integrator, stopped=true)
                 end
             end
             on_new_systate(ssc, sys_state)
+            e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt
+            sys_state.e_mech = e_mech
             log!(logger, sys_state)
             if mod(i, TIME_LAPSE_RATIO) == 0 
                 KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
@@ -152,7 +157,8 @@ function play(stopped=false)
         stopped = ! viewer.sw.active[]
         if logger.index > 100
             KiteViewers.plot_file[]="last_sim_log"
-            save_log(logger, KiteViewers.plot_file[])
+            println("Saving log... $(logger.index)")
+            save_log(logger, "last_sim_log")
         end
         if @isdefined __PRECOMPILE__
             break
