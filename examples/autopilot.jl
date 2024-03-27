@@ -285,16 +285,16 @@ on(viewer.btn_OK.clicks) do c
     end
 end
 
-on(viewer.menu.i_selected) do c
-    if c == 5
+on(viewer.menu.selection) do c
+    if c == "save simulation"
         save_log_as()
-    elseif c == 4 
+    elseif c == "load simulation"
         select_log()
-    elseif c == 3
+    elseif c == "plot_timing"
         plot_timing()
-    elseif c == 2
+    elseif c == "plot_power"
         plot_power()
-    elseif c == 1
+    elseif c == "plot_main"
         plot_main()
     end
 end
