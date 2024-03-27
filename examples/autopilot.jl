@@ -34,7 +34,7 @@ SHOW_KITE         = true
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
-viewer.menu.options[]=["plot_main", "plot_power", "plot_elev_az", "plot_timing", "load simulation", "save simulation"]
+viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_elev_az", "plot_timing", "load simulation", "save simulation"]
 viewer.menu_rel_tol.options[]=["0.0005","0.0001","0.00005", "0.00001","0.000005","0.000001"]
 viewer.menu_rel_tol.i_selected[]=1
 PARKING::Bool = false
@@ -69,6 +69,7 @@ function simulate(integrator, stopped=true)
     t_gc_tot = 0
     sys_state = SysState(kps4)
     sys_state.e_mech = 0
+    sys_state.sys_state = Int16(ssc.state)
     e_mech = 0.0
     on_new_systate(ssc, sys_state)
     logger = Logger(PARTICLES, STEPS) 
@@ -272,6 +273,14 @@ function plot_control()
     # elevation, azimuth
     # depower, steering
     # state
+    log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
+    sl  = log.syslog
+    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), 100*sl.depower, 100*sl.steering, sl.sys_state;
+            ylabels=["elevation [°]", "azimuth [°]", "depower [%]", "steering [%]", "state"],
+            fig="control"))
+    plt.pause(0.01)
+    plt.show(block=false)
+    nothing
 end
 
 function plot_side_view()
