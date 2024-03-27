@@ -271,21 +271,7 @@ function plot_power()
     nothing
 end
 
-on(viewer.btn_OK.clicks) do c
-    if viewer.menu.i_selected[] == 1
-        plot_main()
-    elseif viewer.menu.i_selected[] == 2
-        plot_power()
-    elseif viewer.menu.i_selected[] == 3
-        plot_timing()
-    elseif viewer.menu.i_selected[] == 4
-        select_log()
-    elseif viewer.menu.i_selected[] == 5    
-        save_log_as()
-    end
-end
-
-on(viewer.menu.selection) do c
+function do_menu(c)
     if c == "save simulation"
         save_log_as()
     elseif c == "load simulation"
@@ -297,6 +283,14 @@ on(viewer.menu.selection) do c
     elseif c == "plot_main"
         plot_main()
     end
+end
+
+on(viewer.btn_OK.clicks) do c
+    do_menu(viewer.menu.selection[])
+end
+
+on(viewer.menu.selection) do c
+    do_menu(c)
 end
 
 on(viewer.menu_rel_tol.selection) do c
