@@ -19,3 +19,17 @@ function show_stats(stats::Stats)
     display(GLMakie.Screen(), fig)
     nothing
 end
+
+function show_stats1(stats::Stats)
+    fig = GLMakie.Figure(size = (400, 400))
+    GLMakie.text!(fig[1,1], 20, 0, text="hello", fontsize = 30, space=:pixel)
+    display(GLMakie.Screen(), fig)
+    nothing
+end
+
+function show_stats2(stats::Stats)
+    fig = GLMakie.Figure(size = (400, 400))
+    GLMakie.Label(fig[1,1], text="hello", fontsize = 30)
+    display(GLMakie.Screen(), fig)
+    nothing
+end
