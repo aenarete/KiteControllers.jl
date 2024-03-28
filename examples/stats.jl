@@ -6,10 +6,12 @@ struct Stats
     max_height::Float64
     min_elevation::Float64
     max_elev_ro::Float64
+    min_az_ro::Float64
+    max_az_ro::Float64
 end
 
 function show_stats(stats::Stats)
-    HEIGHT=300
+    HEIGHT=330
     UPPER_BORDER=20
     fig = GLMakie.Figure(size = (400, HEIGHT))
     if Sys.islinux()
@@ -34,7 +36,9 @@ function show_stats(stats::Stats)
     line = print("min height:   ", @sprintf("%5.0f  m", stats.min_height); line)
     line = print("max height:   ", @sprintf("%5.0f  m", stats.max_height); line)
     line = print("min elevation:", @sprintf("%5.1f  °", stats.min_elevation); line)
-    line = print("max elev_ro:", @sprintf("%5.1f  °", stats.max_elev_ro); line)
+    line = print("max elev_ro:  ", @sprintf("%5.1f  °", stats.max_elev_ro); line)
+    line = print("min az_ro:    ", @sprintf("%5.1f  °", stats.min_az_ro); line)
+    line = print("max az_ro:    ", @sprintf("%5.1f  °", stats.max_az_ro); line)
 
     display(GLMakie.Screen(), fig)
     nothing

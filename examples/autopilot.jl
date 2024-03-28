@@ -294,13 +294,16 @@ function print_stats()
     log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
     sl  = log.syslog
     elev_ro = deepcopy(sl.elevation)
+    az_ro = deepcopy(sl.azimuth)
     for i in eachindex(sl.sys_state)
         if ! (sl.sys_state[i] in (5,6,7,8))
             elev_ro[i] = 0
+            az_ro[i] = 0
         end
     end
     stats = Stats(sl[end].e_mech, minimum(sl.force[Int64(round(5/dt)):end]), maximum(sl.force), 
-                  minimum(log.z), maximum(log.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)))
+                  minimum(log.z), maximum(log.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
+                  minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
     show_stats(stats)
 end
 
