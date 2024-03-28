@@ -7,9 +7,11 @@ struct Stats
 end
 
 function show_stats(stats::Stats)
-    fig = GLMakie.Figure(size = (400, 400))
-    lscene = GLMakie.LScene(fig[1, 1], show_axis=false)
+    HEIGHT=300
+    UPPER_BORDER=20
+    fig = GLMakie.Figure(size = (400, HEIGHT))
     if Sys.islinux()
+        # sudo apt install ttf-bitstream-vera 
         lin_font="/usr/share/fonts/truetype/ttf-bitstream-vera/VeraMono.ttf"
         if isfile(lin_font)
             font=lin_font
@@ -20,8 +22,8 @@ function show_stats(stats::Stats)
         font="Courier New"
     end
     function print(lbl::String, value::String; line, font=font)
-        GLMakie.text!(lscene, position =  GLMakie.Point2f( 10, 360-line*32), lbl; fontsize = 24, space=:pixel)
-        GLMakie.text!(lscene, position =  GLMakie.Point2f(250, 360-line*32), value; fontsize = 24, font, space=:pixel)
+        GLMakie.text!(fig.scene, 20, HEIGHT-UPPER_BORDER-line*32; text=lbl, fontsize = 24, space=:pixel)
+        GLMakie.text!(fig.scene, 250, HEIGHT-UPPER_BORDER-line*32; text=value, fontsize = 24, font, space=:pixel)
         line +=1    
     end
     line = print("energy:    ", @sprintf("%5.0f Wh", stats.e_mech); line = 1)

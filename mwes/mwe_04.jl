@@ -14,9 +14,8 @@ end
 stats = Stats(333, 3900, 25)
 
 function show_stats(stats::Stats)
-    # fig = GLMakie.Figure(size = (400, 400))
-    scene = GLMakie.Scene()
-    GLMakie.text!(scene, 20, 0, text="hello", fontsize = 30, space=:pixel)
-    display(GLMakie.Screen(), scene)
+    fig = GLMakie.Figure(size = (400, 400))
+    GLMakie.text!(fig.scene, 20, 0, text="hello", fontsize = 30, space=:pixel)
+    display(GLMakie.Screen(), fig)
     nothing
 end
