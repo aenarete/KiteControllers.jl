@@ -6,6 +6,7 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog, LaTeXStrings
+# using Gtk4, Printf
 
 kcu::KCU   = KCU(se())
 kps4::KPS4 = KPS4(kcu)
@@ -34,7 +35,7 @@ SHOW_KITE         = true
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
-viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_elev_az", "plot_timing", "load simulation", "save simulation"]
+viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_elev_az", "plot_timing", "print_stats", "load simulation", "save simulation"]
 viewer.menu_rel_tol.options[]=["0.0005","0.0001","0.00005", "0.00001","0.000005","0.000001"]
 viewer.menu_rel_tol.i_selected[]=1
 PARKING::Bool = false
@@ -287,6 +288,15 @@ end
 function plot_side_view()
 end
 
+# include("stats.jl")
+function print_stats()
+    log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
+    sl  = log.syslog
+    # stats = Stats(sl[end].e_mech, 3900, 25)
+    fig = KiteViewers.GLMakie.Figure(size = (400, 400))
+    display(KiteViewers.GLMakie.Screen(), fig)
+end
+
 function plot_elev_az()
     log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
     sl  = log.syslog
@@ -314,6 +324,8 @@ function do_menu(c)
         plot_elev_az()
     elseif c == "plot_main"
         plot_main()
+    elseif c == "print_stats"
+        print_stats()
     end
 end
 

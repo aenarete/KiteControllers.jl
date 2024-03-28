@@ -1,5 +1,8 @@
+using Pkg
+if ! ("Gtk4" ∈ keys(Pkg.project().dependencies))
+    using TestEnv; TestEnv.activate()
+end
 using Gtk4, Printf
-
 
 struct Stats
     energy::Float64
@@ -7,7 +10,7 @@ struct Stats
     min_height::Float64
 end
 
-stats=Stats(333, 3900, 25)
+stats = Stats(333, 3900, 25)
 
 function show_stats(stats::Stats)
     win = GtkWindow("Statistics", 400, 200)
