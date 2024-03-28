@@ -5,15 +5,15 @@ if ! ("Plots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, Plots
+using KiteControllers, KiteViewers, KiteModels, ControlPlots
 se().abs_tol=0.0000006
 se().rel_tol=0.000001
 
-if ! @isdefined kcu;    const kcu = KCU(se());   end
-if ! @isdefined kps4;   const kps4 = KPS4(kcu); end
+kcu::KCU   = KCU(se())
+kps4::KPS4 = KPS4(kcu)
 wcs::WCSettings = WCSettings(); wcs.dt = 1/se().sample_freq
 fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
-fpps:FPPSettings = FPPSettings()
+fpps::FPPSettings = FPPSettings()
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
 dt::Float64 = wcs.dt
 
@@ -133,4 +133,6 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 
 play()
 stop(viewer)
-plot(T, rad2deg.(AZIMUTH))
+plt.plot(T, rad2deg.(AZIMUTH))
+plt.pause(0.01)
+plt.show(block=false)

@@ -8,11 +8,10 @@ using KiteUtils
 se().abs_tol=0.0000006
 se().rel_tol=0.000001
 
-using KiteControllers, KiteModels, BayesOpt
-import PyPlot as plt
+using KiteControllers, KiteModels, BayesOpt, ControlPlots
 
-if ! @isdefined kcu;   const kcu = KCU(se());   end
-if ! @isdefined kps;   const kps = KPS3(kcu); end
+kcu::KCU   = KCU(se())
+kps::KPS3 = KPS3(kcu)
 wcs::WCSettings   = WCSettings();  wcs.dt = 1/se().sample_freq
 fcs::FPCSettings  = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
@@ -110,6 +109,8 @@ end
 
 function show_result()
     plt.plot(T, rad2deg.(AZIMUTH))
+    plt.pause(0.01)
+    plt.show(block=false)
 end
 
 function f(x)
@@ -161,6 +162,8 @@ function plot_res()
     plt.plot(1:71, P)
     plt.plot!(1:71, D)
     plt.plot!(1:71, 10*RES)
+    plt.pause(0.01)
+    plt.show(block=false)
 end
 
 fcs.p=17.33 # 14.36 # 15.61 # 14.43 # 13.65 # 14.08 # 14.72 # 15.41 # 14.74 # 14.35 # 13.68 # 13.87 # 14.99 # 13.63

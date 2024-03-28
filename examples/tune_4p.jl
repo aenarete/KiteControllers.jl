@@ -8,11 +8,10 @@ using KiteUtils
 se().abs_tol=0.0000006
 se().rel_tol=0.000001
 
-using KiteControllers, KiteModels, BayesOpt
-import PyPlot as plt
+using KiteControllers, KiteModels, BayesOpt, ControlPlots
 
-if ! @isdefined kcu;   const kcu = KCU(se());   end
-if ! @isdefined kps;   const kps = KPS4(kcu); end
+kcu::KCU   = KCU(se())
+kps4::KPS4 = KPS4(kcu)
 wcs::WCSettings   = WCSettings();  wcs.dt = 1/se().sample_freq
 fcs::FPCSettings  = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
@@ -32,7 +31,7 @@ if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
     i=1
-    sys_state = SysState(kps)
+    sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     while true
         if i > 100
@@ -46,11 +45,11 @@ function simulate(integrator)
             elseif time < 21
                 steering = 0.1
             end
-            set_depower_steering(kps.kcu, depower, steering)
+            set_depower_steering(kps4.kcu, depower, steering)
         end  
         v_ro = 0.0
-        KiteModels.next_step!(kps, integrator, v_ro=v_ro, dt=dt)
-        sys_state = SysState(kps)
+        KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+        sys_state = SysState(kps4)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth        
         on_new_systate(ssc, sys_state)
@@ -80,10 +79,10 @@ end
 # the azimuth error in degrees squared and divided by the test duration
 function test_parking(suppress_overshoot_factor = 3.0)
     global LAST_RES
-    clear!(kps)
+    clear!(kps4)
     init_kcu(kcu, se())
     AZIMUTH .= zeros(Int64(MAX_TIME/dt))
-    integrator = KiteModels.init_sim!(kps, stiffness_factor=0.04)
+    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     simulate(integrator)
     res = calc_res(AZIMUTH, suppress_overshoot_factor)
     if res < LAST_RES
@@ -96,6 +95,8 @@ end
 
 function show_result()
     plt.plot(T, rad2deg.(AZIMUTH))
+    plt.pause(0.01)
+    plt.show(block=false)
 end
 
 function f(x)
