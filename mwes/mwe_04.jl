@@ -34,8 +34,6 @@ function show_stats(stats::Stats)
     line = print("energy:    ", @sprintf("%5.0f Wh", stats.e_mech); line = 1)
     line = print("max force: ", @sprintf("%5.0f  N", stats.max_force); line)
     line = print("min height:", @sprintf("%5.0f  m", stats.min_height); line)
-    # @sprintf("%5.0f  N", stats.max_force)
-    # @sprintf("%5.0f  m", stats.min_height)
 
     display(GLMakie.Screen(), fig)
     nothing
