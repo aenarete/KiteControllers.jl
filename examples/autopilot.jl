@@ -6,7 +6,8 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog, LaTeXStrings
-# using Gtk4, Printf
+using Printf
+import KiteViewers.GLMakie
 
 kcu::KCU   = KCU(se())
 kps4::KPS4 = KPS4(kcu)
@@ -288,13 +289,12 @@ end
 function plot_side_view()
 end
 
-# include("stats.jl")
+include("stats.jl")
 function print_stats()
     log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
     sl  = log.syslog
-    # stats = Stats(sl[end].e_mech, 3900, 25)
-    fig = KiteViewers.GLMakie.Figure(size = (400, 400))
-    display(KiteViewers.GLMakie.Screen(), fig)
+    stats = Stats(sl[end].e_mech, maximum(sl.force), minimum(log.z))
+    show_stats(stats)
 end
 
 function plot_elev_az()
