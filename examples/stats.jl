@@ -1,7 +1,9 @@
 struct Stats
     e_mech::Float64
+    min_force::Float64
     max_force::Float64
     min_height::Float64
+    max_height::Float64
 end
 
 function show_stats(stats::Stats)
@@ -23,8 +25,10 @@ function show_stats(stats::Stats)
         line +=1    
     end
     line = print("energy:    ", @sprintf("%5.0f Wh", stats.e_mech); line = 1)
+    line = print("min force: ", @sprintf("%5.0f  N", stats.min_force); line)
     line = print("max force: ", @sprintf("%5.0f  N", stats.max_force); line)
     line = print("min height:", @sprintf("%5.0f  m", stats.min_height); line)
+    line = print("max height:", @sprintf("%5.0f  m", stats.max_height); line)
 
     display(GLMakie.Screen(), fig)
     nothing

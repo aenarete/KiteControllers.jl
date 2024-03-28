@@ -293,7 +293,8 @@ include("stats.jl")
 function print_stats()
     log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
     sl  = log.syslog
-    stats = Stats(sl[end].e_mech, maximum(sl.force), minimum(log.z))
+    stats = Stats(sl[end].e_mech, minimum(sl.force[Int64(round(5/dt)):end]), maximum(sl.force), 
+                  minimum(log.z), maximum(log.z))
     show_stats(stats)
 end
 
