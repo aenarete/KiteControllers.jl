@@ -4,6 +4,8 @@ struct Stats
     max_force::Float64
     min_height::Float64
     max_height::Float64
+    min_elevation::Float64
+    max_elev_ro::Float64
 end
 
 function show_stats(stats::Stats)
@@ -26,11 +28,13 @@ function show_stats(stats::Stats)
         GLMakie.text!(fig.scene, 250, HEIGHT-UPPER_BORDER-line*32; text=value, fontsize = 24, font, space=:pixel)
         line +=1    
     end
-    line = print("energy:    ", @sprintf("%5.0f Wh", stats.e_mech); line = 1)
-    line = print("min force: ", @sprintf("%5.0f  N", stats.min_force); line)
-    line = print("max force: ", @sprintf("%5.0f  N", stats.max_force); line)
-    line = print("min height:", @sprintf("%5.0f  m", stats.min_height); line)
-    line = print("max height:", @sprintf("%5.0f  m", stats.max_height); line)
+    line = print("energy:       ", @sprintf("%5.0f Wh", stats.e_mech); line = 1)
+    line = print("min force:    ", @sprintf("%5.0f  N", stats.min_force); line)
+    line = print("max force:    ", @sprintf("%5.0f  N", stats.max_force); line)
+    line = print("min height:   ", @sprintf("%5.0f  m", stats.min_height); line)
+    line = print("max height:   ", @sprintf("%5.0f  m", stats.max_height); line)
+    line = print("min elevation:", @sprintf("%5.1f  °", stats.min_elevation); line)
+    line = print("max elev_ro:", @sprintf("%5.1f  °", stats.max_elev_ro); line)
 
     display(GLMakie.Screen(), fig)
     nothing
