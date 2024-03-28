@@ -14,6 +14,7 @@ function show_stats(stats::Stats)
     css = """
     label {
         font-size: 2.0em;
+        font-family: monospace;
     }
     """
     cssProvider = GtkCssProvider(css)
@@ -21,11 +22,18 @@ function show_stats(stats::Stats)
 
     vbox = GtkBox(:v, homogeneous=true)
 
-    hbox = GtkBox(:h, homogeneous=true)  # :h makes a horizontal layout, :v a vertical layout
-    label = GtkLabel("Power:"); val = GtkLabel(@sprintf("%5.0f Wh", stats.energy))
-    push!(hbox, label, val)
+    function add_hbox(vbox, label, value)
+        hbox = GtkBox(:h, homogeneous=true)  # :h makes a horizontal layout, :v a vertical layout
+        lbl = GtkLabel(label)
+        push!(hbox, lbl, value)
+        push!(vbox, hbox)
+    end
 
-    push!(vbox, hbox)
+    add_hbox(vbox, "  energy:     ", GtkLabel(@sprintf("%5.0f Wh", stats.energy)))
+    add_hbox(vbox, "  max force:  ", GtkLabel(@sprintf("%5.0f  N", stats.max_force)))
+    add_hbox(vbox, "  min height: ", GtkLabel(@sprintf("%5.0f  m", stats.min_height)))
+
+
     push!(win, vbox)
     show(win)
     nothing
