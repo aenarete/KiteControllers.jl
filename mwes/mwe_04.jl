@@ -16,8 +16,10 @@ stats = Stats(333, 3900, 25)
 function show_stats(stats::Stats)
     fig = GLMakie.Figure(size = (400, 400))
     lscene = GLMakie.LScene(fig[1, 1], show_axis=false)
-    GLMakie.text!(lscene, position =  GLMakie.Point2f(10, 340), "Uwe", fontsize = 24, space=:pixel)
-    var = @sprintf("%5.0f Wh", stats.e_mech)
+    lbl   = "energy:"
+    value = @sprintf("%5.0f Wh", stats.e_mech)
+    GLMakie.text!(lscene, position =  GLMakie.Point2f( 10, 340), lbl, fontsize = 24, space=:pixel)
+    GLMakie.text!(lscene, position =  GLMakie.Point2f(250, 340), value, fontsize = 24, space=:pixel)
     # @sprintf("%5.0f  N", stats.max_force)
     # @sprintf("%5.0f  m", stats.min_height)
 
