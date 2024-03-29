@@ -33,7 +33,7 @@ Expected output: `0.0 1.0 2.0`
 
 #### Usage of RateLimiter
 ```julia
-using KiteControllers, Plots
+using KiteControllers, ControlPlots
 rl = RateLimiter(1.0, 0.8)
 input =  [0,0,1,2,3,3,3,3,3,2,1,0,0,0,0,0]
 out = zeros(16)
@@ -41,8 +41,11 @@ for i in 1:16
     out[i] = calc_output(rl, input[i])
     on_timer(rl)
 end
-plot(1:16, input, label="input", width=2, xtickfontsize=12, ytickfontsize=12, legendfontsize=12)
-plot!(1:16, out, label="output", width=2)
+plt.plot(1:16, input, label="input")
+plt.plot(1:16, out, label="output")
+plt.grid(true)
+plt.pause(0.01)
+plt.show(block=false) 
 ```
 Expected output:
 <p align="center"><img src="./rate_limiter.png" width="500" /></p>

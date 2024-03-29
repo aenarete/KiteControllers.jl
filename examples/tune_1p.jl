@@ -1,6 +1,6 @@
 # activate the test environment if needed
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 
@@ -10,7 +10,7 @@ se().rel_tol=0.000001
 
 using KiteControllers, KiteModels, BayesOpt, ControlPlots
 
-kcu::KCU   = KCU(se())
+kcu::KCU  = KCU(se())
 kps::KPS3 = KPS3(kcu)
 wcs::WCSettings   = WCSettings();  wcs.dt = 1/se().sample_freq
 fcs::FPCSettings  = FPCSettings(); fcs.dt = wcs.dt

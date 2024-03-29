@@ -1,6 +1,6 @@
 # activate the test environment if needed
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 
@@ -8,10 +8,10 @@ using KiteUtils
 se().abs_tol=0.0000006
 se().rel_tol=0.000001
 
-using KiteControllers, KiteModels, Plots, BlackBoxOptim
+using KiteControllers, KiteModels, ControlPlots, BlackBoxOptim
 
-if ! @isdefined kcu;   const kcu = KCU(se());   end
-if ! @isdefined kps;   const kps = KPS3(kcu); end
+kcu::KCU  = KCU(se())
+kps::KPS3 = KPS3(kcu)
 wcs::WCSettings   = WCSettings();  wcs.dt = 1/se().sample_freq
 fcs::FPCSettings  = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()

@@ -1,6 +1,6 @@
 # activate the test environment if needed
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
@@ -9,10 +9,10 @@ using KiteUtils
 se().abs_tol=0.00000006
 se().rel_tol=0.0000001
 
-using KiteControllers, KiteViewers, KiteModels, Plots
+using KiteControllers, KiteViewers, KiteModels, ControlPlots
 
-if ! @isdefined kcu;    const kcu = KCU(se());   end
-if ! @isdefined kps4;   const kps4 = KPS3(kcu); end
+kcu::KCU = KCU(se())
+kps::KPS3 = KPS3(kcu)
 wcs::WCSettings = WCSettings(); wcs.dt = 1/se().sample_freq
 fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
@@ -43,7 +43,7 @@ function simulate(integrator)
     GC.gc()
     max_time = 0
     t_gc_tot = 0
-    sys_state = SysState(kps4)
+    sys_state = SysState(kps)
     on_new_systate(ssc, sys_state)
     while true
         if i > 100
@@ -55,14 +55,14 @@ function simulate(integrator)
             if time > 20 && time < 21
                 steering = 0.1
             end
-            set_depower_steering(kps4.kcu, depower, steering)
+            set_depower_steering(kps.kcu, depower, steering)
         end  
         v_ro = 0.0
-        t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+        t_sim = @elapsed KiteModels.next_step!(kps, integrator, v_ro=v_ro, dt=dt)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
-        sys_state = SysState(kps4)
+        sys_state = SysState(kps)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth        
         on_new_systate(ssc, sys_state)
@@ -97,7 +97,7 @@ end
 
 function play()
     global steps
-    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+    integrator = KiteModels.init_sim!(kps, stiffness_factor=0.04)
     toc()
     try
         steps = simulate(integrator)
@@ -135,4 +135,7 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 play()
 stop(viewer)
 
-plot(T, rad2deg.(AZIMUTH))
+p=plot(T, rad2deg.(AZIMUTH))
+display(p)
+plt.pause(0.01)
+plt.show(block=false)
