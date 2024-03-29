@@ -36,7 +36,7 @@ SHOW_KITE         = true
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
-viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_elev_az", "plot_timing", "print_stats", "load simulation", "save simulation"]
+viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_elev_az", "plot_timing", "print_stats", "load logfile", "save logfile"]
 viewer.menu_rel_tol.options[]=["0.0005","0.0001","0.00005", "0.00001","0.000005","0.000001"]
 viewer.menu_rel_tol.i_selected[]=1
 PARKING::Bool = false
@@ -320,9 +320,9 @@ function plot_elev_az()
 end
 
 function do_menu(c)
-    if c == "save simulation"
+    if c == "save logfile"
         save_log_as()
-    elseif c == "load simulation"
+    elseif c == "load logfile"
         select_log()
     elseif c == "plot_timing"
         plot_timing()
