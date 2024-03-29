@@ -1,10 +1,10 @@
 # activate the test environment if needed
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 
-using KiteControllers, Plots
+using KiteControllers, ControlPlots
 """
 Test the three channel mixer, using two sinus signals of different frequencies
 and a random noise signal.
@@ -47,8 +47,12 @@ for i in 1:SAMPLES
     out[i] = calc_output(mix3, SIN1[i], SIN2[i], NOISE[i])
     on_timer(mix3)
 end
-plot(TIME, out, label="output", width=2, linecolor=:blue3, xtickfontsize=12, ytickfontsize=12, 
-     legendfontsize=12, size=(640,480))
-plot!(TIME, factor_b, width=2, label="factor_b")
-plot!(TIME, factor_c, width=2, label="factor_c")
+plt.plot(TIME, out, label="output")
+plt.plot(TIME, factor_b, label="factor_b")
+plt.plot(TIME, factor_c, label="factor_c")
+plt.grid(true)
+plt.legend()
+plt.pause(0.01)
+plt.show(block=false)
+
 # savefig("mixer3.png")
