@@ -1,17 +1,14 @@
 # activate the test environment if needed
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("KiteModels" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels
+using KiteControllers, KiteModels
 
-# change this to KPS3 or KPS4
-const Model = KPS4
-
-if ! @isdefined kcu;    const kcu = KCU(se());   end
-if ! @isdefined kps4;   const kps4 = Model(kcu); end
+kcu::KCU = KCU(se())
+kps4::KPS4 = KPS4(kcu)
 
 wcs = WCSettings(); wcs.dt = 1/se().sample_freq
 const fcs = FPCSettings(); fcs.dt = wcs.dt
