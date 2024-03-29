@@ -1,6 +1,6 @@
 # activate the test environment if needed
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("KiteViewers" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()

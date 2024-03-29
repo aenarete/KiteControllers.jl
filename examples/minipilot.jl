@@ -1,5 +1,5 @@
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("KiteViewers" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
@@ -57,11 +57,9 @@ function simulate(integrator, stopped=true)
     i=1
     j=0; k=0
     GC.gc()
-    GC.gc()
     if Sys.total_memory()/1e9 > 24 && MAX_TIME < 500
         GC.enable(false)
     end
-    max_time = 0
     t_gc_tot = 0
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
@@ -101,20 +99,7 @@ function simulate(integrator, stopped=true)
                 if Sys.free_memory()/1e9 < 2.0
                     GC.enable(true)
                 end
-                wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
-                mtime = 0
-                if i > 10/dt 
-                    # if we missed the deadline by more than 5 ms
-                    mtime = time_ns() - start_time_ns
-                    if mtime > dt*1e9 + 5e6
-                        print(".")
-                        j += 1
-                    end
-                    k +=1
-                end
-                if mtime > max_time
-                    max_time = mtime
-                end            
+                wait_until(start_time_ns + 1e9*dt, always_sleep=true)          
                 start_time_ns = time_ns()
                 t_gc_tot = 0
             end
@@ -124,8 +109,6 @@ function simulate(integrator, stopped=true)
         if KiteViewers.status[] == "Stopped" && i > 10 break end
         if i*dt > MAX_TIME break end
     end
-    misses = j/k * 100
-    println("\nMissed the deadline for $(round(misses, digits=2)) %. Max time: $(round((max_time*1e-6), digits=1)) ms")
     return div(i, TIME_LAPSE_RATIO)
 end
 
@@ -172,10 +155,8 @@ on(viewer.btn_PLAY.clicks) do c;
     end
 end
 
-MAX_TIME = 30
 play(false)
 stop_()
 KiteViewers.GLMakie.closeall()
 
 GC.enable(true)
-
