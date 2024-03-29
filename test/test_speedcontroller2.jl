@@ -1,6 +1,6 @@
 # activate the test environment if needed
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
@@ -9,7 +9,7 @@ using Timers; tic()
 # of the force.
 # Input: A varying wind speed. Implements the simulink block diagram, shown in
 # docs/speed_controller_test2.png
-using KiteControllers, Plots, BenchmarkTools
+using KiteControllers, ControlPlots, BenchmarkTools
 
 wcs = WCSettings()
 
@@ -49,10 +49,12 @@ else
     end
 end
 
-include("plot.jl")
-plotx(TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE*0.001;
-      labels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]", "acc [m/s²]", "force [kN]"],
+p=plotx(TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE*0.001;
+      ylabels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]", "acc [m/s²]", "force [kN]"],
       fig="test_speedcontroller2")
+display(p)
+plt.pause(0.01)
+plt.show(block=false)  
 
 println("Max iterations needed: $(wcs.iter)")
 if BENCHMARK println("Average time per control step: $(mean(b.times)/SAMPLES/1e9) s") end

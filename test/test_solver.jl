@@ -11,4 +11,4 @@ function test_nlsolve()
     @assert sol.f_converged
     sol.zero
 end
-# execution time: 5 µs, 255 times faster than Python
+# execution time: 31 µs, 41 times faster than Python

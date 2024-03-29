@@ -1,6 +1,6 @@
 # activate the test environment if needed
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
@@ -8,7 +8,7 @@ using Timers; tic()
 # Test the speed controller in combination with the controller for the lower and upper force.
 # Input: A varying wind speed. Implements the simulink block diagram, shown in
 # docs/force_speed_controller_test2.png
-using KiteControllers, Plots, BenchmarkTools
+using KiteControllers, ControlPlots, BenchmarkTools
 
 wcs = WCSettings()
 wcs.test = true
@@ -70,19 +70,20 @@ for i in 1:SAMPLES
     V_SET_OUT[i] = status[5]
 end
 
-include("plot.jl")
-plotx(TIME, V_WIND, V_RO, V_SET_OUT;
-      labels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]"],
+p1=plotx(TIME, V_WIND, V_RO, V_SET_OUT;
+      ylabels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]"],
       fig="test_winchcontroller_a")
 
-plotx(TIME, F_ERR*0.001, V_ERR;
-      labels=["f_err [kN]","v_error [m/s]"],
+p2=plotx(TIME, F_ERR*0.001, V_ERR;
+      ylabels=["f_err [kN]","v_error [m/s]"],
       fig="test_winchcontroller_b")
 
-plotx(TIME, FORCE*0.001, STATE;
-      labels=["force [kN]","state"],
+p3=plotx(TIME, FORCE*0.001, STATE;
+      ylabels=["force [kN]","state"],
       fig="test_winchcontroller_c")
-
+display(p1); display(p2); display(p3)
+plt.pause(0.01)
+plt.show(block=false)  
 toc()
 
 println("Max iterations needed: $(wcs.iter)")
