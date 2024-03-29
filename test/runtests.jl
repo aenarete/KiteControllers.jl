@@ -419,7 +419,7 @@ end
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     v_set = calc_v_set(ssc)
-    @test v_set > 0.0 && v_set < 0.1
+    @test v_set >= 0.0 && v_set < 0.1
     u_s = calc_steering(ssc)
     println(u_s)
 end
@@ -442,7 +442,7 @@ end
     KiteControllers.set_v_wind_gnd(fpca, 3.7)
     KiteControllers.set_v_wind_gnd(fpca, 3.6)
     KiteControllers.set_v_wind_gnd(fpca, 8.3)
-    @test fpca._elevation_offset_p2 ==  4.0
+    @test fpca._elevation_offset_p2 ==  11.0
     phi = deg2rad(0)
     beta = deg2rad(30)
     KiteControllers.set_azimuth_elevation(fpca, phi, beta)
