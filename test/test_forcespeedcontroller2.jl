@@ -1,6 +1,6 @@
 # activate the test environment if needed
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
@@ -8,7 +8,7 @@ using Timers; tic()
 # Test the speed controller in combination with the controller for the lower and upper force.
 # Input: A varying wind speed. Implements the simulink block diagram, shown in
 # docs/force_speed_controller_test2.png
-using KiteControllers, Plots, BenchmarkTools
+using KiteControllers, ControlPlots, BenchmarkTools
 
 wcs = WCSettings()
 wcs.test = true
@@ -67,18 +67,21 @@ for i in 1:SAMPLES
     speed_controller_step4!(pid1, pid2, pid3, mix3, winch, calc, i, last_force, last_v_set_out, V_WIND, STARTUP, V_RO, ACC, FORCE, V_SET_OUT, STATE, V_ERR, F_ERR)
 end
 
-include("plot.jl")
-plotx(TIME, V_WIND, V_RO, V_SET_OUT; 
-      labels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]"], 
+p1=plotx(TIME, V_WIND, V_RO, V_SET_OUT; 
+      ylabels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]"], 
       fig="test_forcespeed_2a")
 
-plotx(TIME, F_ERR*0.001, V_ERR;
-      labels=["f_err [kN]", "v_error [m/s]"],
+p2=plotx(TIME, F_ERR*0.001, V_ERR;
+      ylabels=["f_err [kN]", "v_error [m/s]"],
       fig="test_forcespeed_2b")
 
-plotx(TIME, ACC, FORCE*0.001, STATE;
-      labels=["acc [m/s²]", "force [kN]", "state"],
+p3=plotx(TIME, ACC, FORCE*0.001, STATE;
+      ylabels=["acc [m/s²]", "force [kN]", "state"],
       fig="test_forcespeed_2c")
+
+display(p1); display(p2); display(p3)
+plt.pause(0.01)
+plt.show(block=false)
 
 # plot!(TIME, V_ERR, label="v_error [m/s]")
 # plot!(TIME, F_ERR*0.001, label="f_error [kN]")
