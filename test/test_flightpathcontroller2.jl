@@ -1,9 +1,9 @@
 # activate the test environment if needed
 using Pkg
-if ! ("Plots" ∈ keys(Pkg.project().dependencies))
+if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
-using KiteControllers, Timers; tic()
+using KiteControllers, ControlPlots, Timers; tic()
 
 fcs = FPCSettings()
 fcs.dt = 0.02
@@ -14,7 +14,6 @@ TIME = range(0.0, DURATION, SAMPLES)
 # Test the flight path controller against the simplified kite model as shown
 # in diagram docs/flight_path_controller_test1.png. Steer towards an
 # attractor point.
-using KiteControllers, BenchmarkTools
 fpc = FlightPathController(fcs)
 kite = KiteModel(fcs)
 kite.omega = 0.08
@@ -55,9 +54,12 @@ for i in 1:SAMPLES
     on_timer(fpc)
     on_timer(kite)
 end
-include("plot.jl")
-plotx(TIME, PSI, BETA, PSI_DOT; 
-      labels=["heading angle psi [°]", "elevation β [°]", "psi_dot [rad/s]"], 
+p=plotx(TIME, PSI, BETA, PSI_DOT; 
+      ylabels=["heading angle psi [°]", "elevation β [°]", "psi_dot [rad/s]"], 
       fig="test_fpc2")
+display(p)
 
-plotxy(PHI, BETA, xlabel="azimuth ϕ [°]", ylabel="elevation β [°]", fig="test_fpc2_xy")
+p=plotxy(PHI, BETA, xlabel="azimuth ϕ [°]", ylabel="elevation β [°]", fig="test_fpc2_xy")
+display(p)
+plt.pause(0.01)
+plt.show(block=false)
