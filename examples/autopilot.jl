@@ -231,7 +231,7 @@ include("plots.jl")
 include("stats.jl")
 
 function print_stats()
-    log = load_log(PARTICLES, basename(KiteViewers.plot_file[]))
+    log = load_log(basename(KiteViewers.plot_file[]))
     sl  = log.syslog
     elev_ro = deepcopy(sl.elevation)
     az_ro = deepcopy(sl.azimuth)
