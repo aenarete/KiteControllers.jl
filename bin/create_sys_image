@@ -56,5 +56,5 @@ cd src
 touch *.jl # make sure all modules get recompiled in the next step
 cd ..
 julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using KiteUtils, KiteControllers"
-julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using TestEnv; TestEnv.activate(); using ControlPlots"
+julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using TestEnv; TestEnv.activate(); using ControlPlots, NativeFileDialog"
 julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using Pkg; Pkg.resolve()"
