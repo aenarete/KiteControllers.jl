@@ -9,7 +9,8 @@ using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeF
 using Printf
 import KiteViewers.GLMakie
 
-set = se()
+set = deepcopy(se())
+set.segments = 6
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 
@@ -53,7 +54,7 @@ if ! @isdefined DELTA_T;  const DELTA_T = zeros(STEPS); end
 if ! @isdefined STEERING; const STEERING = zeros(STEPS); end
 if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(STEPS); end
 LAST_I::Int64=0
-PARTICLES::Int64 = se().segments + 5
+PARTICLES::Int64 = set.segments + 5
 logger::Logger = Logger(PARTICLES, STEPS) 
 
 function simulate(integrator, stopped=true)
@@ -285,8 +286,8 @@ end
 on(viewer.menu_rel_tol.selection) do c
     rel_tol = parse(Float64, c)
     factor = rel_tol/0.001
-    se().rel_tol = rel_tol
-    se().abs_tol = factor * 0.0006 
+    set.rel_tol = rel_tol
+    set.abs_tol = factor * 0.0006 
     println(rel_tol)
 end
 
