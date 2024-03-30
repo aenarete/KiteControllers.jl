@@ -9,23 +9,28 @@ using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeF
 using Printf
 import KiteViewers.GLMakie
 
-kcu::KCU   = KCU(se())
+set = se()
+kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 
-wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
+wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
 fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
 dt::Float64 = wcs.dt
+initialized = true
 
 function init_globals()
-    global kcu, kps4, wcs, fcs, fpps, ssc
-    kcu   = KCU(se())
-    kps4 = KPS4(kcu)
-    wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
-    fcs = FPCSettings(); fcs.dt = wcs.dt
-    fpps = FPPSettings()
-    ssc = SystemStateControl(wcs, fcs, fpps)
+    global kcu, kps4, wcs, fcs, fpps, ssc, initialized
+    if ! initialized
+        kcu   = KCU(set)
+        kps4 = KPS4(kcu)
+        wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
+        fcs = FPCSettings(); fcs.dt = wcs.dt
+        fpps = FPPSettings()
+        ssc = SystemStateControl(wcs, fcs, fpps)
+    end
+    initialized = false
     KiteViewers.plot_file[]="last_sim_log"
 end
 
@@ -35,7 +40,7 @@ TIME_LAPSE_RATIO  = 4
 SHOW_KITE         = true
 # end of user parameter section #
 
-viewer::Viewer3D = Viewer3D(SHOW_KITE)
+viewer::Viewer3D = Viewer3D(set, SHOW_KITE; menus=true)
 viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_elev_az", "plot_side_view", "plot_timing", "print_stats", "load logfile", "save logfile"]
 viewer.menu_rel_tol.options[]=["0.0005","0.0001","0.00005", "0.00001","0.000005","0.000001"]
 viewer.menu_rel_tol.i_selected[]=1
