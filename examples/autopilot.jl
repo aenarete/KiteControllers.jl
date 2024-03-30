@@ -10,7 +10,14 @@ using Printf
 import KiteViewers.GLMakie
 
 set = deepcopy(se())
+
+# the following values can be changed to match your interest
+MAX_TIME::Float64 = 460
+TIME_LAPSE_RATIO  = 4
+SHOW_KITE         = true
 set.segments = 6
+# end of user parameter section #
+
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 
@@ -34,12 +41,6 @@ function init_globals()
     initialized = false
     KiteViewers.plot_file[]="last_sim_log"
 end
-
-# the following values can be changed to match your interest
-MAX_TIME::Float64 = 460
-TIME_LAPSE_RATIO  = 4
-SHOW_KITE         = true
-# end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(set, SHOW_KITE; menus=true)
 viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_elev_az", "plot_side_view", "plot_timing", "print_stats", "load logfile", "save logfile"]
