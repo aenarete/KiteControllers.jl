@@ -43,8 +43,10 @@ else
         echo "Using Manifest-1.10.toml.default ..."
     fi
 fi
-export "PYTHON"=""
-julia --project -e "using Pkg; Pkg.build(\"PyCall\")"
+# export "PYTHON"=""
+julia -e "using Pkg; Pkg.add(\"TestEnv\")"
+julia --project -e "using Pkg; using TestEnv; TestEnv.activate(); Pkg.add(\"PyCall\"); Pkg.build(\"PyCall\")"
+julia --project -e "using Pkg; using TestEnv; TestEnv.activate(); Pkg.add(\"ControlPlots\"); using ControlPlots"
 
 julia --project -e "using Pkg; Pkg.resolve(); Pkg.precompile()"
 julia --project -e "include(\"./test/create_sys_image.jl\");"
