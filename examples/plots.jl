@@ -42,10 +42,6 @@ function plot_power()
 end
 
 function plot_control()
-    println("plot control...")
-    # elevation, azimuth
-    # depower, steering
-    # state
     log = load_log(basename(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), 100*sl.depower, 100*sl.steering, sl.sys_state;
