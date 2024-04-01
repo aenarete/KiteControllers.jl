@@ -91,6 +91,9 @@ function simulate(integrator, stopped=true)
             if i == 1
                 integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
             end
+            if mod(i, 40) == 0 
+                println(Sys.free_memory()/1e9)
+            end
             if i > 100
                 dp = KiteControllers.get_depower(ssc)
                 if dp < 0.22 dp = 0.22 end
@@ -104,7 +107,8 @@ function simulate(integrator, stopped=true)
             v_ro = calc_v_set(ssc)
             #
             t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
-            sys_state = SysState(kps4)
+            update_sys_state!(sys_state, kps4)
+            # sys_state = SysState(kps4)
             if i <= length(T)
                 T[i] = dt * i
                 if i > 10/dt
@@ -122,9 +126,9 @@ function simulate(integrator, stopped=true)
             if mod(i, TIME_LAPSE_RATIO) == 0 
                 KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
                 set_status(viewer, String(Symbol(ssc.state)))
-                # turn garbage collection back on if we are short of memory
-                if Sys.free_memory()/1e9 < 2.0
-                    GC.enable(true)
+                # call garbage collector when we are short of memory
+                if Sys.free_memory()/1e9 < 4.0
+                    GC.gc(false)
                 end
                 wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
                 mtime = 0
@@ -146,7 +150,10 @@ function simulate(integrator, stopped=true)
             i += 1
         end
         if ! isopen(viewer.fig.scene) break end
-        if KiteViewers.status[] == "Stopped" && i > 10 break end
+        if KiteViewers.status[] == "Stopped" && i > 10 
+            @timev KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+            break 
+        end
         if i*dt > MAX_TIME break end
     end
     if i > 10/dt
