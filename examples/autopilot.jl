@@ -89,7 +89,11 @@ function simulate(integrator, stopped=true)
             sleep(dt)
         else
             if i == 1
-                integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+                integrator = KiteModels.
+                init_sim!(kps4, stiffness_factor=0.04)
+            end
+            if mod(i, 20) == 0
+                println("Free memory: $(round(Sys.free_memory()/1e9)) GB") 
             end
             if mod(i, 40) == 0 
                 println(Sys.free_memory()/1e9)
