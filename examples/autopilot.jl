@@ -2,7 +2,7 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
-    pkg"add KiteModels#new_solver"
+    pkg"add KiteModels#main"
 end
 using Timers; tic()
 
@@ -13,6 +13,7 @@ import KiteViewers.GLMakie
 set = deepcopy(se())
 
 # the following values can be changed to match your interest
+set.solver="DFBDF" # DAE solver, IDA or DFBDF
 MAX_TIME::Float64 = 460
 TIME_LAPSE_RATIO  = 4
 SHOW_KITE         = true
@@ -55,7 +56,7 @@ PARTICLES::Int64 = set.segments + 5
 logger::Logger = Logger(PARTICLES, STEPS) 
 
 function simulate(integrator, stopped=true)
-    global LAST_I, logger
+    global logger
     start_time_ns = time_ns()
     clear_viewer(viewer)
     KiteViewers.running[] = ! stopped
@@ -67,6 +68,7 @@ function simulate(integrator, stopped=true)
     j=0; k=0
     GC.enable(true)
     GC.gc()
+    mem_start=Sys.total_memory()/1e9 
     if Sys.total_memory()/1e9 > 24 && MAX_TIME < 500
         GC.enable(false)
     end
@@ -152,6 +154,8 @@ function simulate(integrator, stopped=true)
         end
         if i*dt > MAX_TIME break end
     end
+    mem_used=mem_start-Sys.free_memory()/1e9 
+    println("Maximal memory usage: $(round(mem_used, digits=1)) GB")
     if i > 10/dt
         misses = j/k * 100
         println("\nMissed the deadline for $(round(misses, digits=2)) %. Max time: $(round((max_time*1e-6), digits=1)) ms")
