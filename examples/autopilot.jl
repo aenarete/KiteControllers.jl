@@ -2,6 +2,7 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
+    pkg"add KiteModels#new_solver"
 end
 using Timers; tic()
 
@@ -109,7 +110,9 @@ function simulate(integrator, stopped=true)
             e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(ssc.fpp._state)
-            sys_state.t_sim = t_sim*1000
+            if i > 10
+                sys_state.t_sim = t_sim*1000
+            end
             log!(logger, sys_state)
             if TIME_LAPSE_RATIO >= 2
                 ratio = 2
@@ -128,7 +131,7 @@ function simulate(integrator, stopped=true)
                 if i > 10/dt 
                     # if we missed the deadline by more than 5 ms
                     mtime = time_ns() - start_time_ns
-                    if mtime > dt*1e9 + 5e6
+                    if mtime > dt*1e9/ratio + 5e6
                         print(".")
                         j += 1
                     end
