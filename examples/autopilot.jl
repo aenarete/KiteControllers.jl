@@ -95,8 +95,8 @@ function simulate(integrator, stopped=true)
             if mod(i, 20) == 0
                 println("Free memory: $(round(Sys.free_memory()/1e9)) GB") 
             end
-            if mod(i, 40) == 0 
-                println(Sys.free_memory()/1e9)
+            if mod(i, 100) == 0 
+                println(round(Sys.free_memory()/1e9))
             end
             if i > 100
                 dp = KiteControllers.get_depower(ssc)
@@ -127,14 +127,19 @@ function simulate(integrator, stopped=true)
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(ssc.fpp._state)
             log!(logger, sys_state)
-            if mod(i, TIME_LAPSE_RATIO) == 0 
+            if TIME_LAPSE_RATIO >= 2
+                ratio = 2
+            else
+                ratio = 1
+            end
+            if mod(i, TIME_LAPSE_RATIO/ratio) == 0 
                 KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
                 set_status(viewer, String(Symbol(ssc.state)))
                 # call garbage collector when we are short of memory
                 if Sys.free_memory()/1e9 < 4.0
                     GC.gc(false)
                 end
-                wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
+                wait_until(start_time_ns + 1e9*dt/ratio, always_sleep=true) 
                 mtime = 0
                 if i > 10/dt 
                     # if we missed the deadline by more than 5 ms
