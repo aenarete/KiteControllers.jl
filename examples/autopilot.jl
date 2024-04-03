@@ -109,7 +109,7 @@ function simulate(integrator, stopped=true)
             e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(ssc.fpp._state)
-            sys_state.t_sim = t_sim
+            sys_state.t_sim = t_sim*1000
             log!(logger, sys_state)
             if TIME_LAPSE_RATIO >= 2
                 ratio = 2
@@ -322,3 +322,9 @@ nothing
 #     Mean    time per timestep: 3.5648891855434783 ms
 #     Maximum time per timestep: 14.024168999999999 ms
 #     Maximum for t>12s        : 14.024168999999999 ms
+
+# GC disabled, Ryzen 7950X, 4x realtime, DFBDF solver
+# Missed the deadline for 0.0 %. Max time: 25.0 ms
+#     Mean    time per timestep: 0.0007918275678260871 ms
+#     Maximum time per timestep: 0.008085809 ms
+#     Maximum for t>12s        : 0.008085809 ms

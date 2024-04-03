@@ -5,7 +5,7 @@ function plot_timing()
                                ylabels=["t_sim [ms]", "steering [%]","depower [%]"],
                                fig="timing"))
     println("Mean    time per timestep: $(mean(sl.t_sim)) ms")
-    println("Maximum time per timestep: $(maximum(sl.t_sim)) ms")
+    println("Maximum time per timestep: $(maximum(sl.t_sim[10:end])) ms")
     index = Int64(round(12/dt))
     println("Maximum for t>12s        : $(maximum(sl.t_sim[index:end])) ms")
     plt.pause(0.01)
