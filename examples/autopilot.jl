@@ -50,11 +50,6 @@ PARKING::Bool = false
 
 steps = 0
 STEPS::Int64 = Int64(MAX_TIME/dt)
-if ! @isdefined T;        const T = zeros(STEPS); end
-if ! @isdefined DELTA_T;  const DELTA_T = zeros(STEPS); end
-if ! @isdefined STEERING; const STEERING = zeros(STEPS); end
-if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(STEPS); end
-LAST_I::Int64=0
 PARTICLES::Int64 = set.segments + 5
 logger::Logger = Logger(PARTICLES, STEPS) 
 
@@ -92,11 +87,8 @@ function simulate(integrator, stopped=true)
                 integrator = KiteModels.
                 init_sim!(kps4, stiffness_factor=0.04)
             end
-            if mod(i, 20) == 0
-                println("Free memory: $(round(Sys.free_memory()/1e9)) GB") 
-            end
-            if mod(i, 100) == 0 
-                println(round(Sys.free_memory()/1e9))
+            if mod(i, 100) == 0
+                println("Free memory: $(round(Sys.free_memory()/1e9, digits=1)) GB") 
             end
             if i > 100
                 dp = KiteControllers.get_depower(ssc)
@@ -112,20 +104,12 @@ function simulate(integrator, stopped=true)
             #
             t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
             update_sys_state!(sys_state, kps4)
-            # sys_state = SysState(kps4)
-            if i <= length(T)
-                T[i] = dt * i
-                if i > 10/dt
-                    sys_state.t_sim  = t_sim * 1000
-                    STEERING[i] = sys_state.steering
-                    DEPOWER_[i] = sys_state.depower
-                    LAST_I=i
-                end
-            end
+
             on_new_systate(ssc, sys_state)
             e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(ssc.fpp._state)
+            sys_state.t_sim = t_sim
             log!(logger, sys_state)
             if TIME_LAPSE_RATIO >= 2
                 ratio = 2
