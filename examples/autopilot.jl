@@ -2,7 +2,6 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
-    pkg"add KiteModels#main"
 end
 using Timers; tic()
 
