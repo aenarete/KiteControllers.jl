@@ -134,5 +134,3 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 play()
 stop(viewer)
 plt.plot(T, rad2deg.(AZIMUTH))
-plt.pause(0.01)
-plt.show(block=false)

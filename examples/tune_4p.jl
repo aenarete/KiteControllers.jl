@@ -95,8 +95,6 @@ end
 
 function show_result()
     plt.plot(T, rad2deg.(AZIMUTH))
-    plt.pause(0.01)
-    plt.show(block=false)
 end
 
 function f(x)

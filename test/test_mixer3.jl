@@ -52,7 +52,5 @@ plt.plot(TIME, factor_b, label="factor_b")
 plt.plot(TIME, factor_c, label="factor_c")
 plt.grid(true)
 plt.legend()
-plt.pause(0.01)
-plt.show(block=false)
 
 # savefig("mixer3.png")

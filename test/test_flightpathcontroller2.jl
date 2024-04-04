@@ -61,5 +61,3 @@ display(p)
 
 p=plotxy(PHI, BETA, xlabel="azimuth ϕ [°]", ylabel="elevation β [°]", fig="test_fpc2_xy")
 display(p)
-plt.pause(0.01)
-plt.show(block=false)

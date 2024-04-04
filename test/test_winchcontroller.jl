@@ -82,8 +82,6 @@ p3=plotx(TIME, FORCE*0.001, STATE;
       ylabels=["force [kN]","state"],
       fig="test_winchcontroller_c")
 display(p1); display(p2); display(p3)
-plt.pause(0.01)
-plt.show(block=false)  
 toc()
 
 println("Max iterations needed: $(wcs.iter)")

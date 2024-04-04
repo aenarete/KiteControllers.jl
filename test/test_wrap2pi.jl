@@ -12,5 +12,3 @@ y = wrap2pi.(x)
 
 display(plot(x, y, ylabel="wrap2pi"))
 plt.grid(true)
-plt.pause(0.01)
-plt.show(block=false) 

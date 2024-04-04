@@ -44,8 +44,6 @@ end
 plt.plot(1:16, input, label="input")
 plt.plot(1:16, out, label="output")
 plt.grid(true)
-plt.pause(0.01)
-plt.show(block=false) 
 ```
 Expected output:
 <p align="center"><img src="./rate_limiter.png" width="500" /></p>

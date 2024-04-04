@@ -8,8 +8,6 @@ function plot_timing()
     println("Maximum time per timestep: $(maximum(sl.t_sim[10:end])) ms")
     index = Int64(round(12/dt))
     println("Maximum for t>12s        : $(maximum(sl.t_sim[index:end])) ms")
-    plt.pause(0.01)
-    plt.show(block=false)
     nothing
 end
 
@@ -19,9 +17,7 @@ function plot_main()
     display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.l_tether, sl.force, sl.v_reelout;
             ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"],
             fig="main"))
-    plt.pause(0.01)
-    plt.show(block=false)
-    nothing
+     nothing
 end
 
 function plot_power()
@@ -36,8 +32,6 @@ function plot_power()
     display(plotx(log.syslog.time, sl.force, sl.v_reelout, sl.force.*sl.v_reelout, energy./3600;
             ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]", "Energy [Wh]"],
             fig="power"))
-    plt.pause(0.01)
-    plt.show(block=false)
     nothing
 end
 
@@ -47,8 +41,6 @@ function plot_control()
     display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), 100*sl.depower, 100*sl.steering, sl.sys_state;
             ylabels=["elevation [°]", "azimuth [°]", "depower [%]", "steering [%]", "fpp_state"],
             fig="control"))
-    plt.pause(0.01)
-    plt.show(block=false)
     nothing
 end
 
@@ -59,8 +51,6 @@ function plot_elev_az()
             ylabel="elevation [°]",
             xlabel="azimuth [°]",
             fig="elev_az"))
-    plt.pause(0.01)
-    plt.show(block=false)
     nothing
 end
 
@@ -70,7 +60,5 @@ function plot_side_view()
     ylabel="pos_x [m]",
     xlabel="height [m]",
     fig="side_view"))
-    plt.pause(0.01)
-    plt.show(block=false)
     nothing
 end

@@ -53,8 +53,6 @@ p=plotx(TIME, V_WIND, V_RO, V_SET_OUT, ACC, FORCE*0.001;
       ylabels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]", "acc [m/s²]", "force [kN]"],
       fig="test_speedcontroller2")
 display(p)
-plt.pause(0.01)
-plt.show(block=false)  
 
 println("Max iterations needed: $(wcs.iter)")
 if BENCHMARK println("Average time per control step: $(mean(b.times)/SAMPLES/1e9) s") end

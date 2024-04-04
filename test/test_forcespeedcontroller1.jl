@@ -68,8 +68,6 @@ p3=plotx(TIME, ACC, FORCE*0.001,
       fig="test_forcespeed_1c")
 
 display(p1); display(p2); display(p3)
-plt.pause(0.01)
-plt.show(block=false)
 
 # plot!(TIME, STATE,       label="state")
 # plot!(TIME, V_ERR, label="v_error [m/s]")

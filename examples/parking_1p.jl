@@ -137,5 +137,3 @@ stop(viewer)
 
 p=plot(T, rad2deg.(AZIMUTH))
 display(p)
-plt.pause(0.01)
-plt.show(block=false)
