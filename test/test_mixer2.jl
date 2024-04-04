@@ -19,5 +19,5 @@ for i in eachindex(x)
     select_b(m2, i > 2)
     on_timer(m2)
 end
-plotn(1:10, [x, y, out]; labels=["input_a", "input_b", "output"])
+plot(1:10, [x, y, out]; labels=["input_a", "input_b", "output"])
 

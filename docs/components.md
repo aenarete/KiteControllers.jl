@@ -41,7 +41,7 @@ for i in 1:16
     out[i] = calc_output(rl, input[i])
     on_timer(rl)
 end
-plotn(1:16, [input, out]; labels=["input", "output"])
+plot(1:16, [input, out]; labels=["input", "output"])
 ```
 Expected output:
 <p align="center"><img src="./rate_limiter.png" width="500" /></p>

@@ -47,6 +47,6 @@ for i in 1:SAMPLES
     out[i] = calc_output(mix3, SIN1[i], SIN2[i], NOISE[i])
     on_timer(mix3)
 end
-plotn(TIME, [out, factor_b, factor_c]; labels=["output", "factor_b", "factor_c"])
+plot(TIME, [out, factor_b, factor_c]; labels=["output", "factor_b", "factor_c"])
 
 # savefig("mixer3.png")

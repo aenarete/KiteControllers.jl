@@ -153,7 +153,7 @@ function est_noise(n=10)
 end
 
 function plot_res()
-    plotn(1:MAX_ITER+10,[P, D, 10*RES])
+    plot(1:MAX_ITER+10,[P, D, 10*RES])
 end
 
 fcs.p=11.29 # 10.60 # 13.84 # 15.59 # 14.53 # 14.34 # 13.58 # 14.15 # 11.0
