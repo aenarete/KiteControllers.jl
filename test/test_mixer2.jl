@@ -19,8 +19,5 @@ for i in eachindex(x)
     select_b(m2, i > 2)
     on_timer(m2)
 end
-plt.plot(1:10, x, label="input_a")
-plt.plot(1:10, y, label="input_b")
-plt.plot(1:10, out, label="output")
-plt.grid(true)
-plt.legend()
+plotn(1:10, [x, y, out]; labels=["input_a", "input_b", "output"])
+

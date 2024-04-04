@@ -94,7 +94,7 @@ function test_parking(suppress_overshoot_factor = 3.0)
 end
 
 function show_result()
-    plt.plot(T, rad2deg.(AZIMUTH))
+    plot(T, rad2deg.(AZIMUTH))
 end
 
 function f(x)
