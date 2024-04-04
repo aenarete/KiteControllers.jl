@@ -2,6 +2,7 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
+    pkg"add KiteModels#main"
 end
 using Timers; tic()
 
@@ -12,7 +13,7 @@ import KiteViewers.GLMakie
 set = deepcopy(se())
 
 # the following values can be changed to match your interest
-set.solver="DFBDF" # DAE solver, IDA or DFBDF
+set.solver="DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
 MAX_TIME::Float64 = 460
 TIME_LAPSE_RATIO  = 4
 SHOW_KITE         = true
@@ -125,7 +126,7 @@ function simulate(integrator, stopped=true)
                 set_status(viewer, String(Symbol(ssc.state)))
                 # call garbage collector when we are short of memory
                 if Sys.free_memory()/1e9 < 4.0
-                    GC.gc(false)
+                    GC.enable(true)
                 end
                 wait_until(start_time_ns + 1e9*dt/ratio, always_sleep=true) 
                 mtime = 0
@@ -316,21 +317,26 @@ GC.enable(true)
 nothing
 
 # GC disabled, Ryzen 7950X, 4x realtime, GMRES
-# abs_tol: 0.0006, rel_tol: 0.001
-# Missed the deadline for 0.04 %. Max time: 160.4 ms
-#     Mean    time per timestep: 3.1066040097826084 ms
-#     Maximum time per timestep: 11.13074 ms
-#     Maximum for t>12s        : 11.13074 ms
-
-# GC disabled, Ryzen 7950X, 4x realtime, GMRES
 # abs_tol: 0.0003, rel_tol: 0.0005
 # Missed the deadline for 0.04 %. Max time: 172.1 ms
-#     Mean    time per timestep: 3.5648891855434783 ms
-#     Maximum time per timestep: 14.024168999999999 ms
-#     Maximum for t>12s        : 14.024168999999999 ms
+#     Mean    time per timestep: 3.5468899328260868 ms
+#     Maximum time per timestep: 13.760848 ms
+#     Maximum for t>12s        : 13.760848 ms
+# Maximal memory usage: 27.0 GB
 
 # GC disabled, Ryzen 7950X, 4x realtime, DFBDF solver
+# abs_tol: 0.0003, rel_tol: 0.0005
 # Missed the deadline for 0.0 %. Max time: 25.0 ms
-#     Mean    time per timestep: 0.8060058672826088 ms
-#     Maximum time per timestep: 8.788469000000001 ms
-#     Maximum for t>12s        : 8.231719 ms
+#     Mean    time per timestep: 0.7769367125 ms
+#     Maximum time per timestep: 8.064576 ms
+#     Maximum for t>12s        : 7.994796 ms
+# Maximal memory usage: 11.7 GB
+
+# GC disabled, Ryzen 7950X, 4x realtime, DImplicitEuler solver
+# abs_tol: 0.0003, rel_tol: 0.0005
+# Missed the deadline for 0.02 %. Max time: 80.2 ms
+#     Mean    time per timestep: 0.9781242155434784 ms
+#     Maximum time per timestep: 17.54421 ms
+#     Maximum for t>12s        : 16.454081 ms
+# Maximal memory usage: 12.7 GB
+
