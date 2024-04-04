@@ -46,8 +46,8 @@ end
 
 viewer::Viewer3D = Viewer3D(set, SHOW_KITE; menus=true)
 viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_elev_az", "plot_side_view", "plot_timing", "print_stats", "load logfile", "save logfile"]
-viewer.menu_rel_tol.options[]=["0.0005","0.0001","0.00005", "0.00001","0.000005","0.000001"]
-viewer.menu_rel_tol.i_selected[]=1
+viewer.menu_rel_tol.options[]=["0.005","0.0001","0.0005","0.0001","0.00005", "0.00001","0.000005","0.000001"]
+DEFAULT_TOLERANCE = 3
 PARKING::Bool = false
 
 steps = 0
@@ -296,6 +296,7 @@ end
 
 on(viewer.menu_rel_tol.selection) do c
     rel_tol = parse(Float64, c)
+    rel_tol = 0.005
     factor = rel_tol/0.001
     set.rel_tol = rel_tol
     set.abs_tol = factor * 0.0006 
@@ -307,7 +308,7 @@ if @isdefined __PRECOMPILE__
     play(false)
 else
     viewer.menu_rel_tol.i_selected[]=2
-    viewer.menu_rel_tol.i_selected[]=1
+    viewer.menu_rel_tol.i_selected[]=DEFAULT_TOLERANCE
     play(true)
 end
 stop_()
