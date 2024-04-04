@@ -39,9 +39,8 @@ for i in 1:SAMPLES
     on_timer(kite)
 end
 
-p=plotx(TIME, PSI, BETA, PSI_DOT; 
+plotx(TIME, PSI, BETA, PSI_DOT; 
       ylabels=["heading angle psi [°]","elevation β [°]", "psi_dot [rad/s]"], 
       fig = "test_fpc1")
-display(p)
 
 #     return TIME, PSI, BETA, PHI, PSI_DOT

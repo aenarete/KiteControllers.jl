@@ -59,5 +59,4 @@ p=plotx(TIME, PSI, BETA, PSI_DOT;
       fig="test_fpc2")
 display(p)
 
-p=plotxy(PHI, BETA, xlabel="azimuth ϕ [°]", ylabel="elevation β [°]", fig="test_fpc2_xy")
-display(p)
+plotxy(PHI, BETA, xlabel="azimuth ϕ [°]", ylabel="elevation β [°]", fig="test_fpc2_xy")
