@@ -21,6 +21,7 @@ mutable struct KiteApp
     fpps::Union{FPPSettings, Nothing}
     ssc::Union{SystemStateControl, Nothing}
     viewer::Union{Viewer3D, Nothing}
+    logger::Union{Logger, Nothing}
     dt::Float64
     steps::Int64 # simulation steps for one simulation
     particles::Int64
@@ -28,7 +29,7 @@ mutable struct KiteApp
     initialized::Bool
 end
 app::KiteApp = KiteApp(deepcopy(se()), 460, true, nothing, nothing, nothing, 
-                       nothing, nothing, nothing, nothing, 0, 0, 0, false, false)
+                       nothing, nothing, nothing, nothing, nothing, 0, 0, 0, false, false)
 
 function init(app::KiteApp; init_viewer=false)
     app.kcu   = KCU(app.set)
@@ -53,24 +54,22 @@ function init(app::KiteApp; init_viewer=false)
     end
     app.steps = Int64(app.max_time/app.dt)
     app.particles = app.set.segments + 5
+    app.logger = Logger(app.particles, app.steps)
     app.parking = false
     app.initialized = true
 end
 
 # the following values can be changed to match your interest
-app.set.solver="DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
-app.set.log_level=0
-app.set.segments = 6
+app.set.solver    = "DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
+app.set.log_level = 0
+app.set.segments  = 6
 # end of user parameter section #
 
 init(app; init_viewer=true)
 
 DEFAULT_TOLERANCE = 3
 
-logger::Logger = Logger(app.particles, app.steps)
-
 function simulate(integrator, stopped=true)
-    global logger
     start_time_ns = time_ns()
     clear_viewer(app.viewer)
     KiteViewers.running[] = ! stopped
@@ -93,9 +92,8 @@ function simulate(integrator, stopped=true)
     sys_state.sys_state = Int16(app.ssc.fpp._state)
     e_mech = 0.0
     on_new_systate(app.ssc, sys_state)
-    logger = Logger(app.particles, app.steps) 
     KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
-    log!(logger, sys_state)
+    log!(app.logger, sys_state)
     while true
         if app.viewer.stop
             sleep(app.dt)
@@ -129,7 +127,7 @@ function simulate(integrator, stopped=true)
             if i > 10
                 sys_state.t_sim = t_sim*1000
             end
-            log!(logger, sys_state)
+            log!(app.logger, sys_state)
             if app.set.time_lapse >= 8
                 ratio = 2
             elseif app.set.time_lapse >= 6
@@ -202,12 +200,12 @@ function play(stopped=false)
         toc()
         simulate(integrator, stopped)
         stopped = ! app.viewer.sw.active[]
-        if logger.index > 100
+        if app.logger.index > 100
             KiteViewers.plot_file[]="last_sim_log"
             if app.set.log_level > 0
-                println("Saving log... $(logger.index)")
+                println("Saving log... $(app.logger.index)")
             end
-            save_log(logger, "last_sim_log")
+            save_log(app.logger, "last_sim_log")
         end
         if @isdefined __PRECOMPILE__
             break
