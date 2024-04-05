@@ -1,7 +1,7 @@
 system:
     log_file: "data/log_8700W_8ms" # filename without extension  [replay only]
                                    #   use / as path delimiter, even on Windows 
-    time_lapse:   1.0              # relative replay speed
+    time_lapse:     4              # relative replay speed
     sim_time:   100.0              # simulation time             [sim only]
     segments:       6              # number of tether segments
     sample_freq:   20              # sample frequency in Hz

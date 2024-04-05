@@ -16,7 +16,6 @@ set = deepcopy(se())
 set.solver="DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
 set.log_level=0
 MAX_TIME::Float64 = 460
-TIME_LAPSE_RATIO  = 4
 SHOW_KITE         = true
 set.segments = 6
 # end of user parameter section #
@@ -117,12 +116,12 @@ function simulate(integrator, stopped=true)
                 sys_state.t_sim = t_sim*1000
             end
             log!(logger, sys_state)
-            if TIME_LAPSE_RATIO >= 2
+            if set.time_lapse >= 2
                 ratio = 2
             else
                 ratio = 1
             end
-            if mod(i, TIME_LAPSE_RATIO/ratio) == 0 
+            if mod(i, Int64(set.time_lapse)/ratio) == 0 
                 KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
                 set_status(viewer, String(Symbol(ssc.state)))
                 # call garbage collector when we are short of memory
@@ -165,7 +164,7 @@ function simulate(integrator, stopped=true)
         misses = j/k * 100
         println("\nMissed the deadline for $(round(misses, digits=2)) %. Max time: $(round((max_time*1e-6), digits=1)) ms")
     end
-    return div(i, TIME_LAPSE_RATIO)
+    return div(i, Int64(set.time_lapse))
 end
 
 function play(stopped=false)
@@ -223,6 +222,11 @@ on(viewer.btn_PLAY.clicks) do c;
     if ! viewer.stop
         PARKING = false
     end
+end
+on(viewer.menu_time_lapse.selection) do c;
+    val=viewer.menu_time_lapse.selection[][begin:end-1]
+    set.time_lapse=parse(Int64, val)
+    println(set.time_lapse)
 end
 
 function select_log()
