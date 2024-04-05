@@ -1,6 +1,9 @@
 # Changelog
 
 ### [unreleased]
+- adapt time_lapse according menu selection
+- use 60 Hz refresh rate for 3x and 6x time lapse
+- adapt text_mod such that the text update rate stays constant
 
 #### Changed
 - make use of log_level settings, print a lot less for log_level=0
