@@ -22,11 +22,13 @@ mutable struct KiteApp
     ssc::Union{SystemStateControl, Nothing}
     viewer::Union{Viewer3D, Nothing}
     dt::Float64
+    steps::Int64 # simulation steps for one simulation
+    particles::Int64
     parking::Bool
     initialized::Bool
 end
 app::KiteApp = KiteApp(deepcopy(se()), 460, true, nothing, nothing, nothing, 
-                       nothing, nothing, nothing, nothing, 0, false, false)
+                       nothing, nothing, nothing, nothing, 0, 0, 0, false, false)
 
 function init(app::KiteApp; init_viewer=false)
     app.kcu   = KCU(app.set)
@@ -49,6 +51,8 @@ function init(app::KiteApp; init_viewer=false)
         app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
                                            "0.000005","0.000001"]
     end
+    app.steps = Int64(app.max_time/app.dt)
+    app.particles = app.set.segments + 5
     app.parking = false
     app.initialized = true
 end
@@ -63,9 +67,7 @@ init(app; init_viewer=true)
 
 DEFAULT_TOLERANCE = 3
 
-STEPS::Int64 = Int64(app.max_time/app.dt)
-PARTICLES::Int64 = app.set.segments + 5
-logger::Logger = Logger(PARTICLES, STEPS) 
+logger::Logger = Logger(app.particles, app.steps)
 
 function simulate(integrator, stopped=true)
     global logger
@@ -91,7 +93,7 @@ function simulate(integrator, stopped=true)
     sys_state.sys_state = Int16(app.ssc.fpp._state)
     e_mech = 0.0
     on_new_systate(app.ssc, sys_state)
-    logger = Logger(PARTICLES, STEPS) 
+    logger = Logger(app.particles, app.steps) 
     KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
     log!(logger, sys_state)
     while true
