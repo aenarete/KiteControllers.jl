@@ -116,11 +116,20 @@ function simulate(integrator, stopped=true)
                 sys_state.t_sim = t_sim*1000
             end
             log!(logger, sys_state)
-            if set.time_lapse >= 2
+            if set.time_lapse >= 8
+                ratio = 2
+            elseif set.time_lapse >= 6
+                ratio = 3
+            elseif set.time_lapse >= 4
+                ratio = 2
+            elseif set.time_lapse >= 3
+                ratio = 3
+            elseif set.time_lapse >= 2
                 ratio = 2
             else
                 ratio = 1
             end
+            viewer.mod_text = 3*ratio
             if mod(i, Int64(set.time_lapse)/ratio) == 0 
                 KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
                 set_status(viewer, String(Symbol(ssc.state)))
