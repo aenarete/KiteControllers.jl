@@ -1,4 +1,5 @@
 @with_kw mutable struct FPPSettings @deftype Float64
+    log_level = 2
     min_depower =  22 # in percent
     max_depower =  40 
     parking_depower = 25

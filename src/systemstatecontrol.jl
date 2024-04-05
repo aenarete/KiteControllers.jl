@@ -121,7 +121,10 @@ function switch(ssc::SystemStateControl, state)
         on_new_system_state(ssc.fpp.fpca, state, true)
         _switch(ssc.fpp, POWER)
     end
-    println("New system state: ", Symbol(ssc.state))
+    if ssc.fpp.fpps.log_level > 1
+        println("ssc.fpp.fpps.log_level: ", ssc.fpp.fpps.log_level)
+        println("New system state: ", Symbol(ssc.state))
+    end
 end
 
 function get_depower(ssc::SystemStateControl)

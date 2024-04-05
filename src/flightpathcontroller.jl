@@ -180,7 +180,7 @@ function on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, 
     fpc.va_av = TAU_VA * fpc.va_av + (1.0 - TAU_VA) * va
     # print some debug info every 2.5 seconds
     fpc.count += 1
-    if fpc.count >= 50
+    if fpc.count >= 50 && fpc.fcs.log_level > 2
         if fpc.fcs.prn_ndi_gain
             @printf "ndi_gain: %.2f" fpc.ndi_gain
         end

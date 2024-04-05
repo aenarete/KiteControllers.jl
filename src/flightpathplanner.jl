@@ -564,7 +564,7 @@ function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, p
         attractor=deg2rad.(attractor)
     end
     on_control_command(fpp.fpca.fpc, attractor=attractor, psi_dot_set=psi_dot, radius=radius, intermediate=intermediate)
-    if PRINT
+    if PRINT && fpp.fpps.log_level > 2
         println("New FPC command. Intermediate: ", intermediate)
             if isnothing(psi_dot)
                 @printf "New attractor point:  [%.2f,  %.2f]\n" rad2deg(attractor[begin]) rad2deg(attractor[begin+1])
@@ -694,14 +694,14 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
     end
 
     if sys_state != fpp.fpca._sys_state
-        if PRINT
+        if PRINT && fpp.fpps.log_level > 2
             println("############## -->> ", sys_state)
         end
         fpp.fpca._sys_state = sys_state
         on_new_system_state(fpp.fpca, sys_state, true)
         sleep(0.001)
     end
-    if PRINT
+    if PRINT && fpp.fpps.log_level > 2
         println("Switching to: ", state)
     end
     fpp._state = state

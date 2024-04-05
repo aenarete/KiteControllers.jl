@@ -3,7 +3,8 @@ Settings of the FlightPathController
 """
 @with_kw mutable struct FPCSettings @deftype Float64
     "period time"
-    dt                       = 1.0 / se().sample_freq 
+    dt::Float64              = 1.0 / se().sample_freq 
+    log_level::Int64         = 2
     prn::Bool                = false
     prn_ndi_gain::Bool       = false
     prn_est_psi_dot::Bool    = false

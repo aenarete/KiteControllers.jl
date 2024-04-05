@@ -14,6 +14,7 @@ set = deepcopy(se())
 
 # the following values can be changed to match your interest
 set.solver="DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
+set.log_level=0
 MAX_TIME::Float64 = 460
 TIME_LAPSE_RATIO  = 4
 SHOW_KITE         = true
@@ -24,8 +25,8 @@ kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 
 wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
-fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
-fpps::FPPSettings = FPPSettings()
+fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt; fcs.log_level = set.log_level
+fpps::FPPSettings = FPPSettings(); fpps.log_level = set.log_level
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
 dt::Float64 = wcs.dt
 initialized = true
@@ -36,8 +37,8 @@ function init_globals()
         kcu   = KCU(set)
         kps4 = KPS4(kcu)
         wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
-        fcs = FPCSettings(); fcs.dt = wcs.dt
-        fpps = FPPSettings()
+        fcs = FPCSettings(); fcs.dt = wcs.dt; fcs.log_level = set.log_level
+        fpps = FPPSettings(); fpps.log_level = set.log_level
         ssc = SystemStateControl(wcs, fcs, fpps)
     end
     initialized = false
@@ -90,7 +91,7 @@ function simulate(integrator, stopped=true)
                 integrator = KiteModels.
                 init_sim!(kps4, stiffness_factor=0.04)
             end
-            if mod(i, 100) == 0
+            if mod(i, 100) == 0 && set.log_level > 0
                 println("Free memory: $(round(Sys.free_memory()/1e9, digits=1)) GB") 
             end
             if i > 100
@@ -149,13 +150,17 @@ function simulate(integrator, stopped=true)
         end
         if ! isopen(viewer.fig.scene) break end
         if KiteViewers.status[] == "Stopped" && i > 10 
-            @timev KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+            if set.log_level > 0
+                @timev KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+            else
+                KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+            end
             break 
         end
         if i*dt > MAX_TIME break end
     end
     mem_used=mem_start-Sys.free_memory()/1e9 
-    println("Maximal memory usage: $(round(mem_used, digits=1)) GB")
+    println("\nMaximal memory usage: $(round(mem_used, digits=1)) GB")
     if i > 10/dt
         misses = j/k * 100
         println("\nMissed the deadline for $(round(misses, digits=2)) %. Max time: $(round((max_time*1e-6), digits=1)) ms")
@@ -174,7 +179,9 @@ function play(stopped=false)
         stopped = ! viewer.sw.active[]
         if logger.index > 100
             KiteViewers.plot_file[]="last_sim_log"
-            println("Saving log... $(logger.index)")
+            if set.log_level > 0
+                println("Saving log... $(logger.index)")
+            end
             save_log(logger, "last_sim_log")
         end
         if @isdefined __PRECOMPILE__
@@ -199,7 +206,9 @@ function autopilot()
 end
 
 function stop_()
-    println("Stopping...")
+    if set.log_level > 0
+        println("Stopping...")
+    end
     on_stop(ssc)
     clear!(kps4)
     clear_viewer(viewer)
@@ -235,7 +244,9 @@ function save_log_as()
                 source = joinpath(pwd(), "data", KiteViewers.plot_file[]) * ".arrow"
             end
             dest  = filename
-            println("Copying: ", source, " => ", dest)
+            if set.log_level > 0
+                println("Copying: ", source, " => ", dest)
+            end
             cp(source, dest; force=true)
             KiteViewers.set_status(viewer, "Saved log as:")
             KiteViewers.plot_file[] = replace(filename, homedir() => "~")
@@ -299,7 +310,6 @@ on(viewer.menu_rel_tol.selection) do c
     factor = rel_tol/0.001
     set.rel_tol = rel_tol
     set.abs_tol = factor * 0.0006 
-    println(rel_tol)
 end
 
 if @isdefined __PRECOMPILE__
