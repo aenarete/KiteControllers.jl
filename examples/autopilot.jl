@@ -53,6 +53,7 @@ function init(app::KiteApp; init_viewer=false)
                                    "load logfile", "save logfile"]
         app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
                                            "0.000005","0.000001"]
+        app.viewer.menu_time_lapse.options[]=["1x","2x","3x","4x","6x","9x","12x"]
     end
     app.steps = Int64(app.max_time/app.dt)
     app.particles = app.set.segments + 5
@@ -135,15 +136,9 @@ function simulate(integrator, stopped=true)
                 sys_state.t_sim = t_sim*1000
             end
             log!(app.logger, sys_state)
-            if app.set.time_lapse >= 8
-                ratio = 2
-            elseif app.set.time_lapse >= 6
+            if mod(app.set.time_lapse, 3) == 0
                 ratio = 3
-            elseif app.set.time_lapse >= 4
-                ratio = 2
-            elseif app.set.time_lapse >= 3
-                ratio = 3
-            elseif app.set.time_lapse >= 2
+            elseif mod(app.set.time_lapse, 2) == 0
                 ratio = 2
             else
                 ratio = 1
