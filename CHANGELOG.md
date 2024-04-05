@@ -1,8 +1,13 @@
 # Changelog
 
+### [unreleased]
+
+#### Changed
+- make use of log_level settings, print a lot less for log_level=0
+
 ### KiteControllers v0.2.2 - 2024-03-29
 
-## Added
+#### Added
 - the example `autopilot.jl` was vastly improved
 - a menu with 6 pre-defined plots was added to the GUI
 - a statistics dialog was added
