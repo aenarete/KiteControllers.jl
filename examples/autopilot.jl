@@ -20,23 +20,36 @@ mutable struct KiteApp
     fcs::Union{FPCSettings, Nothing}
     fpps::Union{FPPSettings, Nothing}
     ssc::Union{SystemStateControl, Nothing}
+    viewer::Union{Viewer3D, Nothing}
+    dt::Float64
+    parking::Bool
     initialized::Bool
 end
 app::KiteApp = KiteApp(deepcopy(se()), 460, true, nothing, nothing, nothing, 
-                       nothing, nothing, nothing, false)
+                       nothing, nothing, nothing, nothing, 0, false, false)
 
-function init(app::KiteApp)
+function init(app::KiteApp; init_viewer=false)
     app.kcu   = KCU(app.set)
     app.kps4 = KPS4(app.kcu)
     app.wcs = WCSettings()
     update(app.wcs)
     app.wcs.dt = 1/app.set.sample_freq
+    app.dt = app.wcs.dt
     app.fcs = FPCSettings(); 
     app.fcs.dt = app.wcs.dt; 
     app.fcs.log_level = app.set.log_level
     app.fpps = FPPSettings(); 
     app.fpps.log_level = app.set.log_level
     app.ssc = SystemStateControl(app.wcs, app.fcs, app.fpps)
+    if init_viewer
+        app.viewer= Viewer3D(app.set, app.show_kite; menus=true)
+        app.viewer.menu.options[]=["plot_main", "plot_power", "plot_control", 
+                                   "plot_elev_az", "plot_side_view", "plot_timing", "print_stats", 
+                                   "load logfile", "save logfile"]
+        app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
+                                           "0.000005","0.000001"]
+    end
+    app.parking = false
     app.initialized = true
 end
 
@@ -46,29 +59,22 @@ app.set.log_level=0
 app.set.segments = 6
 # end of user parameter section #
 
-init(app)
+init(app; init_viewer=true)
 
-dt::Float64 = app.wcs.dt
-
-viewer::Viewer3D = Viewer3D(app.set, app.show_kite; menus=true)
-viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_elev_az", "plot_side_view", "plot_timing", "print_stats", "load logfile", "save logfile"]
-viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001","0.000005","0.000001"]
 DEFAULT_TOLERANCE = 3
-PARKING::Bool = false
 
-steps = 0
-STEPS::Int64 = Int64(app.max_time/dt)
+STEPS::Int64 = Int64(app.max_time/app.dt)
 PARTICLES::Int64 = app.set.segments + 5
 logger::Logger = Logger(PARTICLES, STEPS) 
 
 function simulate(integrator, stopped=true)
     global logger
     start_time_ns = time_ns()
-    clear_viewer(viewer)
+    clear_viewer(app.viewer)
     KiteViewers.running[] = ! stopped
-    viewer.stop = stopped
+    app.viewer.stop = stopped
     if ! stopped
-        set_status(viewer, "ssParking")
+        set_status(app.viewer, "ssParking")
     end
     i=1
     j=0; k=0
@@ -86,11 +92,11 @@ function simulate(integrator, stopped=true)
     e_mech = 0.0
     on_new_systate(app.ssc, sys_state)
     logger = Logger(PARTICLES, STEPS) 
-    KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
+    KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
     log!(logger, sys_state)
     while true
-        if viewer.stop
-            sleep(dt)
+        if app.viewer.stop
+            sleep(app.dt)
         else
             if i == 1
                 integrator = KiteModels.
@@ -105,17 +111,17 @@ function simulate(integrator, stopped=true)
                 steering = calc_steering(app.ssc)
                 set_depower_steering(app.kps4.kcu, dp, steering)
             end
-            if i == 200 && ! PARKING
+            if i == 200 && ! app.parking
                 on_autopilot(app.ssc)
             end
             # execute winch controller
             v_ro = calc_v_set(app.ssc)
             #
-            t_sim = @elapsed KiteModels.next_step!(app.kps4, integrator, v_ro=v_ro, dt=dt)
+            t_sim = @elapsed KiteModels.next_step!(app.kps4, integrator, v_ro=v_ro, dt=app.dt)
             update_sys_state!(sys_state, app.kps4)
 
             on_new_systate(app.ssc, sys_state)
-            e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt
+            e_mech += (sys_state.force * sys_state.v_reelout)/3600*app.dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(app.ssc.fpp._state)
             if i > 10
@@ -135,20 +141,20 @@ function simulate(integrator, stopped=true)
             else
                 ratio = 1
             end
-            viewer.mod_text = 3*ratio
+            app.viewer.mod_text = 3*ratio
             if mod(i, Int64(app.set.time_lapse)/ratio) == 0 
-                KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
-                set_status(viewer, String(Symbol(app.ssc.state)))
+                KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
+                set_status(app.viewer, String(Symbol(app.ssc.state)))
                 # call garbage collector when we are short of memory
                 if Sys.free_memory()/1e9 < 4.0
                     GC.enable(true)
                 end
-                wait_until(start_time_ns + 1e9*dt/ratio, always_sleep=true) 
+                wait_until(start_time_ns + 1e9*app.dt/ratio, always_sleep=true) 
                 mtime = 0
-                if i > 10/dt 
+                if i > 10/app.dt 
                     # if we missed the deadline by more than 5 ms
                     mtime = time_ns() - start_time_ns
-                    if mtime > dt*1e9/ratio + 5e6
+                    if mtime > app.dt*1e9/ratio + 5e6
                         print(".")
                         j += 1
                     end
@@ -162,20 +168,20 @@ function simulate(integrator, stopped=true)
             end
             i += 1
         end
-        if ! isopen(viewer.fig.scene) break end
+        if ! isopen(app.viewer.fig.scene) break end
         if KiteViewers.status[] == "Stopped" && i > 10 
             if app.set.log_level > 0
-                @timev KiteModels.next_step!(app.kps4, integrator, v_ro=v_ro, dt=dt)
+                @timev KiteModels.next_step!(app.kps4, integrator, v_ro=v_ro, dt=app.dt)
             else
-                KiteModels.next_step!(app.kps4, integrator, v_ro=v_ro, dt=dt)
+                KiteModels.next_step!(app.kps4, integrator, v_ro=v_ro, dt=app.dt)
             end
             break 
         end
-        if i*dt > app.max_time break end
+        if i*app.dt > app.max_time break end
     end
     mem_used=mem_start-Sys.free_memory()/1e9 
     println("\nMaximal memory usage: $(round(mem_used, digits=1)) GB")
-    if i > 10/dt
+    if i > 10/app.dt
         misses = j/k * 100
         println("\nMissed the deadline for $(round(misses, digits=2)) %. Max time: $(round((max_time*1e-6), digits=1)) ms")
     end
@@ -183,8 +189,7 @@ function simulate(integrator, stopped=true)
 end
 
 function play(stopped=false)
-    global app, steps
-    while isopen(viewer.fig.scene)
+    while isopen(app.viewer.fig.scene)
         if ! app.initialized
             init(app)
         end
@@ -193,8 +198,8 @@ function play(stopped=false)
         on_parking(app.ssc)
         integrator = KiteModels.init_sim!(app.kps4, stiffness_factor=0.04)
         toc()
-        steps = simulate(integrator, stopped)
-        stopped = ! viewer.sw.active[]
+        simulate(integrator, stopped)
+        stopped = ! app.viewer.sw.active[]
         if logger.index > 100
             KiteViewers.plot_file[]="last_sim_log"
             if app.set.log_level > 0
@@ -210,16 +215,14 @@ function play(stopped=false)
 end
 
 function parking()
-    global PARKING
-    PARKING = true
-    viewer.stop=false
+    app.parking = true
+    app.viewer.stop=false
     on_parking(app.ssc)
 end
 
 function autopilot()
-    global PARKING
-    PARKING = false
-    viewer.stop=false
+    app.parking = false
+    app.viewer.stop=false
     on_autopilot(app.ssc)
 end
 
@@ -229,21 +232,20 @@ function stop_()
     end
     on_stop(app.ssc)
     clear!(app.kps4)
-    clear_viewer(viewer)
+    clear_viewer(app.viewer)
 end
 
 stop_()
-on(viewer.btn_PARKING.clicks) do c; parking(); end
-on(viewer.btn_AUTO.clicks) do c; autopilot(); end
-on(viewer.btn_STOP.clicks) do c; stop_(); end
-on(viewer.btn_PLAY.clicks) do c;
-    global PARKING
-    if ! viewer.stop
-        PARKING = false
+on(app.viewer.btn_PARKING.clicks) do c; parking(); end
+on(app.viewer.btn_AUTO.clicks) do c; autopilot(); end
+on(app.viewer.btn_STOP.clicks) do c; stop_(); end
+on(app.viewer.btn_PLAY.clicks) do c;
+    if ! app.viewer.stop
+        app.parking = false
     end
 end
-on(viewer.menu_time_lapse.selection) do c;
-    val=viewer.menu_time_lapse.selection[][begin:end-1]
+on(app.viewer.menu_time_lapse.selection) do c;
+    val=app.viewer.menu_time_lapse.selection[][begin:end-1]
     app.set.time_lapse=parse(Int64, val)
     println(app.set.time_lapse)
 end
@@ -271,7 +273,7 @@ function save_log_as()
                 println("Copying: ", source, " => ", dest)
             end
             cp(source, dest; force=true)
-            KiteViewers.set_status(viewer, "Saved log as:")
+            KiteViewers.set_status(app.viewer, "Saved log as:")
             KiteViewers.plot_file[] = replace(filename, homedir() => "~")
         end
     end
@@ -292,7 +294,7 @@ function print_stats()
             az_ro[i] = 0
         end
     end
-    stats = Stats(sl[end].e_mech, minimum(sl.force[Int64(round(5/dt)):end]), maximum(sl.force), 
+    stats = Stats(sl[end].e_mech, minimum(sl.force[Int64(round(5/app.dt)):end]), maximum(sl.force), 
                   minimum(log.z), maximum(log.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
                   minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
     show_stats(stats)
@@ -320,15 +322,15 @@ function do_menu(c)
     end
 end
 
-on(viewer.btn_OK.clicks) do c
-    do_menu(viewer.menu.selection[])
+on(app.viewer.btn_OK.clicks) do c
+    do_menu(app.viewer.menu.selection[])
 end
 
-on(viewer.menu.selection) do c
+on(app.viewer.menu.selection) do c
     do_menu(c)
 end
 
-on(viewer.menu_rel_tol.selection) do c
+on(app.viewer.menu_rel_tol.selection) do c
     rel_tol = parse(Float64, c)
     factor = rel_tol/0.001
     app.set.rel_tol = rel_tol
@@ -339,8 +341,8 @@ if @isdefined __PRECOMPILE__
     app.max_time = 30
     play(false)
 else
-    viewer.menu_rel_tol.i_selected[]=2
-    viewer.menu_rel_tol.i_selected[]=DEFAULT_TOLERANCE
+    app.viewer.menu_rel_tol.i_selected[]=2
+    app.viewer.menu_rel_tol.i_selected[]=DEFAULT_TOLERANCE
     play(true)
 end
 stop_()
