@@ -1,6 +1,6 @@
 # Changelog
 
-### KiteControllers v0.2.2 - 2024-04-05
+### KiteControllers v0.2.2 - 2024-03-29
 
 ## Added
 - the example `autopilot.jl` was vastly improved
