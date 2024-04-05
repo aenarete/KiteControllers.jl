@@ -6,7 +6,7 @@ function plot_timing()
                                fig="timing"))
     println("Mean    time per timestep: $(mean(sl.t_sim)) ms")
     println("Maximum time per timestep: $(maximum(sl.t_sim[10:end])) ms")
-    index = Int64(round(12/dt))
+    index = Int64(round(12/app.dt))
     println("Maximum for t>12s        : $(maximum(sl.t_sim[index:end])) ms")
     nothing
 end
@@ -26,7 +26,7 @@ function plot_power()
     energy = similar(sl.v_reelout)
     en=0.0
     for i in eachindex(energy)
-        en +=  sl.force[i]*sl.v_reelout[i]*dt
+        en +=  sl.force[i]*sl.v_reelout[i]*app.dt
         energy[i] = en
     end
     display(plotx(log.syslog.time, sl.force, sl.v_reelout, sl.force.*sl.v_reelout, energy./3600;
