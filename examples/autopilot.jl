@@ -13,6 +13,7 @@ import KiteViewers.GLMakie
 mutable struct KiteApp
     set::Settings
     max_time::Float64
+    next_max_time::Float64
     show_kite::Bool
     kcu::Union{KCU, Nothing} 
     kps4::Union{KPS4, Nothing}
@@ -28,10 +29,11 @@ mutable struct KiteApp
     parking::Bool
     initialized::Bool
 end
-app::KiteApp = KiteApp(deepcopy(se()), 460, true, nothing, nothing, nothing, 
+app::KiteApp = KiteApp(deepcopy(se()), 460, 460, true, nothing, nothing, nothing, 
                        nothing, nothing, nothing, nothing, nothing, 0, 0, 0, false, false)
 
 function init(app::KiteApp; init_viewer=false)
+    app.max_time = app.next_max_time
     app.kcu   = KCU(app.set)
     app.kps4 = KPS4(app.kcu)
     app.wcs = WCSettings()
@@ -93,14 +95,19 @@ function simulate(integrator, stopped=true)
     e_mech = 0.0
     on_new_systate(app.ssc, sys_state)
     KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
-    log!(app.logger, sys_state)
     while true
+        local v_ro
         if app.viewer.stop
             sleep(app.dt)
         else
             if i == 1
-                integrator = KiteModels.
-                init_sim!(app.kps4, stiffness_factor=0.04)
+                app.max_time = app.next_max_time
+                println("--> ", app.max_time)
+                app.steps = Int64(app.max_time/app.dt)
+                app.particles = app.set.segments + 5
+                app.logger = Logger(app.particles, app.steps)
+                log!(app.logger, sys_state)
+                integrator = KiteModels.init_sim!(app.kps4, stiffness_factor=0.04)
             end
             if mod(i, 100) == 0 && app.set.log_level > 0
                 println("Free memory: $(round(Sys.free_memory()/1e9, digits=1)) GB") 
@@ -337,8 +344,18 @@ on(app.viewer.menu_rel_tol.selection) do c
     app.set.abs_tol = factor * 0.0006 
 end
 
+on(app.viewer.t_sim.stored_string) do c
+    val = (parse(Int64, c))
+    if val == 0
+        val = 460
+        app.viewer.t_sim.displayed_string[]="460"
+    end
+    app.next_max_time=val
+end
+
 if @isdefined __PRECOMPILE__
     app.max_time = 30
+    app.next_max_time = 30
     play(false)
 else
     app.viewer.menu_rel_tol.i_selected[]=2
