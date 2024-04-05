@@ -351,6 +351,7 @@ on(app.viewer.t_sim.stored_string) do c
         app.viewer.t_sim.displayed_string[]="460"
     end
     app.next_max_time=val
+    println("- ", val)
 end
 
 if @isdefined __PRECOMPILE__
