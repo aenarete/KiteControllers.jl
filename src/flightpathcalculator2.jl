@@ -3,7 +3,6 @@
 
 depower::Float64 = 0.0 # set value of the depower value, 0 .. 1
 
-BETA_SET                 = 26.0
 W_FIG                    = 36.0
 PSI_DOT_MAX              = 3.0
 
@@ -62,7 +61,7 @@ end
     _radius = 4.5
     _w_fig = W_FIG # width of the figure of eight in degrees
     _phi_c3 = 0.0
-    _beta_set = BETA_SET # average elevation angle during reel-out
+    _beta_set = fpps.beta_set # average elevation angle during reel-out
     _beta_int = 68.5 # elevation angle at the start of beginning of the ssIntermediate
     _k = 0.0 # gradient of straight flight path sections, calculated value
     _k1 = 1.28        # for the calculation of T1
@@ -218,8 +217,7 @@ end
 # Calculate and publish the planned flight path. Must be called each time when
 # the winch controller calculates a new set value for the elevation, but also, when beta_int
 # changes (at the beginning of each intermediate phase).
-function publish(fpca::FlightPathCalculator, beta_set = BETA_SET)
-    beta_set = BETA_SET
+function publish(fpca::FlightPathCalculator, beta_set = fpca.fpps.beta_set)
     fpca._heading_offset = HEADING_OFFSET_HIGH
     fpca._beta_set = beta_set
 
