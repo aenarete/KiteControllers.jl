@@ -103,7 +103,6 @@ function simulate(integrator, stopped=true)
         else
             if i == 1
                 app.max_time = app.next_max_time
-                println("--> ", app.max_time)
                 app.steps = Int64(app.max_time/app.dt)
                 app.particles = app.set.segments + 5
                 app.logger = Logger(app.particles, app.steps)
@@ -185,7 +184,9 @@ function simulate(integrator, stopped=true)
         if i*app.dt > app.max_time break end
     end
     mem_used=mem_start-Sys.free_memory()/1e9 
-    println("\nMaximal memory usage: $(round(mem_used, digits=1)) GB")
+    if app.set.log_level > 0
+        println("\nMaximal memory usage: $(round(mem_used, digits=1)) GB")
+    end
     if i > 10/app.dt
         misses = j/k * 100
         println("\nMissed the deadline for $(round(misses, digits=2)) %. Max time: $(round((max_time*1e-6), digits=1)) ms")
@@ -349,7 +350,6 @@ on(app.viewer.t_sim.stored_string) do c
         app.viewer.t_sim.displayed_string[]="460"
     end
     app.next_max_time=val
-    println("- ", val)
 end
 
 if @isdefined __PRECOMPILE__
@@ -381,7 +381,7 @@ nothing
 #     Mean    time per timestep: 0.7769367125 ms
 #     Maximum time per timestep: 8.064576 ms
 #     Maximum for t>12s        : 7.994796 ms
-# Maximal memory usage: 11.7 GB
+# Maximal memory usage: 11.4 GB
 
 # GC disabled, Ryzen 7950X, 4x realtime, DImplicitEuler solver
 # abs_tol: 0.0003, rel_tol: 0.0005
