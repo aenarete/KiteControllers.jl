@@ -11,6 +11,7 @@
 - adapt text_mod such that the text update rate stays constant
 - make it possible to change `t_sim` using the GUI
 - add the plots `plot_elev_az2` and `plot_side_view2` that omit the first power cycle
+- add time series of `fig8` to `plot_control`
 
 ### KiteControllers v0.2.2 - 2024-03-29
 #### Changed

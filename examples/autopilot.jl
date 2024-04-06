@@ -132,6 +132,7 @@ function simulate(integrator, stopped=true)
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(app.ssc.fpp._state)
             sys_state.var_01 = app.ssc.fpp.fpca.cycle
+            sys_state.var_02 = app.ssc.fpp.fpca.fig8
             if i > 10
                 sys_state.t_sim = t_sim*1000
             end
