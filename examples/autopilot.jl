@@ -26,11 +26,12 @@ mutable struct KiteApp
     dt::Float64
     steps::Int64 # simulation steps for one simulation
     particles::Int64
+    run::Int64
     parking::Bool
     initialized::Bool
 end
 app::KiteApp = KiteApp(deepcopy(se()), 460, 460, true, nothing, nothing, nothing, 
-                       nothing, nothing, nothing, nothing, nothing, 0, 0, 0, false, false)
+                       nothing, nothing, nothing, nothing, nothing, 0, 0, 0, 0, false, false)
 
 function init(app::KiteApp; init_viewer=false)
     app.max_time = app.next_max_time
@@ -149,7 +150,7 @@ function simulate(integrator, stopped=true)
             if mod(i, Int64(app.set.time_lapse)/ratio) == 0 
                 KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
                 set_status(app.viewer, String(Symbol(app.ssc.state)))
-                # call garbage collector when we are short of memory
+                # re-enable garbage collector when we are short of memory
                 if Sys.free_memory()/1e9 < 4.0
                     GC.enable(true)
                 end
@@ -201,7 +202,8 @@ function play(stopped=false)
         KiteViewers.plot_file[]="last_sim_log"
         on_parking(app.ssc)
         integrator = KiteModels.init_sim!(app.kps4, stiffness_factor=0.04)
-        toc()
+        if app.run == 0; toc(); end
+        app.run += 1
         simulate(integrator, stopped)
         stopped = ! app.viewer.sw.active[]
         if app.logger.index > 100
