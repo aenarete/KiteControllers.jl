@@ -167,7 +167,7 @@ function _switch(fpp::FlightPathPlanner, state)
     sys_state = fpp.fpca._sys_state
     # see Table 5.3
     if state == POWER
-        depower[] = fpp.u_d_ro + fpp.delta_depower
+        depower = fpp.u_d_ro + fpp.delta_depower
         sys_state = ssPower
     elseif state == UPPER_TURN
         _publish_fpc_command(fpp, true, psi_dot = PSI_DOT_MAX, attractor=fpp.fpca._p1, intermediate=true)
@@ -217,11 +217,11 @@ function _switch(fpp::FlightPathPlanner, state)
         sys_state = SystemState.ssWaitUntil
     elseif state == DEPOWER
         _publish_fpc_command(fpp, false, attractor = fpp.fpca._zenith)
-        depower[] = fpp.u_d_ri # Table 5.3
+        depower = fpp.u_d_ri # Table 5.3
         sys_state = ssDepower
     elseif state == PARKING
         _publish_fpc_command(fpp, false, attractor = fpp.fpca._zenith)
-        depower[] = fpp.u_d_pa # Table 5.3
+        depower = fpp.u_d_pa # Table 5.3
         sys_state = ssParking
     end
 

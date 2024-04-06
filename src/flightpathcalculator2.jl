@@ -1,15 +1,13 @@
 # Provides the components FlightPathCalculator. Implementation as specified in chapter five of
 # the PhD thesis of Uwe Fechner.
 
-const depower = [0.0] # set value of the depower value, 0 .. 1
+depower::Float64 = 0.0 # set value of the depower value, 0 .. 1
 
-PRINT_EVERY_SECOND = true
 PRINT = true
 
 BETA_SET                 = 26.0
 W_FIG                    = 36.0 # valid values: 36, 28
-
-PSI_DOT_MAX = 3.0
+PSI_DOT_MAX              = 3.0
 
 if W_FIG >= 36.0
     HEADING_OFFSET_LOW  = 22.0 # degrees, before finishing the right and left turns
