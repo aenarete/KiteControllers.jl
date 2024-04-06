@@ -11,7 +11,6 @@ FIXED_ELEVATION          = false
 CORRECT_RADIUS           = true
 W_FIG                    = 36.0 # valid values: 36, 28
 
-TRANS_FACTOR             = 2.3 # 1.5
 DIRECT                   = false # skip intermediate target point
 
 PSI_DOT_MAX = 3.0
@@ -269,14 +268,9 @@ function publish(fpca::FlightPathCalculator, beta_set = BETA_SET)
         fpca._heading_offset = HEADING_OFFSET_HIGH
         fpca._dphi = DPHI_HIGH
     else
-        if fpca._v_wind_gnd > 9.2
-            fpca._heading_offset = HEADING_OFFSET_LOW + 4.0
-        else
-            fpca._heading_offset = HEADING_OFFSET_LOW
-        end
+        fpca._heading_offset = HEADING_OFFSET_LOW
         fpca._dphi = DPHI_LOW
     end
-    rel_elevation = (beta_set - 20.0) / 20.0
     fpca._beta_set = beta_set
 
     calc_p1(fpca, beta_set)
@@ -284,11 +278,6 @@ function publish(fpca::FlightPathCalculator, beta_set = BETA_SET)
     calc_p3(fpca)
     calc_p4(fpca)
     calc_t5(fpca, beta_set)
-    if TRANS_FACTOR >= 1.5
-        fpca._t1[begin] /= TRANS_FACTOR
-    end
-    fpca._p1[begin] /= TRANS_FACTOR
-    phi_1 = fpca._t1[begin]
     fpca._phi_2 = fpca._t2[begin]
     fpca._phi_3 = fpca._t5[begin]
     fpca._beta_ri = fpca._k5 + fpca._k6 * beta_set

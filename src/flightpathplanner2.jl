@@ -91,18 +91,9 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     phi_2 = fpp.fpca._phi_2
     phi_3 = fpp.fpca._phi_3
     state = fpp._state
-    if fpp.fpca.fig8 == 0
-        dphi = fpp.fpca._dphi + 5.0 
-    elseif fpp.fpca.fig8 <= 2
-        dphi = fpp.fpca._dphi + 3.0
-    else
-        dphi = fpp.fpca._dphi + 2.0
-    end
     # see: Table 5.3, 5.4
     if state == POWER
         fpp.finish = false
-        # use the intermediate point only if we have to fly down more than 20 degrees
-        delta_beta = beta - fpp.fpca._beta_set - fpp.fpca._radius
         if (beta > fpp.fpca._beta_set + 25.0 + fpp.fpca._radius) && ! DIRECT
             if depower < fpp.u_d_ro + fpp.delta_depower + fpp.const_dd * (fpp.u_d_ri - fpp.u_d_ro - fpp.delta_depower)
                 fpp.fpca.fig8 = -1
@@ -112,7 +103,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         elseif depower < fpp.u_d_ro + fpp.delta_depower + fpp.const_dd * (fpp.u_d_ri - fpp.u_d_ro - fpp.delta_depower)
             fpp.fpca.fig8 = -1
             fpp.fpca.high = true
-            _switch(fpp, FLY_LEFT, delta_beta)
+            _switch(fpp, FLY_LEFT)
         end
     elseif state == UPPER_TURN && psi > π && psi < rad2deg(HEADING_UPPER_TURN)
         _switch(fpp, LOW_RIGHT)
@@ -126,9 +117,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     elseif state == LOW_LEFT  && phi > -phi_2 # &&
         _switch(fpp, TURN_LEFT)
     # see: Table 5.5
-    elseif state == FLY_LEFT  && phi > fpp.fpca._phi_sw &&
-           beta > (fpp.fpca._beta_set + fpp.fpca._radius - DELTA_BETA) &&
-           beta < (fpp.fpca._beta_set + fpp.fpca._radius + 2.3)
+    elseif state == FLY_LEFT  && phi > fpp.fpca._phi_sw 
         fpp.fpca.fig8 += 1            
         _switch(fpp, TURN_LEFT)
     elseif state == TURN_LEFT && psi > deg2rad(180.0 - fpp.fpca._heading_offset)# && phi < fpp._phi_sw + dphi
@@ -210,7 +199,7 @@ end
 
 #  Switch the state of the FPP. Execute all actions, that are needed when the new state is entered.
 #  Return immidiately, if the new state is equal to the old state.
-function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
+function _switch(fpp::FlightPathPlanner, state)
     global depower
     if state == fpp._state
         return
@@ -239,12 +228,6 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
     # see Table 5.5
     elseif state == TURN_LEFT
         radius = -fpp.fpca._radius
-        if CORRECT_RADIUS && fpp.fpca.fig8 == 0
-            radius *= 0.8
-        end
-        if PRINT
-#                 println("======>>> self.fig8, radius", self.fig8, form(radius))
-        end
         _publish_fpc_command(fpp, true, psi_dot = -psi_dot_turn, radius=radius) #,  attractor = fpp.fpca._p3)
         sys_state = ssKiteReelOut
     elseif state == FLY_RIGHT
@@ -254,24 +237,11 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
         radius = fpp.fpca._radius
         if CORRECT_RADIUS
             radius += (fpp.fpca._beta - (fpp.fpca._t2[begin+1])) * 0.5
-            if radius < 1.5
-                radius = 1.5
-            end
         end
         _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=radius, attractor = fpp.fpca._p4)
         sys_state = ssKiteReelOut        
     elseif state == FLY_LEFT
-        if delta_beta < 10.0
-            delta_beta = 0.0
-        else
-            delta_beta -= 10.0
-        end
-        y = -1.5 * delta_beta
-        x = delta_beta
-        if delta_beta > 0.0
-#              print "--->>> x, y=", form(x), form(y)
-        end
-        _publish_fpc_command(fpp, false, attractor = addxy(fpp.fpca._p4, x, y))
+        _publish_fpc_command(fpp, false, attractor = fpp.fpca._p4)
         sys_state = ssKiteReelOut
     # see Table 5.6
     elseif state == UP_TURN
@@ -303,7 +273,6 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
         if PRINT && fpp.fpps.log_level > 2
             println("############## -->> ", sys_state)
         end
-        # fpp.fpca._sys_state = sys_state
         on_new_system_state(fpp.fpca, sys_state, true)
         sleep(0.001)
     end
