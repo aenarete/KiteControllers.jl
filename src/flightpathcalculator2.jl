@@ -3,8 +3,6 @@
 
 depower::Float64 = 0.0 # set value of the depower value, 0 .. 1
 
-PRINT = true
-
 BETA_SET                 = 26.0
 W_FIG                    = 36.0
 PSI_DOT_MAX              = 3.0
@@ -55,6 +53,7 @@ end
 #     See also: docs/planned_fligh_path.png
 @with_kw mutable struct FlightPathCalculator @deftype Float64
     fpc::FlightPathController
+    fpps::FPPSettings
     _beta_min = 20.0 # minimal elevation angle of the center of the figure of eight
     _beta_max = 60.0 # maximal elevation angle of the center of the figure of eight
 
@@ -99,8 +98,8 @@ end
     high::Bool = false
 end
 
-function FlightPathCalculator(fpc::FlightPathController)
-    FlightPathCalculator(fpc=fpc)
+function FlightPathCalculator(fpc::FlightPathController, fpps::FPPSettings)
+    FlightPathCalculator(fpc=fpc, fpps=fpps)
 end
 
 # Event handler for events, received from the GUI. The flight path planner

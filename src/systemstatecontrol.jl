@@ -14,7 +14,7 @@ end
 
 function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings)
     fpc = FlightPathController(fcs)
-    fpca = FlightPathCalculator(fpc)
+    fpca = FlightPathCalculator(fpc, fpps)
     fpp = FlightPathPlanner(fpps, fpca)
 
     res = SystemStateControl(wc=WinchController(wcs), fpp=fpp)
