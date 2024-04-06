@@ -5,6 +5,7 @@
 - use 60 Hz refresh rate for 3x, 6x, 9x and 12x time lapse
 - refactoring: add type KiteApp to the script autopilot.jl
 - make use of log_level settings, print a lot less for log_level=0
+- refactoring: split `flightpathplanner.jl` in `flightpathplanner.jl` and `flightpathcalculator.jl`
 
 #### Added
 - adapt time_lapse according menu selection

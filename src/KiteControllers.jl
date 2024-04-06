@@ -55,6 +55,7 @@ include("wc_settings.jl")
 include("wc_components.jl")
 include("winchcontroller.jl")
 include("fpp_settings.jl")
+include("flightpathcalculator.jl")
 include("flightpathplanner.jl")
 include("systemstatecontrol.jl")
 
