@@ -6,16 +6,11 @@ depower::Float64 = 0.0 # set value of the depower value, 0 .. 1
 PRINT = true
 
 BETA_SET                 = 26.0
-W_FIG                    = 36.0 # valid values: 36, 28
+W_FIG                    = 36.0
 PSI_DOT_MAX              = 3.0
 
-if W_FIG >= 36.0
-    HEADING_OFFSET_LOW  = 22.0 # degrees, before finishing the right and left turns
-    HEADING_OFFSET_INT =  32.0 #54.0 # dito, for the turn around the intermediate point
-elseif W_FIG <= 28.0
-    HEADING_OFFSET_LOW =  20.0
-    HEADING_OFFSET_INT =  62.0 #54.0 # dito, for the turn around the intermediate point
-end
+HEADING_OFFSET_LOW  = 22.0 # degrees, before finishing the right and left turns
+HEADING_OFFSET_INT =  32.0 #54.0 # dito, for the turn around the intermediate point
 HEADING_OFFSET_HIGH = 54.0 # dito, for elevation angles > 47.5 degrees
 HEADING_OFFSET_UP   = 60.0 # degrees, before finishing the up-turn
 HEADING_UPPER_TURN =  360.0-25.0
