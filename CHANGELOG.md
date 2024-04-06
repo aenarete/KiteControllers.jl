@@ -6,6 +6,8 @@
 - refactoring: add type KiteApp to the script autopilot.jl
 - make use of log_level settings, print a lot less for log_level=0
 - refactoring: split `flightpathplanner.jl` in `flightpathplanner.jl` and `flightpathcalculator.jl`
+- created the simplified components `flightpathplanner2.jl` and `flightpathcalculator2.jl`;  
+  while they are less accurate, they are easier to understand and contain a lot less hard-coded constants
 
 #### Added
 - adapt time_lapse according menu selection
