@@ -1,12 +1,15 @@
 # Changelog
 
 ### [unreleased]
-- adapt time_lapse according menu selection
-- use 60 Hz refresh rate for 3x and 6x time lapse
-- adapt text_mod such that the text update rate stays constant
-
 #### Changed
+- use 60 Hz refresh rate for 3x, 6x, 9x and 12x time lapse
+- refactoring: add type KiteApp to the script autopilot.jl
 - make use of log_level settings, print a lot less for log_level=0
+
+#### Added
+- adapt time_lapse according menu selection
+- adapt text_mod such that the text update rate stays constant
+- make it possible to change `t_sim` using the GUI
 
 ### KiteControllers v0.2.2 - 2024-03-29
 
