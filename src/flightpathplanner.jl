@@ -140,6 +140,7 @@ end
     _elevation_offset_p2 = ELEVATION_OFFSET_P2
     _elevation_offset_t2 = ELEVATION_OFFSET_T2
     fig8 = 0 # number of the current figure of eight
+    cycle::Int64 = 0
     _sys_state::SystemState = ssManualOperation
     high::Bool = false
     elevation_offset = ELEVATION_OFFSET
@@ -156,10 +157,11 @@ function on_new_system_state(fpca::FlightPathCalculator, new_state::SystemState,
         return
     end
     fpca._sys_state = new_state
-    if new_state == Int(ssPower)
+    if Int(new_state) == Int(ssIntermediate)
         fpca._beta_int = fpca._beta
         # calculate and publish the flight path for the next cycle
         publish(fpca, fpca._beta_set)
+        fpca.cycle+=1
     elseif new_state == Int(ssParking) && ! internal
         _switch(fpca, PARKING)
     end
@@ -697,7 +699,7 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
         if PRINT && fpp.fpps.log_level > 2
             println("############## -->> ", sys_state)
         end
-        fpp.fpca._sys_state = sys_state
+        # fpp.fpca._sys_state = sys_state
         on_new_system_state(fpp.fpca, sys_state, true)
         sleep(0.001)
     end
