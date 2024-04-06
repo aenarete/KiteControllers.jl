@@ -82,8 +82,9 @@ function plot_side_view()
 end
 
 function plot_side_view2()
-    log = load_log(basename(KiteViewers.plot_file[]))
-    index=1
+    log   = load_log(basename(KiteViewers.plot_file[]))
+    index = 1
+    sl    = log.syslog
     for i in 1:length(sl.var_01)
         if sl.var_01[i] == 2
             index=i
