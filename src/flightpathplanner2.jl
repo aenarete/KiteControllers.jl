@@ -91,7 +91,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         fpp.fpca.fig8 += 1
         # print "LOW_TURN; phi, psi:", form(phi), form(degrees(psi))
         _switch(fpp, LOW_TURN)
-    elseif state == LOW_TURN && psi < rad2deg(180.0 + HEADING_OFFSET_INT) # && phi > -phi_1 - DELTA_PHI_1:
+    elseif state == LOW_TURN && psi < rad2deg(180.0 + fpp.fpps.heading_offset_int) # && phi > -phi_1 - DELTA_PHI_1:
         # print "LOW_TURN_ENDS; phi, beta:", form(phi), form(degrees(psi))            
         _switch(fpp, LOW_LEFT)
     elseif state == LOW_LEFT  && phi > -phi_2 # &&

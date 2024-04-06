@@ -12,4 +12,6 @@
     psi_dot_max::Float64 = 3.0
     "degrees, before finishing the right and left turns"
     heading_offset_low::Float64 = 22.0
+    "dito, for the turn around the intermediate point"
+    heading_offset_int::Float64 =  32.0
 end

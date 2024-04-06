@@ -3,7 +3,6 @@
 
 depower::Float64 = 0.0 # set value of the depower value, 0 .. 1
 
-HEADING_OFFSET_INT =  32.0 # dito, for the turn around the intermediate point
 HEADING_OFFSET_HIGH = 54.0 # dito, for elevation angles > 47.5 degrees
 HEADING_OFFSET_UP   = 60.0 # degrees, before finishing the up-turn
 HEADING_UPPER_TURN =  360.0-25.0
