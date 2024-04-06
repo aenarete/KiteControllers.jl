@@ -7,4 +7,6 @@
     max_length::Float64 = 500
     max_height::Float64 = 500
     beta_set::Float64 = 26.0
+    "width of the figure of eight in degrees"
+    w_fig::Float64 = 36.0
 end

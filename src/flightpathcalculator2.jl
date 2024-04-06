@@ -3,7 +3,6 @@
 
 depower::Float64 = 0.0 # set value of the depower value, 0 .. 1
 
-W_FIG                    = 36.0
 PSI_DOT_MAX              = 3.0
 
 HEADING_OFFSET_LOW  = 22.0 # degrees, before finishing the right and left turns
@@ -59,7 +58,7 @@ end
     _r_min =  3.0 # minimal turn radius in degrees
     _r_max =  4.5
     _radius = 4.5
-    _w_fig = W_FIG # width of the figure of eight in degrees
+    _w_fig = fpps.w_fig # width of the figure of eight in degrees
     _phi_c3 = 0.0
     _beta_set = fpps.beta_set # average elevation angle during reel-out
     _beta_int = 68.5 # elevation angle at the start of beginning of the ssIntermediate
