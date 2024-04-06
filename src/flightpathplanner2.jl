@@ -235,9 +235,6 @@ function _switch(fpp::FlightPathPlanner, state)
         sys_state = ssKiteReelOut
     elseif state == TURN_RIGHT
         radius = fpp.fpca._radius
-        if CORRECT_RADIUS
-            radius += (fpp.fpca._beta - (fpp.fpca._t2[begin+1])) * 0.5
-        end
         _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=radius, attractor = fpp.fpca._p4)
         sys_state = ssKiteReelOut        
     elseif state == FLY_LEFT
