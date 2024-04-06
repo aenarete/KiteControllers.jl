@@ -3,7 +3,6 @@
 
 depower::Float64 = 0.0 # set value of the depower value, 0 .. 1
 
-HEADING_OFFSET_HIGH = 54.0 # dito, for elevation angles > 47.5 degrees
 HEADING_OFFSET_UP   = 60.0 # degrees, before finishing the up-turn
 HEADING_UPPER_TURN =  360.0-25.0
 
@@ -213,7 +212,7 @@ end
 # the winch controller calculates a new set value for the elevation, but also, when beta_int
 # changes (at the beginning of each intermediate phase).
 function publish(fpca::FlightPathCalculator, beta_set = fpca.fpps.beta_set)
-    fpca._heading_offset = HEADING_OFFSET_HIGH
+    fpca._heading_offset = fpca.fpps.heading_offset_high
     fpca._beta_set = beta_set
 
     calc_p1(fpca, beta_set)

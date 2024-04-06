@@ -14,4 +14,6 @@
     heading_offset_low::Float64 = 22.0
     "dito, for the turn around the intermediate point"
     heading_offset_int::Float64 =  32.0
+    "dito, for elevation angles > 47.5 degrees"
+    heading_offset_high::Float64 = 54.0
 end
