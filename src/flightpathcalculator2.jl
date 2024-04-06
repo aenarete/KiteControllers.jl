@@ -3,8 +3,6 @@
 
 depower::Float64 = 0.0 # set value of the depower value, 0 .. 1
 
-HEADING_UPPER_TURN =  360.0-25.0
-
 function addy(vec, y)
     SVector(vec[begin], vec[begin+1]+y)
 end

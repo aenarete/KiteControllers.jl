@@ -18,4 +18,5 @@
     heading_offset_high::Float64 = 54.0
     "degrees, before finishing the up-turn"
     heading_offset_up::Float64 = 60.0
+    heading_upper_turn::Float64 = 360.0-25.0
 end
