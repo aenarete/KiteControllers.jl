@@ -50,8 +50,8 @@ function init(app::KiteApp; init_viewer=false)
     if init_viewer
         app.viewer= Viewer3D(app.set, app.show_kite; menus=true)
         app.viewer.menu.options[]=["plot_main", "plot_power", "plot_control", 
-                                   "plot_elev_az", "plot_side_view", "plot_timing", "print_stats", 
-                                   "load logfile", "save logfile"]
+                                   "plot_elev_az", "plot_elev_az2", "plot_side_view", "plot_side_view2", "plot_timing", 
+                                   "print_stats", "load logfile", "save logfile"]
         app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
                                            "0.000005","0.000001"]
         app.viewer.menu_time_lapse.options[]=["1x","2x","3x","4x","6x","9x","12x"]
@@ -131,6 +131,7 @@ function simulate(integrator, stopped=true)
             e_mech += (sys_state.force * sys_state.v_reelout)/3600*app.dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(app.ssc.fpp._state)
+            sys_state.var_01 = app.ssc.fpp.fpca.cycle
             if i > 10
                 sys_state.t_sim = t_sim*1000
             end
@@ -319,10 +320,14 @@ function do_menu(c)
         plot_control()
     elseif c == "plot_elev_az"
         plot_elev_az()
+    elseif c == "plot_elev_az2"
+        plot_elev_az2()
     elseif c == "plot_main"
         plot_main()
     elseif c == "plot_side_view"
         plot_side_view()
+    elseif c == "plot_side_view2"
+        plot_side_view2()
     elseif c == "print_stats"
         print_stats()
     end

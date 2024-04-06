@@ -14,9 +14,10 @@ end
 function plot_main()
     log = load_log(basename(KiteViewers.plot_file[]))
     sl  = log.syslog
-    display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.l_tether, sl.force, sl.v_reelout;
-            ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]"],
-            fig="main"))
+    display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.l_tether, sl.force, 
+                  sl.v_reelout, sl.var_01;
+        ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]", "cycle [-]"],
+        fig="main"))
      nothing
 end
 
@@ -54,9 +55,42 @@ function plot_elev_az()
     nothing
 end
 
+function plot_elev_az2()
+    log = load_log(basename(KiteViewers.plot_file[]))
+    sl  = log.syslog
+    index=1
+    for i in 1:length(sl.var_01)
+        if sl.var_01[i] == 2
+            index=i
+            break
+        end
+    end
+    display(plotxy(rad2deg.(sl.azimuth)[index:end], rad2deg.(sl.elevation)[index:end];
+            ylabel="elevation [°]",
+            xlabel="azimuth [°]",
+            fig="elev_az"))
+    nothing
+end
+
 function plot_side_view()
     log = load_log(basename(KiteViewers.plot_file[]))
     display(plotxy(log.x, log.z;
+    ylabel="pos_x [m]",
+    xlabel="height [m]",
+    fig="side_view"))
+    nothing
+end
+
+function plot_side_view2()
+    log = load_log(basename(KiteViewers.plot_file[]))
+    index=1
+    for i in 1:length(sl.var_01)
+        if sl.var_01[i] == 2
+            index=i
+            break
+        end
+    end
+    display(plotxy(log.x[index:end], log.z[index:end];
     ylabel="pos_x [m]",
     xlabel="height [m]",
     fig="side_view"))
