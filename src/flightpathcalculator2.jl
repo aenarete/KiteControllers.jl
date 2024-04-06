@@ -47,9 +47,7 @@ end
     _beta_min = 20.0 # minimal elevation angle of the center of the figure of eight
     _beta_max = 60.0 # maximal elevation angle of the center of the figure of eight
 
-    _r_min =  3.0 # minimal turn radius in degrees
-    _r_max =  4.5
-    _radius = 4.5
+    _radius = fpps.r_max
     _w_fig = fpps.w_fig # width of the figure of eight in degrees
     _phi_c3 = 0.0
     _beta_set = fpps.beta_set # average elevation angle during reel-out
@@ -128,13 +126,13 @@ end
 # Calculate the elevation angle of the turning point as function of the set value of the
 # average elevation angle during reel-out in degrees. 
 function _calc_beta_c1(fpca::FlightPathCalculator, beta_set)
-    fpca._radius = fpca._r_max - (fpca._r_max - fpca._r_min) * (beta_set - fpca._beta_min) /
+    fpca._radius = fpca.fpps.r_max - (fpca.fpps.r_max - fpca.fpps.r_min) * (beta_set - fpca._beta_min) /
                    (fpca._beta_max - fpca._beta_min)
     try
         @assert fpca._radius >= 2.8 # radius of the turns in degrees
         @assert fpca._radius <= 5.2
     catch
-        println(fpca._r_max, fpca._r_min, beta_set, fpca._beta_min, fpca._beta_max, fpca._radius)
+        println(fpca.fpps.r_max, fpca.fpps.r_min, beta_set, fpca._beta_min, fpca._beta_max, fpca._radius)
     end
     fpca._phi_c3 = fpca._w_fig/2.0 - fpca._radius
     delta_phi = fpca._radius^2 /fpca._phi_c3

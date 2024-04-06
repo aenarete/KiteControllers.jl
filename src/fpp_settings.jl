@@ -10,6 +10,10 @@
     "width of the figure of eight in degrees"
     w_fig::Float64 = 36.0
     psi_dot_max::Float64 = 3.0
+    # minimal turn radius in degrees
+    r_min = 3.0
+    # maximal turn radius in degrees
+    r_max = 4.5
     "degrees, before finishing the right and left turns"
     heading_offset_low::Float64 = 22.0
     "dito, for the turn around the intermediate point"
