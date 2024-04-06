@@ -67,7 +67,6 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     phi, psi  = fpp.fpca._phi, heading
     beta = fpp.fpca._beta
     phi_1 = fpp.fpca._t1[begin]
-    # println("phi_1, phi: ", phi_1, ", ", phi)
     phi_2 = fpp.fpca._phi_2
     phi_3 = fpp.fpca._phi_3
     state = fpp._state
@@ -89,10 +88,8 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         _switch(fpp, LOW_RIGHT)
     elseif state == LOW_RIGHT && phi < -phi_1
         fpp.fpca.fig8 += 1
-        # print "LOW_TURN; phi, psi:", form(phi), form(degrees(psi))
         _switch(fpp, LOW_TURN)
-    elseif state == LOW_TURN && psi < rad2deg(180.0 + fpp.fpps.heading_offset_int) # && phi > -phi_1 - DELTA_PHI_1:
-        # print "LOW_TURN_ENDS; phi, beta:", form(phi), form(degrees(psi))            
+    elseif state == LOW_TURN && psi < rad2deg(180.0 + fpp.fpps.heading_offset_int)          
         _switch(fpp, LOW_LEFT)
     elseif state == LOW_LEFT  && phi > -phi_2 # &&
         _switch(fpp, TURN_LEFT)
@@ -100,7 +97,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     elseif state == FLY_LEFT  && phi > fpp.fpca._phi_sw 
         fpp.fpca.fig8 += 1            
         _switch(fpp, TURN_LEFT)
-    elseif state == TURN_LEFT && psi > deg2rad(180.0 - fpp.fpca._heading_offset)# && phi < fpp._phi_sw + dphi
+    elseif state == TURN_LEFT && psi > deg2rad(180.0 - fpp.fpca._heading_offset)
         _switch(fpp, FLY_RIGHT)
     elseif state == FLY_RIGHT && phi >= phi_3
         if ! fpp.finish
@@ -112,8 +109,6 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         _switch(fpp, TURN_RIGHT)
     elseif state == TURN_RIGHT && psi < deg2rad(180.0 + fpp.fpca._heading_offset) # && phi > -fpp._phi_sw - dphi
         _switch(fpp, FLY_LEFT)
-    # check, if the condition for finishing is fullfilled while still beeing on the left h&& side
-    #    of the wind window
     elseif state == FLY_LEFT && phi <= -phi_3
         if ! fpp.finish
             fpp.finish = (length > fpp.l_up || height > fpp.z_up)
