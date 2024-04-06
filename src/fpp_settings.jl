@@ -16,4 +16,6 @@
     heading_offset_int::Float64 =  32.0
     "dito, for elevation angles > 47.5 degrees"
     heading_offset_high::Float64 = 54.0
+    "degrees, before finishing the up-turn"
+    heading_offset_up::Float64 = 60.0
 end

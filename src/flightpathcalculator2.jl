@@ -3,7 +3,6 @@
 
 depower::Float64 = 0.0 # set value of the depower value, 0 .. 1
 
-HEADING_OFFSET_UP   = 60.0 # degrees, before finishing the up-turn
 HEADING_UPPER_TURN =  360.0-25.0
 
 function addy(vec, y)
