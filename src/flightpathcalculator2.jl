@@ -169,17 +169,7 @@ function _calc_beta_c1(fpca::FlightPathCalculator, beta_set)
 end
 
 function _calc_k2_k3(fpca::FlightPathCalculator, beta_set)
-    if beta_set > 40.0
-        k2 = beta_set - 40.0
-    else
-        k2 = 0.0
-    end
-    if fpca._r_min < 4.0
-        k3 = 4.0 - fpca._r_min
-    else
-        k3 = 0.0
-    end
-    k2, k3
+    0, 0
 end
 
 # Calculate azimuth and elevation of the point T1, where the first turn starts.
