@@ -13,7 +13,7 @@
 
 ### KiteControllers v0.2.2 - 2024-03-29
 #### Changed
-- the new, pure Julia solver DFBDF is now the default. It is in average 4 times faster, uses only half the memory and is much more stable. In my tests, for rel\_tol $=0.0005$ the solver induced error of the peak tether force and the harvested energy was always $<0.1\%$.
+- the new, pure Julia solver DFBDF is now the default. It is in average 4 times faster, uses only half the memory and is much more stable. In my tests, for rel\_tol $=0.0005$ the solver induced error of the peak tether force and the harvested energy was always $<0.1$%.
 
 #### Added
 - the example `autopilot.jl` was vastly improved
