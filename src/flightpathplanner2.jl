@@ -170,7 +170,7 @@ function _switch(fpp::FlightPathPlanner, state)
         depower = fpp.u_d_ro + fpp.delta_depower
         sys_state = ssPower
     elseif state == UPPER_TURN
-        _publish_fpc_command(fpp, true, psi_dot = PSI_DOT_MAX, attractor=fpp.fpca._p1, intermediate=true)
+        _publish_fpc_command(fpp, true, psi_dot = fpp.fpps.psi_dot_max, attractor=fpp.fpca._p1, intermediate=true)
         sys_state = ssIntermediate
         # see Table 5.4
     elseif state == LOW_RIGHT

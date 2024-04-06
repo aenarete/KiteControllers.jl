@@ -9,4 +9,5 @@
     beta_set::Float64 = 26.0
     "width of the figure of eight in degrees"
     w_fig::Float64 = 36.0
+    psi_dot_max::Float64 = 3.0
 end
