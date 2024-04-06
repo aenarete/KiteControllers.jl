@@ -16,10 +16,6 @@ DIRECT                   = false # skip intermediate target point
 
 PSI_DOT_MAX = 3.0
 
-AZIMUTH_OFFSET_PHI_1     =  3.0
-AZIMUTH_OFFSET_PHI_2     = -5.0 # was: -5.0 
-AZIMUTH_OFFSET_PHI_2     =  0.0
-
 if W_FIG >= 36.0
     HEADING_OFFSET_LOW  = 22.0 # degrees, before finishing the right and left turns
     HEADING_OFFSET_INT =  32.0 #54.0 # dito, for the turn around the intermediate point
@@ -108,13 +104,7 @@ end
     _p1::MVector{2, Float64} = zeros(2)
     _p2::MVector{2, Float64} = zeros(2)
     _p3::MVector{2, Float64} = zeros(2)
-    _p3_zero::MVector{2, Float64} = zeros(2)
-    _p3_zero_high::MVector{2, Float64} = zeros(2)
-    _p3_one_high::MVector{2, Float64} = zeros(2)
     _p4::MVector{2, Float64} = zeros(2)
-    _p4_zero::MVector{2, Float64} = zeros(2)
-    _p4_one::MVector{2, Float64} = zeros(2)
-    _p4_one_high::MVector{2, Float64} = zeros(2)
     _zenith::MVector{2, Float64} = MVector(0.0, 90) # desired elevation angle at zenith
     _phi_2 = 0.0
     _phi_3 = 0.0
@@ -122,7 +112,6 @@ end
     _beta_ri = 0.0
     _heading_offset = HEADING_OFFSET_LOW
     _v_wind_gnd = 6.0 # ground wind speed at 6 m height
-    _azimuth_offset_phi1 = AZIMUTH_OFFSET_PHI_1
     fig8 = 0 # number of the current figure of eight
     cycle::Int64 = 0
     _sys_state::SystemState = ssManualOperation
@@ -239,13 +228,7 @@ function calc_p3(fpca::FlightPathCalculator)
     fpca._t3[begin] = fpca._phi_sw
     fpca._t3[begin+1] = fpca._t2[begin+1]
     fpca._p3[begin] = fpca._t3[begin] + fpca._delta_phi
-    fpca._p3_zero[begin] = fpca._p3[begin]
-    fpca._p3_zero_high[begin] = fpca._p3[begin]
-    fpca._p3_one_high[begin] = fpca._p3[begin]
     fpca._p3[begin+1] = fpca._t3[begin+1] + fpca._delta_beta
-    fpca._p3_zero[begin+1] = fpca._p3[begin+1]
-    fpca._p3_zero_high[begin+1] = fpca._p3[begin+1]
-    fpca._p3_one_high[begin+1] = fpca._p3[begin+1]
     nothing
 end
 
@@ -255,13 +238,7 @@ function calc_p4(fpca::FlightPathCalculator)
     fpca._t4[begin] = - fpca._phi_sw
     fpca._t4[begin+1] = fpca._t3[begin+1]
     fpca._p4[begin] = fpca._t4[begin] - fpca._delta_phi
-    fpca._p4_one[begin] = fpca._p4[begin]
-    fpca._p4_one_high[begin] = fpca._p4[begin]
-    fpca._p4_zero[begin] = fpca._p4[begin]
     fpca._p4[begin+1] = (fpca._t4[begin+1] + fpca._delta_beta)
-    fpca._p4_one[begin+1] = fpca._p4[begin+1]
-    fpca._p4_one_high[begin+1] = fpca._p4[begin+1]
-    fpca._p4_zero[begin+1] = fpca._p4[begin+1]
     nothing
 end
 
@@ -315,8 +292,6 @@ function publish(fpca::FlightPathCalculator, beta_set = BETA_SET)
     fpca._phi_2 = fpca._t2[begin]
     fpca._phi_3 = fpca._t5[begin]
     fpca._beta_ri = fpca._k5 + fpca._k6 * beta_set
-#   fpca.pub.publishPlannedFlightPath(fpca._p1, fpca._p2, fpca._p3, fpca._p4, fpca._t1[begin], fpca._t2[begin], \
-#                                     fpca._t5[begin], fpca._phi_sw, fpca._beta_ri)
     nothing
 end
 

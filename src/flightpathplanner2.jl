@@ -116,14 +116,14 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         end
     elseif state == UPPER_TURN && psi > π && psi < rad2deg(HEADING_UPPER_TURN)
         _switch(fpp, LOW_RIGHT)
-    elseif state == LOW_RIGHT && phi < -phi_1 + fpp.fpca._azimuth_offset_phi1
+    elseif state == LOW_RIGHT && phi < -phi_1
         fpp.fpca.fig8 += 1
         # print "LOW_TURN; phi, psi:", form(phi), form(degrees(psi))
         _switch(fpp, LOW_TURN)
     elseif state == LOW_TURN && psi < rad2deg(180.0 + HEADING_OFFSET_INT) # && phi > -phi_1 - DELTA_PHI_1:
         # print "LOW_TURN_ENDS; phi, beta:", form(phi), form(degrees(psi))            
         _switch(fpp, LOW_LEFT)
-    elseif state == LOW_LEFT  && phi > -phi_2 + AZIMUTH_OFFSET_PHI_2 # &&
+    elseif state == LOW_LEFT  && phi > -phi_2 # &&
         _switch(fpp, TURN_LEFT)
     # see: Table 5.5
     elseif state == FLY_LEFT  && phi > fpp.fpca._phi_sw &&
@@ -248,21 +248,7 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
         _publish_fpc_command(fpp, true, psi_dot = -psi_dot_turn, radius=radius) #,  attractor = fpp.fpca._p3)
         sys_state = ssKiteReelOut
     elseif state == FLY_RIGHT
-        if fpp.fpca.fig8 == 0
-            if fpp.fpca.high
-                _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_zero_high)
-                # println("AAA")
-            else
-                _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_zero)
-                # println("BBB")
-            end
-        elseif fpp.fpca.fig8 == 1 && fpp.fpca.high
-            _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3_one_high)
-            # println("CCC")
-        else
-            _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3)
-            # println("DDD")             
-        end
+        _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3)
         sys_state = ssKiteReelOut
     elseif state == TURN_RIGHT
         radius = fpp.fpca._radius
@@ -275,27 +261,17 @@ function _switch(fpp::FlightPathPlanner, state, delta_beta = 0.0)
         _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=radius, attractor = fpp.fpca._p4)
         sys_state = ssKiteReelOut        
     elseif state == FLY_LEFT
-        if fpp.fpca.fig8 == 0 && ! fpp.fpca.high               
-            _publish_fpc_command(fpp, false, attractor = fpp.fpca._p4_zero)
-        elseif fpp.fpca.fig8 == 1
-            if ! fpp.fpca.high
-                _publish_fpc_command(fpp, false, attractor = fpp.fpca._p4_one)
-            else                    
-                _publish_fpc_command(fpp, false, attractor = fpp.fpca._p4_one_high)
-            end
+        if delta_beta < 10.0
+            delta_beta = 0.0
         else
-            if delta_beta < 10.0
-                delta_beta = 0.0
-            else
-                delta_beta -= 10.0
-            end
-            y = -1.5 * delta_beta
-            x = delta_beta
-            if delta_beta > 0.0
-#              print "--->>> x, y=", form(x), form(y)
-            end
-            _publish_fpc_command(fpp, false, attractor = addxy(fpp.fpca._p4, x, y))
+            delta_beta -= 10.0
         end
+        y = -1.5 * delta_beta
+        x = delta_beta
+        if delta_beta > 0.0
+#              print "--->>> x, y=", form(x), form(y)
+        end
+        _publish_fpc_command(fpp, false, attractor = addxy(fpp.fpca._p4, x, y))
         sys_state = ssKiteReelOut
     # see Table 5.6
     elseif state == UP_TURN
