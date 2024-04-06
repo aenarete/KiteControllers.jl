@@ -71,7 +71,6 @@ end
     _r_max =  4.5
     _radius = 4.5
     _w_fig = W_FIG # width of the figure of eight in degrees
-    _dphi = 9.0 # correction for finishing the turns
     _phi_c3 = 0.0
     _beta_set = BETA_SET # average elevation angle during reel-out
     _beta_int = 68.5 # elevation angle at the start of beginning of the ssIntermediate

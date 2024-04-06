@@ -1,26 +1,6 @@
 # Provides the component FlightPathPlanner. Implementation as specified in chapter five of
 # the PhD thesis of Uwe Fechner.
 
-# message AttractorPoint {
-#    required double azimuth   = 1; // Angle in radians. Zero straight downwind. Positive direction clockwise seen
-#                                   // from above. Valid range: -pi .. pi.
-#                                   // Upwind is the direction the wind is coming from.
-#    required double elevation = 2; // Angle in radians above the horizon. Valid range: -pi/2 to pi/2.
-# }
-
-#     Component, that implements the state machine as described in the PhD thesis of Uwe Fechner, chapter
-#     five. It uses the pre-calculated flight path together
-#     with incoming kite state data to calculate the FPC_Command messages, if needed.
-
-# Inputs:
-# a) the inherited flight path and angular kite speed omega (on the unit circle)
-# b) the actual depower value of the kite
-# c) the actual reel-out length of the tether
-# d) the actual orientation of the kite: the heading angle
-# e) the height of the kite
-
-#     Output:
-#     FPC_Command messages as defined above.
 @with_kw mutable struct FlightPathPlanner @deftype Float64
     fpps::FPPSettings
     fpca::FlightPathCalculator
@@ -151,27 +131,6 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         fpp.fpca.fig8 = 0
         _switch(fpp, POWER)
     end
-    # print some debug info every second
-    fpp.count += 1
-    if fpp.count >= 50
-        u_s = fpp.fpca.fpc.u_s
-        chi_set = fpp.fpca.fpc.chi_set
-        chi_factor = fpp.fpca.fpc.chi_factor
-        if PRINT_EVERY_SECOND
-            # print "omega, phi, beta, state, chi_factor", form(fpp._omega), form(fpp._phi), form(fpp._beta),\
-            #                                                          fpp._state, form(chi_factor)
-            # print "--> heading, course, bearing, steering", form(degrees(fpp.fpca.fpc.psi)), \
-            #                     form(degrees(fpp.fpca.fpc.chi)), form(rad2deg(chi_set)), form(100 * u_s)
-            # turning, value = fpp.fpca.fpc.get_state()
-            # if turning
-            #     print "--> turning. psi_dot_set: ", form(degrees(value))
-            # else
-            #     print "--> no turn. attractor:   ", form(degrees(value[begin])), form(degrees(value[begin+1]))
-            #     print "beta_set, intermediate", form(fpp._beta_set), fpp.fpc.intermediate
-            # end
-        end
-        fpp.count = 0
-    end
 end
 
 #  Call the related method of the flight path controller directly.
@@ -267,9 +226,6 @@ function _switch(fpp::FlightPathPlanner, state)
     end
 
     if sys_state != fpp.fpca._sys_state
-        if PRINT && fpp.fpps.log_level > 2
-            println("############## -->> ", sys_state)
-        end
         on_new_system_state(fpp.fpca, sys_state, true)
         sleep(0.001)
     end
