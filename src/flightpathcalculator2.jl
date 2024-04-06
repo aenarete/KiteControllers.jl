@@ -9,8 +9,6 @@ PRINT = true
 BETA_SET                 = 26.0
 W_FIG                    = 36.0 # valid values: 36, 28
 
-DIRECT                   = false # skip intermediate target point
-
 PSI_DOT_MAX = 3.0
 
 if W_FIG >= 36.0
@@ -75,10 +73,9 @@ end
     _beta_set = BETA_SET # average elevation angle during reel-out
     _beta_int = 68.5 # elevation angle at the start of beginning of the ssIntermediate
     _k = 0.0 # gradient of straight flight path sections, calculated value
-    _k1 = 1.28
-    _k4 = 0.175
-    _k5 = 37.5
-    _k6 = 0.45
+    _k1 = 1.28        # for the calculation of T1
+    _k5 = 37.5        # for calculation of beta_reel_in
+    _k6 = 0.45        # for calculation of beta_reel_in
     _delta_min = 10.0 # minimal attractor point distance in degrees
     _delta_phi = 0.0  # minimal attractor point distance in phi direction (calculated)
     _delta_beta = 0.0 # minimal attractor point distance in beta direction (calculated)

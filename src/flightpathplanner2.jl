@@ -74,7 +74,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     # see: Table 5.3, 5.4
     if state == POWER
         fpp.finish = false
-        if (beta > fpp.fpca._beta_set + 25.0 + fpp.fpca._radius) && ! DIRECT
+        if (beta > fpp.fpca._beta_set + 25.0 + fpp.fpca._radius)
             if depower < fpp.u_d_ro + fpp.delta_depower + fpp.const_dd * (fpp.u_d_ri - fpp.u_d_ro - fpp.delta_depower)
                 fpp.fpca.fig8 = -1
                 fpp.fpca.high = false
