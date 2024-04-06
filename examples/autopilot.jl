@@ -66,11 +66,10 @@ end
 app.set.solver    = "DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
 app.set.log_level = 0
 app.set.segments  = 6
+DEFAULT_TOLERANCE = 3
 # end of user parameter section #
 
 init(app; init_viewer=true)
-
-DEFAULT_TOLERANCE = 3
 
 function simulate(integrator, stopped=true)
     start_time_ns = time_ns()
@@ -142,6 +141,9 @@ function simulate(integrator, stopped=true)
                 ratio = 2
             else
                 ratio = 1
+            end
+            if app.set.time_lapse == 12
+                ratio = 4
             end
             app.viewer.mod_text = 3*ratio
             if mod(i, Int64(app.set.time_lapse)/ratio) == 0 
@@ -217,14 +219,14 @@ function play(stopped=false)
 end
 
 function parking()
-    app.parking = true
-    app.viewer.stop=false
+    app.parking     = true
+    app.viewer.stop = false
     on_parking(app.ssc)
 end
 
 function autopilot()
-    app.parking = false
-    app.viewer.stop=false
+    app.parking     = false
+    app.viewer.stop = false
     on_autopilot(app.ssc)
 end
 
@@ -249,7 +251,6 @@ end
 on(app.viewer.menu_time_lapse.selection) do c;
     val=app.viewer.menu_time_lapse.selection[][begin:end-1]
     app.set.time_lapse=parse(Int64, val)
-    println(app.set.time_lapse)
 end
 
 function select_log()
