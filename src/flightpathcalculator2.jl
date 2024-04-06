@@ -7,8 +7,6 @@ PRINT_EVERY_SECOND = true
 PRINT = true
 
 BETA_SET                 = 26.0
-FIXED_ELEVATION          = false
-CORRECT_RADIUS           = true
 W_FIG                    = 36.0 # valid values: 36, 28
 
 DIRECT                   = false # skip intermediate target point
@@ -25,11 +23,6 @@ end
 HEADING_OFFSET_HIGH = 54.0 # dito, for elevation angles > 47.5 degrees
 HEADING_OFFSET_UP   = 60.0 # degrees, before finishing the up-turn
 HEADING_UPPER_TURN =  360.0-25.0
-
-DPHI_LOW    =  8.0           # azimuth offset for finishing the turns
-DPHI_HIGH   = 10.0    
-DELTA_PHI_1 =  6.0           # azimuth offset for finishing the turn around the intermediate point
-DELTA_BETA = 1.0
 
 function addy(vec, y)
     SVector(vec[begin], vec[begin+1]+y)
@@ -253,24 +246,8 @@ end
 # the winch controller calculates a new set value for the elevation, but also, when beta_int
 # changes (at the beginning of each intermediate phase).
 function publish(fpca::FlightPathCalculator, beta_set = BETA_SET)
-    if FIXED_ELEVATION
-        beta_set = BETA_SET
-    end
-    if beta_set > 30.0
-        fpca._w_fig = W_FIG + 10.0
-    end
-    if beta_set > 52.0
-        fpca._w_fig = W_FIG +  5.0
-    else
-        fpca._w_fig = W_FIG
-    end
-    if beta_set >= 47.5
-        fpca._heading_offset = HEADING_OFFSET_HIGH
-        fpca._dphi = DPHI_HIGH
-    else
-        fpca._heading_offset = HEADING_OFFSET_LOW
-        fpca._dphi = DPHI_LOW
-    end
+    beta_set = BETA_SET
+    fpca._heading_offset = HEADING_OFFSET_HIGH
     fpca._beta_set = beta_set
 
     calc_p1(fpca, beta_set)
@@ -283,24 +260,3 @@ function publish(fpca::FlightPathCalculator, beta_set = BETA_SET)
     fpca._beta_ri = fpca._k5 + fpca._k6 * beta_set
     nothing
 end
-
-# message AttractorPoint {
-#    required double azimuth   = 1; // Angle in radians. Zero straight downwind. Positive direction clockwise seen
-#                                   // from above. Valid range: -pi .. pi.
-#                                   // Upwind is the direction the wind is coming from.
-#    required double elevation = 2; // Angle in radians above the horizon. Valid range: -pi/2 to pi/2.
-# }
-
-#     Component, that implements the state machine as described in the PhD thesis of Uwe Fechner, chapter
-#     five. It uses the pre-calculated flight path together
-#     with incoming kite state data to calculate the FPC_Command messages, if needed.
-
-# Inputs:
-# a) the inherited flight path and angular kite speed omega (on the unit circle)
-# b) the actual depower value of the kite
-# c) the actual reel-out length of the tether
-# d) the actual orientation of the kite: the heading angle
-# e) the height of the kite
-
-#     Output:
-#     FPC_Command messages as defined above.
