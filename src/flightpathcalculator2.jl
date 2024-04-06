@@ -3,8 +3,7 @@
 
 depower::Float64 = 0.0 # set value of the depower value, 0 .. 1
 
-HEADING_OFFSET_LOW  = 22.0 # degrees, before finishing the right and left turns
-HEADING_OFFSET_INT =  32.0 #54.0 # dito, for the turn around the intermediate point
+HEADING_OFFSET_INT =  32.0 # dito, for the turn around the intermediate point
 HEADING_OFFSET_HIGH = 54.0 # dito, for elevation angles > 47.5 degrees
 HEADING_OFFSET_UP   = 60.0 # degrees, before finishing the up-turn
 HEADING_UPPER_TURN =  360.0-25.0
@@ -86,7 +85,7 @@ end
     _phi_3 = 0.0
     _phi_sw = 0.0
     _beta_ri = 0.0
-    _heading_offset = HEADING_OFFSET_LOW
+    _heading_offset = fpps.heading_offset_low
     _v_wind_gnd = 6.0 # ground wind speed at 6 m height
     fig8 = 0 # number of the current figure of eight
     cycle::Int64 = 0

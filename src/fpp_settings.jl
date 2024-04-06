@@ -10,4 +10,6 @@
     "width of the figure of eight in degrees"
     w_fig::Float64 = 36.0
     psi_dot_max::Float64 = 3.0
+    "degrees, before finishing the right and left turns"
+    heading_offset_low::Float64 = 22.0
 end
