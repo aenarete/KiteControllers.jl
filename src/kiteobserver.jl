@@ -47,6 +47,12 @@ function corrected_elev(ob, fig8, elev_nom)
     elev_right, elev_left
 end
 
+function residual()
+    # run a simulation and save the result
+    # calculate the residual
+    # return a vector
+end
+
 # correction for first (lowest) turn
 function corrected_elev(ob, elev_nom)
     elev_nom + 10.13+5
