@@ -26,7 +26,6 @@ function observe!(observer::KiteObserver, log::SysLog)
         # only look at the second cycle
         if sl.var_01[i] == 2 &&  sl.sys_state[i] in (6, 8)
             if sign(sl.azimuth[i]) != last_sign
-                # println(sl.l_tether[i], " ", sl.sys_state[i], " ", rad2deg(sl.elevation[i]))
                 push!(observer.time, sl.time[i])
                 push!(observer.length, sl.l_tether[i])
                 push!(observer.elevation, rad2deg(sl.elevation[i]))
