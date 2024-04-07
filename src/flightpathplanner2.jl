@@ -176,11 +176,20 @@ function _switch(fpp::FlightPathPlanner, state)
         _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=fpp.fpca._radius, attractor = p2, intermediate = true)
         sys_state = ssIntermediate
     elseif state == LOW_LEFT
+        beta_set = corrected_elev(fpp.fpca.ob,  fpp.fpps.beta_set)
+        publish(fpp.fpca, beta_set)
         p2 = fpp.fpca._p2
         _publish_fpc_command(fpp, false, attractor = p2, intermediate = true)
         sys_state = ssIntermediate
     # see Table 5.5
     elseif state == TURN_LEFT
+        ###fpps.beta_set
+        elev_right, elev_left = corrected_elev(fpp.fpca.ob, fpp.fpca.fig8, fpp.fpps.beta_set)
+        # println(elev_right, " ", elev_left)
+        beta_set = 0.5*(elev_right+elev_left)
+        println(beta_set)
+        publish(fpp.fpca, beta_set)
+
         radius = -fpp.fpca._radius
         _publish_fpc_command(fpp, true, psi_dot = -psi_dot_turn, radius=radius) #,  attractor = fpp.fpca._p3)
         sys_state = ssKiteReelOut

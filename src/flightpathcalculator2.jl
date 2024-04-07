@@ -44,6 +44,7 @@ end
 @with_kw mutable struct FlightPathCalculator @deftype Float64
     fpc::FlightPathController
     fpps::FPPSettings
+    ob::Union{Nothing, KiteObserver} =  nothing
     _beta_min = 20.0 # minimal elevation angle of the center of the figure of eight
     _beta_max = 60.0 # maximal elevation angle of the center of the figure of eight
 
@@ -87,7 +88,18 @@ end
 end
 
 function FlightPathCalculator(fpc::FlightPathController, fpps::FPPSettings)
-    FlightPathCalculator(fpc=fpc, fpps=fpps)
+    res = FlightPathCalculator(fpc=fpc, fpps=fpps)
+    log = nothing
+    res.ob=KiteObserver()
+    try
+        log = load_log("ref_sim")
+    catch
+        println("Warning! File ref_sim.arrow not found.")
+    end
+    if ! isnothing(log)
+        observe!(res.ob, log)
+    end
+    res
 end
 
 # Event handler for events, received from the GUI. The flight path planner
@@ -100,7 +112,6 @@ function on_new_system_state(fpca::FlightPathCalculator, new_state::SystemState,
     if Int(new_state) == Int(ssIntermediate)
         fpca._beta_int = fpca._beta
         # calculate and publish the flight path for the next cycle
-        publish(fpca, fpca._beta_set)
         fpca.cycle+=1
     elseif new_state == Int(ssParking) && ! internal
         _switch(fpca, PARKING)

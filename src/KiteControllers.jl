@@ -5,7 +5,7 @@ using YAML, StructTypes
 import Base.reset
 
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types
-export WinchController, KiteModel
+export WinchController, KiteModel, KiteObserver
 export UnitDelay, RateLimiter, Mixer_2CH, Mixer_3CH, CalcVSetIn
 export Winch, SpeedController, LowerForceController, UpperForceController
 export FlightPathCalculator, SystemStateControl, SystemState
@@ -25,7 +25,7 @@ export calc_v_set, get_set_force, get_status                          # methods 
 export on_autopilot, on_parking, on_reelin, on_stop, on_new_systate   # methods of SystemStateControl
 export on_winchcontrol, get_depower                                   # methods of SystemStateControl
 export ssParking, ssPowerProduction, ssReelIn, ssManualOperation
-export update
+export update, observe!
 
 abstract type AbstractForceController end
 const AFC = AbstractForceController
@@ -55,6 +55,7 @@ include("wc_settings.jl")
 include("wc_components.jl")
 include("winchcontroller.jl")
 include("fpp_settings.jl")
+include("kiteobserver.jl")
 include("flightpathcalculator2.jl")
 include("flightpathplanner2.jl")
 include("systemstatecontrol.jl")

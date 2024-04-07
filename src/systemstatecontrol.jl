@@ -16,8 +16,8 @@ function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings
     fpc = FlightPathController(fcs)
     fpca = FlightPathCalculator(fpc, fpps)
     fpp = FlightPathPlanner(fpps, fpca)
-
     res = SystemStateControl(wc=WinchController(wcs), fpp=fpp)
+
     attractor = zeros(2)
     attractor[end] = deg2rad(80.0) # beta_set
     on_control_command(fpca.fpc, attractor=attractor)
