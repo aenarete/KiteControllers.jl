@@ -3,12 +3,6 @@
 ## - create a log file
 ## - shall NOT use a GUI
 
-using Pkg
-if ! ("KiteViewers" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
-end
-using Timers; tic()
-
 using KiteControllers
 
 kcu::KiteModels.KCU   = KiteModels.KCU(KiteControllers.se())
@@ -66,7 +60,6 @@ function play()
     init_globals()
     on_parking(ssc)
     integrator=KiteModels.init_sim!(kps4, stiffness_factor=1.0)
-    toc()
     simulate(integrator)
 end
 
@@ -74,3 +67,7 @@ play()
 println("Stopping...")
 on_stop(ssc)
 KiteModels.clear!(kps4)
+
+# run a simulation using a correction vector, return a log object
+function sim(t_sim=460; corrections=Float64[])
+end
