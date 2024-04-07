@@ -426,8 +426,9 @@ end
 
 @testset "FlightPathCalculator" begin
     fcs = FPCSettings()
+    fpps = FPPSettings()
     fpc = FlightPathController(fcs)
-    fpca = FlightPathCalculator(fpc=fpc)
+    fpca = FlightPathCalculator(fpc, fpps)
     vec=[1.0,2]
     res = KiteControllers.addy(vec, 0.5)
     @test res == [1.0, 2.5]
@@ -462,7 +463,7 @@ end
     fcs = FPCSettings()
     fpps = FPPSettings()
     fpc = FlightPathController(fcs)
-    fpca = FlightPathCalculator(fpc)
+    fpca = FlightPathCalculator(fpc, fpps)
     fpp = FlightPathPlanner(fpps, fpca)
     @test fpp.u_d_ro == 0.22
     @test ! KiteControllers.is_active(fpp)
