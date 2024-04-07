@@ -9,7 +9,7 @@ if ! ("KiteViewers" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteModels, StatsBase
+using KiteControllers, KiteModels
 
 kcu::KCU   = KCU(se())
 kps4::KPS4 = KPS4(kcu)
@@ -32,25 +32,12 @@ end
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 460
-TIME_LAPSE_RATIO  = 4
 # end of user parameter section #
 
-phi_set = 21.48
-# on_control_command(ssc.fpp.fpca.fpc, attractor=[deg2rad(phi_set), deg2rad(51.88)])
-# on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
-
-PARKING::Bool = false
-
 steps = 0
-LAST_I::Int64=0
 
-function simulate(integrator, stopped=true)
-    global LAST_I
-    start_time_ns = time_ns()
-    i=1
-    j=0; k=0
-    GC.gc()
-    t_gc_tot = 0
+function simulate(integrator)
+    i = 1
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     while true
@@ -60,7 +47,7 @@ function simulate(integrator, stopped=true)
             steering = calc_steering(ssc)
             set_depower_steering(kps4.kcu, dp, steering)
         end
-        if i == 200 && ! PARKING
+        if i == 200
             on_autopilot(ssc)
         end
         # execute winch controller
@@ -69,36 +56,21 @@ function simulate(integrator, stopped=true)
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
         sys_state = SysState(kps4)
         on_new_systate(ssc, sys_state)
-        if mod(i, TIME_LAPSE_RATIO) == 0 
-            wait_until(start_time_ns + 1e9*dt, always_sleep=true)          
-            start_time_ns = time_ns()
-            t_gc_tot = 0
-        end
         i += 1
         if i*dt > MAX_TIME break end
     end
-    return div(i, TIME_LAPSE_RATIO)
+    nothing
 end
 
-function play(stopped=false)
-    global steps, kcu, kps4, wcs, fcs, fpps, ssc
+function play()
     init_globals()
     on_parking(ssc)
-    KiteModels.init_sim!(kps4, stiffness_factor=1.0)
+    integrator=KiteModels.init_sim!(kps4, stiffness_factor=1.0)
     toc()
+    simulate(integrator)
 end
 
-function autopilot()
-    global PARKING
-    PARKING = false
-    on_autopilot(ssc)
-end
-
-function stop_()
-    println("Stopping...")
-    on_stop(ssc)
-    clear!(kps4)
-end
-
-play(false)
-stop_()
+play()
+println("Stopping...")
+on_stop(ssc)
+clear!(kps4)
