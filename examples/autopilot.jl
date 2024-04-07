@@ -38,14 +38,30 @@ function observe!(observer::KiteObserver, log::SysLog)
 end
 
 function test_observer(plot=true)
-    log = load_log(basename(KiteViewers.plot_file[]))
-    ob=KiteObserver()
+    log = load_log("ref_sim")
+    ob = KiteObserver()
     observe!(ob, log)
     if plot
         plotxy(ob.fig8, ob.elevation, xlabel="fig8", ylabel="elevation")
     else
         ob
     end
+end
+
+# calculate the corrected elevations per figure-of-eight, one for the left and one for the right attractor point
+function corrected_elev(ob::KiteObserver, fig8, elev_nom)
+    elev_right = elev_nom
+    elev_left = elev_nom
+    for i in 1:length(ob.fig8)
+        if ob.fig8[i]==fig8
+            if isodd(i)
+                elev_right=elev_nom-(ob.elevation[i]-elev_nom)
+            else
+                elev_left=elev_nom-(ob.elevation[i]-elev_nom)
+            end
+        end
+    end
+    elev_right, elev_left
 end
 
 mutable struct KiteApp
