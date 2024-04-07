@@ -10,6 +10,39 @@ using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeF
 using Printf
 import KiteViewers.GLMakie
 
+# observe the flight path and collect useful information to optimize it
+mutable struct KiteObserver
+    time::Vector{Float64}
+    length::Vector{Float64}
+    elevation::Vector{Float64}
+end
+function KiteObserver()
+    KiteObserver(Float64[], Float64[], Float64[])
+end
+function observe!(observer::KiteObserver, log::SysLog)
+    sl  = log.syslog
+    last_sign = -1
+    for i in 1:length(sl.azimuth)
+        # only look at the second cycle
+        if sl.var_01[i] == 2 &&  sl.sys_state[i] in (6, 8)
+            if sign(sl.azimuth[i]) != last_sign
+                # println(sl.l_tether[i], " ", sl.sys_state[i], " ", rad2deg(sl.elevation[i]))
+                push!(observer.time, sl.time[i])
+                push!(observer.length, sl.l_tether[i])
+                push!(observer.elevation, rad2deg(sl.elevation[i]))
+            end
+            last_sign = sign(sl.azimuth[i])
+        end
+    end
+end
+
+function test_observer()
+    log = load_log(basename(KiteViewers.plot_file[]))
+    ob=KiteObserver()
+    observe!(ob, log)
+    plot(ob.length, ob.elevation)
+end
+
 mutable struct KiteApp
     set::Settings
     max_time::Float64
