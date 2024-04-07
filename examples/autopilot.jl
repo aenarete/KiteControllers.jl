@@ -14,10 +14,11 @@ import KiteViewers.GLMakie
 mutable struct KiteObserver
     time::Vector{Float64}
     length::Vector{Float64}
+    fig8::Vector{Int64}
     elevation::Vector{Float64}
 end
 function KiteObserver()
-    KiteObserver(Float64[], Float64[], Float64[])
+    KiteObserver(Float64[], Float64[], Int64[], Float64[])
 end
 function observe!(observer::KiteObserver, log::SysLog)
     sl  = log.syslog
@@ -28,6 +29,7 @@ function observe!(observer::KiteObserver, log::SysLog)
             if sign(sl.azimuth[i]) != last_sign
                 push!(observer.time, sl.time[i])
                 push!(observer.length, sl.l_tether[i])
+                push!(observer.fig8, sl.var_02[i])
                 push!(observer.elevation, rad2deg(sl.elevation[i]))
             end
             last_sign = sign(sl.azimuth[i])
@@ -35,11 +37,15 @@ function observe!(observer::KiteObserver, log::SysLog)
     end
 end
 
-function test_observer()
+function test_observer(plot=true)
     log = load_log(basename(KiteViewers.plot_file[]))
     ob=KiteObserver()
     observe!(ob, log)
-    plot(ob.length, ob.elevation)
+    if plot
+        plotxy(ob.fig8, ob.elevation, xlabel="fig8", ylabel="elevation")
+    else
+        ob
+    end
 end
 
 mutable struct KiteApp
