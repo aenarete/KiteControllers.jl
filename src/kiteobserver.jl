@@ -30,10 +30,10 @@ function observe!(ob::KiteObserver, log::SysLog, elev_nom=26)
         for i in 1:length(ob.fig8)
             if ob.fig8[i]==fig8
                 if isodd(i)
-                    cor_right=(ob.elevation[i]-elev_nom)
+                    cor_right=(elev_nom-ob.elevation[i])
                     push!(ob.corr_vec, cor_right)
                 else
-                    cor_left=(ob.elevation[i]-elev_nom)
+                    cor_left=(elev_nom-ob.elevation[i])
                     push!(ob.corr_vec, cor_left)
                 end
                
@@ -45,19 +45,14 @@ end
 
 # calculate the corrected elevations per figure-of-eight, one for the left and one for the right attractor point
 function corrected_elev(ob, fig8, elev_nom)
+    fig8=Int64(round(fig8))
     if ! isnothing(ob)
-        elev_right = elev_nom
-        elev_left = elev_nom
-        for i in 1:length(ob.fig8)
-            if ob.fig8[i]==fig8
-                if isodd(i)
-                    elev_right=elev_nom-(ob.elevation[i]-elev_nom)
-                else
-                    elev_left=elev_nom-(ob.elevation[i]-elev_nom)
-                end
-            end
+        elev_right = elev_nom + ob.corr_vec[2fig8+1]
+        if 2fig8+2 <= length(ob.corr_vec)
+            elev_left = elev_nom + ob.corr_vec[2fig8+2]
+        else
+            elev_left = elev_right
         end
-    
     else
         elev_right=elev_nom
         elev_left=elev_nom
