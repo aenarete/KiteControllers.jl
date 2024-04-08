@@ -185,9 +185,8 @@ function _switch(fpp::FlightPathPlanner, state)
     elseif state == TURN_LEFT
         ###fpps.beta_set
         elev_right, elev_left = corrected_elev(fpp.fpca.ob, fpp.fpca.fig8, fpp.fpps.beta_set)
-        # println(elev_right, " ", elev_left)
-        beta_set = 0.5*(elev_right+elev_left)
-        println(beta_set)
+        beta_set = elev_right
+        println("TURN_LEFT: ", beta_set)
         publish(fpp.fpca, beta_set)
 
         radius = -fpp.fpca._radius
@@ -197,6 +196,11 @@ function _switch(fpp::FlightPathPlanner, state)
         _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3)
         sys_state = ssKiteReelOut
     elseif state == TURN_RIGHT
+        elev_right, elev_left = corrected_elev(fpp.fpca.ob, fpp.fpca.fig8, fpp.fpps.beta_set)
+        beta_set = elev_left
+        println("TURN_RIGHT: ", beta_set)
+        publish(fpp.fpca, beta_set)
+
         radius = fpp.fpca._radius
         _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=radius, attractor = fpp.fpca._p4)
         sys_state = ssKiteReelOut        

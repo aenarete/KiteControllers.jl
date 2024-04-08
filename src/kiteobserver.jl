@@ -55,5 +55,8 @@ end
 
 # correction for first (lowest) turn
 function corrected_elev(ob, elev_nom)
+    if isnothing(ob) || length(ob.time) == 0
+        return elev_nom
+    end
     elev_nom + 10.13+5
 end
