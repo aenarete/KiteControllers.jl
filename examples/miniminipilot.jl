@@ -3,7 +3,7 @@
 ## - create a log file
 ## - shall NOT use a GUI
 
-using KiteControllers, KiteUtils, ControlPlots
+using KiteControllers, KiteUtils, ControlPlots, NLsolve, LinearAlgebra
 import JLD2
 
 function test_ob(lg, plot=true)
@@ -18,9 +18,9 @@ end
 
 
 # run a simulation using a correction vector, return a log object
-function residual(corr_vec=nothing, sim_time=460)
-    if ! isnothing(corr_vec)
-        save_corr(corr_vec)
+function residual(corr_vec=nothing; sim_time=460)
+    if ! isnothing(corr_vec) 
+        KiteControllers.save_corr(corr_vec)
     end
     set = deepcopy(KiteControllers.se())
     kcu   = KiteModels.KCU(set)
@@ -30,6 +30,9 @@ function residual(corr_vec=nothing, sim_time=460)
     fcs = FPCSettings(); fcs.dt = wcs.dt
     fpps = FPPSettings()
     ssc = SystemStateControl(wcs, fcs, fpps)
+    if ! isnothing(corr_vec)
+        ssc.fpp.corr_vec = corr_vec
+    end
     dt = wcs.dt
     steps = Int64(sim_time/dt)
     particles = set.segments + 5
@@ -87,9 +90,22 @@ function residual(corr_vec=nothing, sim_time=460)
     KiteControllers.save_log(logger, "tmp")
     lg = KiteControllers.load_log("tmp")
     ob = test_ob(lg, false)
+    println("\n --> norm: ", norm(ob.corr_vec), "\n")
     ob.corr_vec
 end
 
-function train()
-    
+# function train()
+#     initial = KiteControllers.load_corr()
+#     sol = nlsolve(residual, initial; xtol=0.1, ftol=0.5, iterations=10)
+#     sol.zero
+# end
+
+function train2()
+    initial = KiteControllers.load_corr()
+    for i in 1:5
+        res = residual(initial)
+        println("i: $(i), norm: $(norm(res))")
+        initial .+= res
+    end
+    initial
 end
