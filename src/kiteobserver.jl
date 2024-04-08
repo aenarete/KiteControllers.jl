@@ -4,23 +4,41 @@ mutable struct KiteObserver
     length::Vector{Float64}
     fig8::Vector{Int64}
     elevation::Vector{Float64}
+    corr_vec::Vector{Float64}
 end
 function KiteObserver()
-    KiteObserver(Float64[], Float64[], Int64[], Float64[])
+    KiteObserver(Float64[], Float64[], Int64[], Float64[], Float64[])
 end
-function observe!(observer::KiteObserver, log::SysLog)
+function observe!(ob::KiteObserver, log::SysLog, elev_nom=26)
     sl  = log.syslog
     last_sign = -1
     for i in 1:length(sl.azimuth)
         # only look at the second cycle
         if sl.var_01[i] == 2 &&  sl.sys_state[i] in (6, 8)
             if sign(sl.azimuth[i]) != last_sign
-                push!(observer.time, sl.time[i])
-                push!(observer.length, sl.l_tether[i])
-                push!(observer.fig8, sl.var_02[i])
-                push!(observer.elevation, rad2deg(sl.elevation[i]))
+                push!(ob.time, sl.time[i])
+                push!(ob.length, sl.l_tether[i])
+                push!(ob.fig8, sl.var_02[i])
+                push!(ob.elevation, rad2deg(sl.elevation[i]))
             end
             last_sign = sign(sl.azimuth[i])
+        end
+    end
+    elev_right = elev_nom
+    elev_left = elev_nom
+    for fig8 in 0:maximum(ob.fig8)
+        for i in 1:length(ob.fig8)
+            if ob.fig8[i]==fig8
+                if isodd(i)
+                    cor_right=(ob.elevation[i]-elev_nom)
+                    push!(ob.corr_vec, cor_right)
+                else
+                    cor_left=(ob.elevation[i]-elev_nom)
+                    push!(ob.corr_vec, cor_left)
+                end
+               
+               
+            end
         end
     end
 end
