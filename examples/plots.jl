@@ -39,8 +39,8 @@ end
 function plot_control()
     log = load_log(basename(KiteViewers.plot_file[]))
     sl  = log.syslog
-    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), 100*sl.depower, 100*sl.steering, sl.sys_state, sl.var_02;
-            ylabels=["elevation [°]", "azimuth [°]", "depower [%]", "steering [%]", "fpp_state", "fig8"],
+    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), 100*sl.depower, 100*sl.steering, sl.sys_state, sl.var_01, sl.var_02;
+            ylabels=["elevation [°]", "azimuth [°]", "depower [%]", "steering [%]", "fpp_state", "cycle", "fig8"],
             fig="control"))
     nothing
 end
