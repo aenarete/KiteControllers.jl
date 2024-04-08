@@ -50,8 +50,12 @@ end
 
 function corrected_elev(corr_vec::Vector{Float64}, fig8, elev_nom)
     fig8=Int64(round(fig8))
-    if ! isnothing(corr_vec)
-        elev_right = elev_nom + corr_vec[2fig8+1]
+    if ! isnothing(corr_vec) 
+        if 2fig8 + 1 <= length(corr_vec) 
+            elev_right = elev_nom + corr_vec[2fig8+1]
+        else
+            elev_right = elev_nom + corr_vec[end]
+        end
         if 2fig8+2 <= length(corr_vec)
             elev_left = elev_nom + corr_vec[2fig8+2]
         else
