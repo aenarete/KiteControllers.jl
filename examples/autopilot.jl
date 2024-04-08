@@ -11,7 +11,7 @@ using Printf
 import KiteViewers.GLMakie
 
 function test_observer(plot=true)
-    log = load_log("ref_sim")
+    log = load_log("uncorrected")
     ob = KiteObserver()
     observe!(ob, log)
     if plot
