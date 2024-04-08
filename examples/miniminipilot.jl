@@ -119,7 +119,7 @@ function train2()
             println("Converged successfully!")
             break
         end
-        if last_norm < 0.9*norm(res) 
+        if last_norm < 0.8*norm(res) 
             KiteControllers.save_corr(last_initial)
             println("Convergance failed!")
             println("Last norm: $last_norm")

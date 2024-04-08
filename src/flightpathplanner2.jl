@@ -198,7 +198,7 @@ function _switch(fpp::FlightPathPlanner, state)
         ###fpps.beta_set
         elev_right, elev_left = corrected_elev(fpp.corr_vec, fpp.fpca.fig8, fpp.fpps.beta_set)
         beta_set = elev_right
-        println("TURN_LEFT: ", beta_set)
+        # println("TURN_LEFT: ", beta_set)
         publish(fpp.fpca, beta_set)
 
         radius = -fpp.fpca._radius
@@ -210,7 +210,7 @@ function _switch(fpp::FlightPathPlanner, state)
     elseif state == TURN_RIGHT
         elev_right, elev_left = corrected_elev(fpp.corr_vec, fpp.fpca.fig8, fpp.fpps.beta_set)
         beta_set = elev_left
-        println("TURN_RIGHT: ", beta_set)
+        # println("TURN_RIGHT: ", beta_set)
         publish(fpp.fpca, beta_set)
 
         radius = fpp.fpca._radius
