@@ -3,11 +3,26 @@
 ## - create a log file
 ## - shall NOT use a GUI
 
-using KiteControllers
+using KiteControllers, KiteUtils, ControlPlots
+import JLD2
+
+function test_ob(lg, plot=true)
+    ob = KiteObserver()
+    KiteControllers.observe!(ob, lg)
+    if plot
+        plotxy(ob.fig8, ob.elevation, xlabel="fig8", ylabel="elevation")
+    else
+        ob
+    end
+end
+
 
 # run a simulation using a correction vector, return a log object
-function sim(sim_time=460; corrections=Float64[])
-    set=deepcopy(KiteControllers.se())
+function residual(corr_vec=nothing, sim_time=460)
+    if ! isnothing(corr_vec)
+        save_corr(corr_vec)
+    end
+    set = deepcopy(KiteControllers.se())
     kcu   = KiteModels.KCU(set)
     kps4 = KiteModels.KPS4(kcu)
 
@@ -70,5 +85,11 @@ function sim(sim_time=460; corrections=Float64[])
     println("Stopping...")
     on_stop(ssc)
     KiteControllers.save_log(logger, "tmp")
-    KiteControllers.load_log("tmp")
+    lg = KiteControllers.load_log("tmp")
+    ob = test_ob(lg, false)
+    ob.corr_vec
+end
+
+function train()
+    
 end

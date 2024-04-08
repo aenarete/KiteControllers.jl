@@ -3,6 +3,7 @@ module KiteControllers
 using KiteUtils, WinchModels, Parameters, Observables, StaticArrays, NLsolve, Printf
 using YAML, StructTypes
 import Base.reset
+import JLD2
 
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types
 export WinchController, KiteModel, KiteObserver

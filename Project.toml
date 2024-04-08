@@ -4,6 +4,7 @@ authors = ["Uwe Fechner <fechner@aenarete.eu> and contributors"]
 version = "0.2.2"
 
 [deps]
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 KiteUtils = "90980105-b163-44e5-ba9f-8b1c83bb0533"
 NLsolve = "2774e3e8-f4cf-5e23-947b-6d7e65073b56"
 Observables = "510215fc-4207-5dde-b226-833fc4488ee2"
@@ -19,8 +20,8 @@ YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 [compat]
 ControlPlots = "0.0.5"
 KiteModels = "0.5.11"
-KiteViewers = "0.4.11"
 KiteUtils = "0.6.6"
+KiteViewers = "0.4.11"
 NLsolve = "4.5"
 Observables = "0.3, 0.4, 0.5"
 Parameters = "0.12"

@@ -1,9 +1,11 @@
 # Provides the component FlightPathPlanner. Implementation as specified in chapter five of
 # the PhD thesis of Uwe Fechner.
 
+
 @with_kw mutable struct FlightPathPlanner @deftype Float64
     fpps::FPPSettings
     fpca::FlightPathCalculator
+    corr_vec::Vector{Float64} = load_corr()
     _state::FPPS = INITIAL
     delta_depower = 0    # this value must be increased, if the power is too high
     const_dd      = 0.7  # greek delta_depower
@@ -176,7 +178,7 @@ function _switch(fpp::FlightPathPlanner, state)
         _publish_fpc_command(fpp, true, psi_dot = psi_dot_turn, radius=fpp.fpca._radius, attractor = p2, intermediate = true)
         sys_state = ssIntermediate
     elseif state == LOW_LEFT
-        beta_set = corrected_elev(fpp.fpca.ob,  fpp.fpps.beta_set)
+        beta_set = corrected_elev(fpp.corr_vec,  fpp.fpps.beta_set)
         publish(fpp.fpca, beta_set)
         p2 = fpp.fpca._p2
         _publish_fpc_command(fpp, false, attractor = p2, intermediate = true)
@@ -184,7 +186,7 @@ function _switch(fpp::FlightPathPlanner, state)
     # see Table 5.5
     elseif state == TURN_LEFT
         ###fpps.beta_set
-        elev_right, elev_left = corrected_elev(fpp.fpca.ob, fpp.fpca.fig8, fpp.fpps.beta_set)
+        elev_right, elev_left = corrected_elev(fpp.corr_vec, fpp.fpca.fig8, fpp.fpps.beta_set)
         beta_set = elev_right
         println("TURN_LEFT: ", beta_set)
         publish(fpp.fpca, beta_set)
@@ -196,7 +198,7 @@ function _switch(fpp::FlightPathPlanner, state)
         _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3)
         sys_state = ssKiteReelOut
     elseif state == TURN_RIGHT
-        elev_right, elev_left = corrected_elev(fpp.fpca.ob, fpp.fpca.fig8, fpp.fpps.beta_set)
+        elev_right, elev_left = corrected_elev(fpp.corr_vec, fpp.fpca.fig8, fpp.fpps.beta_set)
         beta_set = elev_left
         println("TURN_RIGHT: ", beta_set)
         publish(fpp.fpca, beta_set)
