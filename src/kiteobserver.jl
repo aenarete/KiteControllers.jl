@@ -73,17 +73,10 @@ function corrected_elev(ob::KiteObserver, fig8, elev_nom)
     corrected_elev(ob.corr_vec, fig8, elev_nom)
 end
 
-function residual()
-    # run a simulation and save the result
-    # calculate the residual
-    # return a vector
-end
-
 # correction for first (lowest) turn
 function corrected_elev(corr_vec, elev_nom)
     if isnothing(corr_vec) || length(corr_vec) == 0
         return elev_nom
     end
-    # TODO fix me
-    elev_nom + 10.13+5
+    elev_nom + 0.5*corr_vec[1]
 end

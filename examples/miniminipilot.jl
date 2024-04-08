@@ -101,11 +101,31 @@ end
 # end
 
 function train2()
+    log = load_log("uncorrected")
+    ob = KiteObserver()
+    observe!(ob, log)
+    KiteControllers.save_corr(ob.corr_vec)
     initial = KiteControllers.load_corr()
-    for i in 1:5
+    last_norm=1000
+    for i in 1:20
+        last_initial = deepcopy(initial)
         res = residual(initial)
         println("i: $(i), norm: $(norm(res))")
-        initial .+= res
+        common_size=min(length(initial), length(res))
+        for i=1:common_size
+            initial[i] += 0.3*res[i]
+        end
+        if norm(res) < 1.5
+            println("Converged successfully!")
+            break
+        end
+        if last_norm < 0.9*norm(res) 
+            KiteControllers.save_corr(last_initial)
+            println("Convergance failed!")
+            println("Last norm: $last_norm")
+            break
+        end
+        last_norm=norm(res)
     end
     initial
 end

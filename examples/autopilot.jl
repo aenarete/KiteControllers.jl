@@ -41,7 +41,7 @@ mutable struct KiteApp
     parking::Bool
     initialized::Bool
 end
-app::KiteApp = KiteApp(deepcopy(se()), 472, 472, true, nothing, nothing, nothing, 
+app::KiteApp = KiteApp(deepcopy(se()), 467, 467, true, nothing, nothing, nothing, 
                        nothing, nothing, nothing, nothing, nothing, 0, 0, 0, 0, false, false)
 
 function init(app::KiteApp; init_viewer=false)
@@ -66,6 +66,7 @@ function init(app::KiteApp; init_viewer=false)
         app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
                                            "0.000005","0.000001"]
         app.viewer.menu_time_lapse.options[]=["1x","2x","3x","4x","6x","9x","12x"]
+        app.viewer.t_sim.displayed_string[]="467"
     end
     app.steps = Int64(app.max_time/app.dt)
     app.particles = app.set.segments + 5
@@ -363,8 +364,8 @@ end
 on(app.viewer.t_sim.stored_string) do c
     val = (parse(Int64, c))
     if val == 0
-        val = 460
-        app.viewer.t_sim.displayed_string[]="460"
+        val = 467
+        app.viewer.t_sim.displayed_string[]="467"
     end
     app.next_max_time=val
 end

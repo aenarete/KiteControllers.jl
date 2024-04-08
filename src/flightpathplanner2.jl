@@ -75,7 +75,6 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     state = fpp._state
     # see: Table 5.3, 5.4
     if state in [FLY_RIGHT, FLY_LEFT] && (sign(fpp.last_phi) != sign(phi))
-        println("reset beta!")
         publish(fpp.fpca, fpp.fpps.beta_set)
         if state == FLY_RIGHT
             _publish_fpc_command(fpp, false, attractor = fpp.fpca._p3)
