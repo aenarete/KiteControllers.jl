@@ -44,7 +44,6 @@ end
 @with_kw mutable struct FlightPathCalculator @deftype Float64
     fpc::FlightPathController
     fpps::FPPSettings
-    ob::Union{Nothing, KiteObserver} =  nothing
     _beta_min = 20.0 # minimal elevation angle of the center of the figure of eight
     _beta_max = 60.0 # maximal elevation angle of the center of the figure of eight
 
@@ -88,9 +87,7 @@ end
 end
 
 function FlightPathCalculator(fpc::FlightPathController, fpps::FPPSettings)
-    res = FlightPathCalculator(fpc=fpc, fpps=fpps)
-    res.ob=KiteObserver()
-    res
+    FlightPathCalculator(fpc=fpc, fpps=fpps)
 end
 
 # Event handler for events, received from the GUI. The flight path planner
