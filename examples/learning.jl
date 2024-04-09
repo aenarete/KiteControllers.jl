@@ -1,7 +1,6 @@
-## this script shall:
-## - run a simulation
-## - create a log file
-## - shall NOT use a GUI
+## this script provides the main functions 
+## - residual()
+## - train2()
 
 # activate the test environment if needed
 using Pkg
@@ -22,7 +21,6 @@ function test_ob(lg, plot=true)
         ob
     end
 end
-
 
 # run a simulation using a correction vector, return a log object
 function residual(corr_vec=nothing; sim_time=460)
