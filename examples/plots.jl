@@ -114,3 +114,20 @@ function plot_side_view2()
     fig="side_view"))
     nothing
 end
+
+function plot_side_view3()
+    log   = load_log(basename(KiteViewers.plot_file[]))
+    index = 1
+    sl    = log.syslog
+    for i in 1:length(sl.var_01)
+        if sl.var_01[i] == 3
+            index=i
+            break
+        end
+    end
+    display(plotxy(log.x[index:end], log.z[index:end];
+    ylabel="pos_x [m]",
+    xlabel="height [m]",
+    fig="side_view"))
+    nothing
+end
