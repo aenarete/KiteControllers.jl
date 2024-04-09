@@ -128,9 +128,9 @@ function train()
             if norm(res) > 5
                 initial[i] += res[i]
             elseif norm(res) > 2
-                initial[i] += 0.3*res[i]
+                initial[i] += 0.5*res[i]
             else
-                initial[i] += 0.15*res[i]
+                initial[i] += 0.2*res[i]
             end
         end
         if norm(res) < 1.0
