@@ -11,7 +11,11 @@ function KiteObserver()
 end
 
 function load_corr()
-    JLD2.load(joinpath(get_data_path(), "corr_vec.jld2"))["corr_vec"]
+    try
+        return JLD2.load(joinpath(get_data_path(), "corr_vec.jld2"))["corr_vec"]
+    catch
+        return zeros(20)
+    end
 end
 function save_corr(corr_vec)
     JLD2.save(joinpath(get_data_path(), "corr_vec.jld2"), Dict("corr_vec" => corr_vec))

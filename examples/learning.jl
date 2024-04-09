@@ -3,6 +3,13 @@
 ## - create a log file
 ## - shall NOT use a GUI
 
+# activate the test environment if needed
+using Pkg
+if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+    using TestEnv; TestEnv.activate()
+    # pkg"add KiteModels#main"
+end
+
 using KiteControllers, KiteUtils, ControlPlots, NLsolve, LinearAlgebra
 import JLD2
 
@@ -100,10 +107,16 @@ function train()
 end
 
 function train2()
-    log = load_log("uncorrected")
-    ob = KiteObserver()
-    observe!(ob, log)
-    KiteControllers.save_corr(ob.corr_vec)
+    local corr_vec
+    try
+        log = load_log("uncorrected")
+        ob = KiteObserver()
+        observe!(ob, log)
+        corr_vec=ob.corr_vec
+    catch
+        corr_vec=residual()
+    end
+    KiteControllers.save_corr(corr_vec)
     initial = KiteControllers.load_corr()
     last_norm=1000
     for i in 1:40
