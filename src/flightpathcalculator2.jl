@@ -89,16 +89,7 @@ end
 
 function FlightPathCalculator(fpc::FlightPathController, fpps::FPPSettings)
     res = FlightPathCalculator(fpc=fpc, fpps=fpps)
-    log = nothing
     res.ob=KiteObserver()
-    try
-        log = load_log("ref_sim")
-    catch
-        println("Warning! File ref_sim.arrow not found.")
-    end
-    if ! isnothing(log)
-        observe!(res.ob, log)
-    end
     res
 end
 

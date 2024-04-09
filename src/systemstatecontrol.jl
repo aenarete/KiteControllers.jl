@@ -122,7 +122,6 @@ function switch(ssc::SystemStateControl, state)
         _switch(ssc.fpp, POWER)
     end
     if ssc.fpp.fpps.log_level > 1
-        println("ssc.fpp.fpps.log_level: ", ssc.fpp.fpps.log_level)
         println("New system state: ", Symbol(ssc.state))
     end
 end
