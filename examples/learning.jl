@@ -105,7 +105,7 @@ function residual(corr_vec=nothing; sim_time=460)
     ob.corr_vec[begin:l_in]
 end
 
-function train()
+function train(; max_iter=40, norm_tol=1.0)
     local corr_vec
     try
         log = load_log("uncorrected")
@@ -120,28 +120,34 @@ function train()
     last_norm=1000
     best_corr_vec = deepcopy(initial)
     best_norm = norm(best_corr_vec)
-    for i in 1:40
+    j = 0
+    for i in 1:max_iter
         res = residual(initial)
         println("i: $(i), norm: $(norm(res))")
         common_size=min(length(initial), length(res))
         for i = 1:common_size
-            if norm(res) > 5
+            if best_norm > 5
                 initial[i] += res[i]
-            elseif norm(res) > 2
+            elseif best_norm > 2
                 initial[i] += 0.5*res[i]
             else
-                initial[i] += 0.2*res[i]
+                initial[i] += 0.25*best_norm*res[i]
             end
         end
-        if norm(res) < 1.0
+        if norm(res) < norm_tol
             println("Converged successfully!")
             break
         end
         if best_norm > norm(res)
             best_norm = norm(res)
             best_corr_vec = deepcopy(res)
+            j = 0
+            println("j: $(j), best_norm= $best_norm")
+        else
+            j+=1
+            println("j: $j")
         end
-        if last_norm < 0.7*norm(res) 
+        if j > 4
             KiteControllers.save_corr(best_corr_vec)
             println("Convergance failed!")
             println("Best norm: $best_norm")
