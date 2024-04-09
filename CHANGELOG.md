@@ -7,10 +7,10 @@
 - make use of log_level settings, print a lot less for log_level=0
 - refactoring: split `flightpathplanner.jl` in `flightpathplanner.jl` and `flightpathcalculator.jl`
 - created the simplified components `flightpathplanner2.jl` and `flightpathcalculator2.jl`;  
-  while they are less accurate, they are easier to understand and contain a lot less hard-coded constants
+  they are easier to understand and contain a lot less hard-coded constants
 
 #### Added
-- adapt time_lapse according menu selection
+- adapt time_lapse according to menu selection
 - adapt text_mod such that the text update rate stays constant
 - make it possible to change `t_sim` using the GUI
 - add the plots `plot_elev_az2` and `plot_side_view2` that omit the first power cycle
