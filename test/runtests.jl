@@ -524,5 +524,4 @@ end
     @test fpp._state == UP_FLY_UP 
     KiteControllers._switch(fpp, PARKING)
     @test fpp._state == PARKING
-
 end
