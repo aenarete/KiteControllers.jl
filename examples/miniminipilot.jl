@@ -94,11 +94,15 @@ function residual(corr_vec=nothing; sim_time=460)
     ob.corr_vec
 end
 
-# function train()
-#     initial = KiteControllers.load_corr()
-#     sol = nlsolve(residual, initial; xtol=0.1, ftol=0.5, iterations=10)
-#     sol.zero
-# end
+function train()
+    log = load_log("uncorrected")
+    ob = KiteObserver()
+    observe!(ob, log)
+    KiteControllers.save_corr(ob.corr_vec)
+    initial = KiteControllers.load_corr()
+    sol = nlsolve(residual, initial; xtol=0.1, ftol=0.5, iterations=40)
+    sol.zero
+end
 
 function train2()
     log = load_log("uncorrected")
