@@ -78,14 +78,9 @@ function residual(corr_vec=nothing; sim_time=460)
         nothing
     end
 
-    function play()
-        on_parking(ssc)
-        integrator=KiteModels.init_sim!(kps4, stiffness_factor=0.04)
-        simulate(integrator)
-    end
-
-    play()
-    println("Stopping...")
+    on_parking(ssc)
+    integrator=KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+    simulate(integrator)
     on_stop(ssc)
     KiteControllers.save_log(logger, "tmp")
     lg = KiteControllers.load_log("tmp")
