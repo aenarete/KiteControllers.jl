@@ -1,3 +1,5 @@
+# DEPRECIATED, replaced by flightpathplanner2.jl
+
 # Provides the component FlightPathPlanner. Implementation as specified in chapter five of
 # the PhD thesis of Uwe Fechner.
 

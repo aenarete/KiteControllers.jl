@@ -1,4 +1,6 @@
-# Provides the components FlightPathCalculator. Implementation as specified in chapter five of
+# DEPRECIATED, replaced by flightpathcalculator2.jl
+
+# Provides the component FlightPathCalculator. Implementation as specified in chapter five of
 # the PhD thesis of Uwe Fechner.
 
 const depower = [0.0] # set value of the depower value, 0 .. 1
