@@ -26,10 +26,10 @@ end
 
 # run a simulation using a correction vector, return a log object
 function residual(corr_vec=nothing; sim_time=460)
-
-    l_in=length(corr_vec)
+    l_in = 0
     if ! isnothing(corr_vec) 
         KiteControllers.save_corr(corr_vec)
+        l_in=length(corr_vec)
     end
     set = deepcopy(KiteControllers.se())
     kcu   = KiteModels.KCU(set)
@@ -102,7 +102,10 @@ function residual(corr_vec=nothing; sim_time=460)
             push!(ob.corr_vec, 0)
         end
     end
-    ob.corr_vec[begin:l_in]
+    if l_in > 0
+        return ob.corr_vec[begin:l_in]
+    end
+    ob.corr_vec
 end
 
 function train(; max_iter=40, norm_tol=1.0)
