@@ -36,6 +36,9 @@ function observe!(ob::KiteObserver, log::SysLog, elev_nom=26)
             last_sign = sign(sl.azimuth[i])
         end
     end
+    if length(ob.fig8)==0
+        return nothing
+    end
     for fig8 in 0:maximum(ob.fig8)
         for i in 1:length(ob.fig8)
             if ob.fig8[i]==fig8
