@@ -1,7 +1,7 @@
 ## this script provides the main functions 
 ## - residual()
-## - train2()
-## The train2() function trains the flight path planner for a specific 
+## - train()
+## The train() function trains the flight path planner for a specific 
 ## wind speed and kite. It creates the file "data/corr_vec.jld2".
 
 # activate the test environment if needed
@@ -25,12 +25,8 @@ function test_ob(lg, plot=true)
 end
 
 # run a simulation using a correction vector, return a log object
-function residual(corr_vec, p=nothing)
-    for i in eachindex(corr_vec)
-        if corr_vec[i] < -5; corr_vec[i]=-5; end
-        if corr_vec[i] > 40.0; corr_vec[i]=40.0; end
-    end
-    sim_time=460
+function residual(corr_vec=nothing; sim_time=460)
+
     l_in=length(corr_vec)
     if ! isnothing(corr_vec) 
         KiteControllers.save_corr(corr_vec)
@@ -120,28 +116,11 @@ function train()
         corr_vec=residual()
     end
     KiteControllers.save_corr(corr_vec)
-    u0 = KiteControllers.load_corr()
-    prob = NonlinearProblem(residual, u0)
-    sol = solve(prob, RobustMultiNewton(; autodiff = AutoFiniteDiff()); 
-                abstol=1.0, reltol=0.05, maxiters=20, verbose=true)
-    sol
-end
-
-function train2()
-    local corr_vec
-    try
-        log = load_log("uncorrected")
-        ob = KiteObserver()
-        observe!(ob, log)
-        corr_vec=ob.corr_vec
-    catch
-        corr_vec=residual()
-    end
-    KiteControllers.save_corr(corr_vec)
     initial = KiteControllers.load_corr()
     last_norm=1000
+    best_corr_vec = deepcopy(initial)
+    best_norm = norm(best_corr_vec)
     for i in 1:40
-        last_initial = deepcopy(initial)
         res = residual(initial)
         println("i: $(i), norm: $(norm(res))")
         common_size=min(length(initial), length(res))
@@ -158,10 +137,14 @@ function train2()
             println("Converged successfully!")
             break
         end
+        if best_norm > norm(res)
+            best_norm = norm(res)
+            best_corr_vec = deepcopy(res)
+        end
         if last_norm < 0.7*norm(res) 
-            KiteControllers.save_corr(last_initial)
+            KiteControllers.save_corr(best_corr_vec)
             println("Convergance failed!")
-            println("Last norm: $last_norm")
+            println("Best norm: $best_norm")
             break
         end
         last_norm=norm(res)
