@@ -1,6 +1,8 @@
 ## this script provides the main functions 
 ## - residual()
 ## - train2()
+## The train2() function trains the flight path planner for a specific 
+## wind speed and kite. It creates the file "data/corr_vec.jld2".
 
 # activate the test environment if needed
 using Pkg
@@ -9,7 +11,7 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     # pkg"add KiteModels#main"
 end
 
-using KiteControllers, KiteUtils, ControlPlots, NLsolve, LinearAlgebra
+using KiteControllers, KiteUtils, ControlPlots, NonlinearSolve, LinearAlgebra
 import JLD2
 
 function test_ob(lg, plot=true)
@@ -23,7 +25,13 @@ function test_ob(lg, plot=true)
 end
 
 # run a simulation using a correction vector, return a log object
-function residual(corr_vec=nothing; sim_time=460)
+function residual(corr_vec, p=nothing)
+    for i in eachindex(corr_vec)
+        if corr_vec[i] < -5; corr_vec[i]=-5; end
+        if corr_vec[i] > 40.0; corr_vec[i]=40.0; end
+    end
+    sim_time=460
+    l_in=length(corr_vec)
     if ! isnothing(corr_vec) 
         KiteControllers.save_corr(corr_vec)
     end
@@ -91,17 +99,32 @@ function residual(corr_vec=nothing; sim_time=460)
     lg = KiteControllers.load_log("tmp")
     ob = test_ob(lg, false)
     println("\n --> norm: ", norm(ob.corr_vec), "\n")
-    ob.corr_vec
+    l_out = length(ob.corr_vec)
+    println("l_out: $l_out")
+    if l_out < l_in
+        for i in 1:(l_in-l_out)
+            push!(ob.corr_vec, NaN64)
+        end
+    end
+    ob.corr_vec[begin:l_in]
 end
 
 function train()
-    log = load_log("uncorrected")
-    ob = KiteObserver()
-    observe!(ob, log)
-    KiteControllers.save_corr(ob.corr_vec)
-    initial = KiteControllers.load_corr()
-    sol = nlsolve(residual, initial; xtol=0.1, ftol=0.5, iterations=40)
-    sol.zero
+    local corr_vec
+    try
+        log = load_log("uncorrected")
+        ob = KiteObserver()
+        observe!(ob, log)
+        corr_vec=ob.corr_vec
+    catch
+        corr_vec=residual()
+    end
+    KiteControllers.save_corr(corr_vec)
+    u0 = KiteControllers.load_corr()
+    prob = NonlinearProblem(residual, u0)
+    sol = solve(prob, RobustMultiNewton(; autodiff = AutoFiniteDiff()); 
+                abstol=1.0, reltol=0.05, maxiters=20, verbose=true)
+    sol
 end
 
 function train2()
@@ -122,7 +145,7 @@ function train2()
         res = residual(initial)
         println("i: $(i), norm: $(norm(res))")
         common_size=min(length(initial), length(res))
-        for i=1:common_size
+        for i = 1:common_size
             if norm(res) > 5
                 initial[i] += res[i]
             elseif norm(res) > 2
