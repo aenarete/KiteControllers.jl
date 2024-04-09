@@ -99,7 +99,7 @@ function residual(corr_vec=nothing; sim_time=460)
     println("l_out: $l_out")
     if l_out < l_in
         for i in 1:(l_in-l_out)
-            push!(ob.corr_vec, NaN64)
+            push!(ob.corr_vec, 0)
         end
     end
     ob.corr_vec[begin:l_in]
@@ -140,7 +140,7 @@ function train(; max_iter=40, norm_tol=1.0)
         end
         if best_norm > norm(res)
             best_norm = norm(res)
-            best_corr_vec = deepcopy(res)
+            best_corr_vec = deepcopy(initial)
             j = 0
             println("j: $(j), best_norm= $best_norm")
         else
@@ -148,12 +148,12 @@ function train(; max_iter=40, norm_tol=1.0)
             println("j: $j")
         end
         if j > 4
-            KiteControllers.save_corr(best_corr_vec)
             println("Convergance failed!")
             println("Best norm: $best_norm")
             break
         end
         last_norm=norm(res)
     end
-    initial
+    KiteControllers.save_corr(best_corr_vec)
+    best_corr_vec
 end

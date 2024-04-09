@@ -72,6 +72,23 @@ function plot_elev_az2()
     nothing
 end
 
+function plot_elev_az3()
+    log = load_log(basename(KiteViewers.plot_file[]))
+    sl  = log.syslog
+    index=1
+    for i in 1:length(sl.var_01)
+        if sl.var_01[i] == 3
+            index=i
+            break
+        end
+    end
+    display(plotxy(rad2deg.(sl.azimuth)[index:end], rad2deg.(sl.elevation)[index:end];
+            ylabel="elevation [°]",
+            xlabel="azimuth [°]",
+            fig="elev_az"))
+    nothing
+end
+
 function plot_side_view()
     log = load_log(basename(KiteViewers.plot_file[]))
     display(plotxy(log.x, log.z;

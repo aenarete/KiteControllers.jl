@@ -41,7 +41,7 @@ mutable struct KiteApp
     parking::Bool
     initialized::Bool
 end
-app::KiteApp = KiteApp(deepcopy(se()), 467, 467, true, nothing, nothing, nothing, 
+app::KiteApp = KiteApp(deepcopy(se()), 409, 409, true, nothing, nothing, nothing, 
                        nothing, nothing, nothing, nothing, nothing, 0, 0, 0, 0, false, false)
 
 function init(app::KiteApp; init_viewer=false)
@@ -61,12 +61,12 @@ function init(app::KiteApp; init_viewer=false)
     if init_viewer
         app.viewer= Viewer3D(app.set, app.show_kite; menus=true)
         app.viewer.menu.options[]=["plot_main", "plot_power", "plot_control", 
-                                   "plot_elev_az", "plot_elev_az2", "plot_side_view", "plot_side_view2", "plot_timing", 
+                                   "plot_elev_az", "plot_elev_az2", "plot_elev_az3", "plot_side_view", "plot_side_view2", "plot_timing", 
                                    "print_stats", "load logfile", "save logfile"]
         app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
                                            "0.000005","0.000001"]
         app.viewer.menu_time_lapse.options[]=["1x","2x","3x","4x","6x","9x","12x"]
-        app.viewer.t_sim.displayed_string[]="467"
+        app.viewer.t_sim.displayed_string[]="409"
     end
     app.steps = Int64(app.max_time/app.dt)
     app.particles = app.set.segments + 5
@@ -304,8 +304,8 @@ include("plots.jl")
 include("stats.jl")
 
 function print_stats()
-    log = load_log(basename(KiteViewers.plot_file[]))
-    sl  = log.syslog
+    lg = load_log(basename(KiteViewers.plot_file[]))
+    sl  = lg.syslog
     elev_ro = deepcopy(sl.elevation)
     az_ro = deepcopy(sl.azimuth)
     for i in eachindex(sl.sys_state)
@@ -315,7 +315,7 @@ function print_stats()
         end
     end
     stats = Stats(sl[end].e_mech, minimum(sl.force[Int64(round(5/app.dt)):end]), maximum(sl.force), 
-                  minimum(log.z), maximum(log.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
+                  minimum(lg.z), maximum(lg.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
                   minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
     show_stats(stats)
 end
@@ -335,6 +335,8 @@ function do_menu(c)
         plot_elev_az()
     elseif c == "plot_elev_az2"
         plot_elev_az2()
+    elseif c == "plot_elev_az3"
+        plot_elev_az3()
     elseif c == "plot_main"
         plot_main()
     elseif c == "plot_side_view"
@@ -364,8 +366,8 @@ end
 on(app.viewer.t_sim.stored_string) do c
     val = (parse(Int64, c))
     if val == 0
-        val = 467
-        app.viewer.t_sim.displayed_string[]="467"
+        val = 409
+        app.viewer.t_sim.displayed_string[]="409"
     end
     app.next_max_time=val
 end

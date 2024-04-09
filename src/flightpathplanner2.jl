@@ -113,7 +113,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         _switch(fpp, FLY_RIGHT)
     elseif state == FLY_RIGHT && phi >= phi_3
         if ! fpp.finish
-            fpp.finish = (length > fpp.l_up || height > fpp.z_up)
+            fpp.finish = (length > fpp.l_up || height > fpp.z_up || fpp.fpca.fig8  == 6)
         end
     elseif state == FLY_RIGHT && fpp.finish && phi < phi_3
         _switch(fpp, UP_TURN_LEFT)
@@ -123,7 +123,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         _switch(fpp, FLY_LEFT)
     elseif state == FLY_LEFT && phi <= -phi_3
         if ! fpp.finish
-            fpp.finish = (length > fpp.l_up || height > fpp.z_up)
+            fpp.finish = (length > fpp.l_up || height > fpp.z_up || fpp.fpca.fig8  == 6)
         end
     elseif state == FLY_LEFT && fpp.finish && phi > -phi_3
         _switch(fpp, UP_TURN)
