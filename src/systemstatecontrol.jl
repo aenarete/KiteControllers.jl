@@ -68,7 +68,6 @@ function calc_v_set(ssc::SystemStateControl)
         v_set = calc_v_set(ssc.wc, v_act, force, f_low)
     end
     on_timer(ssc.wc)
-    # println(v_set)
     v_set
 end
 
@@ -84,9 +83,6 @@ function calc_steering(ssc::SystemStateControl, manual_steering = 0.0)
     u_d = ssc.sys_state.depower
     length = ssc.sys_state.l_tether
     height = ssc.sys_state.Z[end]
-    omega = 0.0
-    # println("phi: $phi, beta: $beta, psi: $psi, chi: $chi, u_d: $u_d")
-    # on_est_sysstate(ssc.fpc, phi, beta, psi, chi, omega, v_a; u_d=u_d)
     set_azimuth_elevation(ssc.fpp.fpca, phi, beta)
     on_new_systate(ssc.fpp, phi, beta, psi, chi, v_a, u_d)
     if ssc.state == ssPowerProduction
@@ -98,7 +94,6 @@ function calc_steering(ssc::SystemStateControl, manual_steering = 0.0)
         u_s = manual_steering
     end
     on_timer(ssc.fpp.fpca.fpc)
-    # println(u_s)
     u_s
 end
 
