@@ -61,7 +61,7 @@ function init(app::KiteApp; init_viewer=false)
     if init_viewer
         app.viewer= Viewer3D(app.set, app.show_kite; menus=true)
         app.viewer.menu.options[]=["plot_main", "plot_power", "plot_control", 
-                                   "plot_elev_az", "plot_elev_az2", "plot_elev_az3", "plot_side_view", "plot_side_view2", "plot_side_view3", "plot_timing", 
+                                   "plot_elev_az", "plot_elev_az2", "plot_elev_az3", "plot_side_view", "plot_side_view2", "plot_side_view3", "plot_front_view3", "plot_timing", 
                                    "print_stats", "load logfile", "save logfile"]
         app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
                                            "0.000005","0.000001"]
@@ -345,6 +345,8 @@ function do_menu(c)
         plot_side_view2()
     elseif c == "plot_side_view3"
         plot_side_view3()
+    elseif c == "plot_front_view3"
+        plot_front_view3()        
     elseif c == "print_stats"
         print_stats()
     end
