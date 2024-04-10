@@ -147,7 +147,7 @@ function train(; max_iter=40, norm_tol=1.0)
             println("j: $j")
         end
         if norm(res) < norm_tol
-            println("Converged successfully!")
+            println("Converged successfully using $i iterations!")
             break
         end
         if j > 4
