@@ -14,7 +14,12 @@
 - adapt text_mod such that the text update rate stays constant
 - make it possible to change `t_sim` using the GUI
 - add the plots `plot_elev_az2` and `plot_side_view2` that omit the first power cycle
+- add the plots `plot_elev_az3`, `plot_side_view3` and `plot_front_view3` that omit the first two power cycles
 - add time series of `fig8` to `plot_control`
+- add the file `kiteobservers.jl` which provides the type `KiteObserver` and methods to 
+determine deviations from the desired flight path
+- add the script `learning.jl` that provides the method `train()` that implements iterative learning
+of a vector of flight path corrections 
 
 ### KiteControllers v0.2.2 - 2024-03-29
 #### Changed
