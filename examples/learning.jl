@@ -137,10 +137,6 @@ function train(; max_iter=40, norm_tol=1.0)
                 initial[i] += 0.25*best_norm*res[i]
             end
         end
-        if norm(res) < norm_tol
-            println("Converged successfully!")
-            break
-        end
         if best_norm > norm(res)
             best_norm = norm(res)
             best_corr_vec = deepcopy(initial)
@@ -149,6 +145,10 @@ function train(; max_iter=40, norm_tol=1.0)
         else
             j+=1
             println("j: $j")
+        end
+        if norm(res) < norm_tol
+            println("Converged successfully!")
+            break
         end
         if j > 4
             println("Convergance failed!")
