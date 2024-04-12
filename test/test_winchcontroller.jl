@@ -68,6 +68,9 @@ for i in 1:SAMPLES
     FORCE[i] = status[3]
     F_SET[i] = status[4]
     V_SET_OUT[i] = status[5]
+    if state in [0,2]
+        F_ERR[i] = FORCE[i] - F_SET[i]
+    end
 end
 
 p1=plotx(TIME, V_WIND, V_RO, V_SET_OUT;

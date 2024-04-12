@@ -102,11 +102,15 @@ end
 
 # for logging and debugging
 function get_status(wc::WinchController)
+    f_set = get_set_force(wc)
+    if isnothing(f_set)
+        f_set = 0.0
+    end
     result = [false, false, 0.0, 0.0, 0.0]
     result[1] = wc.pid3.reset
     result[2] = wc.pid3.active
     result[3] = wc.pid3.force
-    result[4] = wc.pid3.f_set
+    result[4] = f_set
     result[5] = wc.pid3.v_set_out
     result
 end
