@@ -70,6 +70,8 @@ for i in 1:SAMPLES
     V_SET_OUT[i] = status[5]
     if state in [0,2]
         F_ERR[i] = FORCE[i] - F_SET[i]
+    else
+        V_ERR[i] = V_RO[i] - v_set
     end
 end
 
