@@ -379,6 +379,7 @@ on(app.viewer.t_sim.stored_string) do c
         app.viewer.t_sim.displayed_string[]=repr(Int64(round(val)))
     end
     app.next_max_time=val
+    app.set.sim_time=val
 end
 
 if @isdefined __PRECOMPILE__
