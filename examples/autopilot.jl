@@ -41,8 +41,10 @@ mutable struct KiteApp
     parking::Bool
     initialized::Bool
 end
-app::KiteApp = KiteApp(deepcopy(se()), 409, 409, true, nothing, nothing, nothing, 
+app::KiteApp = KiteApp(deepcopy(se()), 0, 0, true, nothing, nothing, nothing, 
                        nothing, nothing, nothing, nothing, nothing, 0, 0, 0, 0, false, false)
+app.max_time      = app.set.sim_time
+app.next_max_time = app.max_time
 
 function init(app::KiteApp; init_viewer=false)
     app.max_time = app.next_max_time
@@ -66,12 +68,14 @@ function init(app::KiteApp; init_viewer=false)
         app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
                                            "0.000005","0.000001"]
         app.viewer.menu_time_lapse.options[]=["1x","2x","3x","4x","6x","9x","12x"]
-        app.viewer.t_sim.displayed_string[]="409"
+        app.viewer.t_sim.displayed_string[]=repr(Int64(round(app.set.sim_time)))
     end
     app.steps = Int64(app.max_time/app.dt)
     app.particles = app.set.segments + 5
     app.logger = Logger(app.particles, app.steps)
     app.parking = false
+    app.max_time      = app.set.sim_time
+    app.next_max_time = app.max_time
     app.initialized = true
 end
 
@@ -79,6 +83,7 @@ end
 app.set.solver    = "DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
 app.set.log_level = 0
 app.set.segments  = 6
+app.set.sim_time  = 409
 DEFAULT_TOLERANCE = 3
 # end of user parameter section #
 
@@ -370,8 +375,8 @@ end
 on(app.viewer.t_sim.stored_string) do c
     val = (parse(Int64, c))
     if val == 0
-        val = 409
-        app.viewer.t_sim.displayed_string[]="409"
+        val = repr(Int64(round(app.set.sim_time)))
+        app.viewer.t_sim.displayed_string[]=repr(Int64(round(val)))
     end
     app.next_max_time=val
 end
