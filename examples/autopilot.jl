@@ -62,7 +62,7 @@ function init(app::KiteApp; init_viewer=false)
     app.ssc = SystemStateControl(app.wcs, app.fcs, app.fpps)
     if init_viewer
         app.viewer= Viewer3D(app.set, app.show_kite; menus=true)
-        app.viewer.menu.options[]=["plot_main", "plot_power", "plot_control", 
+        app.viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_winch_control",
                                    "plot_elev_az", "plot_elev_az2", "plot_elev_az3", "plot_side_view", "plot_side_view2", "plot_side_view3", "plot_front_view3", "plot_timing", 
                                    "print_stats", "load logfile", "save logfile"]
         app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
@@ -150,6 +150,7 @@ function simulate(integrator, stopped=true)
             sys_state.sys_state = Int16(app.ssc.fpp._state)
             sys_state.var_01 = app.ssc.fpp.fpca.cycle
             sys_state.var_02 = app.ssc.fpp.fpca.fig8
+            sys_state.var_03 = get_state(app.ssc.wc) # 0=lower_force_control 1=square_root_control 2=upper_force_control
             if i > 10
                 sys_state.t_sim = t_sim*1000
             end
@@ -336,6 +337,8 @@ function do_menu(c)
         plot_power()
     elseif c == "plot_control"
         plot_control()
+    elseif c == "plot_winch_control"
+        plot_winch_control()
     elseif c == "plot_elev_az"
         plot_elev_az()
     elseif c == "plot_elev_az2"
