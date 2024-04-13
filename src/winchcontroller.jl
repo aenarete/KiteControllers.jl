@@ -106,11 +106,13 @@ function get_status(wc::WinchController)
     if isnothing(f_set)
         f_set = 0.0
     end
-    result = [false, false, 0.0, 0.0, 0.0]
+    result = [false, false, 0.0, 0.0, 0.0, 0.0, 0.0]
     result[1] = wc.pid3.reset
     result[2] = wc.pid3.active
     result[3] = wc.pid3.force
     result[4] = f_set
-    result[5] = wc.pid3.v_set_out
+    result[5] = wc.pid1.v_set_out
+    result[6] = wc.pid2.v_set_out
+    result[7] = wc.pid3.v_set_out
     result
 end

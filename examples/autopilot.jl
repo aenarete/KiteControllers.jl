@@ -152,7 +152,7 @@ function simulate(integrator, stopped=true)
             sys_state.var_02 = app.ssc.fpp.fpca.fig8
             sys_state.var_03 = get_state(app.ssc.wc) # 0=lower_force_control 1=square_root_control 2=upper_force_control
             sys_state.var_04 = app.ssc.wc.pid2.f_set # set force of lower force controller
-            sys_state.var_05 = app.ssc.wc.pid2.active    
+            sys_state.var_05 = app.ssc.wc.pid2.v_set_out
             if i > 10
                 sys_state.t_sim = t_sim*1000
             end

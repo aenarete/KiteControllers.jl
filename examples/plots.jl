@@ -49,8 +49,13 @@ function plot_winch_control()
     log = load_log(basename(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.force, sl.var_04, sl.v_reelout, sl.var_05, 100*sl.depower, 100*sl.steering, sl.var_03;
-            ylabels=["elevation [°]", "azimuth [°]", "force [N]", "set_force", "v_reelout [m/s]", "pid2_active", "depower [%]", "steering [%]", "wc_state"],
+            ylabels=["elevation [°]", "azimuth [°]", "force [N]", "set_force", "v_reelout [m/s]", "pid2_v_set_out", "depower [%]", "steering [%]", "wc_state"],
             fig="control", ysize=10))
+    display(plot(log.syslog.time, [sl.v_reelout, sl.var_05];
+            labels=["v_reelout", "pid2_v_set_out"],
+            ylabel="v_reelout [n/s]",
+            xlabel="time [s]",
+            fig="winch", ysize=10))            
     nothing
 end
 
