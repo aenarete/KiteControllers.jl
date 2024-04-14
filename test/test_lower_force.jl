@@ -10,6 +10,16 @@ using Timers; tic()
 # input: data/transition.arrow
 using KiteControllers, ControlPlots, BenchmarkTools
 
+log = load_log("transition.arrow")
+sl  = log.syslog
+dt  = 0.05
+t_start = 216
+t_stop  = 220
+force = sl.force[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
+set_force = sl.var_04[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
+time  = sl.time[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
+display(plot(time, [force, set_force]))
+
 wcs = WCSettings()
 wcs.test = true
 wcs.f_low = 350
