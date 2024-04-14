@@ -20,7 +20,7 @@ YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [compat]
 ControlPlots = "0.0.8"
-KiteModels = "0.5.11"
+KiteModels = "0.5.12"
 KiteUtils = "0.6.7"
 KiteViewers = "0.4.11"
 NLsolve = "4.5"
