@@ -19,7 +19,7 @@ force = sl.force[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
 set_forces = sl.var_04[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
 time  = sl.time[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
 V_RO  = sl.v_reelout[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
-display(plot(time, [force, set_forces]))
+display(plot(time, [force, set_forces], fig="forces"))
 SAMPLES = length(time)
 V_SET = zeros(SAMPLES)
 
@@ -30,23 +30,32 @@ wcs.fac = 1.0
 wcs.t_blend = 0.25
 wcs.pf_high = 1.44e-4*1.6*0.5
 
-# STARTUP = get_startup(wcs)    
-# V_WIND = STARTUP .* get_triangle_wind(wcs)
-# V_RO, V_SET_OUT, FORCE, F_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
-# ACC, ACC_SET, V_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
-# RESET, ACTIVE, F_SET = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
-# STATE = zeros(Int64, SAMPLES)
 # create and initialize winch controller 
 wc = WinchController(wcs)
+wc.v_set_out = V_RO[1]
+wc.v_set = V_RO[1]
 winch = KiteControllers.Winch(wcs)
+set_v_set(winch, V_RO[1])
+set_v_act(wc.pid2, V_RO[1])
 f_low = wcs.f_low
+set_inactive(wc.pid1, true)
+wc.pid2.active=true
+wc.pid3.active=false
+wc.pid2.v_act = V_RO[1]
+wc.pid2.active = true
+wc.wcs.t_startup=0.1
 
 for i in 1:SAMPLES
 
     set_force(winch, force[i])
+    set_v_set(winch, V_RO[i])
+    set_inactive(wc.pid1, true)
+    wc.pid2.active=true
+    wc.pid3.active=false
 
     # controller
     V_SET[i] = calc_v_set(wc, V_RO[i], force[i], f_low)
+    V_SET[i] = get_v_set_out(wc.pid2)
     
     on_timer(wc)
 
