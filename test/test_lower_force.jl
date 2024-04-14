@@ -3,7 +3,7 @@ using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
-using Timers; tic()
+using KiteControllers, KiteUtils, Timers; tic()
 
 # Test the lower force controller with a pre-described input for the measured force and a constant
 # set force of 350 N
@@ -16,9 +16,12 @@ dt  = 0.05
 t_start = 216
 t_stop  = 220
 force = sl.force[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
-set_force = sl.var_04[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
+set_forces = sl.var_04[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
 time  = sl.time[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
-display(plot(time, [force, set_force]))
+V_RO  = sl.v_reelout[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
+display(plot(time, [force, set_forces]))
+SAMPLES = length(time)
+V_SET = zeros(SAMPLES)
 
 wcs = WCSettings()
 wcs.test = true
@@ -27,42 +30,25 @@ wcs.fac = 1.0
 wcs.t_blend = 0.25
 wcs.pf_high = 1.44e-4*1.6*0.5
 
-# DURATION = 10.0
-# SAMPLES = Int(DURATION / wcs.dt + 1)
-# TIME = range(0.0, DURATION, SAMPLES)
-# V_WIND_MAX = 9.0 # max wind speed of test wind
-# V_WIND_MIN = 0.0 # min wind speed of test wind
-# FREQ_WIND  = 0.25 # frequency of the triangle wind speed signal 
-
-# include("test_utils.jl")
-
 # STARTUP = get_startup(wcs)    
 # V_WIND = STARTUP .* get_triangle_wind(wcs)
 # V_RO, V_SET_OUT, FORCE, F_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 # ACC, ACC_SET, V_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 # RESET, ACTIVE, F_SET = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 # STATE = zeros(Int64, SAMPLES)
-# # create and initialize winch controller 
-# wc = WinchController(wcs)
-# winch = KiteControllers.Winch(wcs)
-# f_low = wcs.f_low
+# create and initialize winch controller 
+wc = WinchController(wcs)
+winch = KiteControllers.Winch(wcs)
+f_low = wcs.f_low
 
-# for i in 1:SAMPLES
-#     # model
-#     v_wind = V_WIND[i]
+for i in 1:SAMPLES
 
-#     v_act = get_speed(winch)
-#     force = calc_force(v_wind, v_act)
-#     set_force(winch, force)
+    set_force(winch, force[i])
 
-#     # controller
-#     v_set = calc_v_set(wc, v_act, force, f_low)
+    # controller
+    V_SET[i] = calc_v_set(wc, V_RO[i], force[i], f_low)
     
-#     # update model
-#     set_v_set(winch, v_set)
-    
-#     on_timer(winch)
-#     on_timer(wc)
+    on_timer(wc)
 
 #     # logging
 #     acc   = get_acc(winch)
@@ -83,20 +69,6 @@ wcs.pf_high = 1.44e-4*1.6*0.5
 #     else
 #         V_ERR[i] = V_RO[i] - v_set
 #     end
-# end
+end
+display(plot(time, [V_RO, V_SET], fig="v_ro"))
 
-# p1=plotx(TIME, V_WIND, V_RO, V_SET_OUT;
-#       ylabels=["v_wind [m/s]", "v_reel_out [m/s]", "v_set_out [m/s]"],
-#       fig="test_winchcontroller_a")
-
-# p2=plotx(TIME, F_ERR*0.001, V_ERR;
-#       ylabels=["f_err [kN]","v_error [m/s]"],
-#       fig="test_winchcontroller_b")
-
-# p3=plotx(TIME, FORCE*0.001, STATE;
-#       ylabels=["force [kN]","state"],
-#       fig="test_winchcontroller_c")
-# display(p1); display(p2); display(p3)
-# toc()
-
-# println("Max iterations needed: $(wcs.iter)")
