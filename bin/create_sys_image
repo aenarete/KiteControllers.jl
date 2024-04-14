@@ -27,13 +27,15 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 if test -f "kps-image-${julia_major}-${branch}.so"; then
     mv bin/kps-image-${julia_major}-${branch}.so kps-image-${julia_major}-${branch}.so.bak
 fi
+julia -e "using Pkg; Pkg.add(\"TestEnv\")"
 
 if [[ $update == true ]]; then
     echo "Updating packages..."
     if test -f "Manifest.toml"; then
         mv Manifest.toml Manifest.toml.bak
     fi
-    julia --project -e "include(\"./test/update_packages.jl\");"
+    julia --project -e "using Pkg; Pkg.update(); using TestEnv; TestEnv.activate()"
+    julia --project -e "using Pkg; using TestEnv; TestEnv.activate(); Pkg.update()"
 else
     if [[ $julia_major == "1.9" ]]; then
         cp Manifest-1.9.toml.default Manifest.toml
@@ -42,9 +44,11 @@ else
         cp Manifest-1.10.toml.default Manifest.toml
         echo "Using Manifest-1.10.toml.default ..."
     fi
+    julia --project -e "using Pkg; Pkg.instantiate()"
+    julia --project -e "using Pkg; using TestEnv; TestEnv.activate(); Pkg.instantiate()"
 fi
+
 # export "PYTHON"=""
-julia -e "using Pkg; Pkg.add(\"TestEnv\")"
 julia --project -e "using Pkg; using TestEnv; TestEnv.activate(); Pkg.add(\"PyCall\"); Pkg.build(\"PyCall\")"
 julia --project -e "using Pkg; using TestEnv; TestEnv.activate(); Pkg.add(\"ControlPlots\"); using ControlPlots"
 
