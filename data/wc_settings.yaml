@@ -16,7 +16,7 @@ wc_settings:
     vf_max: 2.75     # reel-out velocity where the set force should reach it's maximum
     pf_low: 0.010   # P constant of the lower force controller
     if_low: 0.0225   # I constant of the lower force controller
-    df_low: 0.00005   # D constant of upper force controller 0.000017
+    df_low: 0.0001   # D constant of upper force controller 0.000017
     nf_low:  0     # filter constant n of upper force controller
     kbf_low: 8.0     # back calculation constant for the anti-windup loop of the lower force controller
     ktf_low: 8.0     # tracking constant of the lower force controller
