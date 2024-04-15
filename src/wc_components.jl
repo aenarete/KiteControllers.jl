@@ -298,7 +298,7 @@ function calc_sat2in_sat2out_rateout_intin(lfc::LowerForceController, x)
     int_in = if_low_scaled(lfc.wcs) * lfc.f_err + lfc.wcs.kbf_low * kb_in + lfc.wcs.ktf_low * kt_in * (! lfc.active)
     int_out = calc_output(lfc.integrator, int_in)
     int2_out = calc_output(lfc.int2, int2_in)
-    sat2_in = int_out + pf_low_scaled(lfc.wcs) * calc_output(lfc.delay, lfc.f_err*abs(lfc.f_err)^0.2) +
+    sat2_in = int_out + pf_low_scaled(lfc.wcs) * calc_output(lfc.delay, lfc.f_err*abs(lfc.f_err/150)^0.7) +
               (lfc.f_err- lfc.last_err)/ lfc.wcs.dt * lfc.wcs.df_low
             #lfc.wcs.nf_low * ((lfc.f_err- lfc.last_err)/ lfc.wcs.dt * lfc.wcs.df_low - int2_out)
     sat2_out = saturate(sat2_in, -lfc.wcs.v_ri_max, lfc.wcs.v_sat)
