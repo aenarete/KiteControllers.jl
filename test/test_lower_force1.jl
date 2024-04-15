@@ -18,8 +18,8 @@ using KiteControllers, ControlPlots, BenchmarkTools
 log = load_log("transition.arrow")
 sl  = log.syslog
 dt  = 0.05
-t_start = 216
-t_stop  = 220
+t_start = 214
+t_stop  = 218
 force = sl.force[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
 set_forces = sl.var_04[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
 time  = sl.time[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
