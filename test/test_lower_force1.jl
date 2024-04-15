@@ -30,6 +30,7 @@ V_SET = zeros(SAMPLES)
 
 # create and initialize winch controller
 wcs = WCSettings()
+update(wcs)
 wcs.dt = 0.05
 lfc = LowerForceController(wcs)
 lfc.tracking = V_RO[1]
