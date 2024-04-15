@@ -12,6 +12,8 @@ Components:
 Implemented as described in the PhD thesis of Uwe Fechner.
 """
 
+if false; include("components.jl"); end
+
 
 # Component for calculation v_set_in, using soft switching.
 @with_kw mutable struct CalcVSetIn @deftype Float64
