@@ -225,6 +225,7 @@ end
 @with_kw mutable struct LowerForceController <: AbstractForceController @deftype Float64
     wcs::WCSettings
     integrator::Integrator = Integrator(wcs.dt)
+    int2::Integrator = Integrator(wcs.dt)
     limiter::RateLimiter = RateLimiter(wcs.dt, wcs.max_acc)
     delay::UnitDelay = UnitDelay()
     reset::Bool = false
@@ -235,9 +236,10 @@ end
     v_act = 0
     tracking = 0
     f_err = 0         # output, calculated by solve
+    last_err = 0
     v_set_out = 0     # output, calculated by solve
     sat_out = 0       # output of saturate block
-    res::MVector{2, Float64} = zeros(2)
+    res::MVector{3, Float64} = zeros(3)
 end
 
 function LowerForceController(wcs::WCSettings)
@@ -249,6 +251,7 @@ function _set(lfc::LowerForceController)
     if lfc.reset return end
     if ! lfc.active
        reset(lfc.integrator, lfc.tracking)
+       reset(lfc.int2, 0.0)
        reset(lfc.limiter, lfc.tracking)
        lfc.v_set_out = lfc.tracking
     end
@@ -291,27 +294,33 @@ end
 function calc_sat2in_sat2out_rateout_intin(lfc::LowerForceController, x)
     kb_in = x[begin]
     kt_in = x[begin+1]
+    int2_in = x[begin+2]
     int_in = if_low_scaled(lfc.wcs) * lfc.f_err + lfc.wcs.kbf_low * kb_in + lfc.wcs.ktf_low * kt_in * (! lfc.active)
     int_out = calc_output(lfc.integrator, int_in)
-    sat2_in = int_out + pf_low_scaled(lfc.wcs) * calc_output(lfc.delay, lfc.f_err)
+    int2_out = calc_output(lfc.int2, int2_in)
+    sat2_in = int_out + pf_low_scaled(lfc.wcs) * calc_output(lfc.delay, lfc.f_err) +
+              (lfc.f_err- lfc.last_err)/ lfc.wcs.dt * lfc.wcs.df_low
+            #lfc.wcs.nf_low * ((lfc.f_err- lfc.last_err)/ lfc.wcs.dt * lfc.wcs.df_low - int2_out)
     sat2_out = saturate(sat2_in, -lfc.wcs.v_ri_max, lfc.wcs.v_sat)
     rate_out = calc_output(lfc.limiter, sat2_out)
-    sat2_in, sat2_out, rate_out, int_in
+    sat2_in, sat2_out, rate_out, int_in, int2_in
 end
 
 function solve(lfc::LowerForceController)
     # Function, that calculates the residual for the given kb_in and kt_in estimates
     # of the feed-back loop of the integrator.
     function calc_residual!(F, x)
-        sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(lfc, x)
+        sat2_in, sat2_out, rate_out, int_in, int2_in = calc_sat2in_sat2out_rateout_intin(lfc, x)
         kt_in = lfc.tracking - sat2_out
         kb_in = rate_out - sat2_in
         lfc.res[begin]   = kb_in - x[begin]
         lfc.res[begin+1] = kt_in - x[begin+1]
+        lfc.res[begin+2] = int2_in - x[begin+2]
         F .= lfc.res 
     end
 
     _update_reset(lfc::LowerForceController)
+    lfc.last_err = lfc.f_err
     err = lfc.force - lfc.f_set
     if ! lfc.active
         # activate the force controller if the force drops below the set force
@@ -322,10 +331,10 @@ function solve(lfc::LowerForceController)
     else
         lfc.f_err = err
     end
-    sol = nlsolve(calc_residual!, [ 0.0; 0.0], iterations=lfc.wcs.max_iter)
+    sol = nlsolve(calc_residual!, [0.0; 0.0; 0.0], iterations=lfc.wcs.max_iter)
     @assert sol.f_converged
     lfc.wcs.iter = max(sol.iterations, lfc.wcs.iter)
-    sat2_in, sat2_out, rate_out, int_in = calc_sat2in_sat2out_rateout_intin(lfc, sol.zero)
+    sat2_in, sat2_out, rate_out, int_in, int2_in = calc_sat2in_sat2out_rateout_intin(lfc, sol.zero)
     lfc.v_set_out = rate_out
 end
 
@@ -345,6 +354,7 @@ end
 function on_timer(lfc::LowerForceController)
     on_timer(lfc.limiter)
     on_timer(lfc.integrator)
+    on_timer(lfc.int2)
     on_timer(lfc.delay)
 end
 

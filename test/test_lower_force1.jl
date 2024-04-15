@@ -28,6 +28,7 @@ display(plot(time, [force, set_forces], fig="forces"))
 SAMPLES = length(time)
 V_SET = zeros(SAMPLES)
 ACC = zeros(SAMPLES)
+D_F_ERR = zeros(SAMPLES)
 
 # create and initialize winch controller
 wcs = WCSettings()
@@ -45,6 +46,7 @@ for i in 1:SAMPLES
     # controller
     lfc.force = force[i]
     lfc.v_act = V_RO[i]
+    D_F_ERR[i] = lfc.f_err- lfc.last_err
     V_SET[i] = get_v_set_out(lfc)
     if i > 1
         ACC[i] = (V_SET[i]-V_SET[i-1])/wcs.dt
@@ -52,5 +54,6 @@ for i in 1:SAMPLES
     on_timer(lfc)
 end
 display(plot(time, ACC, fig="acc"))
+display(plot(time, D_F_ERR, fig="d(f_err)"))
 display(plot(time, [V_RO, V_SET], fig="v_ro"))
 

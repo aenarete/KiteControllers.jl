@@ -36,6 +36,10 @@ Settings of the WinchController
     pf_low = 1.44e-4
     "I constant of the lower force controller"
     if_low = 7.5e-3 * 1.5
+    "D constant of lower force controller"
+    df_low =  2e-5*1.7
+    "filter constant n of upper force controller"
+    nf_low = 7.0
     "back calculation constant for the anti-windup loop of the lower force controller"
     kbf_low = 1.0
     "tracking constant of the lower force controller"
