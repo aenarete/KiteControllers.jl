@@ -27,6 +27,7 @@ V_RO  = sl.v_reelout[Int64(t_start/dt)+1:Int64(t_stop/dt)+1]
 display(plot(time, [force, set_forces], fig="forces"))
 SAMPLES = length(time)
 V_SET = zeros(SAMPLES)
+ACC = zeros(SAMPLES)
 
 # create and initialize winch controller
 wcs = WCSettings()
@@ -45,7 +46,11 @@ for i in 1:SAMPLES
     lfc.force = force[i]
     lfc.v_act = V_RO[i]
     V_SET[i] = get_v_set_out(lfc)
+    if i > 1
+        ACC[i] = (V_SET[i]-V_SET[i-1])/wcs.dt
+    end
     on_timer(lfc)
 end
+display(plot(time, ACC, fig="acc"))
 display(plot(time, [V_RO, V_SET], fig="v_ro"))
 
