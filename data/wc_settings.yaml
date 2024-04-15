@@ -5,7 +5,7 @@ wc_settings:
     max_iter: 100    # max iterations limit for the PID solvers
     iter: 0          # actual max iterations of the PID solvers
     t_startup: 0.25  # startup time for soft start  
-    t_blend: 0.25    # blending time of the mixers in seconds
+    t_blend: 0.1     # blending time of the mixers in seconds
     v_sat_error: 1.0 # limit of reel-out speed error, used by the input sat block of the speed controller
     v_sat: 8.0       # limit of reel-out speed, used by the output sat block of the speed controller
     v_ri_max: 8.0    # maximal reel-in speed [m/s]
@@ -14,10 +14,10 @@ wc_settings:
     kb_speed: 4.0    # back calculation constant for the anti-windup loop of the speed controller
     kt_speed: 5.0    # tracking constant of the speed controller
     vf_max: 2.75     # reel-out velocity where the set force should reach it's maximum
-    pf_low: 0.000144 # P constant of the lower force controller
-    if_low: 0.01125  # I constant of the lower force controller
-    kbf_low: 1.0     # back calculation constant for the anti-windup loop of the lower force controller
-    ktf_low: 8.0     # tracking constant of the lower force controller
+    pf_low: 0.0020   # P constant of the lower force controller
+    if_low: 0.0225   # I constant of the lower force controller
+    kbf_low: 8.0     # back calculation constant for the anti-windup loop of the lower force controller
+    ktf_low: 8.0    # tracking constant of the lower force controller
     f_low: 350       # lower force limit [N]
     f_reelin: 700    # set force for reel-in phase [N]
     f_high: 3800     # upper force limit [N]
