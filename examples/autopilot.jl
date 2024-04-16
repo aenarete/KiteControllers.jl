@@ -321,7 +321,16 @@ function print_stats()
             az_ro[i] = 0
         end
     end
-    stats = Stats(sl[end].e_mech, minimum(sl.force[Int64(round(5/app.dt)):end]), maximum(sl.force), 
+    av_power = 0.0
+    n = 0
+    for i in eachindex(sl.force)
+        if sl.var_01[i] == 1
+            av_power += sl.force[i]*sl.v_reelout[i]
+            n+=1
+        end
+    end
+    av_power /= n
+    stats = Stats(sl[end].e_mech, av_power, minimum(sl.force[Int64(round(5/app.dt)):end]), maximum(sl.force), 
                   minimum(lg.z), maximum(lg.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
                   minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
     show_stats(stats)

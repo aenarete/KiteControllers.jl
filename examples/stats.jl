@@ -1,5 +1,6 @@
 struct Stats
     e_mech::Float64
+    av_power::Float64
     min_force::Float64
     max_force::Float64
     min_height::Float64
@@ -11,7 +12,7 @@ struct Stats
 end
 
 function show_stats(stats::Stats)
-    HEIGHT=330
+    HEIGHT=350
     UPPER_BORDER=20
     fig = GLMakie.Figure(size = (400, HEIGHT))
     if Sys.islinux()
@@ -31,6 +32,7 @@ function show_stats(stats::Stats)
         line +=1    
     end
     line = print("energy:       ", @sprintf("%5.0f Wh", stats.e_mech); line = 1)
+    line = print("average power:", @sprintf("%5.0f  W", stats.av_power); line)
     line = print("min force:    ", @sprintf("%5.0f  N", stats.min_force); line)
     line = print("max force:    ", @sprintf("%5.0f  N", stats.max_force); line)
     line = print("min height:   ", @sprintf("%5.0f  m", stats.min_height); line)
