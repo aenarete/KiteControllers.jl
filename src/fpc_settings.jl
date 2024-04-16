@@ -39,3 +39,19 @@ Settings of the FlightPathController
     "influence of the depower angle on the steering sensitivity"
     k_ds = 2.0
 end
+
+StructTypes.StructType(::Type{FPCSettings}) = StructTypes.Mutable()
+
+function update(fcs::FPCSettings)
+    config_file = joinpath(get_data_path(), "fpc_settings_hydra20.yaml")
+    if Sys.iswindows()
+        config_file = replace(config_file, "/" => "\\")
+    end
+    if ! isfile(config_file)
+        println("Warning: $config_file not found, using default settings.")
+        return
+    end
+    dict = YAML.load_file(config_file)
+    sec_dict = Dict(Symbol(k) => v for (k, v) in dict["fpc_settings"])
+    StructTypes.constructfrom!(fcs, sec_dict)
+end

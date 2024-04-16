@@ -57,6 +57,7 @@ function init(app::KiteApp; init_viewer=false)
     app.wcs.dt = 1/app.set.sample_freq
     app.dt = app.wcs.dt
     app.fcs = FPCSettings(); 
+    update(app.fcs)
     app.fcs.dt = app.wcs.dt; 
     app.fcs.log_level = app.set.log_level
     app.fpps = FPPSettings(); 
