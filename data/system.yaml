@@ -1,4 +1,4 @@
 system:
-    project:     "settings_hydra20.yaml"    # model and simulator settings
+    sim_settings:     "settings.yaml"    # model and simulator settings
     wc_settings: "wc_settings.yaml" # winch controller settings
  

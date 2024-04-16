@@ -80,7 +80,8 @@ end
 
 StructTypes.StructType(::Type{WCSettings}) = StructTypes.Mutable()
 
-function update(wcs::WCSettings, config_file="data/wc_settings.yaml")
+function update(wcs::WCSettings)
+    config_file = joinpath(get_data_path(), wc_settings())
     if Sys.iswindows()
         config_file = replace(config_file, "/" => "\\")
     end

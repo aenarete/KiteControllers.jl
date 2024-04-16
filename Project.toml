@@ -21,7 +21,7 @@ YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 [compat]
 ControlPlots = "0.0.9"
 KiteModels = "0.5.12"
-KiteUtils = "0.6.7"
+KiteUtils = "0.6.8"
 KiteViewers = "0.4.11"
 NLsolve = "4.5"
 Observables = "0.3, 0.4, 0.5"

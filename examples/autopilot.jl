@@ -10,6 +10,8 @@ using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeF
 using Printf
 import KiteViewers.GLMakie
 
+PROJECT="system_8000.yaml"
+
 function test_observer(plot=true)
     log = load_log("uncorrected")
     ob = KiteObserver()
@@ -41,7 +43,7 @@ mutable struct KiteApp
     parking::Bool
     initialized::Bool
 end
-app::KiteApp = KiteApp(deepcopy(se()), 0, 0, true, nothing, nothing, nothing, 
+app::KiteApp = KiteApp(deepcopy(se(PROJECT)), 0, 0, true, nothing, nothing, nothing, 
                        nothing, nothing, nothing, nothing, nothing, 0, 0, 0, 0, false, false)
 app.max_time      = app.set.sim_time
 app.next_max_time = app.max_time
