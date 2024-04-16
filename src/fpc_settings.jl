@@ -43,7 +43,7 @@ end
 StructTypes.StructType(::Type{FPCSettings}) = StructTypes.Mutable()
 
 function update(fcs::FPCSettings)
-    config_file = joinpath(get_data_path(), "fpc_settings_hydra20.yaml")
+    config_file = joinpath(get_data_path(), fpc_settings())
     if Sys.iswindows()
         config_file = replace(config_file, "/" => "\\")
     end
