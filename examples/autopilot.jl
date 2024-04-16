@@ -83,6 +83,7 @@ end
 app.set.solver    = "DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
 app.set.log_level = 0
 app.set.segments  = 6
+app.set.v_wind    = 9.2 # was:9.51 
 DEFAULT_TOLERANCE = 3
 # end of user parameter section #
 
@@ -111,7 +112,7 @@ function simulate(integrator, stopped=true)
     sys_state.sys_state = Int16(app.ssc.fpp._state)
     e_mech = 0.0
     on_new_systate(app.ssc, sys_state)
-    KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
+    KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
     while true
         local v_ro
         if app.viewer.stop
@@ -168,7 +169,7 @@ function simulate(integrator, stopped=true)
             end
             app.viewer.mod_text = 3*ratio
             if mod(i, Int64(app.set.time_lapse)/ratio) == 0 
-                KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
+                KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
                 set_status(app.viewer, String(Symbol(app.ssc.state)))
                 # re-enable garbage collector when we are short of memory
                 if Sys.free_memory()/1e9 < 4.0
