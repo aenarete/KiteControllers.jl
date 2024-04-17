@@ -6,7 +6,7 @@ system:
     segments:       6              # number of tether segments
     sample_freq:   40              # sample frequency in Hz
     zoom:        0.03              # zoom factor for the system view
-    kite_scale:   4.95              # relative zoom factor for the 4 point kite
+    kite_scale:   4.95             # relative zoom factor for the 4 point kite
     fixed_font: "Liberation Mono"  # name or filepath+filename of alternative fixed pitch font
 
 initial:
@@ -63,7 +63,7 @@ bridle:
 
 kcu:
     kcu_mass: 11.0                # mass of the kite control unit   [kg]
-    power2steer_dist: 1.3        #                                 [m]
+    power2steer_dist: 1.838      #                                 [m]
     depower_drum_diameter: 0.069 #                                 [m]
     tape_thickness: 0.0006       #                                 [m]
     v_depower: 0.075             # max velocity of depowering in units per second (full range: 1 unit)
