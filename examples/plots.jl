@@ -39,9 +39,9 @@ end
 function plot_control()
     log = load_log(basename(KiteViewers.plot_file[]))
     sl  = log.syslog
-    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.force, 100*sl.depower, 100*sl.steering, sl.sys_state, sl.var_01, sl.var_02;
-            ylabels=["elevation [°]", "azimuth [°]", "force [N]", "depower [%]", "steering [%]", "fpp_state", "cycle", "fig8"],
-            fig="control"))
+    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), rad2deg.(sl.heading), sl.force, 100*sl.depower, 100*sl.steering, sl.sys_state, sl.var_01, sl.var_02;
+            ylabels=["elevation [°]", "azimuth [°]", "heading [°]", "force [N]", "depower [%]", "steering [%]", "fpp_state", "cycle", "fig8"],
+            fig="control", ysize=10))
     nothing
 end
 
@@ -50,7 +50,7 @@ function plot_winch_control()
     sl  = log.syslog
     display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.force, sl.var_04, sl.v_reelout, 100*sl.depower, 100*sl.steering, sl.var_03;
             ylabels=["elevation [°]", "azimuth [°]", "force [N]", "set_force", "v_reelout [m/s]", "depower [%]", "steering [%]", "wc_state"],
-            fig="control", ysize=10))
+            fig="winch_control", ysize=10))
     display(plot(log.syslog.time, [sl.v_reelout, sl.var_05];
             labels=["v_reelout", "pid2_v_set_out"],
             ylabel="v_reelout [n/s]",
