@@ -10,45 +10,64 @@ using KiteControllers, Timers, ControlPlots; tic()
 # 2. fly towards attractor point P1
 
 using KiteUtils
-using KiteControllers, KiteModels, ControlPlots
+using KiteControllers, KiteModels, KiteViewers, ControlPlots
 
 kcu::KCU   = KCU(se())
 kps4::KPS4 = KPS4(kcu)
 wcs::WCSettings   = WCSettings();  wcs.dt = 1/se().sample_freq
 fcs::FPCSettings  = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+# ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
 dt::Float64 = wcs.dt
 
+fpc = FlightPathController(fcs)
+fpca = FlightPathCalculator(fpc, fpps)
+kite = KiteModel(fcs)
+kite.omega = 0.08
+u_d = 0.2
+on_control_command(fpc, psi_dot_set=51.566)
+
+
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 60
+MAX_TIME::Float64 = 40
 TIME_LAPSE_RATIO  = 1
 MAX_ITER          = 80
-SHOW_KITE         = false
+SHOW_KITE         = true
 # end of user parameter section #
+
+viewer::Viewer3D = Viewer3D(SHOW_KITE)
 
 function simulate(integrator)
     i=1
     sys_state = SysState(kps4)
-    on_new_systate(ssc, sys_state)
     while true
         if i > 100
-            depower = KiteControllers.get_depower(ssc)
-            if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc, 0)
+            depower = 0.22
             time = i * dt
-            # disturbance
+            # first park
             if time < 20
                 steering = 0.0
-            elseif time < 21
-                steering = 0.1
+            # then steer towards P1
+            else
+                phi  = sys_state.azimuth
+                v_a = sys_state.v_app
+                chi = sys_state.course
+                u_d = sys_state.depower
+                beta = sys_state.elevation
+                KiteControllers.set_azimuth_elevation(fpca, phi, beta)
+                omega = fpca._omega
+                # on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_prime=nothing)
+                on_est_sysstate(fpc, phi, kite.beta, kite.psi, chi, omega, v_a; u_d=u_d)
+                steering = calc_steering(fpc, false)
             end
             set_depower_steering(kps4.kcu, depower, steering)
         end  
         v_ro = 0.0
         KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
         sys_state = SysState(kps4)
-        on_new_systate(ssc, sys_state)
+        # on_new_systate(ssc, sys_state)
+        KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
+        sleep(dt/4)
         if i*dt >= MAX_TIME break end
         i += 1
     end
