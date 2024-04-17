@@ -96,12 +96,12 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
             fpp.fpca.high = true
             _switch(fpp, FLY_LEFT)
         end
-    elseif state == UPPER_TURN && psi > π && psi < rad2deg(fpp.fpps.heading_upper_turn)
+    elseif state == UPPER_TURN && psi > π && psi < deg2rad(fpp.fpps.heading_upper_turn)
         _switch(fpp, LOW_RIGHT)
     elseif state == LOW_RIGHT && phi < -phi_1
         fpp.fpca.fig8 += 1
         _switch(fpp, LOW_TURN)
-    elseif state == LOW_TURN && psi < rad2deg(180.0 + fpp.fpps.heading_offset_int)          
+    elseif state == LOW_TURN && psi < deg2rad(180.0 + fpp.fpps.heading_offset_int)          
         _switch(fpp, LOW_LEFT)
     elseif state == LOW_LEFT  && phi > -phi_2 # &&
         _switch(fpp, TURN_LEFT)
@@ -149,7 +149,7 @@ function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, p
         attractor=deg2rad.(attractor)
     end
     on_control_command(fpp.fpca.fpc, attractor=attractor, psi_dot_set=psi_dot, radius=radius, intermediate=intermediate)
-    if fpp.fpps.log_level > 2
+    if fpp.fpps.log_level >-1
         println("New FPC command. Intermediate: ", intermediate)
             if isnothing(psi_dot)
                 @printf "New attractor point:  [%.2f,  %.2f]\n" rad2deg(attractor[begin]) rad2deg(attractor[begin+1])
