@@ -17,6 +17,7 @@ end
     @test wrap2pi(-pi) == -pi
     @test wrap2pi(2pi) == 0
     @test wrap2pi(-2pi) == 0
+    @test wrap2pi(1.5pi) ≈ -0.5pi
 end
 
 @testset "Integrator" begin
