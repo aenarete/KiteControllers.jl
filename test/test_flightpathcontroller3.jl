@@ -35,6 +35,9 @@ MAX_TIME::Float64 = 40
 TIME_LAPSE_RATIO  = 1
 MAX_ITER          = 80
 SHOW_KITE         = true
+fpc.fcs.log_level = 3
+fpc.fcs.prn_ndi_gain = true
+fpc.fcs.prn_va = true
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
@@ -53,7 +56,7 @@ function simulate(integrator)
             else
                 if time == 20.0
                     println("on_control_command...")
-                    on_control_command(fpc; attractor=deg2rad.(attractor), intermediate=false)
+                    on_control_command(fpc; attractor=deg2rad.(attractor), intermediate=true)
                 end
                 phi  = sys_state.azimuth
                 v_a = sys_state.v_app
@@ -64,8 +67,9 @@ function simulate(integrator)
                 omega = fpca._omega
                 # println("omega: $omega")
                 on_est_sysstate(fpc, phi, kite.beta, kite.psi, chi, omega, v_a; u_d=u_d)
-                steering = calc_steering(fpc, false)
+                steering = calc_steering(fpc, true)
             end
+            on_timer(fpc)
             set_depower_steering(kps4.kcu, depower, steering)
         end  
         v_ro = 0.0
