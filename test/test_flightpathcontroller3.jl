@@ -5,6 +5,7 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using KiteControllers, Timers, ControlPlots; tic()
 if false; include("../src/flightpathcontroller.jl"); end
+if false; include("../src/flightpathcalculator.jl"); end
 
 # Test the flight path controller against the real 4point kite
 # 1. park
@@ -21,14 +22,13 @@ fcs::FPCSettings  = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
 dt::Float64 = wcs.dt
 attractor=[55.73, 56.95]
+attractor=[0, 90] # zenith
 
 fpc = FlightPathController(fcs)
 fpca = FlightPathCalculator(fpc, fpps)
 kite = KiteModel(fcs)
 kite.omega = 0.08
 u_d = 0.2
-on_control_command(fpc; attractor=deg2rad.(attractor))
-
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 40
