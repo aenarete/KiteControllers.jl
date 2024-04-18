@@ -9,6 +9,9 @@ using Timers; tic()
 using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog, LaTeXStrings
 using Printf
 import KiteViewers.GLMakie
+if false; include("../src/flightpathcontroller.jl"); end
+if false; include("../src/flightpathcalculator2.jl"); end
+if false; include("../src/systemstatecontrol.jl"); end
 
 PROJECT="system_8000.yaml"
 
@@ -156,6 +159,8 @@ function simulate(integrator, stopped=true)
             sys_state.var_03 = get_state(app.ssc.wc) # 0=lower_force_control 1=square_root_control 2=upper_force_control
             sys_state.var_04 = app.ssc.wc.pid2.f_set # set force of lower force controller
             sys_state.var_05 = app.ssc.wc.pid2.v_set_out
+            sys_state.var_06 = app.ssc.fpp.fpca.fpc.ndi_gain
+            sys_state.var_07 = app.ssc.fpp.fpca.fpc.chi_set
             if i > 10
                 sys_state.t_sim = t_sim*1000
             end
