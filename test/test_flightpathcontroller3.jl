@@ -60,15 +60,17 @@ function simulate(integrator)
                 end
                 phi  = sys_state.azimuth
                 v_a = sys_state.v_app
-                chi = sys_state.course
+                # chi = sys_state.course
                 u_d = sys_state.depower
                 beta = sys_state.elevation
-                psi = sys_state.heading
+                # psi = sys_state.heading
+                psi = wrap2pi(sys_state.heading)
+                chi = wrap2pi(sys_state.course)
                 KiteControllers.set_azimuth_elevation(fpca, phi, beta)
                 omega = fpca._omega
                 # println("omega: $omega")
-                on_est_sysstate(fpc, phi, beta, -psi, chi, omega, v_a; u_d=u_d)
-                steering = calc_steering(fpc, true)
+                on_est_sysstate(fpc, phi, beta, -psi, -chi, omega, v_a; u_d=u_d)
+                steering = calc_steering(fpc, false)
             end
             on_timer(fpc)
             set_depower_steering(kps4.kcu, depower, steering)
