@@ -32,7 +32,7 @@ if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 function simulate(integrator)
     i=1
     sys_state = SysState(kps4)
-    on_new_systate(ssc, sys_state)
+    on_new_sysstate(ssc, sys_state)
     while true
         if i > 100
             depower = KiteControllers.get_depower(ssc)
@@ -52,7 +52,7 @@ function simulate(integrator)
         sys_state = SysState(kps4)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth        
-        on_new_systate(ssc, sys_state)
+        on_new_sysstate(ssc, sys_state)
         if i*dt >= MAX_TIME break end
         i += 1
     end

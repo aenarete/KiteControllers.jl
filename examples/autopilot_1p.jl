@@ -44,7 +44,7 @@ function simulate(integrator)
     max_time = 0
     t_gc_tot = 0
     sys_state = SysState(kps3)
-    on_new_systate(ssc, sys_state)
+    on_new_sysstate(ssc, sys_state)
     while true
         if i > 100
             dp = KiteControllers.get_depower(ssc)
@@ -60,7 +60,7 @@ function simulate(integrator)
         #
         t_sim = @elapsed KiteModels.next_step!(kps3, integrator, v_ro=v_ro, dt=dt)
         sys_state = SysState(kps3)
-        on_new_systate(ssc, sys_state)
+        on_new_sysstate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0 
             KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
             set_status(viewer, String(Symbol(ssc.state)))

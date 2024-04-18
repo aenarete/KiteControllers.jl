@@ -53,7 +53,7 @@ function residual(corr_vec=nothing; sim_time=460)
         sys_state.e_mech = 0
         e_mech = 0
         sys_state.sys_state = Int16(ssc.fpp._state)
-        on_new_systate(ssc, sys_state)
+        on_new_sysstate(ssc, sys_state)
         while true
             if i > 100
                 dp = KiteControllers.get_depower(ssc)
@@ -69,7 +69,7 @@ function residual(corr_vec=nothing; sim_time=460)
             #
             t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
             sys_state = KiteModels.SysState(kps4)
-            on_new_systate(ssc, sys_state)
+            on_new_sysstate(ssc, sys_state)
             e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(ssc.fpp._state)
