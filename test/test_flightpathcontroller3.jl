@@ -94,8 +94,4 @@ function test_parking(suppress_overshoot_factor = 3.0)
     simulate(integrator)
 end
 
-# plotx(TIME, PSI, BETA, PSI_DOT; 
-#       ylabels=["heading angle psi [°]","elevation β [°]", "psi_dot [rad/s]"], 
-#       fig = "test_fpc1")
-
 test_parking()
