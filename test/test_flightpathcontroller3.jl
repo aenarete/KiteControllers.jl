@@ -5,7 +5,7 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using KiteControllers, Timers, ControlPlots; tic()
 if false; include("../src/flightpathcontroller.jl"); end
-if false; include("../src/flightpathcalculator.jl"); end
+if false; include("../src/flightpathcalculator2.jl"); end
 
 # Test the flight path controller against the real 4point kite
 # 1. park
