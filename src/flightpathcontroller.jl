@@ -15,7 +15,7 @@ Main output is the set value of the steering u_s, returned by the method:
 - calc_steering()
 
 Once per time step the method
-- onTimer
+- on_timer
 must be called.
 
 See also:
@@ -188,8 +188,10 @@ function on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, 
             @printf "est_psi_dot: %.2f" degrees(fpc.est_psi_dot)
         end
         if fpc.fcs.prn_va
-            @printf "va, va_av: %.2f, %.2f" va fpc.va_av
+            @printf "; va, va_av: %.2f, %.2f" va fpc.va_av
         end
+        @printf "; u_s: %.2f" fpc.u_s
+        println()
         fpc.count = 0
     end
 end
