@@ -22,7 +22,7 @@ fcs::FPCSettings  = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
 dt::Float64 = wcs.dt
 attractor=[55.73, 56.95]
-attractor=[0, 90] # zenith
+# attractor=[0, 90] # zenith
 
 fpc = FlightPathController(fcs)
 fpca = FlightPathCalculator(fpc, fpps)
@@ -63,10 +63,11 @@ function simulate(integrator)
                 chi = sys_state.course
                 u_d = sys_state.depower
                 beta = sys_state.elevation
+                psi = sys_state.heading
                 KiteControllers.set_azimuth_elevation(fpca, phi, beta)
                 omega = fpca._omega
                 # println("omega: $omega")
-                on_est_sysstate(fpc, phi, kite.beta, kite.psi, chi, omega, v_a; u_d=u_d)
+                on_est_sysstate(fpc, phi, beta, -psi, chi, omega, v_a; u_d=u_d)
                 steering = calc_steering(fpc, true)
             end
             on_timer(fpc)
