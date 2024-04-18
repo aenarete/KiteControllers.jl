@@ -8,8 +8,9 @@ if false; include("../src/flightpathcontroller.jl"); end
 if false; include("../src/flightpathcalculator2.jl"); end
 
 # Test the flight path controller against the real 4point kite
-# 1. park
+# 1. use initial condition from failure_low_right.arrow at 226.0s
 # 2. fly towards attractor point P1
+# 3. update u_d and v_reelout from logfile
 
 using KiteUtils
 using KiteControllers, KiteModels, KiteViewers, ControlPlots
@@ -67,7 +68,7 @@ function simulate(integrator)
         omega = fpca._omega
         # println("omega: $omega")
         on_est_sysstate(fpc, -phi, beta, -psi, -chi, omega, v_a; u_d=u_d)
-        steering = calc_steering(fpc, false; invert_phi=true)
+        steering = calc_steering(fpc, false)
         on_timer(fpc)
         set_depower_steering(kps4.kcu, u_d, steering)
         v_ro = sl[I_START+i-1].v_reelout
