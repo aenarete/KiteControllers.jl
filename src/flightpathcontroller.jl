@@ -185,12 +185,12 @@ function on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, 
             @printf "ndi_gain: %.2f" fpc.ndi_gain
         end
         if fpc.fcs.prn_est_psi_dot
-            @printf "est_psi_dot: %.2f" degrees(fpc.est_psi_dot)
+            @printf "est_psi_dot: %.2f" rad2deg(fpc.est_psi_dot)
         end
         if fpc.fcs.prn_va
             @printf "; va, va_av: %.2f, %.2f" va fpc.va_av
         end
-        @printf "; u_s: %.2f" fpc.u_s
+        @printf "; chi_set: %.2f, u_s: %.2f" rad2deg(fpc.chi_set) fpc.u_s
         println()
         fpc.count = 0
     end
