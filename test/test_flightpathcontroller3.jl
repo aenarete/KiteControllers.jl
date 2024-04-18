@@ -14,7 +14,9 @@ if false; include("../src/flightpathcalculator.jl"); end
 using KiteUtils
 using KiteControllers, KiteModels, KiteViewers, ControlPlots
 
-set = deepcopy(se())
+PROJECT="system_8000.yaml"
+
+set = deepcopy(se(PROJECT))
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 wcs::WCSettings   = WCSettings();  wcs.dt = 1/set.sample_freq
@@ -78,7 +80,7 @@ function simulate(integrator)
         v_ro = 0.0
         KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
         sys_state = SysState(kps4)
-        KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
+        KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=set.kite_scale)
         sleep(dt/4)
         if i*dt >= MAX_TIME break end
         i += 1
