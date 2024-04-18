@@ -69,7 +69,7 @@ function simulate(integrator, stopped=true)
     end
     t_gc_tot = 0
     sys_state = SysState(kps4)
-    on_new_sysstate(ssc, sys_state)
+    on_new_systate(ssc, sys_state)
     KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
     while true
         if viewer.stop
@@ -98,7 +98,7 @@ function simulate(integrator, stopped=true)
                     LAST_I=i
                 end
             end
-            on_new_sysstate(ssc, sys_state)
+            on_new_systate(ssc, sys_state)
             if mod(i, TIME_LAPSE_RATIO) == 0 
                 KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
                 set_status(viewer, String(Symbol(ssc.state)))

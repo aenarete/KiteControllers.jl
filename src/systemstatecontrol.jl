@@ -46,7 +46,7 @@ function on_stop(ssc::SystemStateControl)
     switch(ssc, ssManualOperation)
 end
 
-function on_new_sysstate(ssc::SystemStateControl, sys_state)
+function on_new_systate(ssc::SystemStateControl, sys_state)
     ssc.sys_state=sys_state
 end
 
@@ -84,7 +84,7 @@ function calc_steering(ssc::SystemStateControl, manual_steering = 0.0)
     length = ssc.sys_state.l_tether
     height = ssc.sys_state.Z[end]
     set_azimuth_elevation(ssc.fpp.fpca, phi, beta)
-    on_new_sysstate(ssc.fpp, phi, beta, psi, chi, v_a, u_d)
+    on_new_systate(ssc.fpp, phi, beta, psi, chi, v_a, u_d)
     if ssc.state == ssPowerProduction
         on_new_data(ssc.fpp, u_d, length, psi, height)
     end

@@ -114,7 +114,7 @@ function simulate(integrator, stopped=true)
     sys_state.e_mech = 0
     sys_state.sys_state = Int16(app.ssc.fpp._state)
     e_mech = 0.0
-    on_new_sysstate(app.ssc, sys_state)
+    on_new_systate(app.ssc, sys_state)
     KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
     while true
         local v_ro
@@ -147,7 +147,7 @@ function simulate(integrator, stopped=true)
             t_sim = @elapsed KiteModels.next_step!(app.kps4, integrator, v_ro=v_ro, dt=app.dt)
             update_sys_state!(sys_state, app.kps4)
 
-            on_new_sysstate(app.ssc, sys_state)
+            on_new_systate(app.ssc, sys_state)
             e_mech += (sys_state.force * sys_state.v_reelout)/3600*app.dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(app.ssc.fpp._state)

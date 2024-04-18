@@ -37,7 +37,7 @@ function simulate(integrator)
     global  AZIMUTH
     i=1
     sys_state = SysState(kps)
-    on_new_sysstate(ssc, sys_state)
+    on_new_systate(ssc, sys_state)
     while true
         if i > 100
             depower = KiteControllers.get_depower(ssc)
@@ -57,7 +57,7 @@ function simulate(integrator)
         sys_state = SysState(kps)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth        
-        on_new_sysstate(ssc, sys_state)
+        on_new_systate(ssc, sys_state)
         if i*dt >= MAX_TIME break end
         i += 1
     end

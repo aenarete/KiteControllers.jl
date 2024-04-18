@@ -48,7 +48,7 @@ end
 # beta: the elevation angle of the kite position in radian
 # psi:  heading of the kite in radian
 # u_d:  relative depower of the kite (0..1)
-function on_new_sysstate(fpp::FlightPathPlanner, phi, beta, heading, course, v_a, u_d)
+function on_new_systate(fpp::FlightPathPlanner, phi, beta, heading, course, v_a, u_d)
     psi = wrap2pi(heading)
     chi = wrap2pi(course)
     on_est_sysstate(fpp.fpca.fpc, -phi, beta, -psi, -chi, fpp.fpca._omega, v_a, u_d=u_d)

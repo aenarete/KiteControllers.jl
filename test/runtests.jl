@@ -418,7 +418,7 @@ end
     kps4 = KPS4(kcu)
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     sys_state = SysState(kps4)
-    on_new_sysstate(ssc, sys_state)
+    on_new_systate(ssc, sys_state)
     v_set = calc_v_set(ssc)
     @test v_set >= 0.0 && v_set < 0.1
     u_s = calc_steering(ssc)
@@ -475,7 +475,7 @@ end
     course = 0.0
     v_a = 10.0
     u_d = 0.25
-    on_new_sysstate(fpp, phi, beta, heading, course, v_a, u_d)
+    on_new_systate(fpp, phi, beta, heading, course, v_a, u_d)
     depower = u_d
     length = 150.0
     height = 100.0
