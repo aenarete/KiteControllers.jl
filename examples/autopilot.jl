@@ -13,7 +13,8 @@ if false; include("../src/flightpathcontroller.jl"); end
 if false; include("../src/flightpathcalculator2.jl"); end
 if false; include("../src/systemstatecontrol.jl"); end
 
-PROJECT="system_8000.yaml"
+# PROJECT="system_8000.yaml"
+PROJECT="system.yaml"
 
 function test_observer(plot=true)
     log = load_log("uncorrected")
