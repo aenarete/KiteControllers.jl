@@ -85,5 +85,5 @@ function corrected_elev(corr_vec, elev_nom)
     if isnothing(corr_vec) || length(corr_vec) == 0
         return elev_nom
     end
-    elev_nom + 0.5*corr_vec[1]
+    elev_nom + 0.7*corr_vec[1]
 end
