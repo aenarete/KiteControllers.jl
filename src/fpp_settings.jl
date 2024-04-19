@@ -29,7 +29,7 @@ end
 StructTypes.StructType(::Type{FPPSettings}) = StructTypes.Mutable()
 
 function update(fpps::FPPSettings)
-    config_file = joinpath(get_data_path(), "fpp_settings_hydra20.yaml") # fpp_settings())
+    config_file = joinpath(get_data_path(), fpp_settings())
     if Sys.iswindows()
         config_file = replace(config_file, "/" => "\\")
     end
