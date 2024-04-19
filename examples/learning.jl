@@ -11,8 +11,13 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     # pkg"add KiteModels#main"
 end
 
-# PROJECT="system.yaml"
-PROJECT="system_8000.yaml"
+function read_project()
+    config_file = joinpath(get_data_path(), "gui.yaml")
+    dict = YAML.load_file(config_file)
+    dict["gui"]["project"]
+end
+
+PROJECT=read_project()
 
 using KiteControllers, KiteUtils, ControlPlots, NonlinearSolve, LinearAlgebra
 import JLD2

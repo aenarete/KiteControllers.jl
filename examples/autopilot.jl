@@ -13,8 +13,13 @@ if false; include("../src/flightpathcontroller.jl"); end
 if false; include("../src/flightpathcalculator2.jl"); end
 if false; include("../src/systemstatecontrol.jl"); end
 
-PROJECT="system_8000.yaml"
-# PROJECT="system.yaml"
+function read_project()
+    config_file = joinpath(get_data_path(), "gui.yaml")
+    dict = YAML.load_file(config_file)
+    dict["gui"]["project"]
+end
+
+PROJECT=read_project()
 
 function test_observer(plot=true)
     log = load_log("uncorrected")
