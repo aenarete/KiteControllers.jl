@@ -11,7 +11,8 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     # pkg"add KiteModels#main"
 end
 
-PROJECT="system.yaml"
+# PROJECT="system.yaml"
+PROJECT="system_8000.yaml"
 
 using KiteControllers, KiteUtils, ControlPlots, NonlinearSolve, LinearAlgebra
 import JLD2
@@ -27,7 +28,7 @@ function test_ob(lg, plot=true)
 end
 
 # run a simulation using a correction vector, return a log object
-function residual(corr_vec=nothing; sim_time=460)
+function residual(corr_vec=nothing; sim_time=500)
     l_in = 0
     if ! isnothing(corr_vec) 
         KiteControllers.save_corr(corr_vec)
@@ -111,17 +112,19 @@ function residual(corr_vec=nothing; sim_time=460)
     ob.corr_vec
 end
 
-function train(; max_iter=40, norm_tol=1.0)
+function train(use_last=true; max_iter=40, norm_tol=1.0)
     local corr_vec
-    try
-        log = load_log("uncorrected")
-        ob = KiteObserver()
-        observe!(ob, log)
-        corr_vec=ob.corr_vec
-    catch
-        corr_vec=residual()
+    if ! use_last
+        try
+            log = load_log("uncorrected")
+            ob = KiteObserver()
+            observe!(ob, log)
+            corr_vec=ob.corr_vec
+        catch
+            corr_vec=residual()
+        end
+        KiteControllers.save_corr(corr_vec)
     end
-    KiteControllers.save_corr(corr_vec)
     initial = KiteControllers.load_corr()
     last_norm=1000
     best_corr_vec = deepcopy(initial)
