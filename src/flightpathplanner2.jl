@@ -149,7 +149,7 @@ function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, p
         attractor=deg2rad.(attractor)
     end
     on_control_command(fpp.fpca.fpc, attractor=attractor, psi_dot_set=psi_dot, radius=radius, intermediate=intermediate)
-    if fpp.fpps.log_level >-1
+    if fpp.fpps.log_level > 2
         println("New FPC command. Intermediate: ", intermediate)
             if isnothing(psi_dot)
                 @printf "New attractor point:  [%.2f,  %.2f]\n" rad2deg(attractor[begin]) rad2deg(attractor[begin+1])
