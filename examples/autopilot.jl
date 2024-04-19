@@ -59,11 +59,12 @@ function init(app::KiteApp; init_viewer=false)
     update(app.wcs)
     app.wcs.dt = 1/app.set.sample_freq
     app.dt = app.wcs.dt
-    app.fcs = FPCSettings(); 
+    app.fcs = FPCSettings() 
     update(app.fcs)
-    app.fcs.dt = app.wcs.dt; 
+    app.fcs.dt = app.wcs.dt 
     app.fcs.log_level = app.set.log_level
-    app.fpps = FPPSettings(); 
+    app.fpps = FPPSettings()
+    update(app.fpps)
     app.fpps.log_level = app.set.log_level
     app.ssc = SystemStateControl(app.wcs, app.fcs, app.fpps)
     if init_viewer

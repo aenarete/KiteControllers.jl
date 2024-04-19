@@ -23,4 +23,21 @@
     "degrees, before finishing the up-turn"
     heading_offset_up::Float64 = 60.0
     heading_upper_turn::Float64 = 360.0-25.0
+    k_factor::Float64 = 1.0
+end
+
+StructTypes.StructType(::Type{FPPSettings}) = StructTypes.Mutable()
+
+function update(fpps::FPPSettings)
+    config_file = joinpath(get_data_path(), "fpp_settings_hydra20.yaml") # fpp_settings())
+    if Sys.iswindows()
+        config_file = replace(config_file, "/" => "\\")
+    end
+    if ! isfile(config_file)
+        println("Warning: $config_file not found, using default settings.")
+        return
+    end
+    dict = YAML.load_file(config_file)
+    sec_dict = Dict(Symbol(k) => v for (k, v) in dict["fpp_settings"])
+    StructTypes.constructfrom!(fpps, sec_dict)
 end
