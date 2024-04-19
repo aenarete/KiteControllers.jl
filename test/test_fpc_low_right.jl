@@ -51,6 +51,10 @@ viewer::Viewer3D = Viewer3D(SHOW_KITE)
 log = load_log("failure_low_right.arrow")
 sl  = log.syslog
 
+steps = Int64(MAX_TIME/dt)
+particles = app.set.segments + 5
+logger::Logger = Logger(particles, steps)
+
 function simulate(integrator)
     i=1
     sys_state = sl[I_START]
@@ -70,14 +74,17 @@ function simulate(integrator)
         # println("omega: $omega")
         println("phi: ", rad2deg(phi))
         on_est_sysstate(fpc, phi, beta, -psi, -chi, omega, v_a; u_d=u_d)
-        steering = calc_steering(fpc, false)
+        steering = calc_steering(fpc, true)
         on_timer(fpc)
         set_depower_steering(kps4.kcu, u_d, steering)
         v_ro = sl[I_START+i-1].v_reelout
-        v_ro = -1
+        # v_ro = -1
         KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
         sys_state = SysState(kps4)
+        sys_state.var_06 = fpca.fpc.ndi_gain
+        sys_state.var_07 = fpca.fpc.chi_set
         KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=set.kite_scale)
+        log!(logger, sys_state)
         sleep(dt/4)
         if i*dt >= MAX_TIME break end
         i += 1
@@ -94,3 +101,12 @@ function test_parking(suppress_overshoot_factor = 3.0)
 end
 
 test_parking()
+
+# plot the result
+KiteControllers.save_log(logger, "tmp")
+lg = KiteControllers.load_log("tmp")
+sl = lg.syslog
+psi = rad2deg.(wrap2pi.(sl.heading))
+plotx(sl.time, rad2deg.(sl.azimuth), rad2deg.(sl.elevation), sl.steering, sl.v_reelout, sl.var_06, rad2deg.(sl.var_07), -psi,
+      ylabels=["azimuth", "elevation", "steering", "v_reelout", "ndi_gain", "chi_set", "-psi"], 
+      fig="fpc_low_right")
