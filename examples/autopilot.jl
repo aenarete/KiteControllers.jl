@@ -97,7 +97,6 @@ end
 app.set.solver    = "DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
 app.set.log_level = 0
 app.set.segments  = 6
-app.set.v_wind    = 9.2 # was:9.51 
 DEFAULT_TOLERANCE = 3
 # end of user parameter section #
 
