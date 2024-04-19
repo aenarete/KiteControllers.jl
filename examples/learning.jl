@@ -11,6 +11,8 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     # pkg"add KiteModels#main"
 end
 
+PROJECT="system.yaml"
+
 using KiteControllers, KiteUtils, ControlPlots, NonlinearSolve, LinearAlgebra
 import JLD2
 
@@ -31,7 +33,7 @@ function residual(corr_vec=nothing; sim_time=460)
         KiteControllers.save_corr(corr_vec)
         l_in=length(corr_vec)
     end
-    set = deepcopy(KiteControllers.se())
+    set = deepcopy(KiteControllers.se(PROJECT))
     kcu   = KiteModels.KCU(set)
     kps4 = KiteModels.KPS4(kcu)
 
@@ -94,6 +96,7 @@ function residual(corr_vec=nothing; sim_time=460)
     KiteControllers.save_log(logger, "tmp")
     lg = KiteControllers.load_log("tmp")
     ob = test_ob(lg, false)
+    test_ob(lg, true)
     println("\n --> norm: ", norm(ob.corr_vec), "\n")
     l_out = length(ob.corr_vec)
     println("l_out: $l_out")
@@ -130,11 +133,11 @@ function train(; max_iter=40, norm_tol=1.0)
         common_size=min(length(initial), length(res))
         for i = 1:common_size
             if best_norm > 5
-                initial[i] += res[i]
-            elseif best_norm > 2
-                initial[i] += 0.5*res[i]
+                initial[i] += 0.5 * res[i]
+            elseif best_norm > 2.5
+                initial[i] += 0.25*res[i]
             else
-                initial[i] += 0.25*best_norm*res[i]
+                initial[i] += 0.125*best_norm*res[i]
             end
         end
         if best_norm > norm(res)
