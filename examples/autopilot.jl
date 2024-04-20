@@ -7,7 +7,7 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog, LaTeXStrings
-using Printf
+using Printf, LinearAlgebra
 import KiteViewers.GLMakie
 if false; include("../src/flightpathcontroller.jl"); end
 if false; include("../src/flightpathcalculator2.jl"); end
@@ -168,6 +168,7 @@ function simulate(integrator, stopped=true)
             sys_state.var_05 = app.ssc.wc.pid2.v_set_out
             sys_state.var_06 = app.ssc.fpp.fpca.fpc.ndi_gain
             sys_state.var_07 = app.ssc.fpp.fpca.fpc.chi_set
+            sys_state.var_08 = norm(app.kps4.lift_force)/norm(app.kps4.drag_force)
             if i > 10
                 sys_state.t_sim = t_sim*1000
             end
