@@ -8,12 +8,12 @@ wc_settings:
     t_blend: 0.1     # blending time of the mixers in seconds
     v_sat_error: 1.0 # limit of reel-out speed error, used by the input sat block of the speed controller
     v_sat: 8.0       # limit of reel-out speed, used by the output sat block of the speed controller
-    v_ri_max: 8.0    # maximal reel-in speed [m/s]
+    v_ri_max: 7.5    # maximal reel-in speed [m/s]
     p_speed: 0.125   # P value of the speed controller
     i_speed: 4.0     # I value of the speed controller
     kb_speed: 4.0    # back calculation constant for the anti-windup loop of the speed controller
     kt_speed: 5.0    # tracking constant of the speed controller
-    vf_max: 2.6     # reel-out velocity where the set force should reach it's maximum
+    vf_max: 2.65     # reel-out velocity where the set force should reach it's maximum
     pf_low: 0.00014  # P constant of the lower force controller 0.013,  0.00014 also works
     if_low: 0.01125  # I constant of the lower force controller 0.0225, 0.01125 also works
 
@@ -22,7 +22,7 @@ wc_settings:
     kbf_low: 8.0     # back calculation constant for the anti-windup loop of the lower force controller
     ktf_low: 8.0     # tracking constant of the lower force controller
     f_low: 350       # lower force limit [N]
-    f_reelin: 1000    # set force for reel-in phase [N]
+    f_reelin: 2000    # set force for reel-in phase [N]
     f_high: 7650     # upper force limit [N]
     pf_high: 0.0002304 # P constant of upper force controller
     if_high: 0.012     # I constant of upper force controller
