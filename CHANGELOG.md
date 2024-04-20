@@ -15,6 +15,7 @@
 - make it possible to change `t_sim` using the GUI
 - add the plots `plot_elev_az2` and `plot_side_view2` that omit the first power cycle
 - add the plots `plot_elev_az3`, `plot_side_view3` and `plot_front_view3` that omit the first two power cycles
+- add the plot `aerodynamics` that plots the lift-over-drag of the kite
 - add time series of `fig8` to `plot_control`
 - add the file `kiteobservers.jl` which provides the type `KiteObserver` and methods to 
 determine deviations from the desired flight path
