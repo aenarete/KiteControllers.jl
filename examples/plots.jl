@@ -165,3 +165,13 @@ function plot_front_view3()
     fig="front_view"))
     nothing
 end
+
+function plot_aerodynamics()
+    log   = load_log(basename(KiteViewers.plot_file[]))
+    sl    = log.syslog
+
+    display(plotxy(sl.time, sl.var_08;
+    ylabel="LoD [-]",
+    fig="aerodynamics"))
+    nothing
+end
