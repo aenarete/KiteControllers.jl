@@ -56,7 +56,6 @@ function observe!(ob::KiteObserver, log::SysLog, elev_nom=26)
 end
 
 function corrected_elev(corr_vec::Vector{Float64}, fig8, elev_nom)
-    print("y")
     fig8 = Int64(round(fig8))
     if ! isnothing(corr_vec) && fig8 >= 0 && length(corr_vec) > 0
         if 2fig8 + 1 <= length(corr_vec) 
@@ -73,7 +72,6 @@ function corrected_elev(corr_vec::Vector{Float64}, fig8, elev_nom)
         elev_right=elev_nom
         elev_left=elev_nom
     end
-    println(elev_nom, " ", elev_left, " ", elev_right)
     elev_right, elev_left
 end
 
