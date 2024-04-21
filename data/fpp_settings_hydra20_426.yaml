@@ -1,7 +1,7 @@
 fpp_settings:
     log_level:          2      # log level, 0=quiet
     min_depower:       22.0      # in percent
-    max_depower:       60
+    max_depower:       61.5
     parking_depower:   25
     min_length:        300   # meter
     max_length:        480.0
