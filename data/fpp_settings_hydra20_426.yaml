@@ -6,7 +6,7 @@ fpp_settings:
     min_length:        300   # meter
     max_length:        500.0
     max_height:        500.0
-    beta_set:          26.0    # average elevation angle during reel-out in degrees
+    beta_set:          24.0    # average elevation angle during reel-out in degrees
     w_fig:             36.0    # width of figure of eight in degrees
     psi_dot_max:       3.0     # max turn rate in deg/s
     r_min:             3.0     # minimal turn radius in degrees
