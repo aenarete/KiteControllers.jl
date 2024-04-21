@@ -10,8 +10,8 @@ system:
     fixed_font: "Liberation Mono"  # name or filepath+filename of alternative fixed pitch font
 
 initial:
-    l_tether: 300.0        # initial tether length       [m]
-    elevation: 70.7        # initial elevation angle   [deg]
+    l_tether: 330.0        # initial tether length       [m]
+    elevation: 62.0        # initial elevation angle   [deg]
     v_reel_out: 0.0        # initial reel out speed    [m/s]
     depower:   25.0        # initial depower settings    [%]
 
