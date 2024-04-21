@@ -14,7 +14,7 @@ function load_corr()
     try
         return JLD2.load(joinpath(get_data_path(), "corr_vec.jld2"))["corr_vec"]
     catch
-        return zeros(20)
+        return -collect(0.1:0.15:3)*1
     end
 end
 function save_corr(corr_vec)
@@ -56,6 +56,7 @@ function observe!(ob::KiteObserver, log::SysLog, elev_nom=26)
 end
 
 function corrected_elev(corr_vec::Vector{Float64}, fig8, elev_nom)
+    print("y")
     fig8 = Int64(round(fig8))
     if ! isnothing(corr_vec) && fig8 >= 0 && length(corr_vec) > 0
         if 2fig8 + 1 <= length(corr_vec) 
@@ -72,6 +73,7 @@ function corrected_elev(corr_vec::Vector{Float64}, fig8, elev_nom)
         elev_right=elev_nom
         elev_left=elev_nom
     end
+    println(elev_nom, " ", elev_left, " ", elev_right)
     elev_right, elev_left
 end
 
@@ -82,7 +84,7 @@ end
 
 # correction for first (lowest) turn
 function corrected_elev(corr_vec, elev_nom)
-    if isnothing(corr_vec) || length(corr_vec) == 0 || corr_vec[1] == 0
+    if isnothing(corr_vec) || length(corr_vec) == 0 || abs(corr_vec[1]) < 1
         return elev_nom+6.5
     end
     elev_nom + 0.7*corr_vec[1]
