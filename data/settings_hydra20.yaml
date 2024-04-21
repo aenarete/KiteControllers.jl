@@ -50,8 +50,8 @@ kite:
 
 kps4:
     width:         8.16     # width of the kite                      [m]
-    alpha_zero:    4.0      # should be 5                      [degrees]
-    alpha_ztip:   10.0      #                                  [degrees]
+    alpha_zero:    9.2      # should be 4 to 10                      [degrees]
+    alpha_ztip:   10.0      #                                        [degrees]
     m_k:           0.2      # relative nose distance; increasing m_k increases C2 of the turn-rate law
     rel_nose_mass: 0.47     # relative nose mass
     rel_top_mass:  0.4      # mass of the top particle relative to the sum of top and side particles
@@ -60,7 +60,7 @@ bridle:
     d_line:    2.5         # bridle line diameter                  [mm]
     l_bridle: 33.4         # sum of the lengths of the bridle lines [m]
     h_bridle:  4.9         # height of bridle                       [m]
-    rel_compr_stiffness: 0.25 # relative compression stiffness of the kite springs
+    rel_compr_stiffness: 0.5 # relative compression stiffness of the kite springs
     rel_damping: 6.0          # relative damping of the kite spring (relative to main tether)
 
 kcu:
