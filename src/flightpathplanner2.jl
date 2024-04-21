@@ -18,6 +18,7 @@
     count         = 0
     finish::Bool  = false
     last_phi::Float64 = 0
+    timeout=0
 end
 
 function FlightPathPlanner(fpps::FPPSettings, fpca::FlightPathCalculator)
@@ -109,7 +110,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     elseif state == FLY_LEFT  && phi > fpp.fpca._phi_sw 
         fpp.fpca.fig8 += 1            
         _switch(fpp, TURN_LEFT)
-    elseif state == TURN_LEFT && psi > deg2rad(180.0 - fpp.fpca._heading_offset)
+    elseif state == TURN_LEFT && (psi > deg2rad(180.0 + fpp.fpca._heading_offset) || fpp.timeout > 130)
         _switch(fpp, FLY_RIGHT)
     elseif state == FLY_RIGHT && phi >= phi_3
         if ! fpp.finish
@@ -119,7 +120,8 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         _switch(fpp, UP_TURN_LEFT)
     elseif state == FLY_RIGHT && phi < -fpp.fpca._phi_sw # && 
         _switch(fpp, TURN_RIGHT)
-    elseif state == TURN_RIGHT && psi < deg2rad(180.0 + fpp.fpca._heading_offset) # && phi > -fpp._phi_sw - dphi
+    elseif state == TURN_RIGHT && (psi < deg2rad(180.0 + fpp.fpca._heading_offset) || fpp.timeout > 130) 
+        println("timeout TURN_RIGHT: $(fpp.timeout)")
         _switch(fpp, FLY_LEFT)
     elseif state == FLY_LEFT && phi <= -phi_3
         if ! fpp.finish
@@ -138,6 +140,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         fpp.fpca.fig8 = 0
         _switch(fpp, POWER)
     end
+    fpp.timeout += 1
 end
 
 #  Call the related method of the flight path controller directly.
@@ -170,6 +173,7 @@ function _switch(fpp::FlightPathPlanner, state)
     if state == fpp._state
         return
     end
+    fpp.timeout = 0
     psi_dot_turn = fpp.fpca._omega / fpp.fpca._radius # desired turn rate during the turns
     sys_state = fpp.fpca._sys_state
     # see Table 5.3
