@@ -82,8 +82,8 @@ end
 
 # correction for first (lowest) turn
 function corrected_elev(corr_vec, elev_nom)
-    if isnothing(corr_vec) || length(corr_vec) == 0
-        return elev_nom
+    if isnothing(corr_vec) || length(corr_vec) == 0 || corr_vec[1] == 0
+        return elev_nom+6.5
     end
     elev_nom + 0.7*corr_vec[1]
 end
