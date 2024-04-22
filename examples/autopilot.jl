@@ -314,7 +314,7 @@ end
 
 function select_log()
     @async begin 
-        filename = fetch(Threads.@spawn pick_file("data"; filterlist="arrow"))
+        filename = fetch(Threads.@spawn pick_file("output"; filterlist="arrow"))
         if filename != ""
             short_filename = replace(filename, homedir() => "~")
             KiteViewers.plot_file[] = short_filename
@@ -324,11 +324,11 @@ end
 
 function save_log_as()
     @async begin 
-        filename = fetch(Threads.@spawn save_file("data"; filterlist="arrow"))
+        filename = fetch(Threads.@spawn save_file("output"; filterlist="arrow"))
         if filename != ""
             source = replace(KiteViewers.plot_file[], "~" => homedir())
             if ! isfile(source)
-                source = joinpath(pwd(), "data", KiteViewers.plot_file[]) * ".arrow"
+                source = joinpath(pwd(), "output", KiteViewers.plot_file[]) * ".arrow"
             end
             dest  = filename
             if app.set.log_level > 0
@@ -346,7 +346,7 @@ include("plots.jl")
 include("stats.jl")
 
 function print_stats()
-    lg = load_log(basename(KiteViewers.plot_file[]))
+    lg = load_log(basename(KiteViewers.plot_file[]); path=dirname(KiteViewers.plot_file[]))
     sl  = lg.syslog
     elev_ro = deepcopy(sl.elevation)
     az_ro = deepcopy(sl.azimuth)
