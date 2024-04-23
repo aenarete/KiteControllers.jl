@@ -119,7 +119,7 @@ function plot_side_view()
 end
 
 function plot_side_view2()
-    log   = load_log(basename(KiteViewers.plot_file[]))
+    log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     index = 1
     sl    = log.syslog
     for i in 1:length(sl.var_01)
@@ -136,7 +136,7 @@ function plot_side_view2()
 end
 
 function plot_side_view3()
-    log   = load_log(basename(KiteViewers.plot_file[]))
+    log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     index = 1
     sl    = log.syslog
     for i in 1:length(sl.var_01)
@@ -153,7 +153,7 @@ function plot_side_view3()
 end
 
 function plot_front_view3()
-    log   = load_log(basename(KiteViewers.plot_file[]))
+    log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     index = 1
     sl    = log.syslog
     for i in 1:length(sl.var_01)
@@ -170,7 +170,7 @@ function plot_front_view3()
 end
 
 function plot_aerodynamics()
-    log   = load_log(basename(KiteViewers.plot_file[]))
+    log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl    = log.syslog
 
     display(plotxy(sl.time, sl.var_08;
