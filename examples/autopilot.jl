@@ -9,6 +9,7 @@ using Timers; tic()
 using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog, LaTeXStrings
 using Printf, LinearAlgebra
 import KiteViewers.GLMakie
+import KiteViewers.GLMakie.GLFW
 import KiteControllers.YAML
 if false; include("../src/flightpathcontroller.jl"); end
 if false; include("../src/flightpathcalculator2.jl"); end
@@ -434,16 +435,11 @@ on(app.viewer.menu_project.i_selected) do c
             filename = fetch(Threads.@spawn pick_file("data"; filterlist="yml"))
             if filename != ""
                 PROJECT = basename(filename)
-                println(PROJECT)
-                # stop_()
-                close(app.viewer.screen)
+                GLFW.SetWindowTitle(app.viewer.screen.glscreen, PROJECT)
                 sleep(0.1)
-                GLMakie.activate!(title = PROJECT)
                 app.set = deepcopy(load_settings(PROJECT))
                 app.max_time      = app.set.sim_time
                 app.next_max_time = app.max_time
-                init(app; init_viewer=true)
-                play(true)
             end
         end
     end
