@@ -113,7 +113,6 @@ end
 
 # the following values can be changed to match your interest
 app.set.solver    = "DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
-app.set.log_level = 0
 app.set.segments  = 6
 DEFAULT_TOLERANCE = 3
 # end of user parameter section #
@@ -425,6 +424,29 @@ on(app.viewer.menu_rel_tol.selection) do c
     factor = rel_tol/0.001
     app.set.rel_tol = rel_tol
     app.set.abs_tol = factor * 0.0006 
+end
+
+on(app.viewer.menu_project.i_selected) do c
+    global PROJECT, app
+    sel = app.viewer.menu_project.selection[]
+    if sel == "load..."
+        @async begin 
+            filename = fetch(Threads.@spawn pick_file("data"; filterlist="yml"))
+            if filename != ""
+                PROJECT = basename(filename)
+                println(PROJECT)
+                # stop_()
+                close(app.viewer.screen)
+                sleep(0.1)
+                GLMakie.activate!(title = PROJECT)
+                app.set = deepcopy(load_settings(PROJECT))
+                app.max_time      = app.set.sim_time
+                app.next_max_time = app.max_time
+                init(app; init_viewer=true)
+                play(true)
+            end
+        end
+    end
 end
 
 on(app.viewer.t_sim.stored_string) do c
