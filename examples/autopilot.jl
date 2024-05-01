@@ -87,6 +87,7 @@ function init(app::KiteApp; init_viewer=false)
         app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
                                            "0.000005","0.000001"]
         app.viewer.menu_time_lapse.options[]=["1x","2x","3x","4x","6x","9x","12x"]
+        app.viewer.menu_project.options[]=["Open", "save as...", "edit..."]
         if app.set.time_lapse==12.0
             app.viewer.menu_time_lapse.i_selected[] = 7
         elseif app.set.time_lapse==9.0
@@ -434,7 +435,7 @@ end
 on(app.viewer.menu_project.i_selected) do c
     global PROJECT, app
     sel = app.viewer.menu_project.selection[]
-    if sel == "load..."
+    if sel == "Open"
         @async begin 
             filename = fetch(Threads.@spawn pick_file("data"; filterlist="yml"))
             if filename != ""
