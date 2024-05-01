@@ -17,6 +17,9 @@ if false; include("../src/systemstatecontrol.jl"); end
 
 function read_project()
     config_file = joinpath(get_data_path(), "gui.yaml")
+    if ! isfile(config_file)
+        cp(config_file * ".default", config_file)
+    end
     dict = YAML.load_file(config_file)
     dict["gui"]["project"]
 end
