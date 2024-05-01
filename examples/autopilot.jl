@@ -117,8 +117,6 @@ function init(app::KiteApp; init_viewer=false)
 end
 
 # the following values can be changed to match your interest
-app.set.solver    = "DFBDF" # DAE solver, IDA or DFBDF or DImplicitEuler
-app.set.segments  = 6
 DEFAULT_TOLERANCE = 3
 # end of user parameter section #
 
