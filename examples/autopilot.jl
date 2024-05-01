@@ -344,6 +344,7 @@ end
 include("logging.jl")
 include("plots.jl")
 include("stats.jl")
+include("yaml_utils.jl")
 
 function print_stats()
     lg = load_log(basename(KiteViewers.plot_file[]); path=dirname(KiteViewers.plot_file[]))
@@ -436,6 +437,10 @@ on(app.viewer.menu_project.i_selected) do c
             if filename != ""
                 PROJECT = basename(filename)
                 GLFW.SetWindowTitle(app.viewer.screen.glscreen, PROJECT)
+                lines = readfile(joinpath(KiteControllers.KiteUtils.get_data_path(), "gui.yaml"))
+                lines = change_value(lines, "project:", PROJECT)
+                println(PROJECT)
+                writefile(lines, joinpath(KiteControllers.KiteUtils.get_data_path(), "gui.yaml"))
                 sleep(0.1)
                 app.set = deepcopy(load_settings(PROJECT))
                 app.max_time      = app.set.sim_time
