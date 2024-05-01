@@ -88,25 +88,25 @@ function init(app::KiteApp; init_viewer=false)
                                            "0.000005","0.000001"]
         app.viewer.menu_time_lapse.options[]=["1x","2x","3x","4x","6x","9x","12x"]
         app.viewer.menu_project.options[]=["Open...", "Save as...", "Edit..."]
-        if app.set.time_lapse==12.0
-            app.viewer.menu_time_lapse.i_selected[] = 7
-        elseif app.set.time_lapse==9.0
-            app.viewer.menu_time_lapse.i_selected[] = 6
-        elseif app.set.time_lapse==6.0
-            app.viewer.menu_time_lapse.i_selected[] = 5
-        elseif app.set.time_lapse==4.0
-            app.viewer.menu_time_lapse.i_selected[] = 4
-        elseif app.set.time_lapse==3.0
-            app.viewer.menu_time_lapse.i_selected[] = 3
-        elseif app.set.time_lapse==2.0
-            app.viewer.menu_time_lapse.i_selected[] = 2
-        elseif app.set.time_lapse==1.0
-            app.viewer.menu_time_lapse.i_selected[] = 1
-        else
-            println("Warning: Invalid setting for time_lapse in config file.")
-        end
-        app.viewer.t_sim.displayed_string[]=repr(Int64(round(app.set.sim_time)))
     end
+    if app.set.time_lapse==12.0
+        app.viewer.menu_time_lapse.i_selected[] = 7
+    elseif app.set.time_lapse==9.0
+        app.viewer.menu_time_lapse.i_selected[] = 6
+    elseif app.set.time_lapse==6.0
+        app.viewer.menu_time_lapse.i_selected[] = 5
+    elseif app.set.time_lapse==4.0
+        app.viewer.menu_time_lapse.i_selected[] = 4
+    elseif app.set.time_lapse==3.0
+        app.viewer.menu_time_lapse.i_selected[] = 3
+    elseif app.set.time_lapse==2.0
+        app.viewer.menu_time_lapse.i_selected[] = 2
+    elseif app.set.time_lapse==1.0
+        app.viewer.menu_time_lapse.i_selected[] = 1
+    else
+        println("Warning: Invalid setting for time_lapse in config file.")
+    end
+    app.viewer.t_sim.displayed_string[]=repr(Int64(round(app.set.sim_time)))
     app.steps = Int64(app.max_time/app.dt)
     app.particles = app.set.segments + 5
     app.logger = Logger(app.particles, app.steps)
@@ -449,6 +449,8 @@ on(app.viewer.menu_project.i_selected) do c
                 app.max_time      = app.set.sim_time
                 app.next_max_time = app.max_time
                 app.initialized = false
+                sleep(0.1)
+                init(app)
             end
         end
     end
