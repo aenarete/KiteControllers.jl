@@ -439,7 +439,6 @@ on(app.viewer.menu_project.i_selected) do c
                 GLFW.SetWindowTitle(app.viewer.screen.glscreen, PROJECT)
                 lines = readfile(joinpath(KiteControllers.KiteUtils.get_data_path(), "gui.yaml"))
                 lines = change_value(lines, "project:", PROJECT)
-                println(PROJECT)
                 writefile(lines, joinpath(KiteControllers.KiteUtils.get_data_path(), "gui.yaml"))
                 sleep(0.1)
                 app.set = deepcopy(load_settings(PROJECT))
