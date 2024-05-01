@@ -447,8 +447,6 @@ on(app.viewer.menu_project.i_selected) do c
                 app.max_time      = app.set.sim_time
                 app.next_max_time = app.max_time
                 app.initialized = false
-                sleep(0.1)
-                init(app)
             end
         end
     end
