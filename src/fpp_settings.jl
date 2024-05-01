@@ -24,6 +24,7 @@
     heading_offset_up::Float64 = 60.0
     heading_upper_turn::Float64 = 360.0-25.0
     k_factor::Float64 = 1.0
+    timeout::Float64 = 145
 end
 
 StructTypes.StructType(::Type{FPPSettings}) = StructTypes.Mutable()
