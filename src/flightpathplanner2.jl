@@ -121,7 +121,9 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     elseif state == FLY_RIGHT && phi < -fpp.fpca._phi_sw # && 
         _switch(fpp, TURN_RIGHT)
     elseif state == TURN_RIGHT && (psi < deg2rad(180.0 + fpp.fpca._heading_offset) || fpp.timeout > 145) 
-        println("timeout TURN_RIGHT: $(fpp.timeout)")
+        if fpp.fpps.log_level > 0
+            println("timeout TURN_RIGHT: $(fpp.timeout)")
+        end
         _switch(fpp, FLY_LEFT)
     elseif state == FLY_LEFT && phi <= -phi_3
         if ! fpp.finish
