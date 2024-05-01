@@ -144,7 +144,7 @@ function simulate(integrator, stopped=true)
     e_mech = 0.0
     on_new_systate(app.ssc, sys_state)
     KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
-    while true
+    while app.initialized
         local v_ro
         if app.viewer.stop
             sleep(app.dt)
@@ -255,13 +255,13 @@ function play(stopped=false)
         if ! app.initialized
             init(app)
         end
-        app.initialized = false
         KiteViewers.plot_file[]="last_sim_log"
         on_parking(app.ssc)
         integrator = KiteModels.init_sim!(app.kps4, stiffness_factor=0.5)
         if app.run == 0; toc(); end
         app.run += 1
         simulate(integrator, stopped)
+        app.initialized = false
         stopped = ! app.viewer.sw.active[]
         if app.logger.index > 100
             KiteViewers.plot_file[]="last_sim_log"
@@ -440,6 +440,7 @@ on(app.viewer.menu_project.i_selected) do c
                 app.set = deepcopy(load_settings(PROJECT))
                 app.max_time      = app.set.sim_time
                 app.next_max_time = app.max_time
+                app.initialized = false
             end
         end
     end
