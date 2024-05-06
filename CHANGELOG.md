@@ -1,6 +1,6 @@
 # Changelog
 
-### [unreleased]
+### KiteControllers v0.2.3 - 2024-05-06
 #### Changed
 - use 60 Hz refresh rate for 3x, 6x, 9x and 12x time lapse
 - refactoring: add type KiteApp to the script autopilot.jl
