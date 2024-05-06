@@ -17,5 +17,6 @@ PackageCompiler.create_sysimage(
      :KiteModels, :KitePodModels, :StructTypes, :YAML, :StatsBase, :ControlPlots];
     sysimage_path="kps-image_tmp.so",
     include_transitive_dependencies=false,
+    sysimage_build_args="-t 1",
     precompile_execution_file=joinpath("test", "test_for_precompile.jl")
 )
