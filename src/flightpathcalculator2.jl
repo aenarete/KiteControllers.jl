@@ -140,6 +140,7 @@ function _calc_beta_c1(fpca::FlightPathCalculator, beta_set)
     k = sqrt((fpca._phi_c3 - fpca._phi_sw) / fpca._phi_sw)
     beta_cw = beta_sw + k * (fpca._phi_c3 + delta_phi)
     beta_c1 = 0.5 * (fpca._beta_int + beta_cw)
+    k *= 1.8 # added
     fpca._k = k
     beta_c1, k, beta_cw
 end
