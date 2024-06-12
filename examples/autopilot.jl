@@ -10,7 +10,7 @@ using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeF
 using Printf
 import KiteViewers.GLMakie
 
-PROJECT="system_8000.yaml"
+PROJECT="system.yaml"
 
 function test_observer(plot=true)
     log = load_log("uncorrected")
