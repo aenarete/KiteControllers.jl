@@ -8,3 +8,5 @@ data/*.jld2
 data/*.arrow
 data/ref_sim.arrow.bak
 data/corr_vec.jld2.bak
+output
+
