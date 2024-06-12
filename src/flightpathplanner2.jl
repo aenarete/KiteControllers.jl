@@ -110,7 +110,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     elseif state == FLY_LEFT  && phi > fpp.fpca._phi_sw 
         fpp.fpca.fig8 += 1            
         _switch(fpp, TURN_LEFT)
-    elseif state == TURN_LEFT && (psi > deg2rad(180.0 + fpp.fpca._heading_offset) || fpp.timeout > fpp.fpps.timeout)
+    elseif state == TURN_LEFT && (psi > deg2rad(180.0 - fpp.fpca._heading_offset) || fpp.timeout > fpp.fpps.timeout)
         _switch(fpp, FLY_RIGHT)
     elseif state == FLY_RIGHT && phi >= phi_3
         if ! fpp.finish

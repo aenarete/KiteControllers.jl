@@ -14,7 +14,7 @@ function load_corr()
     try
         return JLD2.load(joinpath(get_data_path(), "corr_vec.jld2"))["corr_vec"]
     catch
-        return -collect(0.1:0.15:3)*1
+        return zeros(20)
     end
 end
 function save_corr(corr_vec)
@@ -82,8 +82,8 @@ end
 
 # correction for first (lowest) turn
 function corrected_elev(corr_vec, elev_nom)
-    if isnothing(corr_vec) || length(corr_vec) == 0 || abs(corr_vec[1]) < 1
-        return elev_nom+6.5
+    if isnothing(corr_vec) || length(corr_vec) == 0
+        return elev_nom
     end
-    elev_nom + 0.7*corr_vec[1]
+    elev_nom + 0.5*corr_vec[1]
 end
