@@ -25,6 +25,7 @@
     heading_upper_turn::Float64 = 360.0-25.0
     k_factor::Float64 = 1.0
     timeout::Float64 = 145
+    corr_vec::Vector{Float64} = [24.02, 36.08, 32.70, 25.40, 19.85, 16.13, 13.55, 11.42, 9.32, 7.38, 5.58, 3.84]
 end
 
 StructTypes.StructType(::Type{FPPSettings}) = StructTypes.Mutable()
