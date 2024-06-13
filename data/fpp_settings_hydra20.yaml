@@ -17,4 +17,4 @@ fpp_settings:
     heading_offset_up: 60.0    # degrees, before finishing the up-turn
     heading_upper_turn: 335    # degrees
     k_factor:           1.8    # a factor > 1 reduces the width of the intermediate phase
-    corr_vec: [-0.1, -0.25, -0.4, -0.55, -0.7, -0.85, -1.0, -1.15, -1.3, -1.45, -1.6, -1.75, -1.9, -2.05, -2.2, -2.35, -2.5, -2.65, -2.8, -2.95] 
+    corr_vec: [6.5, 1.0, -0.25, -0.4, -0.55, -1.7, -3.85] 
