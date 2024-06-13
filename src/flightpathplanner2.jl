@@ -22,7 +22,8 @@
 end
 
 function FlightPathPlanner(fpps::FPPSettings, fpca::FlightPathCalculator)
-    fpp = FlightPathPlanner(fpps=fpps, fpca=fpca)
+    fpp = FlightPathPlanner(fpps=fpps, fpca=fpca, corr_vec=fpps.corr_vec)
+    # fpp.corr_vec = fpps.corr_vec
 end
 
 # Start automated power production; Precondition: The kite is parking at a high elevation angle.
