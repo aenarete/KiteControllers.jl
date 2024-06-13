@@ -1,5 +1,10 @@
 # Changelog
 
+### Unpublished
+- add the field `corr_vec` to all `fpp_setings_xxx.yaml` files
+- modify `kiteobserver.jl` to use this correction vector
+- the projects `hydra10_951` and `hydra20_600` work correctly now 
+
 ### KiteControllers v0.2.3 - 2024-05-06
 #### Changed
 - use 60 Hz refresh rate for 3x, 6x, 9x and 12x time lapse
