@@ -22,10 +22,10 @@ Calculate a saturated value, that stays within the given limits.
 ```
 wrap2pi(angle)
 ```
-Convert an angle, given in radian in an infinite range to the range from -pi to pi
+Convert an angle, given in radians in an infinite range to the range from -pi to pi
 
 ### Generic control components
-This package contains some generic control components and are documented [here](./docs/components.md).
+This package contains some generic control components that are documented [here](./docs/components.md).
 
 ### Types that are not generic
 ```julia
@@ -58,7 +58,7 @@ on_est_sysstate(fpc, phi, beta, psi, chi, omega, v_a; u_d=nothing, u_d_prime=not
 on_timer(fpc)
 calc_steering(fpc, parking)
 ```
-The control commands are usually received from the FlightPathPlanner, the output of the model or the system state estimator must call `on_est_systate()` each time-step.
+The control commands are usually received from the FlightPathPlanner, the output of the model or the system state estimator must call `on_est_systate()` each time step.
 <p align="center"><img src="./docs/flight_path_controller_I.png" width="500" /></p>
 <p align="center"><img src="./docs/flight_path_controller_II.png" width="500" /></p>
 
@@ -67,7 +67,7 @@ The control commands are usually received from the FlightPathPlanner, the output
 
 ## Winch controller
 For a kite power system, the reel-out speed of the winch must be controlled such that the
-maximal tether force is never exceeded, while the reel out speed should be optimized for
+maximal tether force is never exceeded, while the reel-out speed should be optimized for
 maximal power over the full cycle at wind speeds below rated wind speed. To keep the
 kite controllable, also a minimal tether force limit has to be kept. Depending on the mode of operation, one of the following three controllers is used:
 ### Speed Controller
@@ -94,7 +94,7 @@ For a usage example look at the script [test_winchcontroller.jl](./test/test_win
 
 ### Flight Path Calculator (FPCA)
 The FPCA is a stateless component that calculates the coordinates of the attractor points and turn points that
-determine the flight path. In addition it calculates the desired turn radius of the turns.
+determine the flight path. In addition, it calculates the desired turn radius of the turns.
 
 ### Flight Path Planner (FPP)
 The Flight Path Planner executes the planned flight path using a state machine.
@@ -119,7 +119,7 @@ on https://discourse.julialang.org/ .
 [A Methodology for the Design of Kite-Power Control Systems](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) Chapter 6.3 Winch control (WC)
 
 ## Related
-- [Research Fechner](https://research.tudelft.nl/en/publications/?search=wind+Fechner&pageSize=50&ordering=rating&descending=true) for the scientic background of this code
+- [Research Fechner](https://research.tudelft.nl/en/publications/?search=wind+Fechner&pageSize=50&ordering=rating&descending=true) for the scientific background of this code
 - The meta package [KiteSimulators](https://github.com/aenarete/KiteSimulators.jl) which contains all packages from Julia Kite Power Tools.
 - the packages [KiteModels](https://github.com/ufechner7/KiteModels.jl) and [WinchModels](https://github.com/aenarete/WinchModels.jl) and [AtmosphericModels](https://github.com/aenarete/AtmosphericModels.jl)
 - the packages [KiteViewers](https://github.com/aenarete/KiteViewers.jl) and [KiteUtils](https://github.com/ufechner7/KiteUtils.jl)
