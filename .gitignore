@@ -10,3 +10,4 @@ data/ref_sim.arrow.bak
 data/corr_vec.jld2.bak
 output/*.arrow
 data/gui.yaml
+bin/kps-image-1.10-plot_II.so
