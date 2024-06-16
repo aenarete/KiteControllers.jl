@@ -105,10 +105,10 @@ component handles other system states, like fully manual operation, automated wi
 steering, parking etc.
 
 ## Hints for developers/ contributors
-If you want to modify this package, create a fork on github and checkout the fork using git.
+If you want to modify this package, create a fork on github and checkout the fork using Git.
 Then create a system image of all the packages, used by Kitecontrollers itself and the examples by running
 the script `bin/create_sysimage --update`. If you are on Windows make sure you have git-bash installed because this
-is a bash script. You can then launch julia with the command `bin/run_julia` which is fast. Try to run the 
+is a bash script. You can then launch Julia with the command `bin/run_julia` which is fast. Try to run the 
 test scripts from the folder test to understand what they are doing.
 Now you can modify the source code according to your needs, restart Julia, run the relevant test script again and see 
 the effect.
