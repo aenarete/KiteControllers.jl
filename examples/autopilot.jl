@@ -187,7 +187,11 @@ function simulate(integrator, stopped=true)
             sys_state.var_04 = app.ssc.wc.pid2.f_set # set force of lower force controller
             sys_state.var_05 = app.ssc.wc.pid2.v_set_out
             sys_state.var_06 = app.ssc.fpp.fpca.fpc.ndi_gain
-            sys_state.var_07 = app.ssc.fpp.fpca.fpc.chi_set
+            if isnothing(app.ssc.fpp.fpca.fpc.psi_dot_set)
+                sys_state.var_07 = app.ssc.fpp.fpca.fpc.chi_set
+            else
+                sys_state.var_07 = NaN
+            end
             sys_state.var_08 = norm(app.kps4.lift_force)/norm(app.kps4.drag_force)
             if i > 10
                 sys_state.t_sim = t_sim*1000
