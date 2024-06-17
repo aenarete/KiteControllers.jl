@@ -54,8 +54,8 @@ end
 function plot_control_II()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
-    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), -rad2deg.(wrap2pi.(sl.heading)), 100*sl.steering, rad2deg.(sl.var_07), sl.var_06, sl.sys_state;
-            ylabels=["elevation [°]", "azimuth [°]", "psi [°]", "steering [%]", "chi_set", "ndi_gain", "fpp_state"],
+    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), -rad2deg.(wrap2pi.(sl.heading)), 100*sl.steering, rad2deg.(sl.var_07), rad2deg.(sl.course.-pi), sl.var_06, sl.sys_state;
+            ylabels=["elevation [°]", "azimuth [°]", "psi [°]", "steering [%]", "chi_set", "chi", "ndi_gain", "fpp_state"],
             fig="fpc", ysize=10))
     nothing
 end
