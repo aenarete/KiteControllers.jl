@@ -45,8 +45,10 @@ docs/flight_path_controller_III.png
     chi_factor                                 = 0
     "angular velocity of the kite in degrees/s"
     omega                                      = 0
-    "estimated turn rate"
+    "estimated turn rate (heading)"
     est_psi_dot                                = 0
+    "estimated turn rate (course)"
+    est_chi_dot                                = 0
     "desired flight direction (bearing)"
     chi_set                                    = 0
     "minimal value of the depower setting, needed for the fully powered kite"
@@ -166,6 +168,13 @@ function on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, 
         elseif delta > π
             delta -= 2π
             fpc.est_psi_dot = delta / fpc.fcs.dt
+        end
+        delta1 = chi - fpc.chi
+        if delta1 < -pi
+            delta1 += 2π
+        elseif delta1 > π
+            delta1 -= 2π
+            fpc.est_chi_dot = delta1 / fpc.fcs.dt
         end
     end
     fpc.psi = psi
