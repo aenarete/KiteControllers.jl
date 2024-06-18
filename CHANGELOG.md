@@ -3,7 +3,8 @@
 ### Unpublished
 - add the field `corr_vec` to all `fpp_setings_xxx.yaml` files
 - modify `kiteobserver.jl` to use this correction vector
-- the projects `hydra10_951` and `hydra20_600` work correctly now
+- the projects `hydra10_951` and `hydra20_600` work correctly now; key change: set k_c2_high to 6.0
+- new plot control_plot_II
 - remove compatibility with Julia 1.9, version 1.10 is the only supported version now
 
 ### KiteControllers v0.2.3 - 2024-05-06
