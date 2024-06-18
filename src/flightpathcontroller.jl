@@ -158,7 +158,6 @@ Either u_d or u_d_prime must be provided.
 """
 function on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_prime=nothing)
     fpc.phi = phi
-    fpc.chi = chi
     fpc.omega = omega
     fpc.beta = beta
     if fpc._i > 0
@@ -167,17 +166,18 @@ function on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, 
             delta += 2π
         elseif delta > π
             delta -= 2π
-            fpc.est_psi_dot = delta / fpc.fcs.dt
         end
+        fpc.est_psi_dot = delta / fpc.fcs.dt
         delta1 = chi - fpc.chi
         if delta1 < -pi
             delta1 += 2π
         elseif delta1 > π
             delta1 -= 2π
-            fpc.est_chi_dot = delta1 / fpc.fcs.dt
         end
+        fpc.est_chi_dot = delta1 / fpc.fcs.dt
     end
     fpc.psi = psi
+    fpc.chi = chi
     # Eq. 6.4: calculate the normalized depower setting
     if isnothing(u_d_prime)
         fpc.u_d_prime = (u_d - fpc.u_d0) / (fpc.u_d_max - fpc.u_d0)
