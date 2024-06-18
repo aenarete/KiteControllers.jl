@@ -195,6 +195,7 @@ function simulate(integrator, stopped=true)
                 sys_state.var_09 = app.ssc.fpp.fpca.fpc.psi_dot_set
             end
             sys_state.var_10 = app.ssc.fpp.fpca.fpc.est_psi_dot
+            sys_state.var_11 = app.ssc.fpp.fpca.fpc.est_chi_dot
             
             sys_state.var_08 = norm(app.kps4.lift_force)/norm(app.kps4.drag_force)
             if i > 10
