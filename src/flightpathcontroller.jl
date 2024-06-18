@@ -257,11 +257,7 @@ function linearize(fpc::FlightPathController, psi_dot; fix_va=false)
         fpc.c2 = fpc.fcs.c2 * (fpc.fcs.k_c2_int + k)
     else
         k = (va_fix - 22) / 3.5 # was: 4
-        if fpc.beta < deg2rad(30)
-            fpc.c2 = fpc.fcs.c2 * (fpc.fcs.k_c2 + k)
-        else
-            fpc.c2 = fpc.fcs.c2 * (fpc.fcs.k_c2_high + k)
-        end
+        fpc.c2 = fpc.fcs.c2 * (fpc.fcs.k_c2 + k)
     end
     u_s = (1.0 + fpc.fcs.k_ds * fpc.u_d_prime) / (fpc.c1 * va_hat) * (psi_dot - fpc.c2 / va_fix * sin(fpc.psi) * cos(fpc.beta))
     if abs(psi_dot) < 1e-6
