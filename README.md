@@ -4,7 +4,7 @@
 
 Discrete controllers for kite power systems.
 
-This package is part of Julia Kite Power Tools, which consist of the following packages:
+This package is part of Julia Kite Power Tools, which consists of the following packages:
 <p align="center"><img src="./docs/kite_power_tools.png" width="500" /></p>
 
 ## Installation
@@ -110,13 +110,14 @@ Then create a system image of all the packages, used by Kitecontrollers itself a
 the script `bin/create_sysimage --update`. If you are on Windows make sure you have git-bash installed because this
 is a bash script. You can then launch Julia with the command `bin/run_julia` which is fast. Try to run the 
 test scripts from the folder test to understand what they are doing.
-Now you can modify the source code according to your needs, restart Julia, run the relevant test script again and see 
-the effect.
-If you are happy, commit your changes and create a pull request. If you have any questions, please ask them
-on https://discourse.julialang.org/ .
+Now you can modify the source code according to your needs, restart Julia, run the relevant test script again and see the effect.
+If you are happy, commit your changes and create a pull request. If you have any questions, please ask them at https://discourse.julialang.org/ .
 
 ## Scientific background
 [A Methodology for the Design of Kite-Power Control Systems](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) Chapter 6.3 Winch control (WC)
+
+## Donations
+If you like this software, please consider donating to https://gofund.me/508e041b .
 
 ## Related
 - [Research Fechner](https://research.tudelft.nl/en/publications/?search=wind+Fechner&pageSize=50&ordering=rating&descending=true) for the scientific background of this code
