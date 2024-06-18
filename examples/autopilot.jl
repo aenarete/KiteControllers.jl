@@ -189,12 +189,14 @@ function simulate(integrator, stopped=true)
             sys_state.var_06 = app.ssc.fpp.fpca.fpc.ndi_gain
             if isnothing(app.ssc.fpp.fpca.fpc.psi_dot_set)
                 sys_state.var_07 = app.ssc.fpp.fpca.fpc.chi_set
+                sys_state.var_10 = NaN
                 sys_state.var_09 = NaN
             else
                 sys_state.var_07 = NaN
                 sys_state.var_09 = app.ssc.fpp.fpca.fpc.psi_dot_set
+                sys_state.var_10 = app.ssc.fpp.fpca.fpc.est_psi_dot
             end
-            sys_state.var_10 = app.ssc.fpp.fpca.fpc.est_psi_dot
+            
             sys_state.var_11 = app.ssc.fpp.fpca.fpc.est_chi_dot
             
             sys_state.var_08 = norm(app.kps4.lift_force)/norm(app.kps4.drag_force)
