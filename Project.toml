@@ -1,7 +1,7 @@
 name = "KiteControllers"
 uuid = "b19fd437-5b3a-4cca-b199-c3ded0f20ded"
 authors = ["Uwe Fechner <fechner@aenarete.eu> and contributors"]
-version = "0.2.4"
+version = "0.2.5"
 
 [deps]
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
@@ -22,7 +22,7 @@ YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 ControlPlots = "0.0.12"
 JLD2 = "0.4.46"
 KiteModels = "0.5.15"
-KiteUtils = "0.6.12"
+KiteUtils = "0.6.14"
 KiteViewers = "0.4.12"
 NLsolve = "4.5"
 NonlinearSolve = "3.10.0"

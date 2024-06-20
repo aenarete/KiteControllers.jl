@@ -26,7 +26,7 @@ end
 
 PROJECT=read_project()
 GLMakie.activate!(title = PROJECT)
-DEFAULT_LOG = "last_sim_log"
+DEFAULT_LOG = "output/last_sim_log"
 
 function test_observer(plot=true)
     log = load_log("uncorrected")
@@ -283,7 +283,7 @@ function play(stopped=false)
             if app.set.log_level > 0
                 println("Saving log... $(app.logger.index)")
             end
-            save_log(app.logger, DEFAULT_LOG)
+            save_log(app.logger, basename(DEFAULT_LOG); path=dirname(DEFAULT_LOG))
         end
         if @isdefined __PRECOMPILE__
             break

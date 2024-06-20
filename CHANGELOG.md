@@ -1,5 +1,9 @@
 # Changelog
 
+### KiteControllers v0.2.5 - 2024-06-20
+#### Changed
+- fix #35, save the default log file in the output folder
+
 ### KiteControllers v0.2.4 - 2024-06-18
 #### Changed
 - add the field `corr_vec` to all `fpp_settings_xxx.yaml` files
