@@ -24,9 +24,9 @@ function read_project()
     dict["gui"]["project"]
 end
 
-PROJECT=read_project()
+PROJECT = read_project()
 GLMakie.activate!(title = PROJECT)
-DEFAULT_LOG = "output/last_sim_log"
+DEFAULT_LOG::String = joinpath("output", "last_sim_log")
 
 function test_observer(plot=true)
     log = load_log("uncorrected")
