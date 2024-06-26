@@ -113,6 +113,14 @@ test scripts from the folder test to understand what they are doing.
 Now you can modify the source code according to your needs, restart Julia, run the relevant test script again and see the effect.
 If you are happy, commit your changes and create a pull request. If you have any questions, please ask them at https://discourse.julialang.org/ .
 
+## Licence
+This project is licensed under the MIT License. Please see the below WAIVER in association with the license.
+
+## WAIVER
+Technische Universiteit Delft hereby disclaims all copyright interest in the package “KiteController.jl” (controllers for airborne wind energy systems) written by the Author(s).
+
+Prof.dr. H.G.C. (Henri) Werij, Dean of Aerospace Engineering
+
 ## Scientific background
 [A Methodology for the Design of Kite-Power Control Systems](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) Chapter 6.3 Winch control (WC)
 
