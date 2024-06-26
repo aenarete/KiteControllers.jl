@@ -1,6 +1,8 @@
 # Changelog
 
-### KiteControllers v0.2.5 - 2024-06-20
+### KiteControllers v0.2.5 - 2024-06-26
+#### Added
+- copyright disclaimer from TU Delft
 #### Changed
 - fix #35, save the default log file in the output folder
 
