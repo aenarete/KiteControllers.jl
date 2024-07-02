@@ -1,5 +1,11 @@
 # Changelog
 
+### KiteControllers v0.2.6 - 2024-07-02
+#### Changed
+- downgrade GLFW_jll to fix an issue on Ubuntu 24.04 and on Mac
+#### Added
+- add section kps4-3l to all settings files to be compatible with latest KiteUtils package
+
 ### KiteControllers v0.2.5 - 2024-06-26
 #### Added
 - copyright disclaimer from TU Delft
