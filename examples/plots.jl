@@ -2,6 +2,7 @@ function plot_timing()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
 
     sl  = log.syslog
+    time_limit = app.dt/app.set.time_lapse
     display(ControlPlots.plotx(sl.time, sl.t_sim, 100*sl.steering, 100*sl.depower;
                                ylabels=["t_sim [ms]", "steering [%]","depower [%]"],
                                fig="timing"))
@@ -9,6 +10,16 @@ function plot_timing()
     println("Maximum time per timestep: $(maximum(sl.t_sim[10:end])) ms")
     index = Int64(round(12/app.dt))
     println("Maximum for t>12s        : $(maximum(sl.t_sim[index:end])) ms")
+    nothing
+end
+
+function plot_timing2()
+    log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
+
+    sl  = log.syslog
+    time_limit = app.dt/app.set.time_lapse
+    tl = time_limit = ones(length(sl.time))
+    display(ControlPlots.plotx(sl.time, sl.t_sim, tl, ylabels=["t_sim [ms]", "t_limit [ms]"], fig="timing2"))
     nothing
 end
 
