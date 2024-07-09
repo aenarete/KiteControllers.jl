@@ -18,8 +18,8 @@ function plot_timing2()
 
     sl  = log.syslog
     time_limit = app.dt/app.set.time_lapse
-    tl = time_limit = ones(length(sl.time))
-    display(ControlPlots.plotx(sl.time, sl.t_sim, tl, ylabels=["t_sim [ms]", "t_limit [ms]"], fig="timing2"))
+    tl = time_limit * ones(length(sl.time)) * 1000
+    display(ControlPlots.plot(sl.time, [sl.t_sim, tl], ylabel="t_sim [ms]", labels=["t_sim","time_limit"], fig="timing2"))
     nothing
 end
 
