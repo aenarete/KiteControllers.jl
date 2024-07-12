@@ -10,6 +10,7 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
     # pkg"add KiteModels#main"
 end
+using KiteModels, KiteControllers
 
 function read_project()
     config_file = joinpath(get_data_path(), "gui.yaml")
