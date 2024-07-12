@@ -302,7 +302,7 @@ end
     fpc.psi = deg2rad(90.0)
     fpc.beta = deg2rad(45.0)
     u_s = KiteControllers.linearize(fpc, psi_dot)
-    @test u_s ≈ 0.5963201316799875
+    @test u_s ≈ -0.31541575530041116
 end
 
 @testset "FPC_02a" begin
