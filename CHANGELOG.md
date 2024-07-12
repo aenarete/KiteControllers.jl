@@ -1,10 +1,18 @@
 # Changelog
 
+### KiteControllers v0.2.7 - 2024-07-12
+### Fixed
+- fix control_plot on Windows (added sleep)
+- fix cycle counting in FPP
+### Added
+- add function plot_timing2()
+- add lower limit for C2 of 2.0
+
 ### KiteControllers v0.2.6 - 2024-07-02
 #### Changed
 - downgrade GLFW_jll to fix an issue on Ubuntu 24.04 and on Mac
 #### Added
-- add section kps4-3l to all settings files to be compatible with latest KiteUtils package
+- add section kps4-3l to all settings files to be compatible with the latest KiteUtils package
 
 ### KiteControllers v0.2.5 - 2024-06-26
 #### Added
