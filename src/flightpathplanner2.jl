@@ -104,7 +104,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         _switch(fpp, LOW_RIGHT)
     elseif state == LOW_RIGHT && phi < -phi_1
         fpp.fpca.fig8 += 1
-        _switch(fpp, LOW_LEFT)
+        _switch(fpp, LOW_LEFT) # was LOW_TURN
     elseif state == LOW_TURN && psi < deg2rad(180.0 + fpp.fpps.heading_offset_int)          
         _switch(fpp, LOW_LEFT)
     elseif state == LOW_LEFT  && phi > -phi_2 # &&
