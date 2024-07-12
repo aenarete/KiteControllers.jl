@@ -100,7 +100,7 @@ function on_new_system_state(fpca::FlightPathCalculator, new_state::SystemState,
     if Int(new_state) == Int(ssIntermediate)
         fpca._beta_int = fpca._beta
         # calculate and publish the flight path for the next cycle
-        fpca.cycle+=1
+        # fpca.cycle+=1
     elseif new_state == Int(ssParking) && ! internal
         _switch(fpca, PARKING)
     end

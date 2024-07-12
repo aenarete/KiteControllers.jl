@@ -90,11 +90,13 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         if (beta > fpp.fpca._beta_set + 25.0 + fpp.fpca._radius)
             if depower < fpp.u_d_ro + fpp.delta_depower + fpp.const_dd * (fpp.u_d_ri - fpp.u_d_ro - fpp.delta_depower)
                 fpp.fpca.fig8 = -1
+                fpp.fpca.cycle+=1
                 fpp.fpca.high = false
                 _switch(fpp, UPPER_TURN)
             end
         elseif depower < fpp.u_d_ro + fpp.delta_depower + fpp.const_dd * (fpp.u_d_ri - fpp.u_d_ro - fpp.delta_depower)
             fpp.fpca.fig8 = -1
+            fpp.fpca.cycle+=1
             fpp.fpca.high = true
             _switch(fpp, FLY_LEFT)
         end
