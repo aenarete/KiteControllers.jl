@@ -341,7 +341,7 @@ function save_log_as()
     @async begin 
         filename = fetch(Threads.@spawn save_file("output"; filterlist="arrow"))
         if filename != ""
-            source = replace(KiteViewers.plot_file[], "~" => homedir())
+            source = replace(KiteViewers.plot_file[], "~" => homedir()) * ".arrow"
             if ! isfile(source)
                 source = joinpath(pwd(), "output", KiteViewers.plot_file[]) * ".arrow"
             end
