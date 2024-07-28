@@ -14,7 +14,7 @@
 - add lower limit for C2 of 2.0
 ### Changed
 - bump KiteViewers.jl to 0.4.14
-- upgrade GLFW to latest version (original issue is fixed now)
+- upgrade GLFW to latest version (the original issue is fixed now)
 
 ### KiteControllers v0.2.6 - 2024-07-02
 #### Changed
