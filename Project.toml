@@ -1,7 +1,7 @@
 name = "KiteControllers"
 uuid = "b19fd437-5b3a-4cca-b199-c3ded0f20ded"
 authors = ["Uwe Fechner <fechner@aenarete.eu> and contributors"]
-version = "0.2.7"
+version = "0.2.8"
 
 [deps]
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
