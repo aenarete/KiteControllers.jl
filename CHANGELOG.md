@@ -1,6 +1,7 @@
 # Changelog
 
 ### KiteControllers v0.2.8 - 2024-07-28
+### Changed
 - bump KiteUtils to 0.7.2
 - bump WinchModels to 0.3.2
 - bump KiteViewers to 0.4.16
