@@ -165,7 +165,8 @@ end
 
 @testset "Winch" begin
     wcs = WCSettings()
-    set = Settings()
+    set = se()
+    @test set.winch_model == "AsyncMachine"
     w = Winch(wcs, set)
     v_set = 4.0
     set_v_set(w, v_set)
@@ -176,6 +177,20 @@ end
     KiteControllers.on_timer(w)
     @test get_speed(w) ≈ 0.8988387476775817
     @test get_acc(w) ≈ 44.94193738387908
+end
+
+# using KiteControllers, Test
+function test_winch()
+    wcs = WCSettings()
+    set = se()
+    w = Winch(wcs, set)
+    v_set = 4.0
+    set_v_set(w, v_set)
+    @test w.v_set == v_set
+    force = 1000.0
+    set_force(w, force)
+    @test w.force == force
+    w
 end
 
 @testset "LowerForceController" begin
