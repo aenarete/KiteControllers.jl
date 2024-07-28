@@ -53,7 +53,7 @@ function simulate(integrator)
         end  
         # execute winch controller
         v_ro = calc_v_set(ssc)
-        t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end

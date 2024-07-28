@@ -76,7 +76,7 @@ function residual(corr_vec=nothing; sim_time=500)
             # execute winch controller
             v_ro = calc_v_set(ssc)
             #
-            t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+            t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
             sys_state = KiteModels.SysState(kps4)
             on_new_systate(ssc, sys_state)
             e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt

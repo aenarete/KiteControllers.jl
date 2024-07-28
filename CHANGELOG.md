@@ -1,5 +1,10 @@
 # Changelog
 
+### Unreleased
+- bump KiteUtils to 0.7.2
+- bump WinchModels to 0.3.2
+- bump KiteViewers to 0.4.14
+
 ### KiteControllers v0.2.7 - 2024-07-12
 ### Fixed
 - fix control_plot on Windows (added sleep)

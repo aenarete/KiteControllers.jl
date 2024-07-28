@@ -87,7 +87,7 @@ function simulate(integrator, stopped=true)
             # execute winch controller
             v_ro = calc_v_set(ssc)
             #
-            t_sim = @elapsed KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+            t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
             sys_state = SysState(kps4)
             if i <= length(T)
                 T[i] = dt * i

@@ -53,7 +53,7 @@ function simulate(integrator)
             set_depower_steering(kps.kcu, depower, steering)
         end  
         v_ro = 0.0
-        KiteModels.next_step!(kps, integrator, v_ro=v_ro, dt=dt)
+        KiteModels.next_step!(kps, integrator; set_speed=v_ro, dt=dt)
         sys_state = SysState(kps)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth        

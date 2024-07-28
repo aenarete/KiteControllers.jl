@@ -79,7 +79,7 @@ function simulate(integrator)
         set_depower_steering(kps4.kcu, u_d, steering)
         v_ro = sl[I_START+i-1].v_reelout
         # v_ro = -1
-        KiteModels.next_step!(kps4, integrator, v_ro=v_ro, dt=dt)
+        KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
         sys_state = SysState(kps4)
         sys_state.var_06 = fpca.fpc.ndi_gain
         sys_state.var_07 = fpca.fpc.chi_set

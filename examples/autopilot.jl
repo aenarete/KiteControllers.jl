@@ -175,7 +175,7 @@ function simulate(integrator, stopped=true)
             # execute winch controller
             v_ro = calc_v_set(app.ssc)
             #
-            t_sim = @elapsed KiteModels.next_step!(app.kps4, integrator, v_ro=v_ro, dt=app.dt)
+            t_sim = @elapsed KiteModels.next_step!(app.kps4, integrator; set_speed=v_ro, dt=app.dt)
             update_sys_state!(sys_state, app.kps4)
 
             on_new_systate(app.ssc, sys_state)
@@ -246,9 +246,9 @@ function simulate(integrator, stopped=true)
         if ! isopen(app.viewer.fig.scene) break end
         if KiteViewers.status[] == "Stopped" && i > 10 
             if app.set.log_level > 0
-                @timev KiteModels.next_step!(app.kps4, integrator, v_ro=v_ro, dt=app.dt)
+                @timev KiteModels.next_step!(app.kps4, integrator; set_speed=v_ro, dt=app.dt)
             else
-                KiteModels.next_step!(app.kps4, integrator, v_ro=v_ro, dt=app.dt)
+                KiteModels.next_step!(app.kps4, integrator; set_speed=v_ro, dt=app.dt)
             end
             break 
         end
@@ -310,6 +310,9 @@ function stop_()
     end
     on_stop(app.ssc)
     clear!(app.kps4)
+    if ! isnothing(app.viewer)
+        clear_viewer(app.viewer)
+    end
     clear_viewer(app.viewer)
 end
 
