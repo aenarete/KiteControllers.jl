@@ -80,14 +80,15 @@ end
 # are taken into account.
 @with_kw mutable struct Winch @deftype Float64
     wcs::WCSettings
-    wm::AsyncMachine = AsyncMachine()
+    set::Settings
+    wm::AsyncMachine = AsyncMachine(set)
     v_set     = 0 # input
     force     = 0 # input
     acc       = 0 # output
     speed     = 0 # output; reel-out speed; only state of this model
 end
-function Winch(wcs::WCSettings)
-    Winch(wcs=wcs)
+function Winch(wcs::WCSettings, set::Settings)
+    Winch(wcs=wcs, set=set)
 end
 
 function set_v_set(w::Winch, v_set)
@@ -104,7 +105,7 @@ function get_acc(w::Winch) w.acc end
 function on_timer(w::Winch)
     acc = 0.0
     for i in 1:w.wcs.winch_iter
-        w.acc = calc_acceleration(w.wm, w.v_set, w.speed, w.force)
+        w.acc = calc_acceleration(w.wm, w.speed, w.force; set_speed = w.v_set)
         acc += w.acc
         w.speed += w.acc * w.wcs.dt/w.wcs.winch_iter
     end

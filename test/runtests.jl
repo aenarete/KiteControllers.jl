@@ -165,7 +165,8 @@ end
 
 @testset "Winch" begin
     wcs = WCSettings()
-    w = Winch(wcs)
+    set = Settings()
+    w = Winch(wcs, set)
     v_set = 4.0
     set_v_set(w, v_set)
     @test w.v_set == v_set
