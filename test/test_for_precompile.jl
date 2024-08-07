@@ -1,5 +1,6 @@
 __PRECOMPILE__ = true
-let    
+let 
+    mkdir("../output/", exist_ok=true)
     include("../examples/autopilot.jl")
 end
 
