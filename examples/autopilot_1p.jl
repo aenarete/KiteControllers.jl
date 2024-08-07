@@ -7,8 +7,8 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels
 
-if ! @isdefined kcu;    const kcu = KCU(se());   end
-if ! @isdefined kps3;   const kps3 = KPS3(kcu); end
+kcu::KCU = KCU(se())
+kps3::KPS3 = KPS3(kcu)
 
 wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
 fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
