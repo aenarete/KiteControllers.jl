@@ -58,6 +58,7 @@ cd bin
 ./create_sys_image --update
 cd ..
 ```
+On Linux you can install the `autopilot` GUI app as normal application with the command `bin/install`.
 
 </details>
 
