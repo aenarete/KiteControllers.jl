@@ -1,10 +1,11 @@
 # Changelog
 
-### Unreleased
+### KiteControllers v0.2.9 - 2024-08-07
 #### Changed
 - bump KiteUtils to 0.7.4
 - bump KiteModels to 0.6.3
-- fix some examples
+- fix some examples and the script `create_sys_image`
+- explain different installation methods in README.md
 
 ### KiteControllers v0.2.8 - 2024-07-28
 #### Changed
