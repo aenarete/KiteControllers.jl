@@ -1,7 +1,13 @@
 # Changelog
 
+### Unreleased
+#### Changed
+- bump KiteUtils to 0.7.4
+- bump KiteModels to 0.6.3
+- fix some examples
+
 ### KiteControllers v0.2.8 - 2024-07-28
-### Changed
+#### Changed
 - bump KiteUtils to 0.7.2
 - bump WinchModels to 0.3.2
 - bump KiteViewers to 0.4.16
@@ -9,13 +15,13 @@
 - fix tests
 
 ### KiteControllers v0.2.7 - 2024-07-12
-### Fixed
+#### Fixed
 - fix control_plot on Windows (added sleep)
 - fix cycle counting in FPP
-### Added
+#### Added
 - add function plot_timing2()
 - add lower limit for C2 of 2.0
-### Changed
+#### Changed
 - bump KiteViewers.jl to 0.4.14
 - upgrade GLFW to latest version (the original issue is fixed now)
 
