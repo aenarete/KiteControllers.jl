@@ -8,7 +8,18 @@ This package is part of Julia Kite Power Tools, which consists of the following 
 <p align="center"><img src="./docs/kite_power_tools.png" width="500" /></p>
 
 ## Installation
+<details>
+  <summary>Installation of Julia</summary>
+
 If you do not have Julia installed yet, please read [Installation](https://github.com/aenarete/KiteSimulators.jl/blob/main/docs/Installation.md).
+
+</details>
+
+<details>
+  <summary>Installation as package</summary>
+
+### Installation of KiteControllers as package
+
 It is suggested to use a local Julia environment. You can create it with:
 ```bash
 mkdir myproject
@@ -25,7 +36,14 @@ You can run the tests with:
 using Pkg
 pkg"test KiteControllers"
 ```
-But in most cases -- if you want to modify, tune and understand kite controllers -- it is better
+</details>
+
+<details>
+  <summary>Installation using git</summary>
+
+### Installation of KiteControllers using git
+
+In most cases -- if you want to modify, tune and understand kite controllers -- it is better
 to check out this project from git. You can do this with:
 ```bash
 git clone https://github.com/aenarete/KiteControllers.jl.git
@@ -39,6 +57,11 @@ cd bin
 ./create_sys_image --update
 cd ..
 ```
+
+</details>
+
+### Running the first example
+
 You can now start Julia with `./bin/run_julia` and execute the autopilot or any other of the examples with:
 ```julia
 include("example/autopilot.jl")
