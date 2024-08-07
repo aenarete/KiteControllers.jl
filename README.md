@@ -8,9 +8,40 @@ This package is part of Julia Kite Power Tools, which consists of the following 
 <p align="center"><img src="./docs/kite_power_tools.png" width="500" /></p>
 
 ## Installation
+If you do not have Julia installed yet, please read [Installation](https://github.com/aenarete/KiteSimulators.jl/blob/main/docs/Installation.md).
+It is suggested to use a local Julia environment. You can create it with:
+```bash
+mkdir myproject
+cd myproject
+julia --project="."
+```
+and then, on the Julia prompt enter:
 ```julia
 using Pkg
 pkg"add KiteControllers"
+```
+You can run the tests with:
+```julia
+using Pkg
+pkg"test KiteControllers"
+```
+But in most cases -- if you want to modify, tune and understand kite controllers -- it is better
+to check out this project from git. You can do this with:
+```bash
+git clone https://github.com/aenarete/KiteControllers.jl.git
+cd KiteControllers.jl
+git checkout v0.2.9
+```
+For the checkout command, use the tag of the latest version.
+It is suggested to create a system image:
+```bash
+cd bin
+./create_sys_image --update
+cd ..
+```
+You can now start Julia with `./bin/run_julia` and execute the autopilot or any other of the examples with:
+```julia
+include("example/autopilot.jl")
 ```
 
 ## This package provides
@@ -122,7 +153,7 @@ Technische Universiteit Delft hereby disclaims all copyright interest in the pac
 Prof.dr. H.G.C. (Henri) Werij, Dean of Aerospace Engineering
 
 ## Scientific background
-[A Methodology for the Design of Kite-Power Control Systems](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems) Chapter 6.3 Winch control (WC)
+[A Methodology for the Design of Kite-Power Control Systems](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems)
 
 ## Donations
 If you like this software, please consider donating to https://gofund.me/508e041b .
