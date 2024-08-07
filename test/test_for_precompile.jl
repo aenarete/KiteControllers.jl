@@ -1,6 +1,5 @@
 __PRECOMPILE__ = true
 let 
-    mkpath("../output/")
     include("../examples/autopilot.jl")
 end
 
