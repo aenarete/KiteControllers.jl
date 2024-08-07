@@ -12,7 +12,7 @@ set.segments=12
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 
-wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
+wcs::WCSettings = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
 fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
