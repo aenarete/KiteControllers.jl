@@ -200,7 +200,8 @@ function plot_aerodynamics()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl    = log.syslog
 
-    display(plotx(sl.time, sl.var_08, sl.var_13, sl.var_14; ylabels=["LoD [-]", L"\alpha_2~[°]", L"\alpha_{2b}~[°]"],
-    fig="aerodynamics"))
+    display(plotx(sl.time, sl.var_08, sl.var_13, sl.var_14, sl.var_15, sl.var_16; 
+                  ylabels=["LoD [-]", L"\alpha_2~[°]", L"\alpha_{2b}~[°]", L"\alpha_{3b}~[°]", L"\alpha_{4b}~[°]"],
+                  fig="aerodynamics"))
     nothing
 end
