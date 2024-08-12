@@ -12,8 +12,8 @@
     tether_length::Union{Nothing, Float64} = nothing
 end
 
-function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings)
-    fpc = FlightPathController(fcs)
+function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings; u_d0, u_d)
+    fpc = FlightPathController(fcs; u_d0, u_d)
     fpca = FlightPathCalculator(fpc, fpps)
     fpp = FlightPathPlanner(fpps, fpca)
     res = SystemStateControl(wc=WinchController(wcs), fpp=fpp)

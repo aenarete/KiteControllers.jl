@@ -52,7 +52,7 @@ docs/flight_path_controller_III.png
     "desired flight direction (bearing)"
     chi_set                                    = 0
     "minimal value of the depower setting, needed for the fully powered kite"
-    u_d0                                       = 0.01 * se().depower_offset
+    u_d0                                       # = 0.01 * se().depower_offset
     "maximal value of the depower setting, needed for the fully depowered kite"
     u_d_max                                    = 0.01 * 42.2 # TODO: add this to settings.yaml
     "normalized depower settings"
@@ -62,7 +62,7 @@ docs/flight_path_controller_III.png
     "maximal value of the turn rate in radians per second"
     psi_dot_max                                = 3.0
     "actual depower setting (0..1)"
-    u_d                                        = 0.01 * se().depower
+    u_d                                        # = 0.01 * se().depower
     k_c2                                       = fcs.k_c2
     k_c2_int                                   = fcs.k_c2_int
     k_c2_hight                                 = fcs.k_c2_high
@@ -104,8 +104,8 @@ docs/flight_path_controller_III.png
     _i                                         = 0
 end
 
-function FlightPathController(fcs::FPCSettings)
-    FlightPathController(fcs=fcs)
+function FlightPathController(fcs::FPCSettings; u_d0, u_d)
+    FlightPathController(fcs=fcs, u_d0=u_d0, u_d=u_d)
 end
 
 """

@@ -67,19 +67,24 @@ app.next_max_time = app.max_time
 function init(app::KiteApp; init_viewer=false)
     app.max_time = app.next_max_time
     app.kcu   = KCU(app.set)
+    project=(KiteUtils.PROJECT)
     app.kps4 = KPS4(app.kcu)
+    KiteUtils.PROJECT = project
     app.wcs = WCSettings()
     update(app.wcs)
+    
     app.wcs.dt = 1/app.set.sample_freq
     app.dt = app.wcs.dt
-    app.fcs = FPCSettings() 
+    app.fcs = FPCSettings(dt=app.dt) 
     update(app.fcs)
     app.fcs.dt = app.wcs.dt 
     app.fcs.log_level = app.set.log_level
     app.fpps = FPPSettings()
     update(app.fpps)
     app.fpps.log_level = app.set.log_level
-    app.ssc = SystemStateControl(app.wcs, app.fcs, app.fpps)
+    u_d0 = 0.01 * se(project).depower_offset
+    u_d = 0.01 * se(project).depower
+    app.ssc = SystemStateControl(app.wcs, app.fcs, app.fpps; u_d0, u_d)
     if init_viewer
         app.viewer= Viewer3D(app.set, app.show_kite; menus=true)
         app.viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_control_II", "plot_winch_control", "plot_aerodynamics",
