@@ -6,6 +6,8 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
+LOG_LIFT_DRAG::Bool = true
+
 using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog, LaTeXStrings
 using Printf, LinearAlgebra
 import KiteViewers.GLMakie
@@ -207,8 +209,13 @@ function simulate(integrator, stopped=true)
             sys_state.var_12 = app.ssc.fpp.fpca.fpc.c2
             sys_state.var_13 = app.kps4.alpha_2
             sys_state.var_14 = app.kps4.alpha_2b
-            sys_state.var_15 = app.kps4.alpha_3b 
-            sys_state.var_16 = app.kps4.alpha_4b 
+            if LOG_LIFT_DRAG
+                sys_state.var_15 = norm(app.kps4.lift_force)
+                sys_state.var_16 = norm(app.kps4.drag_force)
+            else
+                sys_state.var_15 = app.kps4.alpha_3b 
+                sys_state.var_16 = app.kps4.alpha_4b 
+            end
             
             sys_state.var_08 = norm(app.kps4.lift_force)/norm(app.kps4.drag_force)
             if i > 10
@@ -420,7 +427,7 @@ function do_menu(c)
     elseif c == "plot_winch_control"
         plot_winch_control()
     elseif c == "plot_aerodynamics"
-        plot_aerodynamics()
+        plot_aerodynamics(LOG_LIFT_DRAG)
     elseif c == "plot_elev_az"
         plot_elev_az()
     elseif c == "plot_elev_az2"

@@ -196,12 +196,18 @@ function plot_front_view3()
     nothing
 end
 
-function plot_aerodynamics()
+function plot_aerodynamics(plot_lift_drag = false)
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl    = log.syslog
 
-    display(plotx(sl.time, sl.var_08, sl.var_13, sl.var_14, sl.var_15, sl.var_16; 
-                  ylabels=["LoD [-]", L"\alpha_2~[°]", L"\alpha_{2b}~[°]", L"\alpha_{3b}~[°]", L"\alpha_{4b}~[°]"],
-                  fig="aerodynamics"))
+    if plot_lift_drag
+        display(plotx(sl.time, sl.var_08, sl.var_13, sl.var_14, sl.var_15, sl.var_16; 
+        ylabels=["LoD [-]", L"\alpha_2~[°]", "Lift [N]",  "Drag [N]"],
+        fig="aerodynamics"))
+    else
+        display(plotx(sl.time, sl.var_08, sl.var_13, sl.var_14, sl.var_15, sl.var_16; 
+                    ylabels=["LoD [-]", L"\alpha_2~[°]", L"\alpha_{3b}~[°]", L"\alpha_{4b}~[°]"],
+                    fig="aerodynamics"))
+    end
     nothing
 end
