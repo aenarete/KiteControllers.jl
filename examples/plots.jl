@@ -206,12 +206,13 @@ function plot_aerodynamics(plot_lift_drag = false)
                       fig="aerodynamics"))
         display(plotxy(sl.var_13[2:end], sl.var_15[2:end]; 
                       xlabel="AoA [°]",
-                      ylabel="Lift [N]",
-                      fig="Lift as function of AoA"))
+                      ylabel="CL [-]",
+                      fig="CL as function of AoA"))
         display(plotxy(sl.var_13[2:end], sl.var_16[2:end]; 
                       xlabel="AoA [°]",
-                      ylabel="Drag [N]",
-                      fig="Drag as function of AoA"))
+                      ylabel="CD [-]",
+                      fig="CD as function of AoA"))
+
     else
         display(plotx(sl.time, sl.var_08, sl.var_13, sl.var_14, sl.var_15, sl.var_16; 
                     ylabels=["LoD [-]", L"\alpha_2~[°]", L"\alpha_{3b}~[°]", L"\alpha_{4b}~[°]"],

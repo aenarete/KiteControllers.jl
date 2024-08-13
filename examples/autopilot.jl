@@ -7,12 +7,15 @@ end
 using Timers; tic()
 
 LOG_LIFT_DRAG::Bool = true
+DRAG_CORR::Float64 = 0.93 
 
 using KiteControllers, KiteViewers, KiteModels, StatsBase, ControlPlots, NativeFileDialog, LaTeXStrings
 using Printf, LinearAlgebra
 import KiteViewers.GLMakie
 import KiteViewers.GLMakie.GLFW
 import KiteControllers.YAML
+import KiteModels.calc_cl
+import KiteModels.calc_cd
 if false; include("../src/flightpathcontroller.jl"); end
 if false; include("../src/flightpathcalculator2.jl"); end
 if false; include("../src/systemstatecontrol.jl"); end
@@ -138,6 +141,8 @@ function simulate(integrator, stopped=true)
     if ! stopped
         set_status(app.viewer, "ssParking")
     end
+    rel_side_area = app.set.rel_side_area/100.0  # defined in percent
+    K = 1 - rel_side_area                        # correction factor for the drag
     i=1
     j=0; k=0
     GC.enable(true)
@@ -210,8 +215,11 @@ function simulate(integrator, stopped=true)
             sys_state.var_13 = app.kps4.alpha_2
             sys_state.var_14 = app.kps4.alpha_2b
             if LOG_LIFT_DRAG
-                sys_state.var_15 = norm(app.kps4.lift_force)
-                sys_state.var_16 = norm(app.kps4.drag_force)
+                CL2, CD2 = calc_cl(app.kps4.alpha_2), DRAG_CORR * calc_cd(app.kps4.alpha_2)
+                CL3, CD3 = calc_cl(app.kps4.alpha_3), DRAG_CORR * calc_cd(app.kps4.alpha_3)
+                CL4, CD4 = calc_cl(app.kps4.alpha_4), DRAG_CORR * calc_cd(app.kps4.alpha_4)
+                sys_state.var_15 = CL2
+                sys_state.var_16 = K*(CD2+rel_side_area*(CD3+CD4))
             else
                 sys_state.var_15 = app.kps4.alpha_3b 
                 sys_state.var_16 = app.kps4.alpha_4b 
