@@ -211,7 +211,7 @@ function plot_aerodynamics(plot_lift_drag = false)
         display(plotxy(sl.var_13[2:end], sl.var_16[2:end]; 
                       xlabel="AoA [°]",
                       ylabel="CD [-]",
-                      fig="CD as function of AoA"))
+                      fig="CD_tot as function of AoA"))
 
     else
         display(plotx(sl.time, sl.var_08, sl.var_13, sl.var_14, sl.var_15, sl.var_16; 
