@@ -202,7 +202,7 @@ function plot_aerodynamics(plot_lift_drag = false)
 
     if plot_lift_drag
         display(plotx(sl.time, sl.var_08, sl.var_13, sl.var_15, sl.var_16; 
-                      ylabels=["LoD [-]", L"\alpha_2~[°]", "Lift [N]",  "Drag [N]"],
+                      ylabels=["LoD [-]", L"\alpha_2~[°]", "CL [-]",  "CD [-]"],
                       fig="aerodynamics"))
         display(plotxy(sl.var_13[2:end], sl.var_15[2:end]; 
                       xlabel="AoA [°]",
