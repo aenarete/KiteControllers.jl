@@ -276,8 +276,8 @@ end
 end
 
 @testset "FlightPathController" begin
-    fcs = FPCSettings()
-    fpc = FlightPathController(fcs) 
+    fcs = FPCSettings(dt=0.05)
+    fpc = FlightPathController(fcs;  u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower) 
     on_control_command(fpc)
     phi = 0.0
     beta = 0.0
@@ -300,18 +300,18 @@ end
 
 @testset "FPC_01" begin
     PARKING = false
-    fcs = FPCSettings()
+    fcs = FPCSettings(dt=0.05)
     fcs.dt = 0.02
-    fpc = FlightPathController(fcs) 
+    fpc = FlightPathController(fcs; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower) 
     us = calc_steering(fpc, PARKING)
     @test us == 0.0
 end
 
 @testset "testNDI_01" begin
     # test nonlinear dynamic inversion
-    fcs = FPCSettings()
+    fcs = FPCSettings(dt=0.05)
     fcs.dt = 0.02
-    fpc = FlightPathController(fcs)
+    fpc = FlightPathController(fcs; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
     psi_dot = deg2rad(0.0)
     fpc.u_d_prime = 0.2
     fpc.va = 20.0
@@ -323,9 +323,9 @@ end
 
 @testset "FPC_02a" begin
     PARKING = false
-    fcs = FPCSettings()
+    fcs = FPCSettings(dt=0.05)
     fcs.dt = 0.02
-    fpc = FlightPathController(fcs) 
+    fpc = FlightPathController(fcs; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
     x = [0.1, 0]
     a,b,c,d,e = KiteControllers.calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
     @test a ≈ 0.0004
@@ -340,9 +340,9 @@ end
 
 @testset "FPC_02" begin
     PARKING = false
-    fcs = FPCSettings()
+    fcs = FPCSettings(dt=0.05)
     fcs.dt = 0.02
-    fpc = FlightPathController(fcs) 
+    fpc = FlightPathController(fcs; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
     u_d = 0.24
     va = 24.0
     beta = deg2rad(70.0)
@@ -360,9 +360,9 @@ end
 
 @testset "FPC_03" begin
      # test navigate method
-    fcs = FPCSettings()
+    fcs = FPCSettings(dt=0.05)
     fcs.dt = 0.02
-    fpc = FlightPathController(fcs) 
+    fpc = FlightPathController(fcs; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
     phi_set = deg2rad(0)
     beta_set = deg2rad(50)
     fpc.attractor[1] = phi_set
@@ -376,9 +376,9 @@ end
 
 @testset "FPC_04" begin
      # test navigate method with active limit for delta_beta
-    fcs = FPCSettings()
+    fcs = FPCSettings(dt=0.05)
     fcs.dt = 0.02
-    fpc = FlightPathController(fcs) 
+    fpc = FlightPathController(fcs; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
     phi_set = deg2rad(0)
     beta_set = deg2rad(90)
     fpc.attractor[1] = phi_set
@@ -391,7 +391,7 @@ end
 end
 
 @testset "KiteModel" begin
-    fcs = FPCSettings()
+    fcs = FPCSettings(dt=0.05)
     fcs.dt = 0.02
     km = KiteControllers.KiteModel(fcs)
     @test km.omega == 0.08
@@ -417,7 +417,7 @@ end
 
 @testset "SystemStateControl" begin
     wcs = WCSettings()
-    fcs = FPCSettings()
+    fcs = FPCSettings(dt=0.05)
     fpps = FPPSettings()
     ssc = SystemStateControl(wcs, fcs, fpps)
     on_parking(ssc)
@@ -442,9 +442,9 @@ end
 end
 
 @testset "FlightPathCalculator" begin
-    fcs = FPCSettings()
+    fcs = FPCSettings(dt=0.05)
     fpps = FPPSettings()
-    fpc = FlightPathController(fcs)
+    fpc = FlightPathController(fcs; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
     fpca = FlightPathCalculator(fpc, fpps)
     vec=[1.0,2]
     res = KiteControllers.addy(vec, 0.5)
@@ -477,9 +477,9 @@ end
 end
 
 @testset "FlightPathPlanner" begin
-    fcs = FPCSettings()
+    fcs = FPCSettings(dt)
     fpps = FPPSettings()
-    fpc = FlightPathController(fcs)
+    fpc = FlightPathController(fcs; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
     fpca = FlightPathCalculator(fpc, fpps)
     fpp = FlightPathPlanner(fpps, fpca)
     @test fpp.u_d_ro == 0.22
