@@ -14,8 +14,6 @@ using Printf, LinearAlgebra
 import KiteViewers.GLMakie
 import KiteViewers.GLMakie.GLFW
 import KiteControllers.YAML
-import KiteModels.calc_cl
-import KiteModels.calc_cd
 if false; include("../src/flightpathcontroller.jl"); end
 if false; include("../src/flightpathcalculator2.jl"); end
 if false; include("../src/systemstatecontrol.jl"); end
@@ -215,9 +213,9 @@ function simulate(integrator, stopped=true)
             sys_state.var_13 = app.kps4.alpha_2
             sys_state.var_14 = app.kps4.alpha_2b
             if LOG_LIFT_DRAG
-                CL2, CD2 = calc_cl(app.kps4.alpha_2), DRAG_CORR * calc_cd(app.kps4.alpha_2)
-                CL3, CD3 = calc_cl(app.kps4.alpha_3), DRAG_CORR * calc_cd(app.kps4.alpha_3)
-                CL4, CD4 = calc_cl(app.kps4.alpha_4), DRAG_CORR * calc_cd(app.kps4.alpha_4)
+                CL2, CD2 = app.kps4.calc_cl(app.kps4.alpha_2), DRAG_CORR * app.kps4.calc_cd(app.kps4.alpha_2)
+                CL3, CD3 = app.kps4.calc_cl(app.kps4.alpha_3), DRAG_CORR * app.kps4.calc_cd(app.kps4.alpha_3)
+                CL4, CD4 = app.kps4.calc_cl(app.kps4.alpha_4), DRAG_CORR * app.kps4.calc_cd(app.kps4.alpha_4)
                 sys_state.var_15 = CL2
                 sys_state.var_16 = K*(CD2+rel_side_area*(CD3+CD4))
             else
