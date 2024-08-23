@@ -419,7 +419,7 @@ end
     wcs = WCSettings()
     fcs = FPCSettings(dt=0.05)
     fpps = FPPSettings()
-    ssc = SystemStateControl(wcs, fcs, fpps)
+    ssc = SystemStateControl(wcs, fcs, fpps; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
     on_parking(ssc)
     @test ssc.state == ssParking
     on_autopilot(ssc)
@@ -477,7 +477,7 @@ end
 end
 
 @testset "FlightPathPlanner" begin
-    fcs = FPCSettings(dt)
+    fcs = FPCSettings(dt=0.05)
     fpps = FPPSettings()
     fpc = FlightPathController(fcs; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
     fpca = FlightPathCalculator(fpc, fpps)
