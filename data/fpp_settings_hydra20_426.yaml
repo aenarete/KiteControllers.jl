@@ -4,9 +4,9 @@ fpp_settings:
     max_depower:       61.5
     parking_depower:   25
     min_length:        300   # meter
-    max_length:        480.0
-    max_height:        480.0
-    beta_set:          24.0    # average elevation angle during reel-out in degrees
+    max_length:        600.0
+    max_height:        600.0
+    beta_set:          26.0    # average elevation angle during reel-out in degrees
     w_fig:             36.0    # width of figure of eight in degrees
     psi_dot_max:       3.0     # max turn rate in deg/s
     r_min:             3.0     # minimal turn radius in degrees
