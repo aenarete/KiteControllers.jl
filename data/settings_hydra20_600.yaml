@@ -51,7 +51,7 @@ kite:
 
 kps4:
     width:         8.16     # width of the kite                      [m]
-    alpha_zero:    9.2      # 4 to 8.8                         [degrees]
+    alpha_zero:    6.75     # 4 to 8.8                         [degrees]
     alpha_ztip:   10.0      #                                  [degrees]
     m_k:           0.2      # relative nose distance; increasing m_k increases C2 of the turn-rate law
     rel_nose_mass: 0.47     # relative nose mass
@@ -60,17 +60,9 @@ kps4:
 kps4_3l:
     radius: 10.0                    # the radius of the circle shape on which the kite lines, viewed 
                                     #     from the front                                              [m]
-    bridle_center_distance: 2.0     # the distance from point the center bridle connection point of 
-                                    #     the middle line to the kite                                 [m]
-    middle_length:          2.0     # the cord length of the kite in the middle                       [m]
-    tip_length:             1.0     # the cord length of the kite at the tips                         [m]
-    min_steering_line_distance: 4.0 # the distance between the left and right steering bridle         [m]
-                                    #     line connections on the kite that are closest to each other [m]
-    width_3l:               20.0    # width of the kite                                               [m]
-    aero_surfaces:          10      # the number of aerodynamic surfaces to use per mass point        [-]
     
 bridle:
-    d_line:    2.5         # bridle line diameter                  [mm]
+    d_line:    3.75        # bridle line diameter                  [mm]
     l_bridle: 33.4         # sum of the lengths of the bridle lines [m]
     h_bridle:  4.9         # height of bridle                       [m]
     rel_compr_stiffness: 0.5 # relative compression stiffness of the kite springs
