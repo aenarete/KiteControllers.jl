@@ -1,5 +1,13 @@
 # Changelog
 
+### Unreleased
+- removed calls to se() to be sure the correct settings from the variable set are used
+- fixed the wrong polars in the yaml settings for the 20 m² kite
+- use the new, correct methods for calculating the polars in autopilot.jl
+- added the new fields needed for the new winch controller release
+- bump KiteUtils to 0.7.8
+- bump KiteModels to 0.6.5
+
 ### KiteControllers v0.2.9 - 2024-08-07
 #### Changed
 - bump KiteUtils to 0.7.4
