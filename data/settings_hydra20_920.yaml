@@ -39,7 +39,7 @@ depower:
 kite:
     model: "data/kite.obj" # 3D model of the kite
     physical_model: "KPS4" # name of the kite model to use (KPS3 or KPS4)
-    version: 1             # version of the model to use
+    version: 2             # version of the model to use
     mass:  10.58           # kite mass incl. sensor unit [kg]
     area: 20.36            # projected kite area         [m²]
     rel_side_area: 30.6    # relative side area           [%]
