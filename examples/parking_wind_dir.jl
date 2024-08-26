@@ -29,8 +29,9 @@ fcs.d=35.81 * 0.6
 MAX_TIME::Float64 = 60
 TIME_LAPSE_RATIO  =  4
 SHOW_KITE         = true
-UPWIND_DIR        = -pi/2
-UPWIND_DIR2       = 0
+# For position and velocity vectors of the model the ENU (East North Up) 
+UPWIND_DIR        = -pi/2 # the direction the wind is coming from.
+UPWIND_DIR2       = 0     # Zero is at north; clockwise positive
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
@@ -62,8 +63,11 @@ function simulate(integrator)
         v_ro = 0.0
         if time > 20 && upwind_dir < UPWIND_DIR2
             upwind_dir += 0.01
+            if upwind_dir > 0
+                upwind_dir = 0
+            end
         end
-        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, wind_dir=upwind_dir+pi/2)
+        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, wind_dir=-upwind_dir-pi/2)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
