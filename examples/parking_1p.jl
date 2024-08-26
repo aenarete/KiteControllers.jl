@@ -6,17 +6,20 @@ end
 using Timers; tic()
 
 using KiteUtils
-se().abs_tol=0.00000006
-se().rel_tol=0.0000001
+set = deepcopy(load_settings("system.yaml"))
+set.abs_tol=0.00000006
+set.rel_tol=0.0000001
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots
 
-kcu::KCU = KCU(se())
+kcu::KCU = KCU(set)
 kps::KPS3 = KPS3(kcu)
-wcs::WCSettings = WCSettings(); wcs.dt = 1/se().sample_freq
-fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
+wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
+fcs::FPCSettings = FPCSettings(dt = wcs.dt)
 fpps::FPPSettings = FPPSettings()
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+u_d0 = 0.01 * set.depower_offset
+u_d = 0.01 * set.depower
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # result of tuning, factor 0.9 to increase robustness
