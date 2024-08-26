@@ -7,8 +7,8 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots
 set = deepcopy(load_settings("system.yaml"))
-set.abs_tol=0.00000006
-set.rel_tol=0.0000001
+set.abs_tol=0.00006
+set.rel_tol=0.0001
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -27,8 +27,10 @@ fcs.d=35.81 * 0.6
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
-TIME_LAPSE_RATIO  =  2
+TIME_LAPSE_RATIO  =  4
 SHOW_KITE         = true
+UPWIND_DIR        = -pi/2
+UPWIND_DIR2       = 0
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
@@ -38,6 +40,7 @@ T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
+    upwind_dir=UPWIND_DIR
     start_time_ns = time_ns()
     clear_viewer(viewer)
     i=1; j=0; k=0
@@ -47,20 +50,20 @@ function simulate(integrator)
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     while true
+        time = i * dt 
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
             steering = calc_steering(ssc, 0)
-            time = i * dt
-            # disturbance
-            if time > 20 && time < 21
-                steering = 0.1
-            end            
+           
             set_depower_steering(kps4.kcu, depower, steering)
         end  
         # execute winch controller
         v_ro = 0.0
-        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
+        if time > 20 && upwind_dir < UPWIND_DIR2
+            upwind_dir += 0.01
+        end
+        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, wind_dir=upwind_dir+pi/2)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
