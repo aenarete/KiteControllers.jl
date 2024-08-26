@@ -6,15 +6,18 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots
-se().abs_tol=0.0000006
-se().rel_tol=0.000001
+set = deepcopy(load_settings("system.yaml"))
+set.abs_tol=0.00000006
+set.rel_tol=0.0000001
 
-kcu::KCU   = KCU(se())
+kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
-wcs::WCSettings = WCSettings(); wcs.dt = 1/se().sample_freq
-fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
+wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
+fcs::FPCSettings = FPCSettings(dt = wcs.dt)
 fpps::FPPSettings = FPPSettings()
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+u_d0 = 0.01 * set.depower_offset
+u_d = 0.01 * set.depower
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # result of tuning, factor 0.6 to increase robustness
@@ -133,5 +136,4 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 
 play()
 stop(viewer)
-plot(T, rad2deg.(AZIMUTH))
-
+plot(T, rad2deg.(AZIMUTH); xlabel="Time [s]", ylabel="Azimuth [deg]")
