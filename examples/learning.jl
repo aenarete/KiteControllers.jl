@@ -45,9 +45,11 @@ function residual(corr_vec=nothing; sim_time=500)
     kps4 = KiteModels.KPS4(kcu)
 
     wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
-    fcs = FPCSettings(); fcs.dt = wcs.dt
+    fcs = FPCSettings(wcs.dt)
     fpps = FPPSettings()
-    ssc = SystemStateControl(wcs, fcs, fpps)
+    u_d0 = 0.01 * set.depower_offset
+    u_d  = 0.01 * set.depower
+    ssc = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
     if ! isnothing(corr_vec)
         ssc.fpp.corr_vec = corr_vec
     end
