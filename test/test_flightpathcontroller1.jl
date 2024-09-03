@@ -5,7 +5,6 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using KiteControllers, KiteUtils, Timers, ControlPlots; tic()
 
-
 set = deepcopy(load_settings("system.yaml"))
 
 fcs = FPCSettings(dt=1/set.sample_freq)

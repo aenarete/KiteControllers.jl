@@ -5,7 +5,9 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using KiteControllers, ControlPlots, Timers; tic()
 
-fcs = FPCSettings()
+set = deepcopy(load_settings("system.yaml"))
+
+fcs = FPCSettings(dt=1/set.sample_freq)
 fcs.dt = 0.02
 DURATION = 100.0
 SAMPLES = Int(DURATION / fcs.dt + 1)
@@ -14,7 +16,9 @@ TIME = range(0.0, DURATION, SAMPLES)
 # Test the flight path controller against the simplified kite model as shown
 # in diagram docs/flight_path_controller_test1.png. Steer towards an
 # attractor point.
-fpc = FlightPathController(fcs)
+u_d0 = 0.01 * set.depower_offset
+u_d  = 0.01 * set.depower
+fpc = FlightPathController(fcs; u_d0, u_d)
 kite = KiteModel(fcs)
 kite.omega = 0.08
 v_a = 20.0
