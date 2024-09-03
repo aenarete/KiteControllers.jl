@@ -6,30 +6,30 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, StatsBase
 
-set = deepcopy(se())
-set.segments=12
 
+set = deepcopy(load_settings("system.yaml"))
+set.segments = 12
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 
 wcs::WCSettings = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
-fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
+fcs::FPCSettings = FPCSettings(dt=wcs.dt)
 fpps::FPPSettings = FPPSettings()
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+u_d0 = 0.01 * set.depower_offset
+u_d  = 0.01 * set.depower
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
-initialized = true
 
 function init_globals()
-    global kcu, kps4, wcs, fcs, fpps, ssc, initialized
-    if ! initialized
-        kcu   = KCU(set)
-        kps4 = KPS4(kcu)
-        wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
-        fcs = FPCSettings(); fcs.dt = wcs.dt
-        fpps = FPPSettings()
-        ssc = SystemStateControl(wcs, fcs, fpps)
-    end
-    initialized = false
+    global kcu, kps4, wcs, fcs, fpps, ssc
+    kcu   = KCU(set)
+    kps4 = KPS4(kcu)
+    wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
+    fcs = FPCSettings(dt=wcs.dt)
+    fpps = FPPSettings()
+    u_d0 = 0.01 * set.depower_offset
+    u_d  = 0.01 * set.depower
+    ssc = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 end
 
 # the following values can be changed to match your interest
