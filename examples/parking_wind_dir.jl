@@ -67,7 +67,7 @@ function simulate(integrator)
                 upwind_dir = 0
             end
         end
-        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, wind_dir=-upwind_dir-pi/2)
+        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, upwind_dir)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
