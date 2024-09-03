@@ -10,6 +10,8 @@ using Timers; tic()
 # docs/force_speed_controller_test2.png
 using KiteControllers, ControlPlots, BenchmarkTools
 
+set = deepcopy(load_settings("system.yaml"))
+
 wcs = WCSettings()
 wcs.test = true
 wcs.f_low = 350
@@ -50,7 +52,7 @@ set_v_sw(pid2, -1.0)
 # create the mixer for the output of the two controllers
 mix2 = Mixer_2CH(wcs.dt, wcs.t_blend)
 # create winch model and unit delay and the v_set_in calculator and mixer
-winch = Winch(wcs)
+winch = Winch(wcs, set)
 delay = UnitDelay()
 calc = CalcVSetIn(wcs)
 # create and initialize upper force controller
