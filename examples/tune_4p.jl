@@ -5,17 +5,20 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 
 using KiteUtils
-se().abs_tol=0.0000006
-se().rel_tol=0.000001
+set = deepcopy(load_settings("system.yaml"))
+set.abs_tol=0.0000006
+set.rel_tol=0.000001
 
 using KiteControllers, KiteModels, BayesOpt, ControlPlots
 
-kcu::KCU   = KCU(se())
-kps4::KPS4 = KPS4(kcu)
-wcs::WCSettings   = WCSettings();  wcs.dt = 1/se().sample_freq
-fcs::FPCSettings  = FPCSettings(); fcs.dt = wcs.dt
+kcu::KCU  = KCU(set)
+kps::KPS3 = KPS3(kcu)
+wcs::WCSettings   = WCSettings();  wcs.dt = 1/set.sample_freq
+fcs::FPCSettings  = FPCSettings(wcs.dt)
 fpps::FPPSettings = FPPSettings()
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+u_d0 = 0.01 * set.depower_offset
+u_d  = 0.01 * set.depower
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
@@ -80,7 +83,7 @@ end
 function test_parking(suppress_overshoot_factor = 3.0)
     global LAST_RES
     clear!(kps4)
-    init_kcu(kcu, se())
+    init_kcu(kcu, set)
     AZIMUTH .= zeros(Int64(MAX_TIME/dt))
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     simulate(integrator)
