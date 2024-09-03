@@ -99,7 +99,7 @@ function test_parking()
     global  AZIMUTH
     global  ITER
     clear!(kps)
-    init_kcu(kcu, set)
+    KitePodModels.init_kcu!(kcu, set)
     AZIMUTH .= zeros(Int64(MAX_TIME/dt))
     integrator = KiteModels.init_sim!(kps, stiffness_factor=0.04)
     simulate(integrator)
