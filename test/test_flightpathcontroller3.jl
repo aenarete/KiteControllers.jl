@@ -93,7 +93,7 @@ end
 function test_parking(suppress_overshoot_factor = 3.0)
     global LAST_RES
     clear!(kps4)
-    # init_kcu(kcu, set)
+    KitePodModels.init_kcu!(kcu, set)
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     simulate(integrator)
 end
