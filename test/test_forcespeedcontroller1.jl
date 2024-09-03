@@ -8,7 +8,9 @@ using Timers; tic()
 # Test the speed controller in combination with the controller for the lower force.
 # Input: A varying wind speed. Implements the simulink block diagram, shown in
 # docs/force_speed_controller_test1.png
-using KiteControllers, ControlPlots, BenchmarkTools
+using KiteControllers, KiteUtils, ControlPlots, BenchmarkTools
+
+set = deepcopy(load_settings("system.yaml"))
 
 wcs = WCSettings()
 wcs.test = true
@@ -32,7 +34,7 @@ V_RO, V_SET_OUT, V_SET_OUT_B, FORCE, F_ERR = zeros(SAMPLES), zeros(SAMPLES), zer
 ACC, ACC_SET, V_ERR = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 STATE = zeros(Int64, SAMPLES)
 # create the winch model and the v_set_in calculator and mixer
-winch = Winch(wcs)
+winch = Winch(wcs, set)
 calc = CalcVSetIn(wcs)
 # create and initialize speed controller 
 pid1 = SpeedController(wcs)
