@@ -7,18 +7,21 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, Joysticks
 
-if ! @isdefined kcu;    const kcu = KCU(se());   end
-if ! @isdefined kps4;   const kps4 = KPS4(kcu); end
+set = deepcopy(load_settings("system.yaml"))
+kcu::KCU = KCU(set)
+kps4::KPS4 = KPS4(kcu)
 if ! @isdefined js;
     const js = open_joystick();
     const jsaxes = JSState(); 
     const jsbuttons = JSButtonState()
     async_read!(js, jsaxes, jsbuttons)
 end
-wcs::WCSettings = WCSettings(); wcs.dt = 1/se().sample_freq
-fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
+wcs::WCSettings = WCSettings(); wcs.dt = 1/set.sample_freq
+fcs::FPCSettings =  FPCSettings(dt=wcs.dt)
 fpps::FPPSettings = FPPSettings()
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+u_d0 = 0.01 * set.depower_offset
+u_d  = 0.01 * set.depower
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
