@@ -22,13 +22,15 @@ set = deepcopy(se(PROJECT))
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 wcs::WCSettings   = WCSettings();  wcs.dt = 1/set.sample_freq
-fcs::FPCSettings  = FPCSettings(); fcs.dt = wcs.dt
+fcs::FPCSettings  = FPCSettings(dt = wcs.dt)
 fpps::FPPSettings = FPPSettings()
 dt::Float64 = wcs.dt
 attractor=[55.73, 56.95]
 # attractor=[0, 90] # zenith
 
-fpc = FlightPathController(fcs)
+u_d0 = 0.01 * set.depower_offset
+u_d = 0.01 * set.depower
+fpc = FlightPathController(fcs; u_d0, u_d)
 fpca = FlightPathCalculator(fpc, fpps)
 kite = KiteModel(fcs)
 kite.omega = 0.08
