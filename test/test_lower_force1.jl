@@ -15,7 +15,7 @@ if false; include("../src/wc_settings.jl"); end
 # input: data/transition.arrow
 using KiteControllers, ControlPlots, BenchmarkTools
 
-log = load_log("transition.arrow")
+log = load_log("transition.arrow2")
 sl  = log.syslog
 dt  = 0.05
 t_start = 214
