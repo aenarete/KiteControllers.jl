@@ -53,7 +53,7 @@ for i in 1:SAMPLES
     end
     on_timer(lfc)
 end
-display(plot(time, ACC, fig="acc"))
-display(plot(time, D_F_ERR, fig="d(f_err)"))
-display(plot(time, [V_RO, V_SET], fig="v_ro"))
+display(plot(time, ACC; xlabel="Time [s]", ylabel="ACC", fig="acc"))
+display(plot(time, D_F_ERR; xlabel="Time [s]", ylabel="D_F_ERR", fig="d(f_err)"))
+display(plot(time, [V_RO, V_SET]; xlabel="Time [s]", ylabel="v_ro [m/s]", labels=["V_RO", "V_SET"], fig="v_ro"))
 
