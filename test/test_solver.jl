@@ -1,5 +1,5 @@
 using NLsolve
-const MAX_ITER = 100
+MAX_ITER = 100
 
 function fun!(F, x)
     F[1] = x[1]  + 0.5 * (x[1] - x[2])^3 - 1.0
