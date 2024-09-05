@@ -7,6 +7,7 @@
 - added the new fields needed for the new winch controller release
 - bump KiteUtils to 0.7.8
 - bump KiteModels to 0.6.5
+- fix all failing test scripts
 
 ### KiteControllers v0.2.9 - 2024-08-07
 #### Changed
