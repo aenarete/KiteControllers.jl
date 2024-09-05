@@ -50,7 +50,7 @@ I_START = Int64(T_START/0.025+2)
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
 
-log = load_log("failure_low_right.arrow")
+log = load_log("failure_low_right.arrow2")
 sl  = log.syslog
 
 steps = Int64(MAX_TIME/dt)
