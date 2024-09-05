@@ -34,7 +34,7 @@ RESET, ACTIVE, F_SET = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 STATE = zeros(Int64, SAMPLES)
 # create and initialize winch controller 
 wc = WinchController(wcs)
-winch = KiteControllers.Winch(wcs)
+winch = KiteControllers.Winch(wcs, set)
 f_low = wcs.f_low
 
 for i in 1:SAMPLES

@@ -10,6 +10,7 @@ using Timers; tic()
 # docs/speed_controller_test1.png
 using KiteControllers, ControlPlots, BenchmarkTools
 
+set = deepcopy(load_settings("system.yaml"))
 wcs = WCSettings()
 
 DURATION = 10.0
@@ -29,7 +30,7 @@ V_SET_OUT = zeros(SAMPLES)
 FORCE = zeros(SAMPLES)
 ACC = zeros(SAMPLES)
 ACC_SET = zeros(SAMPLES)
-winch = Winch(wcs)
+winch = Winch(wcs, set)
 pid1 = SpeedController(wcs)
 set_v_set(pid1, -0.5)
 set_tracking(pid1, -0.5)
