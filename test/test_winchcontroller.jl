@@ -8,8 +8,9 @@ using Timers; tic()
 # Test the speed controller in combination with the controller for the lower and upper force.
 # Input: A varying wind speed. Implements the simulink block diagram, shown in
 # docs/force_speed_controller_test2.png
-using KiteControllers, ControlPlots, BenchmarkTools
+using KiteControllers, KiteUtils, ControlPlots, BenchmarkTools
 
+set = deepcopy(load_settings("system.yaml"))
 wcs = WCSettings()
 wcs.test = true
 wcs.f_low = 350

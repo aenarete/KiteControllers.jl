@@ -10,4 +10,4 @@ using KiteControllers, ControlPlots
 x = -4π:0.1:4π
 y = wrap2pi.(x)
 
-plot(x, y, ylabel="wrap2pi")
+plot(x, y; ylabel="wrap2pi")
