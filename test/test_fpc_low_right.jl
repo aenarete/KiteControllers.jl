@@ -54,7 +54,7 @@ log = load_log("failure_low_right.arrow2")
 sl  = log.syslog
 
 steps = Int64(MAX_TIME/dt)
-particles = app.set.segments + 5
+particles = set.segments + 5
 logger::Logger = Logger(particles, steps)
 
 function simulate(integrator)
