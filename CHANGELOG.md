@@ -8,6 +8,7 @@
 - bump KiteUtils to 0.7.9
 - bump KiteModels to 0.6.6
 - fix all failing test scripts
+- fix most of the example, and the script `menu.jl`to run the examples interactively 
 
 ### KiteControllers v0.2.9 - 2024-08-07
 #### Changed
