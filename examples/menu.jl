@@ -2,6 +2,7 @@ using REPL.TerminalMenus
 
 options = ["autopilot_1p = include(\"autopilot_1p.jl\")",
            "autopilot_4p = include(\"autopilot.jl\")",
+           "joystick = include(\"joystick.jl\")",
            "quit"]
 
 function menu()
