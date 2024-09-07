@@ -7,13 +7,17 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels
 
-kcu::KCU = KCU(se())
+set = deepcopy(load_settings("system.yaml"))
+
+kcu::KCU = KCU(set)
 kps3::KPS3 = KPS3(kcu)
 
-wcs = WCSettings(); update(wcs); wcs.dt = 1/se().sample_freq
-fcs::FPCSettings = FPCSettings(); fcs.dt = wcs.dt
+wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
+fcs::FPCSettings = FPCSettings(dt = wcs.dt)
 fpps::FPPSettings = FPPSettings()
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps)
+u_d0 = 0.01 * set.depower_offset
+u_d = 0.01 * set.depower
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # result of tuning, factor 0.9 to increase robustness
