@@ -2,6 +2,7 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
+    Pkg.add("BayesOpt")
 end
 
 using KiteUtils
@@ -12,9 +13,9 @@ set.rel_tol=0.000001
 using KiteControllers, KiteModels, BayesOpt, ControlPlots
 
 kcu::KCU  = KCU(set)
-kps::KPS3 = KPS3(kcu)
+kps4::KPS4 = KPS4(kcu)
 wcs::WCSettings   = WCSettings();  wcs.dt = 1/set.sample_freq
-fcs::FPCSettings  = FPCSettings(wcs.dt)
+fcs::FPCSettings  = FPCSettings(dt=wcs.dt)
 fpps::FPPSettings = FPPSettings()
 u_d0 = 0.01 * set.depower_offset
 u_d  = 0.01 * set.depower
