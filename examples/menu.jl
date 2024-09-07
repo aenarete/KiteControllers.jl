@@ -7,6 +7,7 @@ options = ["autopilot_1p = include(\"autopilot_1p.jl\")",
            "minipilot_12 = include(\"minipilot_12.jl\")",
            "parking_1p = include(\"parking_1p.jl\")",
            "parking_4p = include(\"parking_4p.jl\")",
+           "parking_wind_dir = include(\"parking_wind_dir.jl\")",
            "quit"]
 
 function menu()
