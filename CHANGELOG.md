@@ -1,6 +1,7 @@
 # Changelog
 
-### Unreleased
+### 0.2.10 - 2024-09-07
+- the script `create_sys_image` is now installing matplotlib if required
 - removed calls to se() to be sure the correct settings from the variable set are used
 - fixed the wrong polars in the yaml settings for the 20 m² kite
 - use the new, correct methods for calculating the polars in autopilot.jl
