@@ -26,7 +26,7 @@ dt::Float64 = wcs.dt
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
 TIME_LAPSE_RATIO  = 1
-MAX_ITER          = 80
+MAX_ITER          = 40
 SHOW_KITE         = false
 # end of user parameter section #
 
