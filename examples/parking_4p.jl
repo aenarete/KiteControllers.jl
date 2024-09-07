@@ -31,7 +31,7 @@ TIME_LAPSE_RATIO  =  1
 SHOW_KITE         = true
 # end of user parameter section #
 
-if ! @isdefined viewer; const viewer = Viewer3D(SHOW_KITE, "WinchON"); end
+viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
 steps = 0
 if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end

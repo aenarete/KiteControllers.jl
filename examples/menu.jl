@@ -5,6 +5,8 @@ options = ["autopilot_1p = include(\"autopilot_1p.jl\")",
            "joystick = include(\"joystick.jl\")",
            "minipilot = include(\"minipilot.jl\")",
            "minipilot_12 = include(\"minipilot_12.jl\")",
+           "parking_1p = include(\"parking_1p.jl\")",
+           "parking_4p = include(\"parking_4p.jl\")",
            "quit"]
 
 function menu()
