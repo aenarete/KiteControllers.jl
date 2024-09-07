@@ -2,6 +2,7 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
+    Pkg.add("BlackBoxOptim")
 end
 
 using KiteUtils
@@ -15,7 +16,7 @@ using KiteControllers, KiteModels, ControlPlots, BlackBoxOptim
 kcu::KCU  = KCU(set)
 kps::KPS3 = KPS3(kcu)
 wcs::WCSettings   = WCSettings();  wcs.dt = 1/set.sample_freq
-fcs::FPCSettings  = FPCSettings(wcs.dt)
+fcs::FPCSettings  = FPCSettings(dt=wcs.dt)
 fpps::FPPSettings = FPPSettings()
 u_d0 = 0.01 * set.depower_offset
 u_d  = 0.01 * set.depower
