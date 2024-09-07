@@ -8,7 +8,7 @@ options = ["autopilot_1p = include(\"autopilot_1p.jl\")",
            "parking_1p = include(\"parking_1p.jl\")",
            "parking_4p = include(\"parking_4p.jl\")",
            "parking_wind_dir = include(\"parking_wind_dir.jl\")",
-           "tune_4p = include(\"tune_4p.jl\"); tune_4p()",
+           "tune_4p_ = include(\"tune_4p.jl\"); tune_4p()",
            "quit"]
 
 function menu()

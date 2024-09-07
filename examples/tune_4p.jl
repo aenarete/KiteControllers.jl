@@ -9,9 +9,9 @@ using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-plt.close("all")
 
 using KiteControllers, KiteModels, BayesOpt, ControlPlots
+plt.close("all")
 
 kcu::KCU  = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -120,7 +120,7 @@ function tune_4p()
     set_kernel!(config, "kMaternARD5")
     println(config.noise)
     # println(config.n_inner_iterations)
-    lowerbound = [10., 0., 0.]; upperbound = [120., 4.0, 100.]
+    lowerbound = [10., 0., 0.]; upperbound = [120., 4.0, 50.]
     optimizer, optimum = bayes_optimization(f, lowerbound, upperbound, config)
     println("Opimal parameters: p = $(optimizer[1]), i = $(optimizer[2]), d = $(optimizer[3])")
     println("Optimum value    : $(optimum)")
