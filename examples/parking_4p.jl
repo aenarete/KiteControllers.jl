@@ -136,4 +136,5 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 
 play()
 stop(viewer)
-plot(T, rad2deg.(AZIMUTH); xlabel="Time [s]", ylabel="Azimuth [deg]")
+p = plot(T, rad2deg.(AZIMUTH); xlabel="Time [s]", ylabel="Azimuth [deg]")
+display(p)
