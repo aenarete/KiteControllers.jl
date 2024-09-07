@@ -43,9 +43,8 @@ function residual(corr_vec=nothing; sim_time=500)
     set = deepcopy(KiteControllers.se(PROJECT))
     kcu   = KiteModels.KCU(set)
     kps4 = KiteModels.KPS4(kcu)
-
-    wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
-    fcs = FPCSettings(wcs.dt)
+    wcs = WCSettings(dt = 1/set.sample_freq); update(wcs)
+    fcs = FPCSettings(dt=wcs.dt)
     fpps = FPPSettings()
     u_d0 = 0.01 * set.depower_offset
     u_d  = 0.01 * set.depower
@@ -99,7 +98,7 @@ function residual(corr_vec=nothing; sim_time=500)
     end
 
     on_parking(ssc)
-    integrator=KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+    integrator=KiteModels.init_sim!(kps4; delta=0.001, stiffness_factor=0.5)
     simulate(integrator)
     on_stop(ssc)
     KiteControllers.save_log(logger, "tmp")
