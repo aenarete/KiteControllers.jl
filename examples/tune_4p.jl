@@ -7,8 +7,9 @@ end
 
 using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
-set.abs_tol=0.0000006
-set.rel_tol=0.000001
+set.abs_tol=0.00006
+set.rel_tol=0.0001
+plt.close("all")
 
 using KiteControllers, KiteModels, BayesOpt, ControlPlots
 
@@ -86,7 +87,7 @@ function test_parking(suppress_overshoot_factor = 3.0)
     clear!(kps4)
     KitePodModels.init_kcu!(kcu, set)
     AZIMUTH .= zeros(Int64(MAX_TIME/dt))
-    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+    integrator = KiteModels.init_sim!(kps4, delta=0.1, stiffness_factor=0.5)
     simulate(integrator)
     res = calc_res(AZIMUTH, suppress_overshoot_factor)
     if res < LAST_RES
@@ -98,7 +99,7 @@ function test_parking(suppress_overshoot_factor = 3.0)
 end
 
 function show_result()
-    plot(T, rad2deg.(AZIMUTH))
+    plot(T, rad2deg.(AZIMUTH); xlabel="Time [s]", ylabel="Azimuth [deg]")
 end
 
 function f(x)
@@ -119,15 +120,18 @@ function tune_4p()
     set_kernel!(config, "kMaternARD5")
     println(config.noise)
     # println(config.n_inner_iterations)
-    lowerbound = [10., 0., 0.]; upperbound = [120., 4.0, 50.]
+    lowerbound = [10., 0., 0.]; upperbound = [120., 4.0, 100.]
     optimizer, optimum = bayes_optimization(f, lowerbound, upperbound, config)
     println("Opimal parameters: p = $(optimizer[1]), i = $(optimizer[2]), d = $(optimizer[3])")
     println("Optimum value    : $(optimum)")
 end
 
-fcs.p=100   *0.6
-fcs.i=0.5
-fcs.d=35.81 *0.6
+fcs.p=65
+fcs.i=1.37
+fcs.d=50
 
 println(test_parking())
 show_result()
+
+# best query: 65.0176,1.37134, 50
+# best query: 120,    3.99829, 70.3259
