@@ -1,6 +1,7 @@
 # Changelog
 
 ### 0.2.10 - 2024-09-07
+#### Changed
 - the script `create_sys_image` is now installing matplotlib if required
 - removed calls to se() to be sure the correct settings from the variable set are used
 - fixed the wrong polars in the yaml settings for the 20 m² kite
@@ -8,6 +9,7 @@
 - added the new fields needed for the new winch controller release
 - bump KiteUtils to 0.7.9
 - bump KiteModels to 0.6.6
+#### Fixed
 - fix all failing test scripts
 - fix most of the example, and the script `menu.jl`to run the examples interactively 
 
