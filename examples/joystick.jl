@@ -37,10 +37,12 @@ steps = 0
 function simulate(integrator)
     start_time_ns = time_ns()
     clear_viewer(viewer)
+    viewer.stop = false
     i=1; j=0; k=0
     GC.gc()
     max_time = 0
     t_gc_tot = 0
+    e_mech = 0.0
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     while true
@@ -51,6 +53,7 @@ function simulate(integrator)
             if depower < 0.22; depower = 0.22; end
             steering = calc_steering(ssc, jsaxes.x)
             set_depower_steering(kps4.kcu, depower, steering)
+            println("depower: ", depower, " steering: ", round(steering, digits=3))
             # set_depower_steering(kps4.kcu, depower, jsaxes.x)
             # v_ro = jsaxes.u * 8.0 
         end  
@@ -62,6 +65,8 @@ function simulate(integrator)
         end
         sys_state = SysState(kps4)
         on_new_systate(ssc, sys_state)
+        e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt
+        sys_state.e_mech = e_mech
         if mod(i, TIME_LAPSE_RATIO) == 0
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
