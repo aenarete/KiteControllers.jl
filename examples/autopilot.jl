@@ -155,6 +155,7 @@ function simulate(integrator, stopped=true)
     sys_state.e_mech = 0
     sys_state.sys_state = Int16(app.ssc.fpp._state)
     e_mech = 0.0
+    last_vel = [0.0, 0.0, 0.0]
     on_new_systate(app.ssc, sys_state)
     KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
     while app.initialized
@@ -187,6 +188,8 @@ function simulate(integrator, stopped=true)
             #
             t_sim = @elapsed KiteModels.next_step!(app.kps4, integrator; set_speed=v_ro, dt=app.dt)
             update_sys_state!(sys_state, app.kps4)
+            acc = (app.kps4.vel_kite - last_vel)/app.dt
+            last_vel = deepcopy(app.kps4.vel_kite)
 
             on_new_systate(app.ssc, sys_state)
             e_mech += (sys_state.force * sys_state.v_reelout)/3600*app.dt
@@ -211,7 +214,7 @@ function simulate(integrator, stopped=true)
             sys_state.var_11 = app.ssc.fpp.fpca.fpc.est_chi_dot
             sys_state.var_12 = app.ssc.fpp.fpca.fpc.c2
             sys_state.var_13 = app.kps4.alpha_2
-            sys_state.var_14 = app.kps4.alpha_2b
+            sys_state.var_14 = norm(acc)
             if LOG_LIFT_DRAG
                 CL2, CD2 = app.kps4.calc_cl(app.kps4.alpha_2), DRAG_CORR * app.kps4.calc_cd(app.kps4.alpha_2)
                 CL3, CD3 = app.kps4.calc_cl(app.kps4.alpha_3), DRAG_CORR * app.kps4.calc_cd(app.kps4.alpha_3)
