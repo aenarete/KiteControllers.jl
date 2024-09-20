@@ -19,8 +19,8 @@ WinchModels = "7dcfa46b-7979-4771-bbf4-0aee0da42e1f"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [compat]
-ControlPlots = "0.1.6"
-JLD2 = "0.4.46"
+ControlPlots = "0.2.1"
+JLD2 = "0.5.2"
 KiteModels = "0.6.6"
 KiteUtils = "0.7"
 KiteViewers = "0.4.16"
