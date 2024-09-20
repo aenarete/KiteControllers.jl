@@ -38,16 +38,6 @@ macro limit(name, min, max=nothing)
 end
 
 """
-    wrap2pi(angle)
-
-Convert an angle in an infinite range to the range from -pi to pi
-"""
-function wrap2pi(angle)
-    num2pi = floor(angle / 2π + 0.5)
-    angle - 2π * num2pi
-end
-
-"""
     merge_angles(alpha, beta, factor_beta)
 
 Calculate the weighted average of two angles. The weight of beta,
