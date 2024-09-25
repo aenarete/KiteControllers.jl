@@ -8,7 +8,7 @@ using Timers; tic()
 using Pkg
 pkg"add KiteModels#fix_yaw"
 
-using KiteControllers, KiteViewers, KiteModels, ControlPlots
+using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00000006
 set.rel_tol=0.0000001
@@ -43,6 +43,7 @@ if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
+    global sys_state
     start_time_ns = time_ns()
     clear_viewer(viewer)
     i=1; j=0; k=0
@@ -78,6 +79,9 @@ function simulate(integrator)
         HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
+            q = QuatRotation(sys_state.orient)
+            q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
+            sys_state.orient .= Rotations.params(q_viewer)
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
