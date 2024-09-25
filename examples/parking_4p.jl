@@ -23,10 +23,10 @@ u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
-# result of tuning, factor 0.6 to increase robustness
-fcs.p=1.0
-fcs.i=0.0
-fcs.d=8.0 # 35.81 * 0.6
+# result of tuning
+fcs.p=1.5
+fcs.i=0.1
+fcs.d=13.25
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
@@ -59,10 +59,10 @@ function simulate(integrator)
             steering = -calc_steering(ssc, 0)
             # steering = 0.15*sys_state.azimuth
             time = i * dt
-            # # disturbance
-            # if time > 20 && time < 21
-            #     steering = 0.1
-            # end            
+            # disturbance
+            if time > 20 && time < 21
+                steering = 0.1
+            end            
             set_depower_steering(kps4.kcu, depower, steering)
         end
         STEERING[i] = steering
