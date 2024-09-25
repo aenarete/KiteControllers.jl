@@ -8,7 +8,7 @@ using Timers; tic()
 using Pkg
 pkg"add KiteModels#fix_yaw"
 
-using KiteControllers, KiteViewers, KiteModels, ControlPlots
+using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
@@ -23,10 +23,10 @@ u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
-# result of tuning, factor 0.6 to increase robustness
-fcs.p=100   * 0.6
-fcs.i=0.0
-fcs.d=35.81 * 0.6
+# result of tuning
+fcs.p=1.5
+fcs.i=0.1
+fcs.d=13.25
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
@@ -60,7 +60,7 @@ function simulate(integrator)
             if depower < 0.22; depower = 0.22; end
             steering = calc_steering(ssc, 0)
            
-            set_depower_steering(kps4.kcu, depower, steering)
+            set_depower_steering(kps4.kcu, depower, -steering)
         end  
         # execute winch controller
         v_ro = 0.0
@@ -79,6 +79,9 @@ function simulate(integrator)
         AZIMUTH[i] = sys_state.azimuth
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
+            q = QuatRotation(sys_state.orient)
+            q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
+            sys_state.orient .= Rotations.params(q_viewer)
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
