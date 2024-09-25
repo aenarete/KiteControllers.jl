@@ -5,6 +5,9 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
+using Pkg
+pkg"add KiteModels#fix_yaw"
+
 using KiteControllers, KiteViewers, KiteModels, ControlPlots
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00000006
@@ -67,6 +70,7 @@ function simulate(integrator)
         sys_state = SysState(kps4)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
+        println(rad2deg.(AZIMUTH[i]))
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
