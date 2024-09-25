@@ -104,7 +104,7 @@ end
 
 function f(x)
     fcs.p = x[1]
-    fcs.i = 0.0
+    fcs.i = 0.1
     fcs.d = x[2]
     println("x: ", x)
     test_parking()
@@ -120,7 +120,7 @@ function tune_4p()
     set_kernel!(config, "kMaternARD5")
     println(config.noise)
     # println(config.n_inner_iterations)
-    lowerbound = [0.5, 8.]; upperbound = [4., 60.]
+    lowerbound = [0.5, 8.]; upperbound = [2., 16.]
     optimizer, optimum = bayes_optimization(f, lowerbound, upperbound, config)
     println("Opimal parameters: p = $(optimizer[1]),  d = $(optimizer[2])")
     println("Optimum value    : $(optimum)")
@@ -129,9 +129,9 @@ end
 # fcs.p=2.255470121692552*0.7
 # fcs.i=0.0
 # fcs.d=38.724898029839586
-fcs.p=1
-fcs.i=0.0
-fcs.d=8
+fcs.p=1.5
+fcs.i=0.1
+fcs.d=13.25
 
 println(test_parking())
 show_result()

@@ -13,9 +13,9 @@ fpc_settings:
     reset_int1_to_zero: true
     init_opt_to_zero:   false  # if the root finder should start with zero
 
-    p: 1.0                    # P gain of the PID controller
-    i: 0.0                     # I gain of the PID controller 
-    d: 8.0                    # D gain of the PID controller
+    p: 1.5                     # P gain of the PID controller
+    i: 0.1                     # I gain of the PID controller 
+    d: 13.25                   # D gain of the PID controller
     gain: 0.04                 # additional factor for P, I and D
     c1:  0.0612998898221       # was: 0.0786
     c2:  1.22597628388         # was: 2.508
