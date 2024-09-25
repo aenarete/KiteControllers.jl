@@ -143,7 +143,7 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 
 play()
 stop(viewer)
-p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), rad2deg.(STEERING); 
-          xlabel="Time [s]", ylabels=["Azimuth [°]", "Heading [°]", "Steering"], 
+p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), 100*(STEERING); 
+          xlabel="Time [s]", ylabels=["Azimuth [°]", "Heading [°]", "Steering [%]"], 
           fig="Azimuth and Heading")
 display(p)
