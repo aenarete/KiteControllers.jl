@@ -37,7 +37,7 @@ SHOW_KITE         = true
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
 steps = 0
-if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
@@ -57,7 +57,7 @@ function simulate(integrator)
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
-            steering = -calc_steering(ssc, 0)
+            steering = calc_steering(ssc, 0)
             # steering = 0.15*sys_state.azimuth
             time = i * dt
             # disturbance

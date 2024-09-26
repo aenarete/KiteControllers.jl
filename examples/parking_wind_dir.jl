@@ -34,7 +34,7 @@ TIME_LAPSE_RATIO  =  4
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
 UPWIND_DIR        = -pi/2 # the direction the wind is coming from.
-UPWIND_DIR2       = 0     # Zero is at north; clockwise positive
+UPWIND_DIR2       = -pi/2+deg2rad(10)     # Zero is at north; clockwise positive
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
@@ -60,7 +60,7 @@ function simulate(integrator)
             if depower < 0.22; depower = 0.22; end
             steering = calc_steering(ssc, 0)
            
-            set_depower_steering(kps4.kcu, depower, -steering)
+            set_depower_steering(kps4.kcu, depower, steering)
         end  
         # execute winch controller
         v_ro = 0.0
