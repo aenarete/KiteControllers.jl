@@ -24,12 +24,12 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # result of tuning
-fcs.p=1.5
-fcs.i=0.1
+fcs.p=2.0 #1.5
+fcs.i=0.35
 fcs.d=13.25
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 60
+MAX_TIME::Float64 = 80
 TIME_LAPSE_RATIO  =  4
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
@@ -43,6 +43,9 @@ steps = 0
 T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined UPWIND_DIR_; const UPWIND_DIR_ = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
     upwind_dir=UPWIND_DIR
@@ -63,12 +66,13 @@ function simulate(integrator)
            
             set_depower_steering(kps4.kcu, depower, steering)
         end  
+        
         # execute winch controller
         v_ro = 0.0
         if time > 20 && upwind_dir < UPWIND_DIR2
-            upwind_dir += 0.01
-            if upwind_dir > 0
-                upwind_dir = 0
+            upwind_dir += deg2rad(0.02)
+            if upwind_dir > UPWIND_DIR2
+                upwind_dir = UPWIND_DIR2
             end
         end
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, upwind_dir)
@@ -130,4 +134,6 @@ end
 
 play()
 stop(viewer)
-plot(T, rad2deg.(AZIMUTH), rad2deg.(UPWIND_DIR_); xlabel="Time [s]", ylabels=["Azimuth [°]", "upwind_dir [°]"])
+plotx(T, rad2deg.(AZIMUTH), rad2deg.(UPWIND_DIR_), rad2deg.(HEADING), rad2deg.(STEERING); 
+         xlabel="Time [s]", 
+         ylabels=["Azimuth [°]", "upwind_dir [°]", "Heading [°]", "Steering [°]"])
