@@ -40,6 +40,7 @@ steps = 0
 T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
@@ -66,7 +67,8 @@ function simulate(integrator)
             end            
             set_depower_steering(kps4.kcu, depower, steering)
         end
-        STEERING[i] = steering
+        SET_STEERING[i] = steering
+        STEERING[i] = get_steering(kps4.kcu)
         # execute winch controller
         v_ro = 0.0
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
@@ -147,7 +149,9 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 
 play()
 stop(viewer)
-p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), 100*(STEERING); 
-          xlabel="Time [s]", ylabels=["Azimuth [°]", "Heading [°]", "Steering [%]"], 
+p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)],; 
+          xlabel="Time [s]", 
+          ylabels=["Azimuth [°]", "Heading [°]", "steering [%]"],
+          labels=["azimuth", "heading", ["set_steering", "steering"]], 
           fig="Azimuth and Heading")
 display(p)
