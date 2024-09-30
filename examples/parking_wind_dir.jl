@@ -42,6 +42,7 @@ viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 steps = 0
 T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined UPWIND_DIR_; const UPWIND_DIR_ = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
     upwind_dir=UPWIND_DIR
@@ -71,6 +72,7 @@ function simulate(integrator)
             end
         end
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, upwind_dir)
+        UPWIND_DIR_[i] = KiteModels.upwind_dir(kps4)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
@@ -128,4 +130,4 @@ end
 
 play()
 stop(viewer)
-plot(T, rad2deg.(AZIMUTH); xlabel="Time [s]", ylabel="Azimuth [deg]")
+plot(T, rad2deg.(AZIMUTH), rad2deg.(UPWIND_DIR_); xlabel="Time [s]", ylabels=["Azimuth [°]", "upwind_dir [°]"])
