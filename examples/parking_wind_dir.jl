@@ -59,6 +59,7 @@ function simulate(integrator)
     on_new_systate(ssc, sys_state)
     while true
         time = i * dt 
+        steering = 0.0
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
@@ -66,7 +67,8 @@ function simulate(integrator)
            
             set_depower_steering(kps4.kcu, depower, steering)
         end  
-        
+        SET_STEERING[i] = steering
+        STEERING[i] = get_steering(kps4.kcu)
         # execute winch controller
         v_ro = 0.0
         if time > 20 && upwind_dir < UPWIND_DIR2
@@ -134,6 +136,7 @@ end
 
 play()
 stop(viewer)
-plotx(T, rad2deg.(AZIMUTH), rad2deg.(UPWIND_DIR_), rad2deg.(HEADING), rad2deg.(STEERING); 
+plotx(T, rad2deg.(AZIMUTH), rad2deg.(UPWIND_DIR_), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
          xlabel="Time [s]", 
-         ylabels=["Azimuth [°]", "upwind_dir [°]", "Heading [°]", "Steering [°]"])
+         ylabels=["Azimuth [°]", "upwind_dir [°]", "Heading [°]", "Steering [°]"],
+         labels=["azimuth", "upwind_dir", "heading", ["set_steering", "steering"]])
