@@ -10,8 +10,8 @@ pkg"add KiteModels#fix_yaw"
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
-set.abs_tol=0.00000006
-set.rel_tol=0.0000001
+set.abs_tol=0.00006
+set.rel_tol=0.0001
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
