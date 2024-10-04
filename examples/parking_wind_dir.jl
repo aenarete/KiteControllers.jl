@@ -55,7 +55,7 @@ function simulate(integrator)
     GC.gc()
     max_time = 0
     t_gc_tot = 0
-    sys_state = SysState(kps4)
+    sys_state = SysState(kps4; SWD=false)
     on_new_systate(ssc, sys_state)
     while true
         time = i * dt 
@@ -82,13 +82,14 @@ function simulate(integrator)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
-        sys_state = SysState(kps4)
+        sys_state = SysState(kps4; SWD=false)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
             q = QuatRotation(sys_state.orient)
-            q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
+            q_viewer = AngleAxis(π/2, 0, 1, 0) * q
+            q_viewer = AngleAxis(π, 0, 0, 1) * q_viewer
             sys_state.orient .= Rotations.params(q_viewer)
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
