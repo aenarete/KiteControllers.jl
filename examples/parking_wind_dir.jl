@@ -86,6 +86,7 @@ function simulate(integrator)
         sys_state.orient .= calc_orient_quat(kps4; old=true)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
+        HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
             sys_state.orient .= calc_orient_quat(kps4; old=true)
