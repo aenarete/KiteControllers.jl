@@ -24,9 +24,9 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # result of tuning
-fcs.p=2.0 #1.5
-fcs.i=0.35
-fcs.d=13.25
+fcs.p=0.60*4
+fcs.i=0.1
+fcs.d=12.34
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 80
@@ -34,7 +34,7 @@ TIME_LAPSE_RATIO  =  4
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
 UPWIND_DIR        = -pi/2 # the direction the wind is coming from.
-UPWIND_DIR2       = -pi/2+deg2rad(10)     # Zero is at north; clockwise positive
+UPWIND_DIR2       = -pi/2+deg2rad(20)     # Zero is at north; clockwise positive
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
@@ -72,7 +72,7 @@ function simulate(integrator)
         # execute winch controller
         v_ro = 0.0
         if time > 20 && upwind_dir < UPWIND_DIR2
-            upwind_dir += deg2rad(0.02)
+            upwind_dir += deg2rad(0.1)
             if upwind_dir > UPWIND_DIR2
                 upwind_dir = UPWIND_DIR2
             end
