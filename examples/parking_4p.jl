@@ -6,7 +6,7 @@ end
 using Timers; tic()
 
 using Pkg
-pkg"add KiteModels#fix_yaw"
+pkg"add KiteModels#main"
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
@@ -75,7 +75,7 @@ function simulate(integrator)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
-        sys_state = SysState(kps4; SWD=false)
+        sys_state = SysState(kps4)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
         HEADING[i] = wrap2pi(sys_state.heading)
@@ -84,6 +84,7 @@ function simulate(integrator)
             # q = QuatRotation(sys_state.orient)
             # q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
             # sys_state.orient .= Rotations.params(q_viewer)
+            sys_state.orient .= calc_orient_quat(kps4; old=true)
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
