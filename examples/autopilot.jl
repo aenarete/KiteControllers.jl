@@ -2,7 +2,7 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
-    # pkg"add KiteModels#main"
+    pkg"add KiteModels#main"
 end
 using Timers; tic()
 
@@ -157,6 +157,7 @@ function simulate(integrator, stopped=true)
     e_mech = 0.0
     last_vel = [0.0, 0.0, 0.0]
     on_new_systate(app.ssc, sys_state)
+    sys_state.orient .= calc_orient_quat(app.kps4; old=true)
     KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
     while app.initialized
         local v_ro
@@ -187,6 +188,7 @@ function simulate(integrator, stopped=true)
             v_ro = calc_v_set(app.ssc)
             #
             t_sim = @elapsed KiteModels.next_step!(app.kps4, integrator; set_speed=v_ro, dt=app.dt)
+            sys_state.orient .= calc_orient_quat(app.kps4; old=true)
             update_sys_state!(sys_state, app.kps4)
             acc = (app.kps4.vel_kite - last_vel)/app.dt
             last_vel = deepcopy(app.kps4.vel_kite)
@@ -243,6 +245,7 @@ function simulate(integrator, stopped=true)
             end
             app.viewer.mod_text = 3*ratio
             if mod(i, Int64(app.set.time_lapse)/ratio) == 0 
+                sys_state.orient .= calc_orient_quat(app.kps4; old=true)
                 KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
                 set_status(app.viewer, String(Symbol(app.ssc.state)))
                 # re-enable garbage collector when we are short of memory
