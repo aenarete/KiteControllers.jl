@@ -6,7 +6,7 @@ end
 using Timers; tic()
 
 using Pkg
-pkg"add KiteModels#fix_yaw"
+pkg"add KiteModels#main"
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
@@ -55,7 +55,7 @@ function simulate(integrator)
     GC.gc()
     max_time = 0
     t_gc_tot = 0
-    sys_state = SysState(kps4; SWD=false)
+    sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     while true
         time = i * dt 
@@ -82,15 +82,13 @@ function simulate(integrator)
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
-        sys_state = SysState(kps4; SWD=false)
+        sys_state = SysState(kps4)
+        sys_state.orient .= calc_orient_quat(kps4; old=true)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
-            q = QuatRotation(sys_state.orient)
-            q_viewer = AngleAxis(π/2, 0, 1, 0) * q
-            q_viewer = AngleAxis(π, 0, 0, 1) * q_viewer
-            sys_state.orient .= Rotations.params(q_viewer)
+            sys_state.orient .= calc_orient_quat(kps4; old=true)
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
@@ -130,6 +128,7 @@ function play()
             println("AssertionError! Halting simulation.")
         else
             println("Exception! Halting simulation.")
+            throw(e) 
         end
     end
     GC.enable(true)
