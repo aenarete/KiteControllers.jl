@@ -6,7 +6,7 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 
 using Pkg
-pkg"add KiteModels#fix_yaw"
+pkg"add KiteModels#main"
 
 using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
@@ -44,12 +44,12 @@ function simulate(integrator)
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
-            steering = -calc_steering(ssc, 0)
+            steering = calc_steering(ssc, 0)
             time = i * dt
             # disturbance
             if time < 20
                 steering = 0.0
-            elseif time < 21
+            elseif time < 20.5
                 steering = 0.1
             end
             set_depower_steering(kps4.kcu, depower, steering)
@@ -104,7 +104,7 @@ end
 
 function f(x)
     fcs.p = x[1]
-    fcs.i = 0.1
+    fcs.i = 0.0
     fcs.d = x[2]
     println("x: ", x)
     test_parking()
@@ -120,7 +120,7 @@ function tune_4p()
     set_kernel!(config, "kMaternARD5")
     println(config.noise)
     # println(config.n_inner_iterations)
-    lowerbound = [0.5, 8.]; upperbound = [2., 16.]
+    lowerbound = [0.1, 7.]; upperbound = [1.5, 16.]
     optimizer, optimum = bayes_optimization(f, lowerbound, upperbound, config)
     println("Opimal parameters: p = $(optimizer[1]),  d = $(optimizer[2])")
     println("Optimum value    : $(optimum)")
@@ -129,9 +129,9 @@ end
 # fcs.p=2.255470121692552*0.7
 # fcs.i=0.0
 # fcs.d=38.724898029839586
-fcs.p=1.5
-fcs.i=0.1
-fcs.d=13.25
+fcs.p=0.60
+fcs.i=0.
+fcs.d=12.34
 
 println(test_parking())
 show_result()
