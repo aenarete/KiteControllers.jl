@@ -26,7 +26,7 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # result of tuning
-fcs.p=2.0 #1.5
+fcs.p=4.0 #1.5
 fcs.i=0.35
 fcs.d=13.25
 # fcs.use_chi = false
