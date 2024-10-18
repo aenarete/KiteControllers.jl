@@ -1,12 +1,14 @@
 # park the kind while the wind direction changes
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+    using Pkg
+    pkg"add KiteModels#azimuth"
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
 
-using Pkg
-pkg"add KiteModels#azimuth"
+# using Pkg
+# pkg"add KiteModels#azimuth"
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
@@ -126,17 +128,14 @@ function simulate(integrator)
             t_gc_tot += @elapsed GC.gc(false)
         end
         sys_state = SysState(kps4)
-        sys_state.orient .= calc_orient_quat(kps4; old=true)
+        sys_state.orient .= calc_orient_quat(kps4)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
-<<<<<<< HEAD
-=======
         # HEADING[i] = wrap2pi(calc_heading(kps4)) 
->>>>>>> 804070c (minor changes)
         HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
-            sys_state.orient .= calc_orient_quat(kps4; old=true)
+            sys_state.orient .= quat2viewer(calc_orient_quat(kps4))
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
