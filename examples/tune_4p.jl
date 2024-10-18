@@ -6,7 +6,7 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 
 using Pkg
-pkg"add KiteModels#main"
+pkg"add KiteModels#azimuth"
 
 using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
@@ -129,9 +129,10 @@ end
 # fcs.p=2.255470121692552*0.7
 # fcs.i=0.0
 # fcs.d=38.724898029839586
-fcs.p=0.60
-fcs.i=0.
-fcs.d=12.34
+fcs.p=0.8
+fcs.i=0.2
+fcs.d=12
+fcs.use_chi = false
 
 println(test_parking())
 show_result()
