@@ -37,7 +37,7 @@ TIME_LAPSE_RATIO  =  4
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
 UPWIND_DIR        = -pi/2 # the direction the wind is coming from.
-UPWIND_DIR2       = -pi/2+deg2rad(10)     # Zero is at north; clockwise positive
+UPWIND_DIR2       = -pi/2+deg2rad(20)     # Zero is at north; clockwise positive
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
@@ -118,7 +118,7 @@ function simulate(integrator)
         # execute winch controller
         v_ro = 0.0
         if time > 20 && upwind_dir < UPWIND_DIR2
-            upwind_dir += deg2rad(0.1)
+            upwind_dir += deg2rad(0.05)
             if upwind_dir > UPWIND_DIR2
                 upwind_dir = UPWIND_DIR2
             end
