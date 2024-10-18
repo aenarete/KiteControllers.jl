@@ -26,10 +26,10 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # result of tuning
-fcs.p=4.0 #1.5
-fcs.i=0.35
+fcs.p=1.3 #1.5
+fcs.i=0.2
 fcs.d=13.25
-# fcs.use_chi = false
+fcs.use_chi = false
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 100
@@ -37,7 +37,7 @@ TIME_LAPSE_RATIO  =  4
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
 UPWIND_DIR        = -pi/2 # the direction the wind is coming from.
-UPWIND_DIR2       = -pi/2+deg2rad(20)     # Zero is at north; clockwise positive
+UPWIND_DIR2       = -pi/2+deg2rad(10)     # Zero is at north; clockwise positive
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
@@ -45,6 +45,7 @@ viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 steps = 0
 T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined AZIMUTH_EAST; const AZIMUTH_EAST = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined UPWIND_DIR_; const UPWIND_DIR_ = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
@@ -108,7 +109,7 @@ function simulate(integrator)
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc, 0)
+            steering = -calc_steering(ssc, 0)
            
             set_depower_steering(kps4.kcu, depower, steering)
         end  
@@ -131,6 +132,7 @@ function simulate(integrator)
         sys_state.orient .= calc_orient_quat(kps4)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
+        AZIMUTH_EAST[i] = calc_azimuth_east(kps4)
         # HEADING[i] = wrap2pi(calc_heading(kps4)) 
         HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
@@ -183,7 +185,7 @@ end
 
 play()
 stop(viewer)
-plotx(T, rad2deg.(AZIMUTH), rad2deg.(UPWIND_DIR_), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
+plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),rad2deg.(UPWIND_DIR_), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
          xlabel="Time [s]", 
-         ylabels=["Azimuth [°]", "upwind_dir [°]", "Heading [°]", "Steering [°]"],
-         labels=["azimuth", "upwind_dir", "heading", ["set_steering", "steering"]])
+         ylabels=["Azimuth [°]", "azimuth_east [°]", "upwind_dir [°]", "Heading [°]", "Steering [°]"],
+         labels=["azimuth", "azimuth_east", "upwind_dir", "heading", ["set_steering", "steering"]])
