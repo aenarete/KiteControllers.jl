@@ -13,6 +13,7 @@ else
 fi
 
 GCT="--gcthreads=$FAST_CORES,1"
+export JULIA_PKG_SERVER_REGISTRY_PREFERANCE=eager
 
 julia_version=$(julia --version | awk '{print($3)}')
 julia_major=${julia_version:0:3} 
