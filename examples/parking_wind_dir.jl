@@ -50,48 +50,6 @@ if ! @isdefined UPWIND_DIR_; const UPWIND_DIR_ = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
-# """
-#     calc_heading_w(orientation, down_wind_direction = pi/2.0)
-
-# Calculate the heading vector in wind reference frame.
-# """
-# function calc_heading_w(orientation, down_wind_direction = pi/2.0)
-#     # create a unit heading vector in the xsense reference frame
-#     heading_sensor =  SVector(1, 0, 0)
-#     # rotate headingSensor to the Earth Xsens reference frame
-#     headingEX = fromKS2EX(heading_sensor, orientation)
-#     # rotate headingEX to earth groundstation reference frame
-#     headingEG = fromEX2EG(headingEX)
-#     # rotate headingEG to headingW and convert to 2d HeadingW vector
-#     fromEG2W(headingEG, down_wind_direction)
-# end
-
-# """
-#     calc_heading(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=true)
-
-# Calculate the heading angle of the kite in radians. The heading is the direction
-# the nose of the kite is pointing to. 
-# If respos is true the heading angle is defined in the range of 0 .. 2π,
-# otherwise in the range -π .. π
-# """
-# function calc_heading(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=true)
-#     down_wind_direction = wrap2pi(upwind_dir + π)
-#     headingSE = fromW2SE(calc_heading_w(orientation, down_wind_direction), elevation, azimuth)
-#     angle = atan(headingSE.y, headingSE.x) # - π
-#     if angle < 0 && respos
-#         angle += 2π
-#     end
-#     angle
-# end
-
-
-# #  function calc_heading(s::KPS4; upwind_dir=upwind_dir(s))
-# function calc_heading(s::KPS4; upwind_dir=-pi/2)
-#     orientation = orient_euler(s)
-#     elevation = calc_elevation(s)
-#     azimuth = calc_azimuth(s)
-#     KiteUtils.calc_heading(orientation, elevation, azimuth; upwind_dir)
-# end
 
 function simulate(integrator)
     upwind_dir=UPWIND_DIR
@@ -109,7 +67,8 @@ function simulate(integrator)
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
-            steering = -calc_steering(ssc, 0)
+            heading = calc_heading(kps4; neg_azimuth=true)
+            steering = -calc_steering(ssc, 0; heading)
            
             set_depower_steering(kps4.kcu, depower, steering)
         end  
