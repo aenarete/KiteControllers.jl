@@ -178,7 +178,9 @@ function simulate(integrator, stopped=true)
             if i > 100
                 dp = KiteControllers.get_depower(app.ssc)
                 if dp < 0.22 dp = 0.22 end
-                heading = calc_heading(kps4; neg_azimuth=false, one_point=true)
+                heading = calc_heading(app.kps4; neg_azimuth=true, one_point=false)
+                app.ssc.sys_state.heading = heading
+                app.ssc.sys_state.azimuth = -calc_azimuth(app.kps4)
                 #  steering = calc_steering(app.ssc; heading)
                 steering = calc_steering(app.ssc)
                 set_depower_steering(app.kps4.kcu, dp, steering)
