@@ -32,8 +32,8 @@ fcs.d=13.25*0.9
 fcs.use_chi = false
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 120
-TIME_LAPSE_RATIO  =  4
+MAX_TIME::Float64 = 160
+TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
 UPWIND_DIR        = -pi/2 # the direction the wind is coming from.
@@ -53,6 +53,7 @@ if ! @isdefined STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
+    global UW
     upwind_dir=UPWIND_DIR
     av_upwind_dir = upwind_dir
     start_time_ns = time_ns()
@@ -63,6 +64,7 @@ function simulate(integrator)
     t_gc_tot = 0
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
+    UW = nothing
     while true
         time = i * dt 
         steering = 0.0
@@ -83,10 +85,17 @@ function simulate(integrator)
             if upwind_dir > UPWIND_DIR2
                 upwind_dir = UPWIND_DIR2
             end
+            UPWIND_DIR_[i] = upwind_dir
             av_upwind_dir = moving_average(UPWIND_DIR_[1:i], 400)
+            if isnothing(UW)
+                UW = deepcopy(UPWIND_DIR_[1:i])
+            end
+        else
+            upwind_dir=UPWIND_DIR
+            UPWIND_DIR_[i] = upwind_dir
+            av_upwind_dir = upwind_dir
         end
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, upwind_dir=av_upwind_dir)
-        UPWIND_DIR_[i] = upwind_dir
         AV_UPWIND_DIR[i] = av_upwind_dir
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
