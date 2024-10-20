@@ -10,7 +10,7 @@ using Timers; tic()
 # using Pkg
 # pkg"add KiteModels#azimuth"
 
-using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
+using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBase
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
@@ -26,13 +26,13 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # result of tuning
-fcs.p=1.3 #1.5
+fcs.p=1.3
 fcs.i=0.2
-fcs.d=13.25
+fcs.d=13.25*0.9
 fcs.use_chi = false
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 100
+MAX_TIME::Float64 = 120
 TIME_LAPSE_RATIO  =  4
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
@@ -47,12 +47,14 @@ T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined AZIMUTH_EAST; const AZIMUTH_EAST = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined UPWIND_DIR_; const UPWIND_DIR_ = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined AV_UPWIND_DIR; const AV_UPWIND_DIR = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
     upwind_dir=UPWIND_DIR
+    av_upwind_dir = upwind_dir
     start_time_ns = time_ns()
     clear_viewer(viewer)
     i=1; j=0; k=0
@@ -76,14 +78,16 @@ function simulate(integrator)
         STEERING[i] = get_steering(kps4.kcu)
         # execute winch controller
         v_ro = 0.0
-        if time > 20 && upwind_dir < UPWIND_DIR2
+        if time > 20
             upwind_dir += deg2rad(0.04)
             if upwind_dir > UPWIND_DIR2
                 upwind_dir = UPWIND_DIR2
             end
+            av_upwind_dir = moving_average(UPWIND_DIR_[1:i], 400)
         end
-        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, upwind_dir)
-        UPWIND_DIR_[i] = KiteModels.upwind_dir(kps4)
+        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, upwind_dir=av_upwind_dir)
+        UPWIND_DIR_[i] = upwind_dir
+        AV_UPWIND_DIR[i] = av_upwind_dir
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
@@ -127,7 +131,7 @@ end
 
 function play()
     global steps
-    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+    integrator = KiteModels.init_sim!(kps4; delta=0.001, stiffness_factor=0.5)
     toc()
     try
         steps = simulate(integrator)
@@ -144,7 +148,8 @@ end
 
 play()
 stop(viewer)
-plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),rad2deg.(UPWIND_DIR_), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
+plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),[rad2deg.(UPWIND_DIR_), rad2deg.(AV_UPWIND_DIR)],
+         rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
          xlabel="Time [s]", 
          ylabels=["Azimuth [°]", "azimuth_east [°]", "upwind_dir [°]", "Heading [°]", "Steering [°]"],
-         labels=["azimuth", "azimuth_east", "upwind_dir", "heading", ["set_steering", "steering"]])
+         labels=["azimuth", "azimuth_east", ["upwind_dir", "av_upwind_dir"], "heading", ["set_steering", "steering"]])

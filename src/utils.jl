@@ -1,4 +1,4 @@
- """
+"""
 A collection of control functions for discrete control
 
 Functions:
@@ -57,12 +57,10 @@ end
 # calculate the moving average of a vector over a window
 function moving_average(data, window)
     local result
-    for i in 1:length(data)
-        if i < window
-            result = mean(data[1:i])
-        else
-            result = mean(data[i-window+1:i])
-        end
+    if length(data) <= window
+        result = mean(data)
+    else
+        result = mean(data[length(data)-window:end])
     end
     result
 end
