@@ -69,6 +69,7 @@ function simulate(integrator, stopped=true)
     t_gc_tot = 0
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
+    sys_state.orient .= quat2viewer(calc_orient_quat(kps4))
     KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
     while true
         if viewer.stop
@@ -77,7 +78,8 @@ function simulate(integrator, stopped=true)
             if i > 100
                 dp = KiteControllers.get_depower(ssc)
                 if dp < 0.22 dp = 0.22 end
-                steering = calc_steering(ssc)
+                heading = calc_heading(kps4; neg_azimuth=true)
+                steering = calc_steering(ssc; heading)
                 set_depower_steering(kps4.kcu, dp, steering)
             end
             if i == 200 && ! PARKING
@@ -98,7 +100,8 @@ function simulate(integrator, stopped=true)
                 end
             end
             on_new_systate(ssc, sys_state)
-            if mod(i, TIME_LAPSE_RATIO) == 0 
+            if mod(i, TIME_LAPSE_RATIO) == 0
+                sys_state.orient .= quat2viewer(calc_orient_quat(kps4))
                 KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
                 set_status(viewer, String(Symbol(ssc.state)))
                 # turn garbage collection back on if we are short of memory
