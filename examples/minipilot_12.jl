@@ -78,7 +78,8 @@ function simulate(integrator, stopped=true)
             if i > 100
                 dp = KiteControllers.get_depower(ssc)
                 if dp < 0.22 dp = 0.22 end
-                steering = calc_steering(ssc)
+                heading = calc_heading(kps4; neg_azimuth=true)
+                steering = calc_steering(ssc; heading)
                 set_depower_steering(kps4.kcu, dp, steering)
             end
             if i == 200 && ! PARKING
