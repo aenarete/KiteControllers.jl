@@ -178,11 +178,8 @@ function simulate(integrator, stopped=true)
             if i > 100
                 dp = KiteControllers.get_depower(app.ssc)
                 if dp < 0.22 dp = 0.22 end
-                heading = calc_heading(app.kps4; neg_azimuth=true, one_point=false)
-                app.ssc.sys_state.heading = heading
-                app.ssc.sys_state.azimuth = -calc_azimuth(app.kps4)
-                #  steering = calc_steering(app.ssc; heading)
-                steering = calc_steering(app.ssc)
+                heading = calc_heading(app.kps4; neg_azimuth=true)
+                steering = calc_steering(app.ssc; heading)
                 set_depower_steering(app.kps4.kcu, dp, steering)
             end
             if i == 200 && ! app.parking
@@ -192,7 +189,6 @@ function simulate(integrator, stopped=true)
             v_ro = calc_v_set(app.ssc)
             #
             t_sim = @elapsed KiteModels.next_step!(app.kps4, integrator; set_speed=v_ro, dt=app.dt)
-            sys_state.orient .= calc_orient_quat(app.kps4)
             update_sys_state!(sys_state, app.kps4)
             acc = (app.kps4.vel_kite - last_vel)/app.dt
             last_vel = deepcopy(app.kps4.vel_kite)

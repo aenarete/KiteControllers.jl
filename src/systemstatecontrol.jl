@@ -75,12 +75,14 @@ function calc_steering(ssc::SystemStateControl, manual_steering = 0.0; heading =
     if isnothing(ssc.sys_state)
         return 0.0
     end
-    phi  = ssc.sys_state.azimuth
+
     beta = ssc.sys_state.elevation
     if isnothing(heading)
         psi = ssc.sys_state.heading
+        phi = ssc.sys_state.azimuth
     else
         psi = heading
+        phi = -ssc.sys_state.azimuth
     end
     v_a = ssc.sys_state.v_app
     chi = ssc.sys_state.course
