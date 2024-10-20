@@ -69,7 +69,6 @@ function simulate(integrator, stopped=true)
     t_gc_tot = 0
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
-    sys_state.orient .= quat2viewer(calc_orient_quat(kps4))
     KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
     while true
         if viewer.stop
@@ -101,7 +100,6 @@ function simulate(integrator, stopped=true)
             end
             on_new_systate(ssc, sys_state)
             if mod(i, TIME_LAPSE_RATIO) == 0
-                sys_state.orient .= quat2viewer(calc_orient_quat(kps4))
                 KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
                 set_status(viewer, String(Symbol(ssc.state)))
                 # turn garbage collection back on if we are short of memory
