@@ -37,20 +37,20 @@ TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
 UPWIND_DIR        = -pi/2 # the direction the wind is coming from.
-UPWIND_DIR2       = -pi/2+deg2rad(45)     # Zero is at north; clockwise positive
+UPWIND_DIR2       = -pi/2+deg2rad(90)     # Zero is at north; clockwise positive
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
 steps = 0
-T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined AZIMUTH_EAST; const AZIMUTH_EAST = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined UPWIND_DIR_; const UPWIND_DIR_ = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined AV_UPWIND_DIR; const AV_UPWIND_DIR = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64}             = zeros(Int64(MAX_TIME/dt))
+AZIMUTH::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
+AZIMUTH_EAST::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
+UPWIND_DIR_::Vector{Float64}   = zeros(Int64(MAX_TIME/dt))
+AV_UPWIND_DIR::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+HEADING::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
+SET_STEERING::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
+STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
     global UW
@@ -81,7 +81,7 @@ function simulate(integrator)
         # execute winch controller
         v_ro = 0.0
         if time > 20
-            upwind_dir += deg2rad(0.04)
+            upwind_dir += deg2rad(0.04*2)
             if upwind_dir > UPWIND_DIR2
                 upwind_dir = UPWIND_DIR2
             end
@@ -161,4 +161,4 @@ plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),[rad2deg.(UPWIND_DIR_), rad2d
          rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
          xlabel="Time [s]", 
          ylabels=["Azimuth [°]", "azimuth_east [°]", "upwind_dir [°]", "Heading [°]", "Steering [°]"],
-         labels=["azimuth", "azimuth_east", ["upwind_dir", "av_upwind_dir"], "heading", ["set_steering", "steering"]])
+         labels=["azimuth", "azimuth_east", ["upwind_dir", "filtered_upwind_dir"], "heading", ["set_steering", "steering"]])
