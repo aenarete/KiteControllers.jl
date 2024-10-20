@@ -53,3 +53,16 @@ function merge_angles(alpha, beta, factor_beta)
     y = y1 * (1.0 - factor_beta) + y2 * factor_beta
     atan(x, y)
 end
+
+# calculate the moving average of a vector over a window
+function moving_average(data, window)
+    local result
+    for i in 1:length(data)
+        if i < window
+            result = mean(data[1:i])
+        else
+            result = mean(data[i-window+1:i])
+        end
+    end
+    result
+end
