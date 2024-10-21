@@ -17,8 +17,11 @@ set.rel_tol=0.0001
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
+update(wcs); wcs.dt = 1/set.sample_freq
 fcs::FPCSettings = FPCSettings(dt = wcs.dt)
+update(fcs); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
+update(fpps)
 u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
@@ -29,6 +32,7 @@ fcs.p=1.3
 fcs.i=0.2
 fcs.d=13.25*0.9
 fcs.use_chi = false
+@assert fcs.gain == 0.04
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 160
