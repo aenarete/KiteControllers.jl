@@ -2,7 +2,6 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using Pkg
-    pkg"add KiteModels#azimuth"
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
