@@ -57,7 +57,9 @@ function simulate(integrator)
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc, 0)
+            heading = calc_heading(kps4; neg_azimuth=true)
+            steering = calc_steering(ssc; heading)
+            # steering = calc_steering(ssc, 0)
             # steering = 0.15*sys_state.azimuth
             time = i * dt
             # disturbance
