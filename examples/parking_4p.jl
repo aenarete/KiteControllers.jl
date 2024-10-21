@@ -5,10 +5,16 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, ControlPlots
+<<<<<<< HEAD
+using Pkg
+
+=======
+>>>>>>> 8a1f664 (use release branch)
+using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
-set.abs_tol=0.00000006
-set.rel_tol=0.0000001
+set.abs_tol=0.00006
+set.rel_tol=0.0001
+set.version = 4
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -20,24 +26,34 @@ u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
-# result of tuning, factor 0.6 to increase robustness
-fcs.p=100   * 0.6
-fcs.i=0.0
-fcs.d=35.81 * 0.6
+# result of tuning
+fcs.p=24
+fcs.i=4.8
+fcs.d=12.34
+
+# result of tuning
+fcs.p=1.3
+fcs.i=0.2
+fcs.d=13.25*0.9
+#fcs.use_chi = false
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
-TIME_LAPSE_RATIO  =  1
+TIME_LAPSE_RATIO  =  4
 SHOW_KITE         = true
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
 steps = 0
-if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+AZIMUTH::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
+if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined SET_STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
+    global sys_state
     start_time_ns = time_ns()
     clear_viewer(viewer)
     i=1; j=0; k=0
@@ -47,17 +63,22 @@ function simulate(integrator)
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     while true
+        steering = 0.0
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc, 0)
+            heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
+            steering = calc_steering(ssc, 0; heading)
+            # steering = 0.15*sys_state.azimuth
             time = i * dt
             # disturbance
             if time > 20 && time < 21
                 steering = 0.1
             end            
             set_depower_steering(kps4.kcu, depower, steering)
-        end  
+        end
+        SET_STEERING[i] = steering
+        STEERING[i] = get_steering(kps4.kcu)
         # execute winch controller
         v_ro = 0.0
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
@@ -67,8 +88,17 @@ function simulate(integrator)
         sys_state = SysState(kps4)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
+        HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
+            # q = QuatRotation(sys_state.orient)
+            # q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
+            # sys_state.orient .= Rotations.params(q_viewer)
+<<<<<<< HEAD
+            sys_state.orient .= calc_orient_quat(kps4)
+=======
+            # sys_state.orient .= calc_orient_quat(kps4)
+>>>>>>> 8a1f664 (use release branch)
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
@@ -101,24 +131,22 @@ function play()
     global steps
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     toc()
-    try
+    #try
         steps = simulate(integrator)
-    catch e
-        if isa(e, AssertionError)
-            println("AssertionError! Halting simulation.")
-        else
-            println("Exception! Halting simulation.")
-        end
-    end
+    # catch e
+    #     if isa(e, AssertionError)
+    #         println("AssertionError! Halting simulation.")
+    #     else
+    #         println("Exception! Halting simulation.")
+    #     end
+    # end
     GC.enable(true)
 end
 
-function async_play()
+function play1()
     if viewer.stop
-        @async begin
-            play()
-            stop(viewer)
-        end
+        play()
+        stop(viewer)
     end
 end
 
@@ -131,10 +159,14 @@ function autopilot()
 end
 
 on(viewer.btn_STOP.clicks) do c; stop(viewer); on_stop(ssc) end
-on(viewer.btn_PLAY.clicks) do c; async_play(); end
+on(viewer.btn_PLAY.clicks) do c; play1(); end
 on(viewer.btn_PARKING.clicks) do c; parking(); end
 
 play()
 stop(viewer)
-p = plot(T, rad2deg.(AZIMUTH); xlabel="Time [s]", ylabel="Azimuth [deg]")
+p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
+          xlabel="Time [s]", 
+          ylabels=["Azimuth [°]", "Heading [°]", "steering [%]"],
+          labels=["azimuth", "heading", ["set_steering", "steering"]], 
+          fig="Azimuth and Heading")
 display(p)

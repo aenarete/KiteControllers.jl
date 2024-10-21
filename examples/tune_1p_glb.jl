@@ -32,8 +32,8 @@ SHOW_KITE         = false
 
 LAST_RES = 1e10
 ITER=1
-if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+AZIMUTH::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined P; const P = zeros(Int64(MAX_ITER+10)); end
 if ! @isdefined D; const D = zeros(Int64(MAX_ITER+10)); end
 if ! @isdefined RES; const RES = zeros(Int64(MAX_ITER+10)); end

@@ -2,7 +2,6 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
-    # pkg"add KiteModels#main"
 end
 using Timers; tic()
 
@@ -177,7 +176,8 @@ function simulate(integrator, stopped=true)
             if i > 100
                 dp = KiteControllers.get_depower(app.ssc)
                 if dp < 0.22 dp = 0.22 end
-                steering = calc_steering(app.ssc)
+                heading = calc_heading(app.kps4; neg_azimuth=true)
+                steering = calc_steering(app.ssc; heading)
                 set_depower_steering(app.kps4.kcu, dp, steering)
             end
             if i == 200 && ! app.parking

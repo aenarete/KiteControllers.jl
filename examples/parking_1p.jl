@@ -23,21 +23,21 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # result of tuning, factor 0.9 to increase robustness
-fcs.p = 13.63*0.9
-fcs.i = 0.0
-fcs.d = 27.75*0.9
+fcs.p = 13.63
+fcs.i = 0.5
+fcs.d = 27.75
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
-TIME_LAPSE_RATIO  = 1
+TIME_LAPSE_RATIO  = 4
 SHOW_KITE         = true
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
 steps = 0
-if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+AZIMUTH::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
     start_time_ns = time_ns()
@@ -52,7 +52,9 @@ function simulate(integrator)
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc, 0)
+            heading = calc_heading(kps4; neg_azimuth=true)
+            steering = calc_steering(ssc; heading)
+            # steering = calc_steering(ssc, 0)
             time = i * dt
             # disturbance
             if time > 20 && time < 21
@@ -70,6 +72,7 @@ function simulate(integrator)
         AZIMUTH[i] = sys_state.azimuth        
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
+            sys_state.orient .= quat2viewer(calc_orient_quat(kps))
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 

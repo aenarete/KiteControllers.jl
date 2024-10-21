@@ -46,7 +46,7 @@ viewer::Viewer3D = Viewer3D(set, SHOW_KITE)
 PARKING::Bool = false
 
 steps = 0
-if ! @isdefined T;        const T = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined DELTA_T;  const DELTA_T = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(Int64(MAX_TIME/dt)); end
@@ -78,7 +78,8 @@ function simulate(integrator, stopped=true)
             if i > 100
                 dp = KiteControllers.get_depower(ssc)
                 if dp < 0.22 dp = 0.22 end
-                steering = calc_steering(ssc)
+                heading = calc_heading(kps4; neg_azimuth=true)
+                steering = calc_steering(ssc; heading)
                 set_depower_steering(kps4.kcu, dp, steering)
             end
             if i == 200 && ! PARKING

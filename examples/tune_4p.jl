@@ -7,8 +7,8 @@ end
 
 using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
-set.abs_tol=0.00006
-set.rel_tol=0.0001
+set.abs_tol=0.0006
+set.rel_tol=0.001
 
 using KiteControllers, KiteModels, BayesOpt, ControlPlots
 plt.close("all")
@@ -24,15 +24,14 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 60
-TIME_LAPSE_RATIO  = 1
+MAX_TIME::Float64 = 120
 MAX_ITER          = 40
 SHOW_KITE         = false
 # end of user parameter section #
 
 LAST_RES = 1e10
-if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+AZIMUTH::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
     i=1
@@ -47,7 +46,7 @@ function simulate(integrator)
             # disturbance
             if time < 20
                 steering = 0.0
-            elseif time < 21
+            elseif time < 20.5
                 steering = 0.1
             end
             set_depower_steering(kps4.kcu, depower, steering)
@@ -64,10 +63,9 @@ function simulate(integrator)
     return 1
 end
 
-function calc_res(az, suppress_overshoot_factor, t1=20, t2=60)
-    n1=Int(t1/dt)
-    n2=Int(t2/dt)
-    n = length(az)
+function calc_res(az, suppress_overshoot_factor, t1=20)
+    n1 = Int(t1/dt)
+    n  = length(az)
     res = sum(abs2.(rad2deg.(az[n1:n])))/40
     overshoot = zeros(n-n1)
     for i in 1:n-n1
@@ -76,7 +74,6 @@ function calc_res(az, suppress_overshoot_factor, t1=20, t2=60)
         end
     end
     res += sum(abs2.(rad2deg.(overshoot)))/40 * suppress_overshoot_factor
-    # if res > 500 res = 500.0 end
     res
 end
 
@@ -87,7 +84,7 @@ function test_parking(suppress_overshoot_factor = 3.0)
     clear!(kps4)
     KitePodModels.init_kcu!(kcu, set)
     AZIMUTH .= zeros(Int64(MAX_TIME/dt))
-    integrator = KiteModels.init_sim!(kps4, delta=0.1, stiffness_factor=0.5)
+    integrator = KiteModels.init_sim!(kps4, delta=0.1, stiffness_factor=1)
     simulate(integrator)
     res = calc_res(AZIMUTH, suppress_overshoot_factor)
     if res < LAST_RES
@@ -104,8 +101,8 @@ end
 
 function f(x)
     fcs.p = x[1]
-    fcs.i = x[2]
-    fcs.d = x[3]
+    fcs.i = 0.0
+    fcs.d = x[2]
     println("x: ", x)
     test_parking()
 end
@@ -120,15 +117,19 @@ function tune_4p()
     set_kernel!(config, "kMaternARD5")
     println(config.noise)
     # println(config.n_inner_iterations)
-    lowerbound = [10., 0., 0.]; upperbound = [120., 4.0, 50.]
+    lowerbound = [0.1, 7.]; upperbound = [1.5, 16.]
     optimizer, optimum = bayes_optimization(f, lowerbound, upperbound, config)
-    println("Opimal parameters: p = $(optimizer[1]), i = $(optimizer[2]), d = $(optimizer[3])")
+    println("Opimal parameters: p = $(optimizer[1]),  d = $(optimizer[2])")
     println("Optimum value    : $(optimum)")
 end
 
-fcs.p=65
-fcs.i=1.37
-fcs.d=50
+# fcs.p=2.255470121692552*0.7
+# fcs.i=0.0
+# fcs.d=38.724898029839586
+fcs.p=0.8
+fcs.i=0.2
+fcs.d=12
+fcs.use_chi = false
 
 println(test_parking())
 show_result()

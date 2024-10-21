@@ -1,11 +1,12 @@
 # park the kind while the wind direction changes
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+    using Pkg
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, ControlPlots
+using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBase
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
@@ -20,28 +21,43 @@ u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
-# result of tuning, factor 0.6 to increase robustness
-fcs.p=100   * 0.6
-fcs.i=0.0
-fcs.d=35.81 * 0.6
+# # result of tuning
+# fcs.p=1.3
+# fcs.i=0.2
+# fcs.d=13.25*0.9
+# fcs.use_chi = false
+
+# result of tuning
+fcs.p=24
+fcs.i=4.8
+fcs.d=12.34*0.1
+fcs.use_chi = false
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 60
-TIME_LAPSE_RATIO  =  4
+MAX_TIME::Float64 = 120
+TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
 UPWIND_DIR        = -pi/2 # the direction the wind is coming from.
-UPWIND_DIR2       = 0     # Zero is at north; clockwise positive
+UPWIND_DIR2       = -pi/2+deg2rad(45)     # Zero is at north; clockwise positive
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
 steps = 0
-T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64}             = zeros(Int64(MAX_TIME/dt))
+AZIMUTH::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
+AZIMUTH_EAST::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
+UPWIND_DIR_::Vector{Float64}   = zeros(Int64(MAX_TIME/dt))
+AV_UPWIND_DIR::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+HEADING::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
+SET_STEERING::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
+STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
+    global UW
     upwind_dir=UPWIND_DIR
+    av_upwind_dir = upwind_dir
     start_time_ns = time_ns()
     clear_viewer(viewer)
     i=1; j=0; k=0
@@ -50,30 +66,55 @@ function simulate(integrator)
     t_gc_tot = 0
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
+    UW = nothing
     while true
         time = i * dt 
+        steering = 0.0
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc, 0)
+            heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
+<<<<<<< HEAD
+            steering = calc_steering(ssc; heading)
+            # println("steering: ", steering)
+            # steering = -calc_steering(ssc, 0; heading)
+=======
+            steering = calc_steering(ssc, 0; heading)
+>>>>>>> 8a1f664 (use release branch)
            
             set_depower_steering(kps4.kcu, depower, steering)
         end  
+        SET_STEERING[i] = steering
+        STEERING[i] = get_steering(kps4.kcu)
         # execute winch controller
         v_ro = 0.0
-        if time > 20 && upwind_dir < UPWIND_DIR2
-            upwind_dir += 0.01
-            if upwind_dir > 0
-                upwind_dir = 0
+        if time > 20
+            upwind_dir += deg2rad(0.04*2)
+            if upwind_dir > UPWIND_DIR2
+                upwind_dir = UPWIND_DIR2
             end
+            UPWIND_DIR_[i] = upwind_dir
+            av_upwind_dir = moving_average(UPWIND_DIR_[1:i], 400)
+            if isnothing(UW)
+                UW = deepcopy(UPWIND_DIR_[1:i])
+            end
+        else
+            upwind_dir=UPWIND_DIR
+            UPWIND_DIR_[i] = upwind_dir
+            av_upwind_dir = upwind_dir
         end
-        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, upwind_dir)
+        t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt, upwind_dir=av_upwind_dir)
+        AV_UPWIND_DIR[i] = av_upwind_dir
         if t_sim < 0.3*dt
             t_gc_tot += @elapsed GC.gc(false)
         end
         sys_state = SysState(kps4)
+        # sys_state.orient .= calc_orient_quat(kps4)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
+        AZIMUTH_EAST[i] = calc_azimuth_east(kps4)
+        # HEADING[i] = wrap2pi(calc_heading(kps4)) 
+        HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
@@ -106,7 +147,12 @@ end
 
 function play()
     global steps
-    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+<<<<<<< HEAD
+    integrator = KiteModels.init_sim!(kps4; delta=0.0011, stiffness_factor=1)
+=======
+    integrator = KiteModels.init_sim!(kps4; delta=0.001, stiffness_factor=0.5)
+    on_parking(ssc)
+>>>>>>> 8a1f664 (use release branch)
     toc()
     try
         steps = simulate(integrator)
@@ -115,6 +161,7 @@ function play()
             println("AssertionError! Halting simulation.")
         else
             println("Exception! Halting simulation.")
+            throw(e) 
         end
     end
     GC.enable(true)
@@ -122,4 +169,8 @@ end
 
 play()
 stop(viewer)
-plot(T, rad2deg.(AZIMUTH); xlabel="Time [s]", ylabel="Azimuth [deg]")
+plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),[rad2deg.(UPWIND_DIR_), rad2deg.(AV_UPWIND_DIR)],
+         rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
+         xlabel="Time [s]", 
+         ylabels=["Azimuth [°]", "azimuth_east [°]", "upwind_dir [°]", "Heading [°]", "Steering [°]"],
+         labels=["azimuth", "azimuth_east", ["upwind_dir", "filtered_upwind_dir"], "heading", ["set_steering", "steering"]])
