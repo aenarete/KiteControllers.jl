@@ -37,7 +37,7 @@ viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
 steps = 0
 T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
+AZIMUTH::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
     start_time_ns = time_ns()
