@@ -39,7 +39,7 @@ steps = 0
 T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
+if ! @isdefined SET_STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)
@@ -83,7 +83,7 @@ function simulate(integrator)
             # q = QuatRotation(sys_state.orient)
             # q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
             # sys_state.orient .= Rotations.params(q_viewer)
-            sys_state.orient .= calc_orient_quat(kps4; old=true)
+            sys_state.orient .= calc_orient_quat(kps4)
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
