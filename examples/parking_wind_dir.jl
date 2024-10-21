@@ -7,9 +7,6 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-# using Pkg
-# pkg"add KiteModels#azimuth"
-
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBase
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
