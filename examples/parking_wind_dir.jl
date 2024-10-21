@@ -7,6 +7,7 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBase
+
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
@@ -18,7 +19,7 @@ fcs::FPCSettings = FPCSettings(dt = wcs.dt)
 fpps::FPPSettings = FPPSettings()
 u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
 # result of tuning
@@ -151,8 +152,9 @@ end
 
 play()
 stop(viewer)
-plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),[rad2deg.(UPWIND_DIR_), rad2deg.(AV_UPWIND_DIR)],
+p=plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),[rad2deg.(UPWIND_DIR_), rad2deg.(AV_UPWIND_DIR)],
          rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
          xlabel="Time [s]", 
          ylabels=["Azimuth [°]", "azimuth_east [°]", "upwind_dir [°]", "Heading [°]", "Steering [%]"],
          labels=["azimuth", "azimuth_east", ["upwind_dir", "filtered_upwind_dir"], "heading", ["set_steering", "steering"]])
+display(p)

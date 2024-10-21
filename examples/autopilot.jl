@@ -86,7 +86,7 @@ function init(app::KiteApp; init_viewer=false)
     app.fpps.log_level = app.set.log_level
     u_d0 = 0.01 * se(project).depower_offset
     u_d = 0.01 * se(project).depower
-    app.ssc = SystemStateControl(app.wcs, app.fcs, app.fpps; u_d0, u_d)
+    app.ssc = SystemStateControl(app.wcs, app.fcs, app.fpps; u_d0, u_d, v_wind=app.set.v_wind)
     if init_viewer
         app.viewer= Viewer3D(app.set, app.show_kite; menus=true)
         app.viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_control_II", "plot_winch_control", "plot_aerodynamics",
