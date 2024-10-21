@@ -2,7 +2,6 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
-    pkg"add KiteModels#azimuth"
 end
 using Timers; tic()
 
@@ -157,7 +156,6 @@ function simulate(integrator, stopped=true)
     e_mech = 0.0
     last_vel = [0.0, 0.0, 0.0]
     on_new_systate(app.ssc, sys_state)
-    sys_state.orient .= quat2viewer(calc_orient_quat(app.kps4))
     KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
     while app.initialized
         local v_ro
@@ -249,7 +247,6 @@ function simulate(integrator, stopped=true)
             end
             app.viewer.mod_text = 3*ratio
             if mod(i, Int64(app.set.time_lapse)/ratio) == 0 
-                sys_state.orient .= quat2viewer(calc_orient_quat(app.kps4))
                 KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
                 set_status(app.viewer, String(Symbol(app.ssc.state)))
                 # re-enable garbage collector when we are short of memory
