@@ -9,6 +9,8 @@ using Timers; tic()
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBase
 
 set = deepcopy(load_settings("system.yaml"))
+@assert se().v_wind == 9.51
+@assert set.v_wind == 9.51
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 
@@ -50,7 +52,6 @@ SET_STEERING::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
 STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
-    global UW
     upwind_dir=UPWIND_DIR
     av_upwind_dir = upwind_dir
     start_time_ns = time_ns()
@@ -134,7 +135,6 @@ function simulate(integrator)
 end
 
 function play()
-    global steps
     integrator = KiteModels.init_sim!(kps4; delta=0.001, stiffness_factor=0.5)
     toc()
     try
