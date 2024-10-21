@@ -30,7 +30,7 @@ SHOW_KITE         = false
 # end of user parameter section #
 
 LAST_RES = 1e10
-if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
 
 function simulate(integrator)

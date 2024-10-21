@@ -6,7 +6,6 @@ end
 using Timers; tic()
 
 using Pkg
-pkg"add KiteModels#main"
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))

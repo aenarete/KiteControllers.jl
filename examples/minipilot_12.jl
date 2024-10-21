@@ -46,7 +46,7 @@ viewer::Viewer3D = Viewer3D(set, SHOW_KITE)
 PARKING::Bool = false
 
 steps = 0
-if ! @isdefined T;        const T = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 if ! @isdefined DELTA_T;  const DELTA_T = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
 if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(Int64(MAX_TIME/dt)); end
