@@ -5,9 +5,6 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.add("BayesOpt")
 end
 
-using Pkg
-pkg"add KiteModels#azimuth"
-
 using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.0006

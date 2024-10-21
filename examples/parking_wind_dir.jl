@@ -1,14 +1,9 @@
 # park the kind while the wind direction changes
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using Pkg
-    pkg"add KiteModels#azimuth"
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
-
-# using Pkg
-# pkg"add KiteModels#azimuth"
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBase
 set = deepcopy(load_settings("system.yaml"))
