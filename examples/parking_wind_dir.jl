@@ -1,6 +1,7 @@
 # park the kind while the wind direction changes
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+    using Pkg
     using TestEnv; TestEnv.activate()
 end
 using Timers; tic()
@@ -73,9 +74,13 @@ function simulate(integrator)
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
+<<<<<<< HEAD
             steering = calc_steering(ssc; heading)
             # println("steering: ", steering)
             # steering = -calc_steering(ssc, 0; heading)
+=======
+            steering = calc_steering(ssc, 0; heading)
+>>>>>>> 8a1f664 (use release branch)
            
             set_depower_steering(kps4.kcu, depower, steering)
         end  
@@ -142,7 +147,12 @@ end
 
 function play()
     global steps
+<<<<<<< HEAD
     integrator = KiteModels.init_sim!(kps4; delta=0.0011, stiffness_factor=1)
+=======
+    integrator = KiteModels.init_sim!(kps4; delta=0.001, stiffness_factor=0.5)
+    on_parking(ssc)
+>>>>>>> 8a1f664 (use release branch)
     toc()
     try
         steps = simulate(integrator)

@@ -5,8 +5,11 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
+<<<<<<< HEAD
 using Pkg
 
+=======
+>>>>>>> 8a1f664 (use release branch)
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
@@ -27,6 +30,12 @@ dt::Float64 = wcs.dt
 fcs.p=24
 fcs.i=4.8
 fcs.d=12.34
+
+# result of tuning
+fcs.p=1.3
+fcs.i=0.2
+fcs.d=13.25*0.9
+#fcs.use_chi = false
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
@@ -58,9 +67,8 @@ function simulate(integrator)
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
-            heading = calc_heading(kps4; neg_azimuth=true)
-            steering = calc_steering(ssc; heading)
-            # steering = calc_steering(ssc, 0)
+            heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
+            steering = calc_steering(ssc, 0; heading)
             # steering = 0.15*sys_state.azimuth
             time = i * dt
             # disturbance
@@ -86,7 +94,11 @@ function simulate(integrator)
             # q = QuatRotation(sys_state.orient)
             # q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
             # sys_state.orient .= Rotations.params(q_viewer)
+<<<<<<< HEAD
             sys_state.orient .= calc_orient_quat(kps4)
+=======
+            # sys_state.orient .= calc_orient_quat(kps4)
+>>>>>>> 8a1f664 (use release branch)
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
@@ -119,15 +131,15 @@ function play()
     global steps
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     toc()
-    try
+    #try
         steps = simulate(integrator)
-    catch e
-        if isa(e, AssertionError)
-            println("AssertionError! Halting simulation.")
-        else
-            println("Exception! Halting simulation.")
-        end
-    end
+    # catch e
+    #     if isa(e, AssertionError)
+    #         println("AssertionError! Halting simulation.")
+    #     else
+    #         println("Exception! Halting simulation.")
+    #     end
+    # end
     GC.enable(true)
 end
 
