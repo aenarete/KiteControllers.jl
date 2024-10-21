@@ -16,11 +16,15 @@ set.rel_tol=0.0001
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
+@assert set.sample_freq == 20
 wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
+@assert wc_settings() == "wc_settings.yaml"
 update(wcs); wcs.dt = 1/set.sample_freq
 fcs::FPCSettings = FPCSettings(dt = wcs.dt)
+@assert fpc_settings() == "fpc_settings.yaml"
 update(fcs); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
+@assert fpp_settings() == "fpp_settings.yaml"
 update(fpps)
 u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
@@ -66,7 +70,6 @@ function simulate(integrator)
     t_gc_tot = 0
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
-    UW = nothing
     while true
         time = i * dt 
         steering = 0.0
@@ -89,9 +92,6 @@ function simulate(integrator)
             end
             UPWIND_DIR_[i] = upwind_dir
             av_upwind_dir = moving_average(UPWIND_DIR_[1:i], 400)
-            if isnothing(UW)
-                UW = deepcopy(UPWIND_DIR_[1:i])
-            end
         else
             upwind_dir=UPWIND_DIR
             UPWIND_DIR_[i] = upwind_dir
