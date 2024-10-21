@@ -20,19 +20,25 @@ u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
+# # result of tuning
+# fcs.p=1.3
+# fcs.i=0.2
+# fcs.d=13.25*0.9
+# fcs.use_chi = false
+
 # result of tuning
-fcs.p=1.3
-fcs.i=0.2
-fcs.d=13.25*0.9
+fcs.p=24
+fcs.i=4.8
+fcs.d=12.34*0.1
 fcs.use_chi = false
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 160
+MAX_TIME::Float64 = 120
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
 UPWIND_DIR        = -pi/2 # the direction the wind is coming from.
-UPWIND_DIR2       = -pi/2+deg2rad(90)     # Zero is at north; clockwise positive
+UPWIND_DIR2       = -pi/2+deg2rad(45)     # Zero is at north; clockwise positive
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
@@ -67,7 +73,9 @@ function simulate(integrator)
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
-            steering = -calc_steering(ssc, 0; heading)
+            steering = calc_steering(ssc; heading)
+            # println("steering: ", steering)
+            # steering = -calc_steering(ssc, 0; heading)
            
             set_depower_steering(kps4.kcu, depower, steering)
         end  
@@ -96,7 +104,7 @@ function simulate(integrator)
             t_gc_tot += @elapsed GC.gc(false)
         end
         sys_state = SysState(kps4)
-        sys_state.orient .= calc_orient_quat(kps4)
+        # sys_state.orient .= calc_orient_quat(kps4)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
         AZIMUTH_EAST[i] = calc_azimuth_east(kps4)
@@ -104,7 +112,6 @@ function simulate(integrator)
         HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
-            sys_state.orient .= quat2viewer(calc_orient_quat(kps4))
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
@@ -135,7 +142,7 @@ end
 
 function play()
     global steps
-    integrator = KiteModels.init_sim!(kps4; delta=0.001, stiffness_factor=0.5)
+    integrator = KiteModels.init_sim!(kps4; delta=0.0011, stiffness_factor=1)
     toc()
     try
         steps = simulate(integrator)
