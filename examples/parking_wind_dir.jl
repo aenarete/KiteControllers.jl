@@ -105,11 +105,9 @@ function simulate(integrator)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
         AZIMUTH_EAST[i] = calc_azimuth_east(kps4)
-        # HEADING[i] = wrap2pi(calc_heading(kps4)) 
         HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
-            sys_state.orient .= quat2viewer(calc_orient_quat(kps4))
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
