@@ -11,6 +11,7 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
+set.version = 4
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -23,8 +24,8 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
 dt::Float64 = wcs.dt
 
 # result of tuning
-fcs.p=0.60*20
-fcs.i=0.15
+fcs.p=24
+fcs.i=4.8
 fcs.d=12.34
 
 # the following values can be changed to match your interest
