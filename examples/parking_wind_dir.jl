@@ -9,6 +9,7 @@ using Timers; tic()
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBase
 
 set = deepcopy(load_settings("system.yaml"))
+@assert KiteUtils.PROJECT == "system.yaml"
 @assert se().v_wind == 9.51
 @assert set.v_wind == 9.51
 set.abs_tol=0.00006
@@ -59,7 +60,7 @@ HEADING::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
 SET_STEERING::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
 STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 
-function simulate(integrator)
+function sim_parking(integrator)
     upwind_dir=UPWIND_DIR
     av_upwind_dir = upwind_dir
     start_time_ns = time_ns()
@@ -138,11 +139,11 @@ function simulate(integrator)
     return div(i, TIME_LAPSE_RATIO)
 end
 
-function play()
+function play_parking()
     integrator = KiteModels.init_sim!(kps4; delta=0.001, stiffness_factor=0.5)
     toc()
     try
-        steps = simulate(integrator)
+        steps = sim_parking(integrator)
     catch e
         if isa(e, AssertionError)
             println("AssertionError! Halting simulation.")
@@ -154,7 +155,7 @@ function play()
     GC.enable(true)
 end
 
-play()
+play_parking()
 stop(viewer)
 p=plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),[rad2deg.(UPWIND_DIR_), rad2deg.(AV_UPWIND_DIR)],
          rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
