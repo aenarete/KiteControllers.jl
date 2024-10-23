@@ -10,9 +10,10 @@ pkg"add KitePodModels#main"
 pkg"add KiteModels#main"
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
-set = deepcopy(load_settings("system.yaml"))
+set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
+#set.l_tether = 150
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -29,16 +30,27 @@ dt::Float64 = wcs.dt
 # fcs.i=0.15
 # fcs.d=12.34
 
-# result of tuning
-fcs.p=1.3
-fcs.i=0.2
-fcs.d=13.25*0.9
-fcs.use_chi = false
-@assert fcs.gain == 0.04
+if KiteUtils.PROJECT == "system.yaml"
+    # result of tuning
+    fcs.p=1.3
+    fcs.i=0.2
+    fcs.d=13.25*0.9
+    fcs.use_chi = false
+    @assert fcs.gain == 0.04
+else
+    # result of tuning
+    println("not system.yaml")
+    fcs.p=1.3
+    fcs.i=0.1
+    fcs.d=13.25*0.9
+    fcs.use_chi = false
+    fcs.gain = 0.04*0.5
+end
+println("fcs.p=$(fcs.p), fcs.i=$(fcs.i), fcs.d=$(fcs.d), fcs.gain=$(fcs.gain)")
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 60
-TIME_LAPSE_RATIO  =  4
+MAX_TIME::Float64 = 60 # was 60
+TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # end of user parameter section #
 
@@ -67,7 +79,7 @@ function simulate(integrator)
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
-            steering = calc_steering(ssc, 0; heading)
+            steering = -calc_steering(ssc, 0; heading)
             # steering = 0.15*sys_state.azimuth
             time = i * dt
             # disturbance
@@ -94,7 +106,8 @@ function simulate(integrator)
             # q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
             # sys_state.orient .= Rotations.params(q_viewer)
             # sys_state.orient .= calc_orient_quat(kps4)
-            KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
+            # KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
+            KiteViewers.update_system(viewer, sys_state; scale = 0.08*0.5, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
