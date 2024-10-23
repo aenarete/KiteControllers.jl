@@ -6,6 +6,7 @@ end
 using Timers; tic()
 
 using Pkg
+pkg"add KitePodModels#main"
 pkg"add KiteModels#main"
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
@@ -20,13 +21,20 @@ fcs::FPCSettings = FPCSettings(dt = wcs.dt)
 fpps::FPPSettings = FPPSettings()
 u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
+# # result of tuning
+# fcs.p=0.60*20
+# fcs.i=0.15
+# fcs.d=12.34
+
 # result of tuning
-fcs.p=0.60*20
-fcs.i=0.15
-fcs.d=12.34
+fcs.p=1.3
+fcs.i=0.2
+fcs.d=13.25*0.9
+fcs.use_chi = false
+@assert fcs.gain == 0.04
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
@@ -58,7 +66,8 @@ function simulate(integrator)
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc, 0)
+            heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
+            steering = calc_steering(ssc, 0; heading)
             # steering = 0.15*sys_state.azimuth
             time = i * dt
             # disturbance
@@ -84,7 +93,7 @@ function simulate(integrator)
             # q = QuatRotation(sys_state.orient)
             # q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
             # sys_state.orient .= Rotations.params(q_viewer)
-            sys_state.orient .= calc_orient_quat(kps4; old=true)
+            # sys_state.orient .= calc_orient_quat(kps4)
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
@@ -117,15 +126,15 @@ function play()
     global steps
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
     toc()
-    try
+    # try
         steps = simulate(integrator)
-    catch e
-        if isa(e, AssertionError)
-            println("AssertionError! Halting simulation.")
-        else
-            println("Exception! Halting simulation.")
-        end
-    end
+    # catch e
+    #     if isa(e, AssertionError)
+    #         println("AssertionError! Halting simulation.")
+    #     else
+    #         println("Exception! Halting simulation.")
+    #     end
+    # end
     GC.enable(true)
 end
 
