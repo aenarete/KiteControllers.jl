@@ -6,20 +6,25 @@ end
 using Timers; tic()
 
 using Pkg
-pkg"add KitePodModels#main"
+Pkg.update()
+# pkg"add KitePodModels#main"
 pkg"add KiteModels#main"
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
-set = deepcopy(load_settings("system_v9.yaml"))
+set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 #set.l_tether = 150
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
+@assert set.sample_freq == 20
 wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
+update(wcs); wcs.dt = 1/set.sample_freq
 fcs::FPCSettings = FPCSettings(dt = wcs.dt)
+update(fcs); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
+update(fpps)
 u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
@@ -79,7 +84,7 @@ function simulate(integrator)
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
-            steering = -calc_steering(ssc, 0; heading)
+            steering = calc_steering(ssc, 0; heading)
             # steering = 0.15*sys_state.azimuth
             time = i * dt
             # disturbance
@@ -106,8 +111,11 @@ function simulate(integrator)
             # q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
             # sys_state.orient .= Rotations.params(q_viewer)
             # sys_state.orient .= calc_orient_quat(kps4)
-            # KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
-            KiteViewers.update_system(viewer, sys_state; scale = 0.08*0.5, kite_scale=3)
+            if KiteUtils.PROJECT == "system.yaml"
+                KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
+            else
+                KiteViewers.update_system(viewer, sys_state; scale = 0.08*0.5, kite_scale=3)
+            end
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
