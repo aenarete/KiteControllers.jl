@@ -78,7 +78,7 @@ function sim_parking(integrator)
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
-            steering = -calc_steering(ssc, 0; heading)
+            steering = calc_steering(ssc, 0; heading)
            
             set_depower_steering(kps4.kcu, depower, steering)
         end  
