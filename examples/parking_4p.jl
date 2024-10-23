@@ -20,11 +20,11 @@ kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 @assert set.sample_freq == 20
 wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
-update(wcs); wcs.dt = 1/set.sample_freq
+# update(wcs); wcs.dt = 1/set.sample_freq
 fcs::FPCSettings = FPCSettings(dt = wcs.dt)
-update(fcs); fcs.dt = wcs.dt
+# update(fcs); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
-update(fpps)
+# update(fpps)
 u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
@@ -54,7 +54,7 @@ end
 println("fcs.p=$(fcs.p), fcs.i=$(fcs.i), fcs.d=$(fcs.d), fcs.gain=$(fcs.gain)")
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 60 # was 60
+MAX_TIME::Float64 = 20 # was 60
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # end of user parameter section #
