@@ -14,6 +14,7 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
+# set.version = 1
 #set.l_tether = 150
 
 kcu::KCU = KCU(set)
@@ -45,16 +46,16 @@ if KiteUtils.PROJECT == "system.yaml"
 else
     # result of tuning
     println("not system.yaml")
-    fcs.p=1.3
+    fcs.p=1.0
     fcs.i=0.1
-    fcs.d=13.25*0.9
+    fcs.d=13.25*1.0
     fcs.use_chi = false
     fcs.gain = 0.04*0.5
 end
 println("fcs.p=$(fcs.p), fcs.i=$(fcs.i), fcs.d=$(fcs.d), fcs.gain=$(fcs.gain)")
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 60 # was 60
+MAX_TIME::Float64 = 90 # was 60
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # end of user parameter section #
