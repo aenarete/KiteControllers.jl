@@ -16,7 +16,7 @@ set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 # set.version = 1
-set.v_wind = 13 # v_min1 7.7; v_min2 12.3 v_min3 10.5
+set.v_wind = 11 # v_min1 7.7; v_min2 11
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -50,7 +50,7 @@ else
     println("not system.yaml")
     fcs.p=1.6
     fcs.i=0.06
-    fcs.d=13.25*1.25
+    fcs.d=13.25*1.35
     MIN_DEPOWER       = 0.4
     fcs.use_chi = false
     fcs.gain = 0.04*3
