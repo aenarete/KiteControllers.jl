@@ -1,7 +1,7 @@
 module KiteControllers
 
 using KiteUtils, WinchModels, Parameters, Observables, StaticArrays, NLsolve, Printf
-using YAML, StructTypes
+using YAML, StructTypes, StatsBase
 import Base.reset
 import JLD2
 
@@ -26,7 +26,7 @@ export calc_v_set, get_set_force, get_status                          # methods 
 export on_autopilot, on_parking, on_reelin, on_stop, on_new_systate   # methods of SystemStateControl
 export on_winchcontrol, get_depower                                   # methods of SystemStateControl
 export ssParking, ssPowerProduction, ssReelIn, ssManualOperation
-export update, observe!
+export update, observe!, moving_average
 
 abstract type AbstractForceController end
 const AFC = AbstractForceController

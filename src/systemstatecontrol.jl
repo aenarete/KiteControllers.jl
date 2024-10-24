@@ -10,13 +10,14 @@
     sys_state::Union{Nothing, SysState}    = nothing
     state::Observable(SystemState)[]       = ssParking
     tether_length::Union{Nothing, Float64} = nothing
+    v_wind
 end
 
-function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings; u_d0, u_d)
+function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings; u_d0, u_d, v_wind)
     fpc = FlightPathController(fcs; u_d0, u_d)
     fpca = FlightPathCalculator(fpc, fpps)
     fpp = FlightPathPlanner(fpps, fpca)
-    res = SystemStateControl(wc=WinchController(wcs), fpp=fpp)
+    res = SystemStateControl(wc=WinchController(wcs), fpp=fpp, v_wind=v_wind)
 
     attractor = zeros(2)
     attractor[end] = deg2rad(80.0) # beta_set
@@ -71,13 +72,17 @@ function calc_v_set(ssc::SystemStateControl)
     v_set
 end
 
-function calc_steering(ssc::SystemStateControl, manual_steering = 0.0)
+function calc_steering(ssc::SystemStateControl, manual_steering = 0.0; heading = nothing)
     if isnothing(ssc.sys_state)
         return 0.0
     end
     phi  = ssc.sys_state.azimuth
     beta = ssc.sys_state.elevation
-    psi = ssc.sys_state.heading
+    if isnothing(heading)
+        psi = ssc.sys_state.heading
+    else
+        psi = heading
+    end
     v_a = ssc.sys_state.v_app
     chi = ssc.sys_state.course
     u_d = ssc.sys_state.depower
@@ -104,7 +109,7 @@ function switch(ssc::SystemStateControl, state)
     ssc.state = state
     # publish new system state
     if state == ssPowerProduction
-        start(ssc.fpp)
+        start(ssc.fpp, ssc.v_wind)
     end
     if state == ssParking
         on_new_system_state(ssc.fpp.fpca, state, true)

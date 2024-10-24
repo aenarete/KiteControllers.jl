@@ -27,12 +27,12 @@ function FlightPathPlanner(fpps::FPPSettings, fpca::FlightPathCalculator)
 end
 
 # Start automated power production; Precondition: The kite is parking at a high elevation angle.
-function start(fpp::FlightPathPlanner)
+function start(fpp::FlightPathPlanner, v_wind)
     if fpp.fpca._sys_state == ssManualOperation || fpp.fpca._sys_state == ssParking
         # see: Table 5.3
         _switch(fpp, POWER)
     end
-    set_v_wind_gnd(fpp.fpca, se().v_wind)
+    set_v_wind_gnd(fpp.fpca, v_wind)
 end
 
 #  Check, if the new flight path planner is active. 
