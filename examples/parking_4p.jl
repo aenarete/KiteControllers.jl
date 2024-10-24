@@ -16,8 +16,7 @@ set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 # set.version = 1
-set.v_wind = 7.7 # v_min1 7.7; v_min2 12.3
-#set.l_tether = 150
+set.v_wind = 12.3 # v_min1 7.7; v_min2 12.3 v_min3 10.5
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -40,17 +39,19 @@ dt::Float64 = wcs.dt
 
 if KiteUtils.PROJECT == "system.yaml"
     # result of tuning
-    fcs.p=0.7
-    fcs.i=0.1
+    fcs.p=1.5
+    fcs.i=0.04
     fcs.d=13.25*1.0
+    MIN_DEPOWER       = 0.22
     fcs.use_chi = false
     @assert fcs.gain == 0.04
 else
     # result of tuning
     println("not system.yaml")
-    fcs.p=0.8
+    fcs.p=0.25
     fcs.i=0.04
-    fcs.d=13.25*1.105
+    fcs.d=13.25*1.2
+    MIN_DEPOWER       = 0.4
     fcs.use_chi = false
     fcs.gain = 0.04*0.5
 end
@@ -66,10 +67,11 @@ viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
 steps = 0
 T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined HEADING; const HEADING = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined STEERING; const SET_STEERING = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
+AZIMUTH::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
+HEADING::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
+SET_STEERING::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
+STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
+AoA::Vector{Float64}           = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
     global sys_state
@@ -85,7 +87,7 @@ function simulate(integrator)
         steering = 0.0
         if i > 100
             depower = KiteControllers.get_depower(ssc)
-            if depower < 0.22; depower = 0.22; end
+            if depower < MIN_DEPOWER; depower = MIN_DEPOWER; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
             if KiteUtils.PROJECT == "system.yaml"
                 steering = calc_steering(ssc, 0; heading)
@@ -102,6 +104,7 @@ function simulate(integrator)
         end
         SET_STEERING[i] = steering
         STEERING[i] = get_steering(kps4.kcu)/set.cs_4p
+        AoA[i] = kps4.alpha_2
         # execute winch controller
         v_ro = 0.0
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
@@ -187,9 +190,9 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 
 play()
 stop(viewer)
-p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)]; 
+p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)], AoA; 
           xlabel="Time [s]", 
-          ylabels=["Azimuth [°]", "Heading [°]", "steering [%]"],
-          labels=["azimuth", "heading", ["set_steering", "steering"]], 
-          fig="Azimuth and Heading")
+          ylabels=["Azimuth [°]", "Heading [°]", "steering [%]", "AoA [°]"],
+          labels=["azimuth", "heading", ["set_steering", "steering", "AoA"]], 
+          fig="Azimuth, heading, steering and AoA",)
 display(p)
