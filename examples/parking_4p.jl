@@ -16,7 +16,7 @@ set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 # set.version = 1
-set.v_wind = 12.3 # v_min1 7.7; v_min2 12.3 v_min3 10.5
+set.v_wind = 7.7 # v_min1 7.7; v_min2 12.3 v_min3 10.5
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -39,9 +39,9 @@ dt::Float64 = wcs.dt
 
 if KiteUtils.PROJECT == "system.yaml"
     # result of tuning
-    fcs.p=1.5
+    fcs.p=1.6
     fcs.i=0.04
-    fcs.d=13.25*1.0
+    fcs.d=13.25*1.7
     MIN_DEPOWER       = 0.22
     fcs.use_chi = false
     @assert fcs.gain == 0.04
@@ -50,7 +50,7 @@ else
     println("not system.yaml")
     fcs.p=0.25
     fcs.i=0.04
-    fcs.d=13.25*1.2
+    fcs.d=13.25*1.3
     MIN_DEPOWER       = 0.4
     fcs.use_chi = false
     fcs.gain = 0.04*0.5
