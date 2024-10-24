@@ -1,4 +1,5 @@
 # activate the test environment if needed
+# TODO plot AoA and elevatio
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
@@ -15,6 +16,7 @@ set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 # set.version = 1
+set.v_wind = 12.3
 #set.l_tether = 150
 
 kcu::KCU = KCU(set)
@@ -46,9 +48,9 @@ if KiteUtils.PROJECT == "system.yaml"
 else
     # result of tuning
     println("not system.yaml")
-    fcs.p=1.0
-    fcs.i=0.1
-    fcs.d=13.25*1.0
+    fcs.p=0.8
+    fcs.i=0.04
+    fcs.d=13.25*1.105
     fcs.use_chi = false
     fcs.gain = 0.04*0.5
 end
@@ -95,7 +97,7 @@ function simulate(integrator)
             set_depower_steering(kps4.kcu, depower, steering)
         end
         SET_STEERING[i] = steering
-        STEERING[i] = get_steering(kps4.kcu)
+        STEERING[i] = get_steering(kps4.kcu)/set.cs_4p
         # execute winch controller
         v_ro = 0.0
         t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
