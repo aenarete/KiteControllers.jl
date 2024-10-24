@@ -12,11 +12,11 @@ using Pkg
 # pkg"add KiteModels#main"
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
-set = deepcopy(load_settings("system_v9.yaml"))
+set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 # set.version = 1
-set.v_wind = 12.3
+set.v_wind = 7.7 # v_min1 7.7; v_min2 12.3
 #set.l_tether = 150
 
 kcu::KCU = KCU(set)
@@ -40,9 +40,9 @@ dt::Float64 = wcs.dt
 
 if KiteUtils.PROJECT == "system.yaml"
     # result of tuning
-    fcs.p=1.3
-    fcs.i=0.2
-    fcs.d=13.25*0.9
+    fcs.p=0.7
+    fcs.i=0.1
+    fcs.d=13.25*1.0
     fcs.use_chi = false
     @assert fcs.gain == 0.04
 else
@@ -87,7 +87,11 @@ function simulate(integrator)
             depower = KiteControllers.get_depower(ssc)
             if depower < 0.22; depower = 0.22; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
-            steering = -calc_steering(ssc, 0; heading)
+            if KiteUtils.PROJECT == "system.yaml"
+                steering = calc_steering(ssc, 0; heading)
+            else
+                steering = -calc_steering(ssc, 0; heading)
+            end
             # steering = 0.15*sys_state.azimuth
             time = i * dt
             # disturbance
