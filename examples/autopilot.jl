@@ -180,7 +180,7 @@ function simulate(integrator, stopped=true)
                 app.ssc.sys_state.heading = heading
                 app.ssc.sys_state.azimuth = -calc_azimuth(app.kps4)
                 #  steering = calc_steering(app.ssc; heading)
-                steering = calc_steering(app.ssc)
+                steering = -calc_steering(app.ssc)
                 set_depower_steering(app.kps4.kcu, dp, steering)
             end
             if i == 200 && ! app.parking
