@@ -36,6 +36,7 @@ dt::Float64 = wcs.dt
 fcs.p=4.3
 fcs.i=0.1
 fcs.d=13.25*1.9
+MIN_DEPOWER       = 0.22
 fcs.use_chi = false
 @assert fcs.gain == 0.04
 
@@ -76,14 +77,14 @@ function sim_parking(integrator)
         steering = 0.0
         if i > 100
             depower = KiteControllers.get_depower(ssc)
-            if depower < 0.22; depower = 0.22; end
+            if depower < MIN_DEPOWER; depower = MIN_DEPOWER; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
             steering = calc_steering(ssc, 0; heading)
            
             set_depower_steering(kps4.kcu, depower, steering)
         end  
         SET_STEERING[i] = steering
-        STEERING[i] = get_steering(kps4.kcu)
+        STEERING[i] = get_steering(kps4.kcu) / set.cs_4p
         # execute winch controller
         v_ro = 0.0
         if time > 20
