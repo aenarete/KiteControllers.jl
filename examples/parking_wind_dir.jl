@@ -33,14 +33,14 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind =
 dt::Float64 = wcs.dt
 
 # result of tuning
-fcs.p=1.3
-fcs.i=0.2
-fcs.d=13.25*0.9
+fcs.p=4.3
+fcs.i=0.1
+fcs.d=13.25*1.9
 fcs.use_chi = false
 @assert fcs.gain == 0.04
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 160
+MAX_TIME::Float64 = 120
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # For position and velocity vectors of the model the ENU (East North Up) 
