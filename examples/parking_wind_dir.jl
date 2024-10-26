@@ -33,9 +33,9 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind =
 dt::Float64 = wcs.dt
 
 # result of tuning
-fcs.p=4.3
-fcs.i=0.1
-fcs.d=13.25*1.9
+fcs.p=2.0
+fcs.i=0.05
+fcs.d=13.25*0.95
 MIN_DEPOWER       = 0.22
 fcs.use_chi = false
 @assert fcs.gain == 0.04
