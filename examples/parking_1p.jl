@@ -10,7 +10,7 @@ set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00000006
 set.rel_tol=0.0000001
 
-using KiteControllers, KiteViewers, KiteModels, ControlPlots
+using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 
 kcu::KCU = KCU(set)
 kps::KPS3 = KPS3(kcu)
@@ -53,7 +53,7 @@ function simulate(integrator)
         if i > 100
             depower = KiteControllers.get_depower(ssc)
             if depower < MIN_DEPOWER; depower = MIN_DEPOWER; end
-            heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
+            heading = calc_heading(kps; neg_azimuth=true, one_point=false)
             steering = calc_steering(ssc, 0; heading)
             time = i * dt
             # disturbance
@@ -105,15 +105,15 @@ function play()
     global steps
     integrator = KiteModels.init_sim!(kps, stiffness_factor=0.04)
     toc()
-    try
-        steps = simulate(integrator)
-    catch e
-        if isa(e, AssertionError)
-            println("AssertionError! Halting simulation.")
-        else
-            println("Exception! Halting simulation.")
-        end
-    end
+    #try
+    steps = simulate(integrator)
+    #catch e
+    #    if isa(e, AssertionError)
+    #        println("AssertionError! Halting simulation.")
+    #    else
+    #        println("Exception! Halting simulation.")
+    #    end
+    #end
     GC.enable(true)
 end
 
