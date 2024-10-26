@@ -419,7 +419,7 @@ end
     wcs = WCSettings()
     fcs = FPCSettings(dt=0.05)
     fpps = FPPSettings()
-    ssc = SystemStateControl(wcs, fcs, fpps; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
+    ssc = SystemStateControl(wcs, fcs, fpps; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower, v_wind = se().v_wind)
     on_parking(ssc)
     @test ssc.state == ssParking
     on_autopilot(ssc)
@@ -515,7 +515,7 @@ end
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)  
     fpp.count = 50
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)   
-    KiteControllers.start(fpp)
+    KiteControllers.start(fpp, se().v_wind)
     KiteControllers._switch(fpp, POWER)
     @test fpp._state == POWER
     KiteControllers._switch(fpp, POWER)
