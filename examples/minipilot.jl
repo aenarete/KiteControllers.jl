@@ -11,7 +11,7 @@ set = deepcopy(load_settings("system.yaml"))
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 
-wcs::WCSettings = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
+wcs::WCSettings = WCSettings(dt = 1/set.sample_freq); update(wcs); wcs.dt = 1/set.sample_freq
 fcs::FPCSettings = FPCSettings(dt=wcs.dt)
 fpps::FPPSettings = FPPSettings()
 u_d0 = 0.01 * set.depower_offset
@@ -23,7 +23,7 @@ function init_globals()
     global kcu, kps4, wcs, fcs, fpps, ssc
     kcu   = KCU(se())
     kps4 = KPS4(kcu)
-    wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
+    wcs = WCSettings(dt = 1/set.sample_freq); update(wcs); wcs.dt = 1/set.sample_freq
     fcs = FPCSettings(dt=wcs.dt)
     fpps = FPPSettings()
     u_d0 = 0.01 * set.depower_offset
