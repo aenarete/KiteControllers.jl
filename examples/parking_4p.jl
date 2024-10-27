@@ -1,5 +1,4 @@
 # activate the test environment if needed
-# TODO plot AoA and elevatio
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
@@ -10,7 +9,6 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-# set.version = 1
 set.v_wind = 8.5 # v_min1 7.7; v_min2 8.5
 
 kcu::KCU = KCU(set)
@@ -78,8 +76,6 @@ function simulate(integrator)
     while true
         steering = 0.0
         if i > 100
-            depower = KiteControllers.get_depower(ssc)
-            if depower < MIN_DEPOWER; depower = MIN_DEPOWER; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
             steering = calc_steering(ssc, 0; heading)
             time = i * dt
@@ -87,7 +83,7 @@ function simulate(integrator)
             if time > 20 && time < 21
                 steering = 0.1
             end            
-            set_depower_steering(kps4.kcu, depower, steering)
+            set_depower_steering(kps4.kcu, MIN_DEPOWER, steering)
         end
         SET_STEERING[i] = steering
         STEERING[i] = get_steering(kps4.kcu)/set.cs_4p
