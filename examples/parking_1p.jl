@@ -9,23 +9,27 @@ using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00000006
 set.rel_tol=0.0000001
+set.v_wind = 8.5
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 
 kcu::KCU = KCU(set)
 kps::KPS3 = KPS3(kcu)
 wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
+update(wcs); wcs.dt = 1/set.sample_freq
 fcs::FPCSettings = FPCSettings(dt = wcs.dt)
+update(fcs); fcs.dt = wcs.dt
 fpps::FPPSettings = FPPSettings()
+update(fpps)
 u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
 # result of tuning, factor 0.9 to increase robustness
-fcs.p = 13.63*0.9
+fcs.p = 13.63*0.4
 fcs.i = 0.1
-fcs.d = 27.75*0.9
+fcs.d = 27.75*0.5
 MIN_DEPOWER = 0.22
 
 # the following values can be changed to match your interest
@@ -51,8 +55,6 @@ function simulate(integrator)
     on_new_systate(ssc, sys_state)
     while true
         if i > 100
-            depower = KiteControllers.get_depower(ssc)
-            if depower < MIN_DEPOWER; depower = MIN_DEPOWER; end
             heading = calc_heading(kps; neg_azimuth=true, one_point=false)
             steering = calc_steering(ssc, 0; heading)
             time = i * dt
@@ -60,7 +62,7 @@ function simulate(integrator)
             if time > 20 && time < 21
                 steering = 0.1
             end
-            set_depower_steering(kps.kcu, depower, steering)
+            set_depower_steering(kps.kcu, MIN_DEPOWER, steering)
         end  
         v_ro = 0.0
         t_sim = @elapsed KiteModels.next_step!(kps, integrator; set_speed=v_ro, dt=dt)
