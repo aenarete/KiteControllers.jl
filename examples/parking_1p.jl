@@ -7,8 +7,8 @@ using Timers; tic()
 
 using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
-set.abs_tol=0.00000006
-set.rel_tol=0.0000001
+set.abs_tol=0.00006
+set.rel_tol=0.0001
 set.v_wind = 8.5
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
@@ -26,7 +26,7 @@ u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
-# result of tuning, factor 0.9 to increase robustness
+# result of tuning
 fcs.p = 13.63*0.4
 fcs.i = 0.1
 fcs.d = 27.75*0.5
