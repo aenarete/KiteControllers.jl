@@ -5,7 +5,7 @@ using DiscretePIDs, Parameters
 @with_kw mutable struct ParkingControllerSettings @deftype Float64
     dt
     # turn rate controller settings
-    kp_tr=1
+    kp_tr=1 # can become a vector when we start to implement a parameter varying controller
     ki_tr=0
     kd_tr=0
     N_tr = 10
