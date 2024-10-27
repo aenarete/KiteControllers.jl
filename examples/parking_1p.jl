@@ -28,9 +28,9 @@ dt::Float64 = wcs.dt
 
 # result of tuning
 fcs.p = 13.63*0.4
-fcs.i = 0.1
-fcs.d = 27.75*0.5
-MIN_DEPOWER = 0.22
+fcs.i = 0.2
+fcs.d = 27.75*0.68
+MIN_DEPOWER = 0.24
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
