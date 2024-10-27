@@ -115,10 +115,6 @@ function simulate(integrator)
         HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
-            # q = QuatRotation(sys_state.orient)
-            # q_viewer = AngleAxis(-π/2, 0, 1, 0) * q
-            # sys_state.orient .= Rotations.params(q_viewer)
-            # sys_state.orient .= calc_orient_quat(kps4)
             if KiteUtils.PROJECT == "system.yaml"
                 KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             else
