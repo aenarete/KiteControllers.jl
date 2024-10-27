@@ -19,7 +19,7 @@ PROJECT="system_8000.yaml"
 set = deepcopy(se(PROJECT))
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
-wcs::WCSettings   = WCSettings();  wcs.dt = 1/set.sample_freq
+wcs::WCSettings   = WCSettings(dt=0.02);  wcs.dt = 1/set.sample_freq
 fcs::FPCSettings  = FPCSettings(dt=wcs.dt)
 fpps::FPPSettings = FPPSettings()
 dt::Float64 = wcs.dt

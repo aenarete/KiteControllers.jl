@@ -12,7 +12,7 @@ using Timers; tic()
 using KiteControllers, ControlPlots, BenchmarkTools
 
 set = deepcopy(load_settings("system.yaml"))
-wcs = WCSettings()
+wcs = WCSettings(dt=0.02)
 
 DURATION = 10.0
 SAMPLES = Int(DURATION / wcs.dt + 1)
