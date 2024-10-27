@@ -6,11 +6,6 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using Pkg
-# Pkg.update()
-# pkg"add KitePodModels#main"
-# pkg"add KiteModels#main"
-
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
@@ -31,11 +26,6 @@ u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
-
-# # result of tuning
-# fcs.p=0.60*20
-# fcs.i=0.15
-# fcs.d=12.34
 
 if KiteUtils.PROJECT == "system.yaml"
     # result of tuning
@@ -151,15 +141,7 @@ function play()
     global steps
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.5)
     toc()
-    # try
-        steps = simulate(integrator)
-    # catch e
-    #     if isa(e, AssertionError)
-    #         println("AssertionError! Halting simulation.")
-    #     else
-    #         println("Exception! Halting simulation.")
-    #     end
-    # end
+    steps = simulate(integrator)
     GC.enable(true)
 end
 
