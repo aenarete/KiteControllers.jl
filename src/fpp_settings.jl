@@ -43,3 +43,11 @@ function update(fpps::FPPSettings)
     sec_dict = Dict(Symbol(k) => v for (k, v) in dict["fpp_settings"])
     StructTypes.constructfrom!(fpps, sec_dict)
 end
+
+function FPPSettings(update)
+    fpp = FPPSettings()
+    if update
+        KiteControllers.update(fpp)
+    end
+    fpp
+end

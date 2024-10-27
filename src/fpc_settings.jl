@@ -55,3 +55,12 @@ function update(fcs::FPCSettings)
     sec_dict = Dict(Symbol(k) => v for (k, v) in dict["fpc_settings"])
     StructTypes.constructfrom!(fcs, sec_dict)
 end
+
+function FPCSettings(update; dt)
+    fcs = FPCSettings(; dt)
+    if update
+        KiteControllers.update(fcs)
+    end
+    fcs.dt = dt
+    fcs
+end
