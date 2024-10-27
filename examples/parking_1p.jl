@@ -107,15 +107,7 @@ function play()
     global steps
     integrator = KiteModels.init_sim!(kps, stiffness_factor=0.04)
     toc()
-    #try
     steps = simulate(integrator)
-    #catch e
-    #    if isa(e, AssertionError)
-    #        println("AssertionError! Halting simulation.")
-    #    else
-    #        println("Exception! Halting simulation.")
-    #    end
-    #end
     GC.enable(true)
 end
 
