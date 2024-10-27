@@ -12,9 +12,9 @@ set = deepcopy(load_settings("system.yaml"))
 kcu::KCU = KCU(set)
 kps3::KPS3 = KPS3(kcu)
 
-wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
-fcs::FPCSettings = FPCSettings(dt = wcs.dt)
-fpps::FPPSettings = FPPSettings()
+wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
+fcs::FPCSettings = FPCSettings(true, dt = wcs.dt)
+fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
@@ -53,8 +53,10 @@ function simulate(integrator)
         if i > 100
             dp = KiteControllers.get_depower(ssc)
             if dp < 0.22 dp = 0.22 end
-            heading = calc_heading(kps3; neg_azimuth=true)
-            steering = calc_steering(ssc, 0; heading)
+            heading = calc_heading(kps3; neg_azimuth=true, one_point=false)
+            sys_state.heading = heading
+            sys_state.azimuth = -calc_azimuth(kps3)
+            steering = -calc_steering(ssc)
             set_depower_steering(kps3.kcu, dp, steering)
         end
         if i == 200
