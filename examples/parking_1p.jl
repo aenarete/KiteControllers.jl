@@ -9,7 +9,7 @@ using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 8.5
+set.v_wind = 6.5
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 
@@ -27,9 +27,9 @@ ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind =
 dt::Float64 = wcs.dt
 
 # result of tuning
-fcs.p = 13.63*0.4
+fcs.p = 13.63*0.2
 fcs.i = 0.2
-fcs.d = 27.75*0.68
+fcs.d = 27.75*0.85
 MIN_DEPOWER = 0.24
 
 # the following values can be changed to match your interest
