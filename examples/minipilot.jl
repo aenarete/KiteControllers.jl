@@ -11,9 +11,9 @@ set = deepcopy(load_settings("system.yaml"))
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 
-wcs::WCSettings = WCSettings(dt = 1/set.sample_freq); update(wcs); wcs.dt = 1/set.sample_freq
-fcs::FPCSettings = FPCSettings(dt=wcs.dt)
-fpps::FPPSettings = FPPSettings()
+wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
+fcs::FPCSettings = FPCSettings(true, dt=wcs.dt)
+fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
 u_d  = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
@@ -21,11 +21,11 @@ dt::Float64 = wcs.dt
 
 function init_globals()
     global kcu, kps4, wcs, fcs, fpps, ssc
-    kcu   = KCU(se())
+    kcu  = KCU(se())
     kps4 = KPS4(kcu)
-    wcs = WCSettings(dt = 1/set.sample_freq); update(wcs); wcs.dt = 1/set.sample_freq
-    fcs = FPCSettings(dt=wcs.dt)
-    fpps = FPPSettings()
+    wcs  = WCSettings(true, dt = 1/set.sample_freq)
+    fcs  = FPCSettings(true, dt=wcs.dt)
+    fpps = FPPSettings(true)
     u_d0 = 0.01 * set.depower_offset
     u_d  = 0.01 * set.depower
     ssc = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
