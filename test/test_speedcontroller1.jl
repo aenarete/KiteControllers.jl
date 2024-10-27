@@ -8,7 +8,7 @@ using Timers; tic()
 # Test the speed controller. 
 # Input: A varying wind speed. Implements the simulink block diagram, shown in
 # docs/speed_controller_test1.png
-using KiteControllers, ControlPlots, BenchmarkTools
+using KiteControllers, ControlPlots, BenchmarkTools, KiteUtils
 
 set = deepcopy(load_settings("system.yaml"))
 wcs = WCSettings(dt=0.02)

@@ -16,7 +16,7 @@ fcs::FPCSettings = FPCSettings(dt=wcs.dt)
 fpps::FPPSettings = FPPSettings()
 u_d0 = 0.01 * set.depower_offset
 u_d  = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 dt = wcs.dt
 
 fpca = ssc.fpp.fpca
