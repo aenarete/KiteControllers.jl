@@ -1,3 +1,4 @@
+# settings for the 20 qm kite
 fpc_settings:
     dt:                 0.025  # time step of the flight path controller
     log_level:          2      # log level, 0=quiet
