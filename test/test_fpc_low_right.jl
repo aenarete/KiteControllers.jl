@@ -21,9 +21,9 @@ PROJECT="system_8000.yaml"
 set = deepcopy(se(PROJECT))
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
-wcs::WCSettings   = WCSettings();  wcs.dt = 1/set.sample_freq
-fcs::FPCSettings  = FPCSettings(dt = wcs.dt)
-fpps::FPPSettings = FPPSettings()
+wcs::WCSettings   = WCSettings(true, dt = 1/set.sample_freq)
+fcs::FPCSettings  = FPCSettings(true, dt = wcs.dt)
+fpps::FPPSettings = FPPSettings(true)
 dt::Float64 = wcs.dt
 attractor=[55.73, 56.95]
 # attractor=[0, 90] # zenith

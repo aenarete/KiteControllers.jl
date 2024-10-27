@@ -7,37 +7,39 @@ using Timers; tic()
 
 using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
-set.abs_tol=0.00000006
-set.rel_tol=0.0000001
+set.abs_tol=0.00006
+set.rel_tol=0.0001
+set.v_wind = 6.5
 
-using KiteControllers, KiteViewers, KiteModels, ControlPlots
+using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 
 kcu::KCU = KCU(set)
 kps::KPS3 = KPS3(kcu)
-wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
-fcs::FPCSettings = FPCSettings(dt = wcs.dt)
-fpps::FPPSettings = FPPSettings()
+wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
+fcs::FPCSettings = FPCSettings(true, dt = wcs.dt)
+fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
-# result of tuning, factor 0.9 to increase robustness
-fcs.p = 13.63*0.9
-fcs.i = 0.0
-fcs.d = 27.75*0.9
+# result of tuning
+fcs.p = 13.63*0.2
+fcs.i = 0.2
+fcs.d = 27.75*0.85
+MIN_DEPOWER = 0.24
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
-TIME_LAPSE_RATIO  = 1
+TIME_LAPSE_RATIO  = 6
 SHOW_KITE         = true
 # end of user parameter section #
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
 steps = 0
-if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+AZIMUTH::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
     start_time_ns = time_ns()
@@ -50,15 +52,14 @@ function simulate(integrator)
     on_new_systate(ssc, sys_state)
     while true
         if i > 100
-            depower = KiteControllers.get_depower(ssc)
-            if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc, 0)
+            heading = calc_heading(kps; neg_azimuth=true, one_point=false)
+            steering = calc_steering(ssc, 0; heading)
             time = i * dt
             # disturbance
             if time > 20 && time < 21
                 steering = 0.1
             end
-            set_depower_steering(kps.kcu, depower, steering)
+            set_depower_steering(kps.kcu, MIN_DEPOWER, steering)
         end  
         v_ro = 0.0
         t_sim = @elapsed KiteModels.next_step!(kps, integrator; set_speed=v_ro, dt=dt)
@@ -70,6 +71,7 @@ function simulate(integrator)
         AZIMUTH[i] = sys_state.azimuth        
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
+            sys_state.orient = quat2viewer(QuatRotation(sys_state.orient))
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
@@ -102,15 +104,7 @@ function play()
     global steps
     integrator = KiteModels.init_sim!(kps, stiffness_factor=0.04)
     toc()
-    try
-        steps = simulate(integrator)
-    catch e
-        if isa(e, AssertionError)
-            println("AssertionError! Halting simulation.")
-        else
-            println("Exception! Halting simulation.")
-        end
-    end
+    steps = simulate(integrator)
     GC.enable(true)
 end
 

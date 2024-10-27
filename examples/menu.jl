@@ -1,7 +1,6 @@
 using REPL.TerminalMenus
 
-options = ["autopilot_1p = include(\"autopilot_1p.jl\")",
-           "autopilot_4p = include(\"autopilot.jl\")",
+options = ["autopilot_4p = include(\"autopilot.jl\")",
            "joystick = include(\"joystick.jl\")",
            "minipilot = include(\"minipilot.jl\")",
            "minipilot_12 = include(\"minipilot_12.jl\")",

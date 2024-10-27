@@ -1,4 +1,4 @@
- """
+"""
 A collection of control functions for discrete control
 
 Functions:
@@ -52,4 +52,15 @@ function merge_angles(alpha, beta, factor_beta)
     x = x1 * (1.0 - factor_beta) + x2 * factor_beta
     y = y1 * (1.0 - factor_beta) + y2 * factor_beta
     atan(x, y)
+end
+
+# calculate the moving average of a vector over a window
+function moving_average(data, window)
+    local result
+    if length(data) <= window
+        result = mean(data)
+    else
+        result = mean(data[length(data)-window:end])
+    end
+    result
 end

@@ -31,7 +31,7 @@ ACC = zeros(SAMPLES)
 D_F_ERR = zeros(SAMPLES)
 
 # create and initialize winch controller
-wcs = WCSettings()
+wcs = WCSettings(dt=0.02)
 update(wcs)
 wcs.dt = 0.05
 lfc = LowerForceController(wcs)

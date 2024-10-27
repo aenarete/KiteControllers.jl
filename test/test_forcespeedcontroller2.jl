@@ -12,7 +12,7 @@ using KiteControllers, ControlPlots, BenchmarkTools
 
 set = deepcopy(load_settings("system.yaml"))
 
-wcs = WCSettings()
+wcs = WCSettings(dt=0.02)
 wcs.test = true
 wcs.f_low = 350
 wcs.fac = 1.0

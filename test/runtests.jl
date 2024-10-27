@@ -46,7 +46,7 @@ end
 end
 
 @testset "WinchController" begin
-    wcs = WCSettings()
+    wcs = WCSettings(dt=0.02)
     cvi = CalcVSetIn(wcs)
     force = wcs.f_low
     v_ro = calc_vro(wcs, force)
@@ -133,7 +133,7 @@ end
 end
 
 @testset "SpeedController" begin
-    wcs = WCSettings()
+    wcs = WCSettings(dt=0.02)
     sc = SpeedController(wcs)
     @test sc.wcs.dt == 0.02
     set_tracking(sc, 1.0)
@@ -164,7 +164,7 @@ end
 end
 
 @testset "Winch" begin
-    wcs = WCSettings()
+    wcs = WCSettings(dt=0.02)
     set = se()
     @test set.winch_model == "AsyncMachine"
     w = Winch(wcs, set)
@@ -181,7 +181,7 @@ end
 
 # using KiteControllers, Test
 function test_winch()
-    wcs = WCSettings()
+    wcs = WCSettings(dt=0.02)
     set = se()
     w = Winch(wcs, set)
     v_set = 4.0
@@ -194,7 +194,7 @@ function test_winch()
 end
 
 @testset "LowerForceController" begin
-    wcs = WCSettings()
+    wcs = WCSettings(dt=0.02)
     lfc = LowerForceController(wcs)
     @test lfc.wcs.dt == 0.02
     KiteControllers._set(lfc)
@@ -229,7 +229,7 @@ end
 end
 
 @testset "UpperForceController" begin
-    wcs = WCSettings()
+    wcs = WCSettings(dt=0.02)
     ufc = UpperForceController(wcs)
     @test ufc.wcs.dt == 0.02
     KiteControllers._set(ufc)
@@ -264,7 +264,7 @@ end
 end
 
 @testset "WinchController" begin
-    wcs = WCSettings()
+    wcs = WCSettings(dt=0.02)
     wc = WinchController(wcs)
     v_act = 1.0
     force = 500.0
@@ -416,10 +416,10 @@ end
 end
 
 @testset "SystemStateControl" begin
-    wcs = WCSettings()
+    wcs = WCSettings(dt=0.05)
     fcs = FPCSettings(dt=0.05)
     fpps = FPPSettings()
-    ssc = SystemStateControl(wcs, fcs, fpps; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower)
+    ssc = SystemStateControl(wcs, fcs, fpps; u_d0=0.01 * se().depower_offset, u_d=0.01 * se().depower, v_wind = se().v_wind)
     on_parking(ssc)
     @test ssc.state == ssParking
     on_autopilot(ssc)
@@ -515,7 +515,7 @@ end
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)  
     fpp.count = 50
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)   
-    KiteControllers.start(fpp)
+    KiteControllers.start(fpp, se().v_wind)
     KiteControllers._switch(fpp, POWER)
     @test fpp._state == POWER
     KiteControllers._switch(fpp, POWER)

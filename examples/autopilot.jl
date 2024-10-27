@@ -2,7 +2,6 @@
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
-    # pkg"add KiteModels#main"
 end
 using Timers; tic()
 
@@ -73,21 +72,17 @@ function init(app::KiteApp; init_viewer=false)
     project=(KiteUtils.PROJECT)
     app.kps4 = KPS4(app.kcu)
     KiteUtils.PROJECT = project
-    app.wcs = WCSettings()
-    update(app.wcs)
+    app.wcs = WCSettings(true; dt=1/app.set.sample_freq)
     
     app.wcs.dt = 1/app.set.sample_freq
     app.dt = app.wcs.dt
-    app.fcs = FPCSettings(dt=app.dt) 
-    update(app.fcs)
-    app.fcs.dt = app.wcs.dt 
+    app.fcs = FPCSettings(true; dt=app.dt) 
     app.fcs.log_level = app.set.log_level
-    app.fpps = FPPSettings()
-    update(app.fpps)
+    app.fpps = FPPSettings(true)
     app.fpps.log_level = app.set.log_level
     u_d0 = 0.01 * se(project).depower_offset
     u_d = 0.01 * se(project).depower
-    app.ssc = SystemStateControl(app.wcs, app.fcs, app.fpps; u_d0, u_d)
+    app.ssc = SystemStateControl(app.wcs, app.fcs, app.fpps; u_d0, u_d, v_wind=app.set.v_wind)
     if init_viewer
         app.viewer= Viewer3D(app.set, app.show_kite; menus=true)
         app.viewer.menu.options[]=["plot_main", "plot_power", "plot_control", "plot_control_II", "plot_winch_control", "plot_aerodynamics",
@@ -177,7 +172,11 @@ function simulate(integrator, stopped=true)
             if i > 100
                 dp = KiteControllers.get_depower(app.ssc)
                 if dp < 0.22 dp = 0.22 end
-                steering = calc_steering(app.ssc)
+                heading = calc_heading(app.kps4; neg_azimuth=true, one_point=false)
+                app.ssc.sys_state.heading = heading
+                app.ssc.sys_state.azimuth = -calc_azimuth(app.kps4)
+                #  steering = calc_steering(app.ssc; heading)
+                steering = -calc_steering(app.ssc)
                 set_depower_steering(app.kps4.kcu, dp, steering)
             end
             if i == 200 && ! app.parking
@@ -187,6 +186,7 @@ function simulate(integrator, stopped=true)
             v_ro = calc_v_set(app.ssc)
             #
             t_sim = @elapsed KiteModels.next_step!(app.kps4, integrator; set_speed=v_ro, dt=app.dt)
+            sys_state.orient .= calc_orient_quat(app.kps4)
             update_sys_state!(sys_state, app.kps4)
             acc = (app.kps4.vel_kite - last_vel)/app.dt
             last_vel = deepcopy(app.kps4.vel_kite)

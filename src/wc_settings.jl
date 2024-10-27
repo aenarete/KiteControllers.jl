@@ -3,7 +3,7 @@ Settings of the WinchController
 """
 @with_kw mutable struct WCSettings @deftype Float64
     "timestep of the winch controller"
-    dt = 0.02
+    dt
     "set to true for running the unit tests"
     test::Bool = false
     "factor for I and P of lower force controller"
@@ -92,4 +92,13 @@ function update(wcs::WCSettings)
     dict = YAML.load_file(config_file)
     sec_dict = Dict(Symbol(k) => v for (k, v) in dict["wc_settings"])
     StructTypes.constructfrom!(wcs, sec_dict)
+end
+
+function WCSettings(update; dt)
+    wcs = WCSettings(; dt)
+    if update
+        KiteControllers.update(wcs)
+    end
+    wcs.dt = dt
+    wcs
 end

@@ -19,6 +19,7 @@ fi
 mkdir -p output
 
 export MPLBACKEND=qt5agg
+export JULIA_PKG_SERVER_REGISTRY_PREFERANCE=eager
 
 if ! command -v juliaup &> /dev/null; then
     echo "Please install the Julia installer 'juliaup'!"

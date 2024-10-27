@@ -12,24 +12,24 @@ set.segments = 12
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 
-wcs::WCSettings = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
-fcs::FPCSettings = FPCSettings(dt=wcs.dt)
-fpps::FPPSettings = FPPSettings()
+wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
+fcs::FPCSettings = FPCSettings(true, dt=wcs.dt)
+fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
 u_d  = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 dt::Float64 = wcs.dt
 
 function init_globals()
     global kcu, kps4, wcs, fcs, fpps, ssc
     kcu   = KCU(set)
     kps4 = KPS4(kcu)
-    wcs = WCSettings(); update(wcs); wcs.dt = 1/set.sample_freq
-    fcs = FPCSettings(dt=wcs.dt)
-    fpps = FPPSettings()
+    wcs  = WCSettings(true, dt = 1/set.sample_freq)
+    fcs  = FPCSettings(true, dt=wcs.dt)
+    fpps = FPPSettings(true)
     u_d0 = 0.01 * set.depower_offset
     u_d  = 0.01 * set.depower
-    ssc = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+    ssc = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 end
 
 # the following values can be changed to match your interest
@@ -46,10 +46,10 @@ viewer::Viewer3D = Viewer3D(set, SHOW_KITE)
 PARKING::Bool = false
 
 steps = 0
-if ! @isdefined T;        const T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined DELTA_T;  const DELTA_T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined STEERING; const STEERING = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined DEPOWER_; const DEPOWER_ = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+DELTA_T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
+DEPOWER_::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 LAST_I::Int64=0
 
 function simulate(integrator, stopped=true)
@@ -78,7 +78,10 @@ function simulate(integrator, stopped=true)
             if i > 100
                 dp = KiteControllers.get_depower(ssc)
                 if dp < 0.22 dp = 0.22 end
-                steering = calc_steering(ssc)
+                heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
+                ssc.sys_state.heading = heading
+                ssc.sys_state.azimuth = -calc_azimuth(kps4)
+                steering = -calc_steering(ssc)
                 set_depower_steering(kps4.kcu, dp, steering)
             end
             if i == 200 && ! PARKING

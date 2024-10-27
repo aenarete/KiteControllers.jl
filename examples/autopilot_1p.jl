@@ -5,19 +5,19 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels
+using KiteControllers, KiteViewers, KiteModels, Rotations
 
 set = deepcopy(load_settings("system.yaml"))
 
 kcu::KCU = KCU(set)
 kps3::KPS3 = KPS3(kcu)
 
-wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
-fcs::FPCSettings = FPCSettings(dt = wcs.dt)
-fpps::FPPSettings = FPPSettings()
+wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
+fcs::FPCSettings = FPCSettings(true, dt = wcs.dt)
+fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
 u_d = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 dt::Float64 = wcs.dt
 
 # result of tuning, factor 0.9 to increase robustness
@@ -53,7 +53,10 @@ function simulate(integrator)
         if i > 100
             dp = KiteControllers.get_depower(ssc)
             if dp < 0.22 dp = 0.22 end
-            steering = calc_steering(ssc)
+            heading = calc_heading(kps3; neg_azimuth=true, one_point=false)
+            sys_state.heading = heading
+            sys_state.azimuth = -calc_azimuth(kps3)
+            steering = -calc_steering(ssc)
             set_depower_steering(kps3.kcu, dp, steering)
         end
         if i == 200
@@ -65,7 +68,8 @@ function simulate(integrator)
         t_sim = @elapsed KiteModels.next_step!(kps3, integrator; set_speed=v_ro, dt=dt)
         sys_state = SysState(kps3)
         on_new_systate(ssc, sys_state)
-        if mod(i, TIME_LAPSE_RATIO) == 0 
+        if mod(i, TIME_LAPSE_RATIO) == 0
+            sys_state.orient = quat2viewer(QuatRotation(sys_state.orient))
             KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
