@@ -1,12 +1,9 @@
 # activate the test environment if needed
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("BayesOpt" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
     Pkg.add("BayesOpt")
 end
-
-using Pkg
-pkg"add KiteModels#azimuth"
 
 using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
@@ -18,12 +15,12 @@ plt.close("all")
 
 kcu::KCU  = KCU(set)
 kps4::KPS4 = KPS4(kcu)
-wcs::WCSettings   = WCSettings();  wcs.dt = 1/set.sample_freq
-fcs::FPCSettings  = FPCSettings(dt=wcs.dt)
-fpps::FPPSettings = FPPSettings()
+wcs::WCSettings   = WCSettings(true, dt = 1/set.sample_freq)
+fcs::FPCSettings  = FPCSettings(true, dt=wcs.dt)
+fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
 u_d  = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
@@ -33,8 +30,8 @@ SHOW_KITE         = false
 # end of user parameter section #
 
 LAST_RES = 1e10
-if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
+T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+AZIMUTH::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
     i=1
@@ -104,7 +101,7 @@ end
 
 function f(x)
     fcs.p = x[1]
-    fcs.i = 0.0
+    fcs.i = 0.04
     fcs.d = x[2]
     println("x: ", x)
     test_parking()
@@ -129,9 +126,9 @@ end
 # fcs.p=2.255470121692552*0.7
 # fcs.i=0.0
 # fcs.d=38.724898029839586
-fcs.p=0.8
-fcs.i=0.2
-fcs.d=12
+fcs.p=1.2
+fcs.i=0.04
+fcs.d=13.25*0.95
 fcs.use_chi = false
 
 println(test_parking())
