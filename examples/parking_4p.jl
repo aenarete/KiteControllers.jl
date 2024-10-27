@@ -82,7 +82,6 @@ function simulate(integrator)
             if depower < MIN_DEPOWER; depower = MIN_DEPOWER; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
             steering = calc_steering(ssc, 0; heading)
-            # steering = 0.15*sys_state.azimuth
             time = i * dt
             # disturbance
             if time > 20 && time < 21
