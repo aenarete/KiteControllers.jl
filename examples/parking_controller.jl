@@ -5,6 +5,11 @@ using DiscretePIDs, Parameters
 @with_kw mutable struct ParkingControllerSettings @deftype Float64
     dt
     # turn rate controller settings
+    kp_tr=1
+    ki_tr=0
+    kd_tr=0
+    N_tr = 10
+    # outer controller (heading/ course) settings
     kp=1
     ki=0
     kd=0
@@ -19,15 +24,17 @@ end
 
 struct ParkingController
     pcs::ParkingControllerSettings
-    pid::DiscretePID
+    pid_tr::DiscretePID
+    pid_outer::DiscretePID
 end
 
 function ParkingController(pcs::ParkingControllerSettings)
-    Ti = pcs.kp/ pcs.ki
-    Td = pcs.kd/ pcs.kp
+    Ti = pcs.kp_tr/ pcs.ki_tr
+    Td = pcs.kd_tr/ pcs.kp_tr
     Ts = pcs.dt
-    pid = DiscretePID(;K=pcs.kp, Ti, Td, Ts, N=pcs.N)
-    return ParkingController(pcs, pid)
+    pid_tr = DiscretePID(;K=pcs.kp_tr, Ti, Td, Ts, N=pcs.N_tr)
+    pid_outer = DiscretePID(;K=pcs.kp, Ti, Td, Ts, N=pcs.N)
+    return ParkingController(pcs, pid_tr, pid_outer)
 end
 
 """
@@ -56,7 +63,7 @@ end
 
 function main()
     # set the parameters of the parking controller
-    pcs = ParkingControllerSettings(kp=1.05, ki=0.012, kd=13.25*2.0, dt=0.05)
+    pcs = ParkingControllerSettings(kp_tr=1.05, ki_tr=0.012, kd_tr=13.25*2.0, dt=0.05)
     # create the parking controller
     pc = ParkingController(pcs)
     # set the desired turn rate
