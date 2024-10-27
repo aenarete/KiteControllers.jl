@@ -61,6 +61,16 @@ function linearize(pcs::ParkingControllerSettings, psi_dot, psi, elevation, v_ap
     return u_s, ndi_gain
 end
 
+function calc_steering(pc::ParkingController, heading; elevation=0.0, v_app=10.0, ud_prime=0.0)
+    # # calculate the desired turn rate
+    # psi_dot = update(pc.pid_outer, heading)
+    # # linearize the NDI block
+    # u_s, ndi_gain = linearize(pc.pcs, psi_dot, heading, elevation, v_app; ud_prime)
+    # # calculate the steering
+    # steering = update(pc.pid_tr, u_s)
+    return steering
+end
+
 function main()
     # set the parameters of the parking controller
     pcs = ParkingControllerSettings(kp_tr=1.05, ki_tr=0.012, kd_tr=13.25*2.0, dt=0.05)
