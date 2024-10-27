@@ -16,12 +16,12 @@ if ! @isdefined js;
     const jsbuttons = JSButtonState()
     async_read!(js, jsaxes, jsbuttons)
 end
-wcs::WCSettings = WCSettings(); wcs.dt = 1/set.sample_freq
-fcs::FPCSettings =  FPCSettings(dt=wcs.dt)
-fpps::FPPSettings = FPPSettings()
+wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
+fcs::FPCSettings =  FPCSettings(true, dt=wcs.dt)
+fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
 u_d  = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
@@ -51,7 +51,8 @@ function simulate(integrator)
             depower = KiteControllers.get_depower(ssc)
             # println("dp: ", dp)
             if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc, jsaxes.x)
+            heading = calc_heading(app.kps4; neg_azimuth=true)
+            steering = calc_steering(ssc, jsaxes.x; heading)
             set_depower_steering(kps4.kcu, depower, steering)
             println("depower: ", depower, " steering: ", round(steering, digits=3))
             # set_depower_steering(kps4.kcu, depower, jsaxes.x)
