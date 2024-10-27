@@ -37,8 +37,8 @@ else
     # result of tuning
     println("not system.yaml")
     fcs.p=1.05
-    fcs.i=0.01
-    fcs.d=13.25*2.05
+    fcs.i=0.012
+    fcs.d=13.25*2.0
     MIN_DEPOWER       = 0.4
     fcs.use_chi = false
     fcs.gain = 0.04
