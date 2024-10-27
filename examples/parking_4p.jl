@@ -6,7 +6,7 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
-set = deepcopy(load_settings("system_v9.yaml"))
+set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 set.v_wind = 8.5 # v_min1 7.7; v_min2 8.5
@@ -24,9 +24,9 @@ dt::Float64 = wcs.dt
 
 if KiteUtils.PROJECT == "system.yaml"
     # result of tuning
-    fcs.p=1.6
+    fcs.p=1.2
     fcs.i=0.04
-    fcs.d=13.25*1.7
+    fcs.d=13.25*0.95
     MIN_DEPOWER       = 0.22
     fcs.use_chi = false
     @assert fcs.gain == 0.04
@@ -45,7 +45,7 @@ end
 println("fcs.p=$(fcs.p), fcs.i=$(fcs.i), fcs.d=$(fcs.d), fcs.gain=$(fcs.gain)")
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 90 # was 60
+MAX_TIME::Float64 = 60 # was 60
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # end of user parameter section #
