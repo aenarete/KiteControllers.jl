@@ -72,17 +72,13 @@ function init(app::KiteApp; init_viewer=false)
     project=(KiteUtils.PROJECT)
     app.kps4 = KPS4(app.kcu)
     KiteUtils.PROJECT = project
-    app.wcs = WCSettings()
-    update(app.wcs)
+    app.wcs = WCSettings(true; dt=1/app.set.sample_freq)
     
     app.wcs.dt = 1/app.set.sample_freq
     app.dt = app.wcs.dt
-    app.fcs = FPCSettings(dt=app.dt) 
-    update(app.fcs)
-    app.fcs.dt = app.wcs.dt 
+    app.fcs = FPCSettings(true; dt=app.dt) 
     app.fcs.log_level = app.set.log_level
-    app.fpps = FPPSettings()
-    update(app.fpps)
+    app.fpps = FPPSettings(true)
     app.fpps.log_level = app.set.log_level
     u_d0 = 0.01 * se(project).depower_offset
     u_d = 0.01 * se(project).depower
