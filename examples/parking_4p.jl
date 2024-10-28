@@ -86,11 +86,9 @@ function simulate(integrator)
             if i == 100
                 pc.last_heading = sys_state.heading
             end
-            elevation = sys_state.elevation
-            # println("heading: $(rad2deg(heading)), elevation: $(rad2deg(elevation))")
-            chi_set = navigate(pc, sys_state.azimuth, elevation)
+            chi_set = navigate(pc, sys_state.azimuth, sys_state.elevation)
             steering, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, sys_state.heading, chi_set; 
-                                                                     elevation, v_app = sys_state.v_app)
+                                                                     sys_state.elevation, v_app = sys_state.v_app)
             PSI_DOT[i] = psi_dot
             PSI_DOT_SET[i] = psi_dot_set
             NDI_GAIN[i] = ndi_gain
