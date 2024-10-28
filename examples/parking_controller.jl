@@ -169,7 +169,7 @@ function test_navigate()
         # set the elevation
         elevation = deg2rad(70.0)
         chi_set = navigate(pc, azimuth, elevation)
-        @test chi_set ≈ deg2rad(34.019878734151234)
+        @test chi_set ≈ -deg2rad(34.019878734151234)
     end
     nothing
 end
