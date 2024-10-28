@@ -6,14 +6,13 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
-set = deepcopy(load_settings("system.yaml"))
+set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 6 # v_min1 6; v_min2 6
+set.v_wind = 10 # v_min1 6-25; v_min2 6
 
 include("parking_controller.jl")
 pcs = ParkingControllerSettings(dt=0.05)
-pc = ParkingController(pcs)
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -28,28 +27,27 @@ dt::Float64 = wcs.dt
 
 if KiteUtils.PROJECT == "system.yaml"
     # result of tuning
-    fcs.p=1.2
-    fcs.i=0.04
-    fcs.d=13.25*0.95
+    pcs.kp_tr=0.06
+    pcs.ki_tr=0.0012
+    pcs.kp = 15
+    pcs.ki = 0.5
     MIN_DEPOWER       = 0.22
-    fcs.use_chi = false
-    @assert fcs.gain == 0.04
 else
     # result of tuning
     println("not system.yaml")
-    fcs.p=1.05
-    fcs.i=0.012
-    fcs.d=13.25*2.0
+    pcs.kp_tr=0.06
+    pcs.ki_tr=0.0012
+    pcs.kp = 15
+    pcs.ki = 0.5
     MIN_DEPOWER       = 0.4
-    fcs.use_chi = false
-    fcs.gain = 0.04
-    fcs.c1 = 0.048
-    fcs.c2 = 5.5
+    pcs.c1 = 0.048
+    pcs.c2 = 5.5 # has no big effect, can also be set to zero
 end
-println("fcs.p=$(fcs.p), fcs.i=$(fcs.i), fcs.d=$(fcs.d), fcs.gain=$(fcs.gain)")
+println("pcs.kp_tr=$(pcs.kp_tr), pcs.ki_tr=$(pcs.ki_tr), pcs.kp=$(pcs.kp), pcs.ki=$(pcs.ki), MIN_DEPOWER=$(MIN_DEPOWER)")
+pc = ParkingController(pcs)
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 380 # was 60
+MAX_TIME::Float64 = 120 # was 60
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # end of user parameter section #

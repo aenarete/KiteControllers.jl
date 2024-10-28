@@ -8,19 +8,15 @@ import KiteControllers: calc_steering, wrap2pi, navigate
     # turn rate controller settings
     kp_tr=0.06 # can become a vector when we start to implement a parameter varying controller
     ki_tr=0.0012
-    kd_tr=0.00
-    N_tr = 10
     # outer controller (heading/ course) settings
     kp=15
     ki=0.5
-    kd=0.0
-    N = 10
     # NDI block settings
     va_min = 5.0   # minimum apparent wind speed
     va_max = 100.0 # maximum apparent wind speed
     k_ds = 2.0 # influence of the depower settings on the steering sensitivity
     c1 = 0.048 # v9 kite model
-    c2 = 0 #5.5   
+    c2 = 2 #5.5   
 end
 
 mutable struct ParkingController
@@ -33,9 +29,8 @@ end
 
 function ParkingController(pcs::ParkingControllerSettings; last_heading = 0.0)
     Ts = pcs.dt
-    # println("Ts: $Ts")
-    pid_tr    = DiscretePID(;K=pcs.kp_tr, Ti=pcs.kp_tr/ pcs.ki_tr, Td=pcs.kd_tr/ pcs.kp_tr, Ts, N=pcs.N_tr)
-    pid_outer = DiscretePID(;K=pcs.kp,    Ti=pcs.kp/ pcs.ki,       Td=pcs.kd/ pcs.kp,       Ts, N=pcs.N)
+    pid_tr    = DiscretePID(;K=pcs.kp_tr, Ti=pcs.kp_tr/ pcs.ki_tr, Ts)
+    pid_outer = DiscretePID(;K=pcs.kp,    Ti=pcs.kp/ pcs.ki,       Ts)
     return ParkingController(pcs, pid_tr, pid_outer, last_heading, 0)
 end
 
@@ -108,7 +103,6 @@ function calc_steering(pc::ParkingController, heading, chi_set; elevation=0.0, v
     psi_dot_in = pc.pid_tr(psi_dot_set, psi_dot)
     # linearize the NDI block
     u_s, ndi_gain = linearize(pc.pcs, psi_dot_in, heading, elevation, v_app; ud_prime)
-    # println("psi_dot_set: $(rad2deg.(psi_dot_set)), psi_dot_in: $(rad2deg(psi_dot_in)), u_s: $u_s")
     u_s, ndi_gain, psi_dot, psi_dot_set
 end
 
@@ -167,8 +161,8 @@ function test_pid()
     T=0:0.05:10
     Ts = 0.05
     input = sin.(T)
-    pcs = ParkingControllerSettings(kp_tr=1*0.04, ki_tr=0.006*0.04, kd_tr=13.25*0.0*0.04, dt=0.05)
-    pid_tr    = DiscretePID(;K=pcs.kp_tr, Ti=pcs.kp_tr/ pcs.ki_tr, Td=pcs.kd_tr/ pcs.kp_tr, Ts, N=pcs.N_tr)
+    pcs = ParkingControllerSettings(dt=0.05)
+    pid_tr    = DiscretePID(;K=pcs.kp_tr, Ti=pcs.kp_tr/ pcs.ki_tr, Ts)
     println("pid_tr: $pid_tr")  
     # plot(T, input)
 end
