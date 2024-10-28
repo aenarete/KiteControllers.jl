@@ -52,7 +52,6 @@ SHOW_KITE         = true
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE, "WinchON")
 
-steps = 0
 T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 AZIMUTH::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
 HEADING::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
@@ -139,10 +138,9 @@ function simulate(integrator)
 end
 
 function play()
-    global steps
     integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.5)
     toc()
-    steps = simulate(integrator)
+    simulate(integrator)
     GC.enable(true)
 end
 
@@ -163,5 +161,5 @@ p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STE
           xlabel="Time [s]", 
           ylabels=["Azimuth [°]", "Heading [°]", "steering [%]", "psi_dot [°/s]", "NDI_GAIN", "v_app [m/s]"],   
           labels=["azimuth", "heading", ["set_steering", "steering"], ["psi_dot", "psi_dot_set"], "NDI_GAIN", "v_app"],  
-          fig="Azimuth, heading, steering and more",)
+          fig="Azimuth, heading, steering and more")
 display(p)
