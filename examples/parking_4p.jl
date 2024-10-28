@@ -9,7 +9,7 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 5.5 # v_min1 6-25; v_min2 5.5-25
+set.v_wind = 8 # v_min1 6-25; v_min2 5.5-25
 
 include("parking_controller.jl")
 pcs = ParkingControllerSettings(dt=0.05)
