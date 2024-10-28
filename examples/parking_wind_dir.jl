@@ -91,13 +91,13 @@ function sim_parking(integrator)
         time = i * dt 
         steering = 0.0
         if i > 100
-            heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
             if i == 100
-                pc.last_heading = heading
+                pc.last_heading = sys_state.heading
             end
             elevation = sys_state.elevation
-            chi_set = -navigate(pc, sys_state.azimuth, elevation)
-            steering, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, heading, chi_set; elevation, v_app = sys_state.v_app)
+            chi_set = navigate(pc, sys_state.azimuth, elevation)
+            steering, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, sys_state.heading, chi_set; 
+                                                                     elevation, v_app = sys_state.v_app)
             set_depower_steering(kps4.kcu, MIN_DEPOWER, steering)
         end  
         SET_STEERING[i] = steering

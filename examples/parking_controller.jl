@@ -81,7 +81,7 @@ function navigate(pc::ParkingController, azimuth, elevation; limit=50.0)
     end
     y = sin(phi_set - phi) * cos(beta_set)
     x = cos(beta) * sin(beta_set) - sin(beta) * cos(beta_set) * cos(phi_set - phi)
-    pc.chi_set = atan(-y, x)
+    pc.chi_set = atan(y, x)
 end
 
 """
