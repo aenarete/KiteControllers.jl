@@ -15,6 +15,9 @@ set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 
+include("parking_controller.jl")
+pcs = ParkingControllerSettings(dt=0.05)
+
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 @assert set.sample_freq == 20
@@ -32,13 +35,28 @@ u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
-# result of tuning
-fcs.p=2.0
-fcs.i=0.05
-fcs.d=13.25*0.95
-MIN_DEPOWER       = 0.22
-fcs.use_chi = false
-@assert fcs.gain == 0.04
+
+if KiteUtils.PROJECT == "system.yaml"
+    # result of tuning
+    pcs.kp_tr=0.06
+    pcs.ki_tr=0.0012
+    pcs.kp = 15
+    pcs.ki = 0.5
+    MIN_DEPOWER       = 0.22
+    pcs.c1 = 0.048
+    pcs.c2 = 0 # has no big effect, can also be set to zero
+else
+    # result of tuning
+    println("not system.yaml")
+    pcs.kp_tr=0.05
+    pcs.ki_tr=0.0024
+    pcs.kp = 30
+    pcs.ki = 1.0
+    MIN_DEPOWER       = 0.4
+    pcs.c1 = 0.048
+    pcs.c2 = 0    # has no big effect, can also be set to zero
+end
+pc = ParkingController(pcs)
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 120
@@ -76,12 +94,14 @@ function sim_parking(integrator)
         time = i * dt 
         steering = 0.0
         if i > 100
-            depower = KiteControllers.get_depower(ssc)
-            if depower < MIN_DEPOWER; depower = MIN_DEPOWER; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
-            steering = calc_steering(ssc, 0; heading)
-           
-            set_depower_steering(kps4.kcu, depower, steering)
+            if i == 100
+                pc.last_heading = heading
+            end
+            elevation = sys_state.elevation
+            chi_set = -navigate(pc, sys_state.azimuth, elevation)
+            steering, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, heading, chi_set; elevation, v_app = sys_state.v_app)
+            set_depower_steering(kps4.kcu, MIN_DEPOWER, steering)
         end  
         SET_STEERING[i] = steering
         STEERING[i] = get_steering(kps4.kcu) / set.cs_4p
