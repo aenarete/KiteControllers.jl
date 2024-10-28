@@ -9,7 +9,7 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 10 # v_min1 6-25; v_min2 6
+set.v_wind = 10.0 # v_min1 6-25; v_min2 6-25
 
 include("parking_controller.jl")
 pcs = ParkingControllerSettings(dt=0.05)
@@ -32,16 +32,18 @@ if KiteUtils.PROJECT == "system.yaml"
     pcs.kp = 15
     pcs.ki = 0.5
     MIN_DEPOWER       = 0.22
+    DISTURBANCE      = 0.1
 else
     # result of tuning
     println("not system.yaml")
     pcs.kp_tr=0.06
-    pcs.ki_tr=0.0012
-    pcs.kp = 15
-    pcs.ki = 0.5
+    pcs.ki_tr=0.0024
+    pcs.kp = 15*2
+    pcs.ki = 0.5*2
     MIN_DEPOWER       = 0.4
+    DISTURBANCE      = 0.4
     pcs.c1 = 0.048
-    pcs.c2 = 5.5 # has no big effect, can also be set to zero
+    pcs.c2 = 0#5.5 # has no big effect, can also be set to zero
 end
 println("pcs.kp_tr=$(pcs.kp_tr), pcs.ki_tr=$(pcs.ki_tr), pcs.kp=$(pcs.kp), pcs.ki=$(pcs.ki), MIN_DEPOWER=$(MIN_DEPOWER)")
 pc = ParkingController(pcs)
@@ -95,7 +97,7 @@ function simulate(integrator)
             time = i * dt
             # disturbance
             if time > 20 && time < 21
-                steering = 0.1
+                steering = DISTURBANCE
             end            
             set_depower_steering(kps4.kcu, MIN_DEPOWER, steering)
         end
