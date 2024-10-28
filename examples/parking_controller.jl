@@ -7,12 +7,12 @@ import KiteControllers: calc_steering, wrap2pi, navigate
     dt
     # turn rate controller settings
     kp_tr=0.06 # can become a vector when we start to implement a parameter varying controller
-    ki_tr=0.001
+    ki_tr=0.0012
     kd_tr=0.00
     N_tr = 10
     # outer controller (heading/ course) settings
-    kp=10
-    ki=0.32
+    kp=15
+    ki=0.5
     kd=0.0
     N = 10
     # NDI block settings

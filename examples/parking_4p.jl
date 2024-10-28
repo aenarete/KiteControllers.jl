@@ -9,7 +9,7 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 8 # v_min1 7.7; v_min2 8.5
+set.v_wind = 6 # v_min1 6; v_min2 6
 
 include("parking_controller.jl")
 pcs = ParkingControllerSettings(dt=0.05)
@@ -49,7 +49,7 @@ end
 println("fcs.p=$(fcs.p), fcs.i=$(fcs.i), fcs.d=$(fcs.d), fcs.gain=$(fcs.gain)")
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 120 # was 60
+MAX_TIME::Float64 = 380 # was 60
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # end of user parameter section #
