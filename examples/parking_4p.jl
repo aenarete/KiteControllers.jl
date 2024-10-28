@@ -17,12 +17,6 @@ pcs = ParkingControllerSettings(dt=0.05)
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 @assert set.sample_freq == 20
-wcs::WCSettings = WCSettings(true; dt = 1/set.sample_freq)
-fcs::FPCSettings = FPCSettings(true; dt = wcs.dt)
-fpps::FPPSettings = FPPSettings(true)
-u_d0 = 0.01 * set.depower_offset
-u_d = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
 if KiteUtils.PROJECT == "system.yaml"
@@ -79,7 +73,6 @@ function simulate(integrator)
     max_time = 0
     t_gc_tot = 0
     sys_state = SysState(kps4)
-    on_new_systate(ssc, sys_state)
     while true
         steering = 0.0
         if i >= 100
@@ -113,14 +106,12 @@ function simulate(integrator)
         T[i] = dt * i
         AZIMUTH[i] = sys_state.azimuth
         HEADING[i] = wrap2pi(sys_state.heading)
-        on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
             if KiteUtils.PROJECT == "system.yaml"
                 KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
             else
                 KiteViewers.update_system(viewer, sys_state; scale = 0.08*0.5, kite_scale=3)
             end
-            set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
             if i > 10/dt 
@@ -162,15 +153,6 @@ function play1()
     end
 end
 
-function parking()
-    on_parking(ssc)
-end
-
-function autopilot()
-    on_winchcontrol(ssc)
-end
-
-on(viewer.btn_STOP.clicks) do c; stop(viewer); on_stop(ssc) end
 on(viewer.btn_PLAY.clicks) do c; play1(); end
 on(viewer.btn_PARKING.clicks) do c; parking(); end
 
