@@ -9,7 +9,7 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 10.0 # v_min1 6-25; v_min2 6-25
+set.v_wind = 5.5 # v_min1 6-25; v_min2 5.5-25
 
 include("parking_controller.jl")
 pcs = ParkingControllerSettings(dt=0.05)
@@ -36,10 +36,10 @@ if KiteUtils.PROJECT == "system.yaml"
 else
     # result of tuning
     println("not system.yaml")
-    pcs.kp_tr=0.06
+    pcs.kp_tr=0.05
     pcs.ki_tr=0.0024
-    pcs.kp = 15*2
-    pcs.ki = 0.5*2
+    pcs.kp = 30
+    pcs.ki = 1.0
     MIN_DEPOWER       = 0.4
     DISTURBANCE      = 0.4
     pcs.c1 = 0.048
