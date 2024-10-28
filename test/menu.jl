@@ -4,6 +4,13 @@ options = ["test_fpc  = include(\"test_flightpathcalculator.jl\")",
            "test_fpc1 = include(\"test_flightpathcontroller1.jl\")",
            "test_fpc2 = include(\"test_flightpathcontroller2.jl\")",
            "test_fpc3 = include(\"test_flightpathcontroller3.jl\")",
+           "test_forcespeed1 = include(\"test_forcespeedcontroller1.jl\")",
+           "test_forcespeed2 = include(\"test_forcespeedcontroller2.jl\")",
+           "test_fpc4 = include(\"test_fpc_low_right.jl\")",
+           "test_lower_force1 = include(\"test_lower_force1.jl\")",
+           "test_mixer2 = include(\"test_mixer2.jl\")",
+           "test_mixer3 = include(\"test_mixer3.jl\")",
+           "test_solver = include(\"test_solver.jl\")",
            "quit"]
 
 function menu()
