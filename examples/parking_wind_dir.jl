@@ -110,7 +110,8 @@ function sim_parking(integrator)
                 upwind_dir = UPWIND_DIR2
             end
             UPWIND_DIR_[i] = upwind_dir
-            av_upwind_dir = moving_average(UPWIND_DIR_[1:i], 400)
+            # av_upwind_dir = moving_average(UPWIND_DIR_[1:i], 400)
+            av_upwind_dir = upwind_dir
         else
             upwind_dir=UPWIND_DIR
             UPWIND_DIR_[i] = upwind_dir
