@@ -8,10 +8,7 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBase
 
-set = deepcopy(load_settings("system.yaml"))
-@assert KiteUtils.PROJECT == "system.yaml"
-@assert se().v_wind == 9.51
-@assert set.v_wind == 9.51
+set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 
@@ -132,7 +129,11 @@ function sim_parking(integrator)
         HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
-            KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
+            if KiteUtils.PROJECT == "system.yaml"
+                KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
+            else
+                KiteViewers.update_system(viewer, sys_state; scale = 0.08*0.5, kite_scale=3)
+            end
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
