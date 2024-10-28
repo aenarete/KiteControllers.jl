@@ -66,7 +66,7 @@ Limit delta_beta to the value of the parameter limit (in degrees).
 """
 function navigate(pc::ParkingController, azimuth, elevation; limit=50.0)
     phi_set  = 0.0         # azimuth
-    beta_set = deg2rad(80) # zenith
+    beta_set = deg2rad(75) # zenith
     beta = elevation
     phi = azimuth
     # println("beta: $(rad2deg(beta)), phi: $(rad2deg(phi))")
