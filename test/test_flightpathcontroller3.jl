@@ -12,7 +12,7 @@ if false; include("../src/flightpathcalculator2.jl"); end
 # 2. fly towards attractor point P1
 
 using KiteUtils
-using KiteControllers, KiteModels, KiteViewers, ControlPlots
+using KiteControllers, KiteModels, KiteViewers
 
 PROJECT="system_8000.yaml"
 

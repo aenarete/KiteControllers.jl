@@ -8,12 +8,12 @@ using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBase
 
-set = deepcopy(load_settings("system.yaml"))
-@assert KiteUtils.PROJECT == "system.yaml"
-@assert se().v_wind == 9.51
-@assert set.v_wind == 9.51
+set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
+
+include("parking_controller.jl")
+pcs = ParkingControllerSettings(dt=0.05)
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -32,13 +32,28 @@ u_d = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
-# result of tuning
-fcs.p=2.0
-fcs.i=0.05
-fcs.d=13.25*0.95
-MIN_DEPOWER       = 0.22
-fcs.use_chi = false
-@assert fcs.gain == 0.04
+
+if KiteUtils.PROJECT == "system.yaml"
+    # result of tuning
+    pcs.kp_tr=0.06
+    pcs.ki_tr=0.0012
+    pcs.kp = 15
+    pcs.ki = 0.5
+    MIN_DEPOWER       = 0.22
+    pcs.c1 = 0.048
+    pcs.c2 = 0 # has no big effect, can also be set to zero
+else
+    # result of tuning
+    println("not system.yaml")
+    pcs.kp_tr=0.05
+    pcs.ki_tr=0.0024
+    pcs.kp = 30
+    pcs.ki = 1.0
+    MIN_DEPOWER       = 0.4
+    pcs.c1 = 0.048
+    pcs.c2 = 0    # has no big effect, can also be set to zero
+end
+pc = ParkingController(pcs)
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 120
@@ -76,12 +91,14 @@ function sim_parking(integrator)
         time = i * dt 
         steering = 0.0
         if i > 100
-            depower = KiteControllers.get_depower(ssc)
-            if depower < MIN_DEPOWER; depower = MIN_DEPOWER; end
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
-            steering = calc_steering(ssc, 0; heading)
-           
-            set_depower_steering(kps4.kcu, depower, steering)
+            if i == 100
+                pc.last_heading = heading
+            end
+            elevation = sys_state.elevation
+            chi_set = -navigate(pc, sys_state.azimuth, elevation)
+            steering, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, heading, chi_set; elevation, v_app = sys_state.v_app)
+            set_depower_steering(kps4.kcu, MIN_DEPOWER, steering)
         end  
         SET_STEERING[i] = steering
         STEERING[i] = get_steering(kps4.kcu) / set.cs_4p
@@ -93,7 +110,8 @@ function sim_parking(integrator)
                 upwind_dir = UPWIND_DIR2
             end
             UPWIND_DIR_[i] = upwind_dir
-            av_upwind_dir = moving_average(UPWIND_DIR_[1:i], 400)
+            # av_upwind_dir = moving_average(UPWIND_DIR_[1:i], 400)
+            av_upwind_dir = upwind_dir
         else
             upwind_dir=UPWIND_DIR
             UPWIND_DIR_[i] = upwind_dir
@@ -112,7 +130,11 @@ function sim_parking(integrator)
         HEADING[i] = wrap2pi(sys_state.heading)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
-            KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
+            if KiteUtils.PROJECT == "system.yaml"
+                KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
+            else
+                KiteViewers.update_system(viewer, sys_state; scale = 0.08*0.5, kite_scale=3)
+            end
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0

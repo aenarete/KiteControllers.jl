@@ -30,16 +30,16 @@ factor_b = zeros(SAMPLES)
 factor_c = zeros(SAMPLES)
 mix3 = Mixer_3CH(PERIOD_TIME, T_BLEND)
 
-function time(sample)
+function time1(sample)
     return sample * PERIOD_TIME
 end
 
 for i in 1:SAMPLES
-    if time(i) ≈ T1
+    if time1(i) ≈ T1
         select_b(mix3, true)
-    elseif time(i) ≈ T2
+    elseif time1(i) ≈ T2
         select_c(mix3, true)
-    elseif time(i) ≈ T3
+    elseif time1(i) ≈ T3
         select_c(mix3, false)        
     end
     factor_b[i] = mix3.factor_b
@@ -47,6 +47,6 @@ for i in 1:SAMPLES
     out[i] = calc_output(mix3, SIN1[i], SIN2[i], NOISE[i])
     on_timer(mix3)
 end
-plot(TIME, [out, factor_b, factor_c]; labels=["output", "factor_b", "factor_c"])
+p=plot(TIME, [out, factor_b, factor_c]; labels=["output", "factor_b", "factor_c"])
+display(p)
 
-# savefig("mixer3.png")

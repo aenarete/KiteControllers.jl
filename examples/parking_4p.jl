@@ -6,10 +6,13 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
-set = deepcopy(load_settings("system.yaml"))
+set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 8.5 # v_min1 7.7; v_min2 8.5
+set.v_wind = 12.0 # v_min1 6-25; v_min2 5.5-30
+
+include("parking_controller.jl")
+pcs = ParkingControllerSettings(dt=0.05)
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -24,28 +27,31 @@ dt::Float64 = wcs.dt
 
 if KiteUtils.PROJECT == "system.yaml"
     # result of tuning
-    fcs.p=1.2
-    fcs.i=0.04
-    fcs.d=13.25*0.95
+    pcs.kp_tr=0.06
+    pcs.ki_tr=0.0012
+    pcs.kp = 15
+    pcs.ki = 0.5
     MIN_DEPOWER       = 0.22
-    fcs.use_chi = false
-    @assert fcs.gain == 0.04
+    DISTURBANCE      = 0.1
+    pcs.c1 = 0.048
+    pcs.c2 = 0 # has no big effect, can also be set to zero
 else
     # result of tuning
     println("not system.yaml")
-    fcs.p=1.05
-    fcs.i=0.012
-    fcs.d=13.25*2.0
+    pcs.kp_tr=0.05
+    pcs.ki_tr=0.0024
+    pcs.kp = 30
+    pcs.ki = 1.0
     MIN_DEPOWER       = 0.4
-    fcs.use_chi = false
-    fcs.gain = 0.04
-    fcs.c1 = 0.048
-    fcs.c2 = 5.5
+    DISTURBANCE      = 0.4
+    pcs.c1 = 0.048
+    pcs.c2 = 0    # has no big effect, can also be set to zero
 end
-println("fcs.p=$(fcs.p), fcs.i=$(fcs.i), fcs.d=$(fcs.d), fcs.gain=$(fcs.gain)")
+println("pcs.kp_tr=$(pcs.kp_tr), pcs.ki_tr=$(pcs.ki_tr), pcs.kp=$(pcs.kp), pcs.ki=$(pcs.ki), MIN_DEPOWER=$(MIN_DEPOWER)")
+pc = ParkingController(pcs)
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 60 # was 60
+MAX_TIME::Float64 = 120 # was 60
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # end of user parameter section #
@@ -59,6 +65,10 @@ HEADING::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
 SET_STEERING::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
 STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 AoA::Vector{Float64}           = zeros(Int64(MAX_TIME/dt))
+PSI_DOT::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
+PSI_DOT_SET::Vector{Float64}   = zeros(Int64(MAX_TIME/dt))
+NDI_GAIN::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
+V_APP::Vector{Float64}         = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
     global sys_state
@@ -72,13 +82,23 @@ function simulate(integrator)
     on_new_systate(ssc, sys_state)
     while true
         steering = 0.0
-        if i > 100
+        if i >= 100
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
-            steering = calc_steering(ssc, 0; heading)
+            if i == 100
+                pc.last_heading = heading
+            end
+            elevation = sys_state.elevation
+            # println("heading: $(rad2deg(heading)), elevation: $(rad2deg(elevation))")
+            chi_set = -navigate(pc, sys_state.azimuth, elevation)
+            steering, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, heading, chi_set; elevation, v_app = sys_state.v_app)
+            PSI_DOT[i] = psi_dot
+            PSI_DOT_SET[i] = psi_dot_set
+            NDI_GAIN[i] = ndi_gain
+            V_APP[i] = sys_state.v_app
             time = i * dt
             # disturbance
             if time > 20 && time < 21
-                steering = 0.1
+                steering = DISTURBANCE
             end            
             set_depower_steering(kps4.kcu, MIN_DEPOWER, steering)
         end
@@ -158,9 +178,10 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 
 play()
 stop(viewer)
-p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)], AoA; 
+p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)],
+             [rad2deg.(PSI_DOT), rad2deg.(PSI_DOT_SET)], NDI_GAIN, V_APP; 
           xlabel="Time [s]", 
-          ylabels=["Azimuth [°]", "Heading [°]", "steering [%]", "AoA [°]"],
-          labels=["azimuth", "heading", ["set_steering", "steering", "AoA"]], 
-          fig="Azimuth, heading, steering and AoA",)
+          ylabels=["Azimuth [°]", "Heading [°]", "steering [%]", "psi_dot [°/s]", "NDI_GAIN", "v_app [m/s]"],   
+          labels=["azimuth", "heading", ["set_steering", "steering"], ["psi_dot", "psi_dot_set"], "NDI_GAIN", "v_app"],  
+          fig="Azimuth, heading, steering and more",)
 display(p)

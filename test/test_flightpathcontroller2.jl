@@ -3,12 +3,12 @@ using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
-using KiteControllers, ControlPlots, Timers; tic()
+using KiteControllers, KiteUtils, ControlPlots, Timers; tic()
 
 set = deepcopy(load_settings("system.yaml"))
 set.sample_freq = 50
 
-fcs = FPCSettings(dt=1/set.sample_freq)
+fcs::FPCSettings = FPCSettings(dt=1/set.sample_freq)
 DURATION = 100.0
 SAMPLES = Int(DURATION / fcs.dt + 1)
 TIME = range(0.0, DURATION, SAMPLES)

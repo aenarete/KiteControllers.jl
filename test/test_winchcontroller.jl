@@ -39,6 +39,7 @@ winch = KiteControllers.Winch(wcs, set)
 f_low = wcs.f_low
 
 for i in 1:SAMPLES
+    local force
     # model
     v_wind = V_WIND[i]
 
