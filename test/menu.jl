@@ -11,6 +11,10 @@ options = ["test_fpc  = include(\"test_flightpathcalculator.jl\")",
            "test_mixer2 = include(\"test_mixer2.jl\")",
            "test_mixer3 = include(\"test_mixer3.jl\")",
            "test_solver = include(\"test_solver.jl\")",
+           "test_speedcontroller1 = include(\"test_speedcontroller1.jl\")",
+           "test_speedcontroller2 = include(\"test_speedcontroller2.jl\")",
+           "test_winchcontroller = include(\"test_winchcontroller.jl\")",
+           "test_wrap2pi = include(\"test_wrap2pi.jl\")",
            "quit"]
 
 function menu()
