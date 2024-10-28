@@ -9,7 +9,7 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 12.0 # v_min1 6-25; v_min2 5.5-30
+set.v_wind = 8 # v_min1 6-25; v_min2 5.3-30
 
 include("parking_controller.jl")
 pcs = ParkingControllerSettings(dt=0.05)
@@ -83,14 +83,14 @@ function simulate(integrator)
     while true
         steering = 0.0
         if i >= 100
-            heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
             if i == 100
-                pc.last_heading = heading
+                pc.last_heading = sys_state.heading
             end
             elevation = sys_state.elevation
             # println("heading: $(rad2deg(heading)), elevation: $(rad2deg(elevation))")
-            chi_set = -navigate(pc, sys_state.azimuth, elevation)
-            steering, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, heading, chi_set; elevation, v_app = sys_state.v_app)
+            chi_set = navigate(pc, sys_state.azimuth, elevation)
+            steering, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, sys_state.heading, chi_set; 
+                                                                     elevation, v_app = sys_state.v_app)
             PSI_DOT[i] = psi_dot
             PSI_DOT_SET[i] = psi_dot_set
             NDI_GAIN[i] = ndi_gain
