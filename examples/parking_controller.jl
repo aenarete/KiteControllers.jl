@@ -1,6 +1,6 @@
 # prototype of a parking controller
 # Components: PID controller, NDI block, and gain scheduler
-using DiscretePIDs, Parameters
+using DiscretePIDs, Parameters, Test
 
 @with_kw mutable struct ParkingControllerSettings @deftype Float64
     dt
@@ -26,15 +26,16 @@ struct ParkingController
     pcs::ParkingControllerSettings
     pid_tr::DiscretePID
     pid_outer::DiscretePID
+    last_heading::Float64
 end
 
-function ParkingController(pcs::ParkingControllerSettings)
+function ParkingController(pcs::ParkingControllerSettings; last_heading = 0.0)
     Ti = pcs.kp_tr/ pcs.ki_tr
     Td = pcs.kd_tr/ pcs.kp_tr
     Ts = pcs.dt
     pid_tr = DiscretePID(;K=pcs.kp_tr, Ti, Td, Ts, N=pcs.N_tr)
     pid_outer = DiscretePID(;K=pcs.kp, Ti, Td, Ts, N=pcs.N)
-    return ParkingController(pcs, pid_tr, pid_outer)
+    return ParkingController(pcs, pid_tr, pid_outer, last_heading)
 end
 
 """
@@ -62,31 +63,36 @@ function linearize(pcs::ParkingControllerSettings, psi_dot, psi, elevation, v_ap
 end
 
 function calc_steering(pc::ParkingController, heading; elevation=0.0, v_app=10.0, ud_prime=0.0)
-    # # calculate the desired turn rate
-    # psi_dot = update(pc.pid_outer, heading)
-    # # linearize the NDI block
-    # u_s, ndi_gain = linearize(pc.pcs, psi_dot, heading, elevation, v_app; ud_prime)
-    # # calculate the steering
-    # steering = update(pc.pid_tr, u_s)
-    return steering
+    # calculate the desired turn rate
+    r = 0.0 # reference heading
+    psi_dot_set = pc.pid_outer(r, heading)
+    psi_dot = (heading - pc.last_heading) / pc.pcs.dt
+    pc.last_heading = heading
+    psi_dot_in = pc.pid_tr(psi_dot_set, psi_dot)
+    # linearize the NDI block
+    u_s, ndi_gain = linearize(pc.pcs, psi_dot_in, heading, elevation, v_app; ud_prime)
 end
 
-function main()
-    # set the parameters of the parking controller
-    pcs = ParkingControllerSettings(kp_tr=1.05, ki_tr=0.012, kd_tr=13.25*2.0, dt=0.05)
-    # create the parking controller
-    pc = ParkingController(pcs)
-    # set the desired turn rate
-    psi_dot = 0.1
-    # set the heading
-    psi = 0.0
-    # set the elevation angle
-    elevation = 0.0
-    # set the apparent wind speed
-    v_app = 10.0
-    # set the depower setting
-    ud_prime = 0.5
-    # linearize the NDI block
-    u_s, ndi_gain = linearize(pc.pcs, psi_dot, psi, elevation, v_app; ud_prime)
-    println("u_s: $u_s, ndi_gain: $ndi_gain")
+function test_linearize()
+    @testset "test_linearize" begin
+        # set the parameters of the parking controller
+        pcs = ParkingControllerSettings(kp_tr=1.05, ki_tr=0.012, kd_tr=13.25*2.0, dt=0.05)
+        # create the parking controller
+        pc = ParkingController(pcs)
+        # set the desired turn rate
+        psi_dot = 0.1
+        # set the heading
+        psi = 0.0
+        # set the elevation angle
+        elevation = 0.0
+        # set the apparent wind speed
+        v_app = 10.0
+        # set the depower setting
+        ud_prime = 0.5
+        # linearize the NDI block
+        u_s, ndi_gain = linearize(pc.pcs, psi_dot, psi, elevation, v_app; ud_prime)
+        @test u_s ≈ 0.41666666666666674
+        @test ndi_gain ≈ 4.166666666666667
+    end
+    nothing
 end
