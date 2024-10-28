@@ -1,4 +1,14 @@
 # Changelog
+### Unreleased
+#### Changed
+- use the latest version of KiteModels, which defines the azimuth angle and the orientation differently and make the controllers and examples work with the new definitions
+- the constructor `SystemStateControl()`now needs the additional parameter `v_wind`
+- the constructors `WCSettings()`, `FPCSettings()` and `FPPSettings()` now have the new argument `update`. If true, then the settings are loaded from the corresponding `yaml` file.
+
+#### Added
+- add a script that tests the parking controller when the wind direction is changing
+- add the script `test/menu.jl` which allows to execute the manual tests, that display plots and fix the tests
+
 
 ### 0.2.10 - 2024-09-07
 #### Changed
