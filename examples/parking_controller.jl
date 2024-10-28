@@ -1,5 +1,5 @@
-# prototype of a parking controller
-# Components: PID controller, NDI block, and gain scheduler
+# Prototype of a parking controller.
+# Components: PID controller, NDI block, and great circle navigation
 using DiscretePIDs, Parameters, Test, ControlPlots
 import KiteControllers: calc_steering, wrap2pi, navigate
 
@@ -16,7 +16,7 @@ import KiteControllers: calc_steering, wrap2pi, navigate
     va_max = 100.0 # maximum apparent wind speed
     k_ds = 2.0 # influence of the depower settings on the steering sensitivity
     c1 = 0.048 # v9 kite model
-    c2 = 2 #5.5
+    c2 = 0     # a value other than zero creates more problems than it solves
     last_ndi_gain = 0.0
 end
 
@@ -112,7 +112,9 @@ end
 function test_linearize()
     @testset "test_linearize" begin
         # set the parameters of the parking controller
-        pcs = ParkingControllerSettings(kp_tr=1.05, ki_tr=0.012, kd_tr=13.25*2.0, dt=0.05)
+        pcs = ParkingControllerSettings(dt=0.05)
+        pcs.kp_tr=1.05
+        pcs.ki_tr=0.012
         # create the parking controller
         pc = ParkingController(pcs)
         # set the desired turn rate
@@ -134,38 +136,49 @@ function test_linearize()
 end
 
 function test_calc_steering()
-    # set the parameters of the parking controller
-    pcs = ParkingControllerSettings(kp=1.05, ki=0.012, kd=13.25*2.0, dt=0.05)
-    # create the parking controller
-    pc = ParkingController(pcs)
-    # set the heading
-    heading = deg2rad(1.0)
-    elevation = deg2rad(70.0)
-    u_s, ndi_gain = calc_steering(pc, heading; elevation)
-    # println("u_s: $u_s, ndi_gain: $ndi_gain")
+    @testset "test_calc_steering" begin
+        # set the parameters of the parking controller
+        pcs = ParkingControllerSettings(dt=0.05)
+        pcs.kp_tr=1.05
+        pcs.ki_tr=0.012
+        # create the parking controller
+        pc = ParkingController(pcs)
+        # set the heading
+        heading = deg2rad(1.0)
+        elevation = deg2rad(70.0)
+        chi_set = deg2rad(34.0)
+        u_s, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, heading, chi_set; elevation)
+        @test u_s ≈ 18.135061759003584
+        @test ndi_gain ≈ 2.0833333333333335
+        @test psi_dot ≈ 0.3490658503988659
+        @test psi_dot_set ≈ 8.639379797371932
+    end
+    nothing
 end
 
 function test_navigate()
-    # set the parameters of the parking controller
-    pcs = ParkingControllerSettings(kp=1.05, ki=0.012, kd=13.25*2.0, dt=0.05)
-    # create the parking controller
-    pc = ParkingController(pcs)
-    # set the azimuth
-    azimuth = deg2rad(90.0)
-    println("azimuth: $(rad2deg(azimuth)) °")
-    # set the elevation
-    elevation = deg2rad(70.0)
-    chi_set = navigate(pc, azimuth, elevation)
-    println("chi_set: $(rad2deg(chi_set)) °")
+    @testset "test_navigate" begin
+        # set the parameters of the parking controller
+        pcs = ParkingControllerSettings(dt=0.05)
+        pcs.kp=1.05
+        pcs.ki=0.012
+        # create the parking controller
+        pc = ParkingController(pcs)
+        # set the azimuth
+        azimuth = deg2rad(90.0)
+        # set the elevation
+        elevation = deg2rad(70.0)
+        chi_set = navigate(pc, azimuth, elevation)
+        @test chi_set ≈ deg2rad(34.019878734151234)
+    end
+    nothing
 end
 
-function test_pid()
-    global pid_tr
-    T=0:0.05:10
-    Ts = 0.05
-    input = sin.(T)
-    pcs = ParkingControllerSettings(dt=0.05)
-    pid_tr    = DiscretePID(;K=pcs.kp_tr, Ti=pcs.kp_tr/ pcs.ki_tr, Ts)
-    println("pid_tr: $pid_tr")  
-    # plot(T, input)
+function test_parking_controller()
+    @testset verbose=true "test_parking_controller" begin
+        test_calc_steering()
+        test_linearize()
+        test_navigate()
+    end
+    nothing
 end
