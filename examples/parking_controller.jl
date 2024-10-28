@@ -7,12 +7,12 @@ import KiteControllers: calc_steering, wrap2pi, navigate
     dt
     # turn rate controller settings
     kp_tr=1 # can become a vector when we start to implement a parameter varying controller
-    ki_tr=0
-    kd_tr=0
+    ki_tr=1e-6
+    kd_tr=0.0
     N_tr = 10
     # outer controller (heading/ course) settings
     kp=1
-    ki=0
+    ki=1e-6
     kd=0
     N = 10
     # NDI block settings
@@ -20,7 +20,7 @@ import KiteControllers: calc_steering, wrap2pi, navigate
     va_max = 100.0 # maximum apparent wind speed
     k_ds = 2.0 # influence of the depower settings on the steering sensitivity
     c1 = 0.048 # v9 kite model
-    c2 = 5.5   
+    c2 = 0 #5.5   
 end
 
 mutable struct ParkingController
@@ -32,11 +32,10 @@ mutable struct ParkingController
 end
 
 function ParkingController(pcs::ParkingControllerSettings; last_heading = 0.0)
-    Ti = pcs.kp_tr/ pcs.ki_tr
-    Td = pcs.kd_tr/ pcs.kp_tr
     Ts = pcs.dt
-    pid_tr = DiscretePID(;K=pcs.kp_tr, Ti, Td, Ts, N=pcs.N_tr)
-    pid_outer = DiscretePID(;K=pcs.kp, Ti, Td, Ts, N=pcs.N)
+    println("Ts: $Ts")
+    pid_tr    = DiscretePID(;K=pcs.kp_tr, Ti=pcs.kp_tr/ pcs.ki_tr, Td=pcs.kd_tr/ pcs.kp_tr, Ts, N=pcs.N_tr)
+    pid_outer = DiscretePID(;K=pcs.kp, Ti=pcs.kp/ pcs.ki, Td=pcs.kd/ pcs.kp, Ts, N=pcs.N)
     return ParkingController(pcs, pid_tr, pid_outer, last_heading, 0)
 end
 
@@ -60,7 +59,7 @@ function linearize(pcs::ParkingControllerSettings, psi_dot, psi, elevation, v_ap
     if abs(psi_dot) < 1e-6
         psi_dot = 1e-6
     end
-    ndi_gain = clamp(u_s / psi_dot, -20.0, 20.0)
+    ndi_gain = clamp(u_s / psi_dot, -20, 20.0)
     return u_s, ndi_gain
 end
 
@@ -103,12 +102,15 @@ Parameters:
 function calc_steering(pc::ParkingController, heading, chi_set; elevation=0.0, v_app=10.0, ud_prime=0.0)
     # calculate the desired turn rate
     heading = wrap2pi(heading) # a different wrap2pi function is needed that avoids any jumps
-    psi_dot_set = pc.pid_outer(chi_set, heading)
+    psi_dot_set = pc.pid_outer(wrap2pi(chi_set), heading)
     psi_dot = (wrap2pi(heading - pc.last_heading)) / pc.pcs.dt
     pc.last_heading = heading
-    psi_dot_in = pc.pid_tr(psi_dot_set, psi_dot)
+    # psi_dot_in = pc.pid_tr(psi_dot_set, psi_dot)
+    psi_dot_in = psi_dot_set-psi_dot
     # linearize the NDI block
     u_s, ndi_gain = linearize(pc.pcs, psi_dot_in, heading, elevation, v_app; ud_prime)
+    println("psi_dot_set: $(rad2deg.(psi_dot_set)), psi_dot_in: $(rad2deg(psi_dot_in)), u_s: $u_s")
+    u_s, ndi_gain, psi_dot, psi_dot_set
 end
 
 function test_linearize()

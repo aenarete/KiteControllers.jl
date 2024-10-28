@@ -12,7 +12,7 @@ set.rel_tol=0.0001
 set.v_wind = 12 # v_min1 7.7; v_min2 8.5
 
 include("parking_controller.jl")
-pcs = ParkingControllerSettings(kp_tr=1.0*0.04, ki_tr=0.006*0.04, kd_tr=13.25*0.05*0.04, dt=0.05)
+pcs = ParkingControllerSettings(kp_tr=1*0.04, ki_tr=0.006*0.04, kd_tr=13.25*0.0*0.04, dt=0.05)
 pc = ParkingController(pcs)
 
 kcu::KCU = KCU(set)
@@ -63,6 +63,8 @@ HEADING::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
 SET_STEERING::Vector{Float64}  = zeros(Int64(MAX_TIME/dt))
 STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 AoA::Vector{Float64}           = zeros(Int64(MAX_TIME/dt))
+PSI_DOT::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
+PSI_DOT_SET::Vector{Float64}   = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
     global sys_state
@@ -84,14 +86,17 @@ function simulate(integrator)
             elevation = sys_state.elevation
             # println("heading: $(rad2deg(heading)), elevation: $(rad2deg(elevation))")
             chi_set = -navigate(pc, sys_state.azimuth, elevation)
-            u_d, ndi_gain = calc_steering(pc, heading, chi_set; elevation, v_app = sys_state.v_app)
+            u_d, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, heading, chi_set; elevation, v_app = sys_state.v_app)
             steering = calc_steering(ssc, 0; heading)
-            println("chi_set: $(rad2deg(chi_set)), heading: $(rad2deg(wrap2pi(heading)))")
+            # println("chi_set: $(rad2deg(chi_set)), heading: $(rad2deg(wrap2pi(heading)))")
             # println("steering, u_d: $(steering), $(u_d)")
+            println("psi_dot, psi_dot_set, ndi_gain: $(rad2deg(psi_dot)), $(rad2deg(psi_dot_set)), $(ndi_gain)")
+            PSI_DOT[i] = psi_dot
+            PSI_DOT_SET[i] = psi_dot_set
             steering = u_d
             time = i * dt
             # disturbance
-            if time > 20 && time < 21
+            if time > 20 && time < 20.1
                 steering = 0.1
             end            
             set_depower_steering(kps4.kcu, MIN_DEPOWER, steering)
@@ -172,9 +177,9 @@ on(viewer.btn_PARKING.clicks) do c; parking(); end
 
 play()
 stop(viewer)
-p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)], AoA; 
+p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)], [rad2deg.(PSI_DOT), rad2deg.(PSI_DOT_SET)]; 
           xlabel="Time [s]", 
-          ylabels=["Azimuth [°]", "Heading [°]", "steering [%]", "AoA [°]"],
-          labels=["azimuth", "heading", ["set_steering", "steering", "AoA"]], 
+          ylabels=["Azimuth [°]", "Heading [°]", "steering [%]", "psi_dot [°/s]"],
+          labels=["azimuth", "heading", ["set_steering", "steering"], ["psi_dot", "psi_dot_set"]], 
           fig="Azimuth, heading, steering and AoA",)
 display(p)
