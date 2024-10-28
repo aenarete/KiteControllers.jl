@@ -6,7 +6,7 @@ import KiteControllers: calc_steering, wrap2pi, navigate
 @with_kw mutable struct ParkingControllerSettings @deftype Float64
     dt
     # turn rate controller settings
-    kp_tr=0.06 # can become a vector when we start to implement a parameter varying controller
+    kp_tr=0.06
     ki_tr=0.0012
     # outer controller (heading/ course) settings
     kp=15
@@ -16,7 +16,8 @@ import KiteControllers: calc_steering, wrap2pi, navigate
     va_max = 100.0 # maximum apparent wind speed
     k_ds = 2.0 # influence of the depower settings on the steering sensitivity
     c1 = 0.048 # v9 kite model
-    c2 = 2 #5.5   
+    c2 = 2 #5.5
+    last_ndi_gain = 0.0
 end
 
 mutable struct ParkingController
@@ -52,9 +53,11 @@ function linearize(pcs::ParkingControllerSettings, psi_dot, psi, elevation, v_ap
     # Eq. 6.12: calculate the steering from the desired turn rate
     u_s = (1.0 + pcs.k_ds * ud_prime) / (pcs.c1 * va_hat) * (psi_dot - pcs.c2 / va_hat * sin(psi) * cos(elevation))
     if abs(psi_dot) < 1e-6
-        psi_dot = 1e-6
+        ndi_gain = pcs.last_ndi_gain
+    else
+        ndi_gain = clamp(u_s / psi_dot, -20, 20.0)
     end
-    ndi_gain = clamp(u_s / psi_dot, -20, 20.0)
+    pcs.last_ndi_gain = ndi_gain
     return u_s, ndi_gain
 end
 
