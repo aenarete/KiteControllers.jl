@@ -9,7 +9,11 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 8.5 # v_min1 7.7; v_min2 8.5
+set.v_wind = 12 # v_min1 7.7; v_min2 8.5
+
+include("parking_controller.jl")
+pcs = ParkingControllerSettings(kp_tr=1.0*0.04, ki_tr=0.006*0.04, kd_tr=13.25*0.05*0.04, dt=0.05)
+pc = ParkingController(pcs)
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -45,7 +49,7 @@ end
 println("fcs.p=$(fcs.p), fcs.i=$(fcs.i), fcs.d=$(fcs.d), fcs.gain=$(fcs.gain)")
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 60 # was 60
+MAX_TIME::Float64 = 30 # was 60
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # end of user parameter section #
@@ -72,9 +76,19 @@ function simulate(integrator)
     on_new_systate(ssc, sys_state)
     while true
         steering = 0.0
-        if i > 100
+        if i >= 100
             heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
+            if i == 100
+                pc.last_heading = heading
+            end
+            elevation = sys_state.elevation
+            # println("heading: $(rad2deg(heading)), elevation: $(rad2deg(elevation))")
+            chi_set = -navigate(pc, sys_state.azimuth, elevation)
+            u_d, ndi_gain = calc_steering(pc, heading, chi_set; elevation, v_app = sys_state.v_app)
             steering = calc_steering(ssc, 0; heading)
+            println("chi_set: $(rad2deg(chi_set)), heading: $(rad2deg(wrap2pi(heading)))")
+            # println("steering, u_d: $(steering), $(u_d)")
+            steering = u_d
             time = i * dt
             # disturbance
             if time > 20 && time < 21

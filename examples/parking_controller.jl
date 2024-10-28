@@ -1,6 +1,7 @@
 # prototype of a parking controller
 # Components: PID controller, NDI block, and gain scheduler
 using DiscretePIDs, Parameters, Test
+import KiteControllers: calc_steering, wrap2pi, navigate
 
 @with_kw mutable struct ParkingControllerSettings @deftype Float64
     dt
@@ -27,6 +28,7 @@ mutable struct ParkingController
     pid_tr::DiscretePID
     pid_outer::DiscretePID
     last_heading::Float64
+    chi_set::Float64
 end
 
 function ParkingController(pcs::ParkingControllerSettings; last_heading = 0.0)
@@ -35,7 +37,7 @@ function ParkingController(pcs::ParkingControllerSettings; last_heading = 0.0)
     Ts = pcs.dt
     pid_tr = DiscretePID(;K=pcs.kp_tr, Ti, Td, Ts, N=pcs.N_tr)
     pid_outer = DiscretePID(;K=pcs.kp, Ti, Td, Ts, N=pcs.N)
-    return ParkingController(pcs, pid_tr, pid_outer, last_heading)
+    return ParkingController(pcs, pid_tr, pid_outer, last_heading, 0)
 end
 
 """
@@ -62,11 +64,47 @@ function linearize(pcs::ParkingControllerSettings, psi_dot, psi, elevation, v_ap
     return u_s, ndi_gain
 end
 
-function calc_steering(pc::ParkingController, heading; elevation=0.0, v_app=10.0, ud_prime=0.0)
+"""
+    navigate(fpc, limit=50.0)
+
+Calculate the desired flight direction chi_set using great circle navigation.
+Limit delta_beta to the value of the parameter limit (in degrees).
+"""
+function navigate(pc::ParkingController, azimuth, elevation; limit=50.0)
+    phi_set  = 0.0         # azimuth
+    beta_set = deg2rad(80) # zenith
+    beta = elevation
+    phi = azimuth
+    # println("beta: $(rad2deg(beta)), phi: $(rad2deg(phi))")
+    r_limit = deg2rad(limit)
+    if beta_set - beta > r_limit
+        beta_set = beta + r_limit
+    elseif beta_set - beta < -r_limit
+        beta_set = beta - r_limit
+    end
+    y = sin(phi_set - phi) * cos(beta_set)
+    x = cos(beta) * sin(beta_set) - sin(beta) * cos(beta_set) * cos(phi_set - phi)
+    pc.chi_set = atan(-y, x)
+end
+
+"""
+    calc_steering(pc::ParkingController, heading; elevation=0.0, v_app=10.0, ud_prime=0.0)
+
+Calculate rel_steering and ndi_gain from the actual heading, elevation, and apparent wind speed.
+
+Parameters:
+- pc: parking controller
+- heading: actual heading in radians
+- elevation: elevation angle in radians
+- v_app: apparent wind speed in m/s
+- ud_prime: depower setting in the range of 0 to 1, 0 means fully powered, 1 means fully depowered
+
+"""
+function calc_steering(pc::ParkingController, heading, chi_set; elevation=0.0, v_app=10.0, ud_prime=0.0)
     # calculate the desired turn rate
-    r = 0.0 # reference heading
-    psi_dot_set = pc.pid_outer(r, heading)
-    psi_dot = (heading - pc.last_heading) / pc.pcs.dt
+    heading = wrap2pi(heading) # a different wrap2pi function is needed that avoids any jumps
+    psi_dot_set = pc.pid_outer(chi_set, heading)
+    psi_dot = (wrap2pi(heading - pc.last_heading)) / pc.pcs.dt
     pc.last_heading = heading
     psi_dot_in = pc.pid_tr(psi_dot_set, psi_dot)
     # linearize the NDI block
@@ -107,4 +145,18 @@ function test_calc_steering()
     elevation = deg2rad(70.0)
     u_s, ndi_gain = calc_steering(pc, heading; elevation)
     println("u_s: $u_s, ndi_gain: $ndi_gain")
+end
+
+function test_navigate()
+    # set the parameters of the parking controller
+    pcs = ParkingControllerSettings(kp=1.05, ki=0.012, kd=13.25*2.0, dt=0.05)
+    # create the parking controller
+    pc = ParkingController(pcs)
+    # set the azimuth
+    azimuth = deg2rad(90.0)
+    println("azimuth: $(rad2deg(azimuth)) °")
+    # set the elevation
+    elevation = deg2rad(70.0)
+    chi_set = navigate(pc, azimuth, elevation)
+    println("chi_set: $(rad2deg(chi_set)) °")
 end
