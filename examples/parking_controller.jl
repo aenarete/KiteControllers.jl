@@ -1,19 +1,19 @@
 # prototype of a parking controller
 # Components: PID controller, NDI block, and gain scheduler
-using DiscretePIDs, Parameters, Test
+using DiscretePIDs, Parameters, Test, ControlPlots
 import KiteControllers: calc_steering, wrap2pi, navigate
 
 @with_kw mutable struct ParkingControllerSettings @deftype Float64
     dt
     # turn rate controller settings
-    kp_tr=1 # can become a vector when we start to implement a parameter varying controller
-    ki_tr=1e-6
-    kd_tr=0.0
+    kp_tr=0.06 # can become a vector when we start to implement a parameter varying controller
+    ki_tr=0.001
+    kd_tr=0.00
     N_tr = 10
     # outer controller (heading/ course) settings
-    kp=1
-    ki=1e-6
-    kd=0
+    kp=10
+    ki=0.32
+    kd=0.0
     N = 10
     # NDI block settings
     va_min = 5.0   # minimum apparent wind speed
@@ -33,9 +33,9 @@ end
 
 function ParkingController(pcs::ParkingControllerSettings; last_heading = 0.0)
     Ts = pcs.dt
-    println("Ts: $Ts")
+    # println("Ts: $Ts")
     pid_tr    = DiscretePID(;K=pcs.kp_tr, Ti=pcs.kp_tr/ pcs.ki_tr, Td=pcs.kd_tr/ pcs.kp_tr, Ts, N=pcs.N_tr)
-    pid_outer = DiscretePID(;K=pcs.kp, Ti=pcs.kp/ pcs.ki, Td=pcs.kd/ pcs.kp, Ts, N=pcs.N)
+    pid_outer = DiscretePID(;K=pcs.kp,    Ti=pcs.kp/ pcs.ki,       Td=pcs.kd/ pcs.kp,       Ts, N=pcs.N)
     return ParkingController(pcs, pid_tr, pid_outer, last_heading, 0)
 end
 
@@ -105,11 +105,10 @@ function calc_steering(pc::ParkingController, heading, chi_set; elevation=0.0, v
     psi_dot_set = pc.pid_outer(wrap2pi(chi_set), heading)
     psi_dot = (wrap2pi(heading - pc.last_heading)) / pc.pcs.dt
     pc.last_heading = heading
-    # psi_dot_in = pc.pid_tr(psi_dot_set, psi_dot)
-    psi_dot_in = psi_dot_set-psi_dot
+    psi_dot_in = pc.pid_tr(psi_dot_set, psi_dot)
     # linearize the NDI block
     u_s, ndi_gain = linearize(pc.pcs, psi_dot_in, heading, elevation, v_app; ud_prime)
-    println("psi_dot_set: $(rad2deg.(psi_dot_set)), psi_dot_in: $(rad2deg(psi_dot_in)), u_s: $u_s")
+    # println("psi_dot_set: $(rad2deg.(psi_dot_set)), psi_dot_in: $(rad2deg(psi_dot_in)), u_s: $u_s")
     u_s, ndi_gain, psi_dot, psi_dot_set
 end
 
@@ -146,7 +145,7 @@ function test_calc_steering()
     heading = deg2rad(1.0)
     elevation = deg2rad(70.0)
     u_s, ndi_gain = calc_steering(pc, heading; elevation)
-    println("u_s: $u_s, ndi_gain: $ndi_gain")
+    # println("u_s: $u_s, ndi_gain: $ndi_gain")
 end
 
 function test_navigate()
@@ -161,4 +160,15 @@ function test_navigate()
     elevation = deg2rad(70.0)
     chi_set = navigate(pc, azimuth, elevation)
     println("chi_set: $(rad2deg(chi_set)) °")
+end
+
+function test_pid()
+    global pid_tr
+    T=0:0.05:10
+    Ts = 0.05
+    input = sin.(T)
+    pcs = ParkingControllerSettings(kp_tr=1*0.04, ki_tr=0.006*0.04, kd_tr=13.25*0.0*0.04, dt=0.05)
+    pid_tr    = DiscretePID(;K=pcs.kp_tr, Ti=pcs.kp_tr/ pcs.ki_tr, Td=pcs.kd_tr/ pcs.kp_tr, Ts, N=pcs.N_tr)
+    println("pid_tr: $pid_tr")  
+    # plot(T, input)
 end

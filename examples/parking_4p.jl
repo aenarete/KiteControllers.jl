@@ -9,10 +9,10 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 12 # v_min1 7.7; v_min2 8.5
+set.v_wind = 8 # v_min1 7.7; v_min2 8.5
 
 include("parking_controller.jl")
-pcs = ParkingControllerSettings(kp_tr=1*0.04, ki_tr=0.006*0.04, kd_tr=13.25*0.0*0.04, dt=0.05)
+pcs = ParkingControllerSettings(dt=0.05)
 pc = ParkingController(pcs)
 
 kcu::KCU = KCU(set)
@@ -49,7 +49,7 @@ end
 println("fcs.p=$(fcs.p), fcs.i=$(fcs.i), fcs.d=$(fcs.d), fcs.gain=$(fcs.gain)")
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 30 # was 60
+MAX_TIME::Float64 = 120 # was 60
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # end of user parameter section #
@@ -90,13 +90,13 @@ function simulate(integrator)
             steering = calc_steering(ssc, 0; heading)
             # println("chi_set: $(rad2deg(chi_set)), heading: $(rad2deg(wrap2pi(heading)))")
             # println("steering, u_d: $(steering), $(u_d)")
-            println("psi_dot, psi_dot_set, ndi_gain: $(rad2deg(psi_dot)), $(rad2deg(psi_dot_set)), $(ndi_gain)")
+            # println("psi_dot, psi_dot_set, ndi_gain: $(rad2deg(psi_dot)), $(rad2deg(psi_dot_set)), $(ndi_gain)")
             PSI_DOT[i] = psi_dot
             PSI_DOT_SET[i] = psi_dot_set
             steering = u_d
             time = i * dt
             # disturbance
-            if time > 20 && time < 20.1
+            if time > 20 && time < 21
                 steering = 0.1
             end            
             set_depower_steering(kps4.kcu, MIN_DEPOWER, steering)
