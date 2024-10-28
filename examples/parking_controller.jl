@@ -22,7 +22,7 @@ using DiscretePIDs, Parameters, Test
     c2 = 5.5   
 end
 
-struct ParkingController
+mutable struct ParkingController
     pcs::ParkingControllerSettings
     pid_tr::DiscretePID
     pid_outer::DiscretePID
@@ -95,4 +95,16 @@ function test_linearize()
         @test ndi_gain ≈ 4.166666666666667
     end
     nothing
+end
+
+function test_calc_steering()
+    # set the parameters of the parking controller
+    pcs = ParkingControllerSettings(kp=1.05, ki=0.012, kd=13.25*2.0, dt=0.05)
+    # create the parking controller
+    pc = ParkingController(pcs)
+    # set the heading
+    heading = deg2rad(1.0)
+    elevation = deg2rad(70.0)
+    u_s, ndi_gain = calc_steering(pc, heading; elevation)
+    println("u_s: $u_s, ndi_gain: $ndi_gain")
 end
