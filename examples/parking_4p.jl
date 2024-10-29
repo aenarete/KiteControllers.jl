@@ -6,10 +6,10 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
-set = deepcopy(load_settings("system_v9.yaml"))
+set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
-set.v_wind = 8 # v_min1 6-25; v_min2 5.3-30
+set.v_wind = 10 # v_min1 6-25; v_min2 5.3-30
 
 include("parking_controller.jl")
 pcs = ParkingControllerSettings(dt=0.05)
@@ -17,19 +17,19 @@ pcs = ParkingControllerSettings(dt=0.05)
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 @assert set.sample_freq == 20
-dt::Float64 = wcs.dt
+dt::Float64 = 1/set.sample_freq
 
 if KiteUtils.PROJECT == "system.yaml"
     # result of tuning
-    pcs.kp_tr=0.06
+    pcs.kp_tr=0.07
     pcs.ki_tr=0.0012
     pcs.kp = 15
     pcs.ki = 0.5
     MIN_DEPOWER       = 0.22
     DISTURBANCE      = 0.1
-    pcs.c1 = 0.048
-    pcs.c2 = 0 # has no big effect, can also be set to zero
-else
+    pcs.c1 = 0.149
+    pcs.c2 = 0 # has no big effect, can also be set to zero c1 = 0.149 c2 = 5.428
+else 
     # result of tuning
     println("not system.yaml")
     pcs.kp_tr=0.05
@@ -45,7 +45,7 @@ println("pcs.kp_tr=$(pcs.kp_tr), pcs.ki_tr=$(pcs.ki_tr), pcs.kp=$(pcs.kp), pcs.k
 pc = ParkingController(pcs)
 
 # the following values can be changed to match your interest
-MAX_TIME::Float64 = 120 # was 60
+MAX_TIME::Float64 =  60 # was 60
 TIME_LAPSE_RATIO  =  6
 SHOW_KITE         = true
 # end of user parameter section #
