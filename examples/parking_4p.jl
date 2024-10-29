@@ -24,7 +24,7 @@ if KiteUtils.PROJECT == "system.yaml"
     pcs.kp_tr=0.07
     pcs.ki_tr=0.0012
     pcs.kp = 15
-    pcs.ki = 0.5
+    pcs.ki = 0
     MIN_DEPOWER       = 0.22
     DISTURBANCE      = 0.1
     pcs.c1 = 0.149
