@@ -215,16 +215,8 @@ function simulate(integrator, stopped=true)
             sys_state.var_12 = app.ssc.fpp.fpca.fpc.c2
             sys_state.var_13 = app.kps4.alpha_2
             sys_state.var_14 = norm(acc)
-            if LOG_LIFT_DRAG
-                CL2, CD2 = app.kps4.calc_cl(app.kps4.alpha_2), DRAG_CORR * app.kps4.calc_cd(app.kps4.alpha_2)
-                CL3, CD3 = app.kps4.calc_cl(app.kps4.alpha_3), DRAG_CORR * app.kps4.calc_cd(app.kps4.alpha_3)
-                CL4, CD4 = app.kps4.calc_cl(app.kps4.alpha_4), DRAG_CORR * app.kps4.calc_cd(app.kps4.alpha_4)
-                sys_state.var_15 = CL2
-                sys_state.var_16 = K*(CD2+rel_side_area*(CD3+CD4))
-            else
-                sys_state.var_15 = app.kps4.alpha_3b 
-                sys_state.var_16 = app.kps4.alpha_4b 
-            end
+            sys_state.var_15 = app.kps4.alpha_3b 
+            sys_state.var_16 = app.kps4.alpha_4b 
             
             sys_state.var_08 = norm(app.kps4.lift_force)/norm(app.kps4.drag_force)
             if i > 10

@@ -201,14 +201,14 @@ function plot_aerodynamics(plot_lift_drag = false)
     sl    = log.syslog
 
     if plot_lift_drag
-        display(plotx(sl.time, sl.var_08, sl.var_13, sl.var_15, sl.var_16; 
+        display(plotx(sl.time, sl.var_08, sl.var_13, sl.CL2, sl.CD2; 
                       ylabels=["LoD [-]", L"\alpha_2~[°]", "CL [-]",  "CD [-]"],
                       fig="aerodynamics"))
-        display(plotxy(sl.var_13[2:end], sl.var_15[2:end]; 
+        display(plotxy(sl.var_13[2:end], sl.CL2[2:end]; 
                       xlabel="AoA [°]",
                       ylabel="CL [-]",
                       fig="CL as function of AoA"))
-        display(plotxy(sl.var_13[2:end], sl.var_16[2:end]; 
+        display(plotxy(sl.var_13[2:end], sl.CD2[2:end]; 
                       xlabel="AoA [°]",
                       ylabel="CD [-]",
                       fig="CD_tot as function of AoA"))
