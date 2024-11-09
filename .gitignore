@@ -17,3 +17,4 @@ bin/kps-image-1.10-fix_yaw.so
 Manifest-v1.11.toml
 examples_3d/Manifest.toml
 bin/kps-image-1.10-parking_controller.so
+data/settings_v9c.yaml
