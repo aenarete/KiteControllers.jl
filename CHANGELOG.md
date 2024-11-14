@@ -1,16 +1,19 @@
 # Changelog
-### Unreleased
+### KiteControllers v0.2.11 - 2024-11-14
 #### Changed
-- use the latest version of KiteModels, which defines the azimuth angle and the orientation differently and make the controllers and examples work with the new definitions
+- use the latest version of KiteModels, which defines the azimuth angle and the orientation differently and make the 
+  controllers and examples work with the new definitions
 - the constructor `SystemStateControl()`now needs the additional parameter `v_wind`
-- the constructors `WCSettings()`, `FPCSettings()` and `FPPSettings()` now have the new argument `update`. If true, then the settings are loaded from the corresponding `yaml` file.
+- the constructors `WCSettings()`, `FPCSettings()` and `FPPSettings()` now have the new argument `update`. If true,
+  then the settings are loaded from the corresponding `yaml` file.
+- do not use the function `update_sys_state!()` any longer because it is buggy
 
 #### Added
-- add a script that tests the parking controller when the wind direction is changing
+- add the script `parking_wind_dir.jl` that tests the parking controller when the wind direction is changing
+- add the script `parking_controller.jl` which implements a dual-loop parking controller. The inner loop controls the turn rate. It has an excellent performance.
 - add the script `test/menu.jl` which allows to execute the manual tests, that display plots and fix the tests
 
-
-### 0.2.10 - 2024-09-07
+### KiteControllers v0.2.10 - 2024-09-07
 #### Changed
 - the script `create_sys_image` is now installing matplotlib if required
 - removed calls to se() to be sure the correct settings from the variable set are used
