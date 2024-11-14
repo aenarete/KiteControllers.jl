@@ -1,8 +1,8 @@
 # Changelog
-### KiteControllers v0.2.11 - 2024-11-14
+### KiteControllers v0.2.11
 #### Changed
-- use the latest version of KiteModels, which defines the azimuth angle and the orientation differently and make the 
-  controllers and examples work with the new definitions
+- use the latest version of KiteModels, which defines the azimuth angle and the orientation differently and make the controllers and examples work with the new definitions
+- bump `KiteUtils.jl` to v0.9.0. The new version has new fields that are used for logging.
 - the constructor `SystemStateControl()`now needs the additional parameter `v_wind`
 - the constructors `WCSettings()`, `FPCSettings()` and `FPPSettings()` now have the new argument `update`. If true,
   then the settings are loaded from the corresponding `yaml` file.
