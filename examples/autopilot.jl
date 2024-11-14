@@ -283,7 +283,6 @@ function simulate(integrator, stopped=true)
 end
 
 function play(stopped=false)
-    global flight_log
     while isopen(app.viewer.fig.scene)
         if ! app.initialized
             init(app)
@@ -301,7 +300,6 @@ function play(stopped=false)
             if app.set.log_level > 0
                 println("Saving log... $(app.logger.index)")
             end
-            flight_log = KiteUtils.sys_log(app.logger)
             save_log(app.logger, basename(DEFAULT_LOG); path=dirname(DEFAULT_LOG))
         end
         if @isdefined __PRECOMPILE__
