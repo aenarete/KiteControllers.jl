@@ -393,9 +393,9 @@ function print_stats()
     av_power = 0.0
     peak_power = 0.0
     n = 0
-    last_full_cycle = maximum(sl.var_01)-1
+    last_full_cycle = maximum(sl.cycle)-1
     for i in eachindex(sl.force)
-        if sl.var_01[i] in 2:last_full_cycle
+        if sl.cycle[i] in 2:last_full_cycle
             av_power += sl.force[i]*sl.v_reelout[i]
             n+=1
         end
