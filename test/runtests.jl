@@ -1,4 +1,4 @@
-using KiteControllers, KiteUtils, KiteModels
+using KiteControllers, KiteModels
 using Test
 
 cd("..")

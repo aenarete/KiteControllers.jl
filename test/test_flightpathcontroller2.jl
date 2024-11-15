@@ -3,7 +3,7 @@ using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
-using KiteControllers, KiteUtils, ControlPlots, Timers; tic()
+using KiteControllers, ControlPlots, Timers; tic()
 
 set = deepcopy(load_settings("system.yaml"))
 set.sample_freq = 50

@@ -3,7 +3,7 @@ using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
-using KiteControllers, KiteUtils, Timers, ControlPlots; tic()
+using KiteControllers, Timers, ControlPlots; tic()
 
 set = deepcopy(load_settings("system.yaml"))
 

@@ -20,7 +20,7 @@ end
 
 PROJECT=read_project()
 
-using KiteControllers, KiteUtils, ControlPlots, NonlinearSolve, LinearAlgebra
+using KiteControllers, ControlPlots, NonlinearSolve, LinearAlgebra
 import JLD2
 
 function test_ob(lg, plot=true)

@@ -3,7 +3,7 @@ using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
-using KiteControllers, KiteUtils, Timers; tic()
+using KiteControllers, Timers; tic()
 if false; include("../src/KiteControllers.jl"); end
 if false; include("../src/winchcontroller.jl"); end
 if false; include("../src/wc_components.jl"); end
