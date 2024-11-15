@@ -4,6 +4,7 @@
 #### Changed
 - reexport KiteUtils
 - bump `KiteUtils` to v0.9.1
+- when executing `bin/run_julia`, always execute `using KiteControllers` before displaying the REPL
 #### Fixed
 - fixed logging of the height and X, Y and Z
 - plotting of the height is fixed in `autopilot.jl`
