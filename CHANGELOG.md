@@ -1,10 +1,14 @@
 # Changelog
+
 ### Unreleased
 #### Changed
 - reexport KiteUtils
 - bump `KiteUtils` to v0.9.1
 #### Fixed
 - fixed logging of the height and X, Y and Z
+- plotting of the height is fixed in `autopilot.jl`
+#### Added
+- the menu with the examples can now started by typing `menu()`
 
 ### KiteControllers v0.2.11
 #### Changed
