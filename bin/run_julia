@@ -26,8 +26,8 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 
 if test -f "bin/kps-image-${julia_major}-${branch}.so"; then
     echo "Found system image!"
-    PLOT=1 julia -J  bin/kps-image-${julia_major}-${branch}.so -t $FAST_CORES,1 $GCT --project -i -e 'using KiteModels'
+    PLOT=1 julia -J  bin/kps-image-${julia_major}-${branch}.so -t $FAST_CORES,1 $GCT --project -i -e 'using KiteControllers'
 else
-    PLOT=1 julia --project -t $FAST_CORES,1 $GCT -i -e 'using KiteModels'
+    PLOT=1 julia --project -t $FAST_CORES,1 $GCT -i -e 'using KiteControllers'
     # julia --project
 fi
