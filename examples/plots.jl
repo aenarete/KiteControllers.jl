@@ -35,7 +35,7 @@ function plot_main()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.l_tether, sl.force, 
-                  sl.v_reelout, sl.var_01;
+                  sl.v_reelout, sl.cycle;
         ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]", "cycle [-]"],
         yzoom=0.9, fig="main"))
      nothing
@@ -59,11 +59,11 @@ end
 function plot_control()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
-    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), rad2deg.(wrap2pi.(sl.heading)), sl.force, 100*sl.depower, 100*sl.steering, sl.sys_state, sl.var_01, sl.var_02;
+    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), rad2deg.(wrap2pi.(sl.heading)), sl.force, 100*sl.depower, 100*sl.steering, sl.sys_state, sl.cycle, sl.fig_8;
             ylabels=["elevation [°]", "azimuth [°]", "heading [°]", "force [N]", "depower [%]", "steering [%]", "fpp_state", "cycle", "fig8"],
             fig="control", ysize=10, yzoom=0.7))
     sleep(0.05)
-    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), -rad2deg.(wrap2pi.(sl.heading)), 100*sl.depower, 100*sl.steering, rad2deg.(sl.var_07), sl.var_06, sl.sys_state, sl.var_01;
+    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), -rad2deg.(wrap2pi.(sl.heading)), 100*sl.depower, 100*sl.steering, rad2deg.(sl.var_07), sl.var_06, sl.sys_state, sl.cycle;
             ylabels=["elevation [°]", "azimuth [°]", "psi [°]", "depower [%]", "steering [%]", "chi_set", "ndi_gain", "fpp_state", "cycle"],
             fig="fpc", ysize=10, yzoom=0.7))
     nothing
@@ -106,8 +106,8 @@ function plot_elev_az2()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     index=1
-    for i in 1:length(sl.var_01)
-        if sl.var_01[i] == 2
+    for i in 1:length(sl.cycle)
+        if sl.cycle[i] == 2
             index=i
             break
         end
@@ -123,8 +123,8 @@ function plot_elev_az3()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     index=1
-    for i in 1:length(sl.var_01)
-        if sl.var_01[i] == 3
+    for i in 1:length(sl.cycle)
+        if sl.cycle[i] == 3
             index=i
             break
         end
@@ -149,8 +149,8 @@ function plot_side_view2()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     index = 1
     sl    = log.syslog
-    for i in 1:length(sl.var_01)
-        if sl.var_01[i] == 2
+    for i in 1:length(sl.cycle)
+        if sl.cycle[i] == 2
             index=i
             break
         end
@@ -166,8 +166,8 @@ function plot_side_view3()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     index = 1
     sl    = log.syslog
-    for i in 1:length(sl.var_01)
-        if sl.var_01[i] == 3
+    for i in 1:length(sl.cycle)
+        if sl.cycle[i] == 3
             index=i
             break
         end
@@ -183,8 +183,8 @@ function plot_front_view3()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     index = 1
     sl    = log.syslog
-    for i in 1:length(sl.var_01)
-        if sl.var_01[i] == 3
+    for i in 1:length(sl.cycle)
+        if sl.cycle[i] == 3
             index=i
             break
         end

@@ -195,8 +195,8 @@ function simulate(integrator, stopped=true)
             e_mech += (sys_state.force * sys_state.v_reelout)/3600*app.dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(app.ssc.fpp._state)
-            sys_state.var_01 = app.ssc.fpp.fpca.cycle
-            sys_state.var_02 = app.ssc.fpp.fpca.fig8
+            sys_state.cycle  = app.ssc.fpp.fpca.cycle
+            sys_state.fig_8   = app.ssc.fpp.fpca.fig8
             sys_state.var_03 = get_state(app.ssc.wc) # 0=lower_force_control 1=square_root_control 2=upper_force_control
             sys_state.var_04 = app.ssc.wc.pid2.f_set # set force of lower force controller
             sys_state.var_05 = app.ssc.wc.pid2.v_set_out
