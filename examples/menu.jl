@@ -10,7 +10,7 @@ options = ["autopilot_4p = include(\"autopilot.jl\")",
            "tune_4p_ = include(\"tune_4p.jl\"); tune_4p()",
            "quit"]
 
-function menu()
+function example_menu()
     active = true
     while active
         menu = RadioMenu(options, pagesize=8)
@@ -25,4 +25,4 @@ function menu()
     end
 end
 
-menu()
+examples_menu()
