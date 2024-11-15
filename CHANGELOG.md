@@ -1,4 +1,11 @@
 # Changelog
+### Unreleased
+#### Changed
+- reexport KiteUtils
+- bump `KiteUtils` to v0.9.1
+#### Fixed
+- fixed logging of the height and X, Y and Z
+
 ### KiteControllers v0.2.11
 #### Changed
 - use the latest version of KiteModels, which defines the azimuth angle and the orientation differently and make the controllers and examples work with the new definitions
