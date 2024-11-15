@@ -50,7 +50,7 @@ function plot_power()
         en +=  sl.force[i]*sl.v_reelout[i]*app.dt
         energy[i] = en
     end
-    display(plotx(log.syslog.time, sl.force, sl.v_reelout, sl.force.*sl.v_reelout, energy./3600, sl.var_14;
+    display(plotx(log.syslog.time, sl.force, sl.v_reelout, sl.force.*sl.v_reelout, energy./3600, sl.acc;
             ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]", "Energy [Wh]", "acc [m/s^2]"],
             fig="power"))
     nothing
@@ -214,7 +214,7 @@ function plot_aerodynamics(plot_lift_drag = false)
                       fig="CD_tot as function of AoA"))
 
     else
-        display(plotx(sl.time, sl.var_08, rad2deg.(sl.AoA), sl.var_14, sl.var_15, sl.var_16; 
+        display(plotx(sl.time, sl.var_08, rad2deg.(sl.AoA), sl.acc, sl.var_15, sl.var_16; 
                     ylabels=["LoD [-]", L"AoA~[°]", L"\alpha_{3b}~[°]", L"\alpha_{4b}~[°]"],
                     fig="aerodynamics"))
     end
