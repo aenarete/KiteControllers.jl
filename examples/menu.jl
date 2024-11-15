@@ -25,4 +25,4 @@ function example_menu()
     end
 end
 
-examples_menu()
+example_menu()
