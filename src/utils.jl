@@ -3,8 +3,10 @@ A collection of control functions for discrete control
 
 Functions:
 
-- saturation
-- wrap2pi
+- saturate
+- limit 
+- merge_angles
+- moving_average
 
 Implemented as described in the PhD thesis of Uwe Fechner.
 """
@@ -44,7 +46,6 @@ Calculate the weighted average of two angles. The weight of beta,
 factor_beta must be between 0 and 1.
 """
 function merge_angles(alpha, beta, factor_beta)
-
     x1 = sin(alpha)
     y1 = cos(alpha)
     x2 = sin(beta)
