@@ -1,7 +1,7 @@
 # Prototype of a parking controller.
 # Components: PID controller, NDI block, and great circle navigation
 using DiscretePIDs, Parameters, Test
-import KiteControllers: calc_steering, wrap2pi, navigate
+import KiteControllers: wrap2pi
 
 @with_kw mutable struct ParkingControllerSettings @deftype Float64
     dt
