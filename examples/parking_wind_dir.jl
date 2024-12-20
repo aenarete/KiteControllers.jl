@@ -11,6 +11,7 @@ using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBa
 set = deepcopy(load_settings("system_v9.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
+set.sample_freq = 20
 
 include("parking_controller.jl")
 pcs = ParkingControllerSettings(dt=0.05)
