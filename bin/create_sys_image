@@ -21,6 +21,10 @@ mkdir -p output
 export MPLBACKEND=qt5agg
 export JULIA_PKG_SERVER_REGISTRY_PREFERANCE=eager
 
+if [[ $HOSTNAME == "ufryzen" || $HOSTNAME == "framework" ]]; then
+    export NO_MTK=true
+fi
+
 if ! command -v juliaup &> /dev/null; then
     echo "Please install the Julia installer 'juliaup'!"
     echo "See: https://github.com/JuliaLang/juliaup"

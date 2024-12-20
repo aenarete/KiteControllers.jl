@@ -25,7 +25,6 @@ fi
 if [[ $HOSTNAME == "ufryzen" || $HOSTNAME == "framework" ]]; then
     export NO_MTK=true
     export USE_V9=true
-
 fi
 branch=$(git rev-parse --abbrev-ref HEAD)
 
