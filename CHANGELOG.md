@@ -1,26 +1,22 @@
 # Changelog
 
-### Unreleased
+### KiteControllers v0.2.11 2025-01-16
 #### Changed
+- use KiteModels v0.6.14, which defines the azimuth angle and the orientation differently and make the controllers and examples work with the new definitions
+- bump `KiteUtils` to v0.9.6 The new version has new fields in the `SysState` struct that are used for logging.
+- the constructor `SystemStateControl()`now needs the additional parameter `v_wind`
+- the constructors `WCSettings()`, `FPCSettings()` and `FPPSettings()` now have the new argument `update`. If true,
+  then the settings are loaded from the corresponding `yaml` file.
+- do not use the function `update_sys_state!()` any longer because it is buggy
 - reexport KiteUtils
-- bump `KiteUtils` to v0.9.1
 - when executing `bin/run_julia`, always execute `using KiteControllers` before displaying the REPL
+- make use of the environment variable "USE_V9"; if set, use a different (proprietary) settings file
+- improve example `parking_wind_dir.jl`
 #### Fixed
 - fixed logging of the height and X, Y and Z
 - plotting of the height is fixed in `autopilot.jl`
 #### Added
 - the menu with the examples can now started by typing `menu()`
-
-### KiteControllers v0.2.11
-#### Changed
-- use the latest version of KiteModels, which defines the azimuth angle and the orientation differently and make the controllers and examples work with the new definitions
-- bump `KiteUtils.jl` to v0.9.0. The new version has new fields that are used for logging.
-- the constructor `SystemStateControl()`now needs the additional parameter `v_wind`
-- the constructors `WCSettings()`, `FPCSettings()` and `FPPSettings()` now have the new argument `update`. If true,
-  then the settings are loaded from the corresponding `yaml` file.
-- do not use the function `update_sys_state!()` any longer because it is buggy
-
-#### Added
 - add the script `parking_wind_dir.jl` that tests the parking controller when the wind direction is changing
 - add the script `parking_controller.jl` which implements a dual-loop parking controller. The inner loop controls the turn rate. It has an excellent performance.
 - add the script `test/menu.jl` which allows to execute the manual tests, that display plots and fix the tests
