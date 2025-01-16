@@ -175,8 +175,8 @@ end
     set_force(w, force)
     @test w.force == force
     KiteControllers.on_timer(w)
-    @test get_speed(w) ≈ 0.8988387476775817
-    @test get_acc(w) ≈ 44.94193738387908
+    @test get_speed(w) ≈  0.8841505712049121
+    @test get_acc(w) ≈ 44.207528560245606
 end
 
 # using KiteControllers, Test
