@@ -5,6 +5,7 @@ version = "0.2.12"
 
 [deps]
 DiscretePIDs = "c1363496-6848-4723-8758-079b737f6baf"
+FFMPEG = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 KiteModels = "b94af626-7959-4878-9336-2adc27959007"
 KiteUtils = "90980105-b163-44e5-ba9f-8b1c83bb0533"
