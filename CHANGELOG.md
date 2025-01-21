@@ -1,6 +1,6 @@
 # Changelog
 
-### KiteControllers v0.2.12
+### KiteControllers v0.2.12 2025-01-21
 - change the point `zenith` to 79° elevation, 0° azimuth
 - change the initialization in autopilot.jl to work better for high wind speeds
 
