@@ -1,5 +1,9 @@
 # Changelog
 
+### KiteControllers v0.2.12
+- change the point `zenith` to 79° elevation, 0° azimuth
+- change the initialization in autopilot.jl to work better for high wind speeds
+
 ### KiteControllers v0.2.11 2025-01-16
 #### Changed
 - use KiteModels v0.6.14, which defines the azimuth angle and the orientation differently and make the controllers and examples work with the new definitions
