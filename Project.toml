@@ -26,6 +26,7 @@ YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 [compat]
 ControlPlots = "0.2.5"
 DiscretePIDs = "0.1.5"
+FFMPEG = "0.4.0"
 JLD2 = "0.5.11"
 KiteModels = "0.6.14"
 KiteUtils = "0.9.6"
