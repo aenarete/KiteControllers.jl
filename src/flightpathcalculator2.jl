@@ -73,7 +73,7 @@ end
     _p2::MVector{2, Float64} = zeros(2)
     _p3::MVector{2, Float64} = zeros(2)
     _p4::MVector{2, Float64} = zeros(2)
-    _zenith::MVector{2, Float64} = MVector(0.0, 80) # desired elevation angle at zenith
+    _zenith::MVector{2, Float64} = MVector(0.0, 79) # desired elevation angle at zenith
     _phi_2 = 0.0
     _phi_3 = 0.0
     _phi_sw = 0.0
