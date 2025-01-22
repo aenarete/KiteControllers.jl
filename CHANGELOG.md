@@ -1,7 +1,7 @@
 # Changelog
 
 ### KiteControllers v0.2.13 2025-01-22
-#### Fixes
+#### Fixed
 - add new version of `FFTW` as dependency to fix Windows issue
 
 ### KiteControllers v0.2.12 2025-01-21
