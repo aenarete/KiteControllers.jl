@@ -1,5 +1,9 @@
 # Changelog
 
+### KiteControllers v0.2.13 2025-01-22
+#### Fixes
+- add new version of `FFTW` as dependency to fix Windows issue
+
 ### KiteControllers v0.2.12 2025-01-21
 - change the point `zenith` to 79° elevation, 0° azimuth
 - change the initialization in autopilot.jl to work better for high wind speeds
