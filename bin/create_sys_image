@@ -31,8 +31,8 @@ if ! command -v juliaup &> /dev/null; then
     exit 1
 fi
 
-juliaup add 1.10
-juliaup default 1.10
+# juliaup add 1.10
+# juliaup default 1.10
 
 PYTHON_PATH=$(which python3)
 if [ -x "$PYTHON_PATH" ]; then
@@ -82,8 +82,13 @@ if [[ $update == true ]]; then
     fi
     julia --startup-file=no --pkgimages=no --project -e "using Pkg; Pkg.update()"
 else
-    cp Manifest-1.10.toml.default Manifest.toml
-    echo "Using Manifest-1.10.toml.default ..."
+    if [[ $julia_major == "1.10" ]]; then
+        cp Manifest-v1.10.toml.default Manifest-v1.10.toml
+        echo "Using Manifest-v1.10.toml.default ..."        
+    else
+        cp Manifest-v1.11.toml.default Manifest-v1.11.toml
+        echo "Using Manifest-v1.11.toml.default ..."
+    fi
 fi
 julia --project -e "include(\"./test/create_sys_image.jl\");"
 mv kps-image_tmp.so bin/kps-image-${julia_major}-${branch}.so
