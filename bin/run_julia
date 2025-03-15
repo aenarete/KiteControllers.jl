@@ -12,7 +12,7 @@ else
     FAST_CORES=3 # default value
 fi
 
-GCT="--gcthreads=$FAST_CORES,1"
+GCT="--gcthreads=4,1"
 export JULIA_PKG_SERVER_REGISTRY_PREFERANCE=eager
 
 julia_version=$(julia --version | awk '{print($3)}')
