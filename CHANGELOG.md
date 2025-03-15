@@ -1,4 +1,6 @@
 # Changelog
+### Unreleased
+- update the script `create_sys_image` to support both Julia 1.10 and Julia 1.11
 
 ### KiteControllers v0.2.13 2025-01-22
 #### Fixed
