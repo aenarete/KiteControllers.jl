@@ -1,11 +1,12 @@
 #!/bin/bash -eu
+
 update=false
 if [[ $# -gt 0 ]]; then
     if [[ $1 != "--update" ]]; then
         echo "Invalid parameter! Use:"
-        echo "./create_sys_image.sh"
+        echo "./create_sys_image"
         echo "or"
-        echo "./create_sys_image.sh --update"
+        echo "./create_sys_image --update"
         exit 1
     else
         update=true
@@ -19,7 +20,7 @@ fi
 mkdir -p output
 
 export MPLBACKEND=qt5agg
-export JULIA_PKG_SERVER_REGISTRY_PREFERANCE=eager
+export JULIA_PKG_SERVER_REGISTRY_PREFERENCE="eager"
 
 if [[ $HOSTNAME == "ufryzen" || $HOSTNAME == "framework" ]]; then
     export NO_MTK=true
@@ -31,8 +32,11 @@ if ! command -v juliaup &> /dev/null; then
     exit 1
 fi
 
-# juliaup add 1.10
-# juliaup default 1.10
+# if julia is not installed, install Julia 1.11
+if ! command -v julia &> /dev/null; then
+    juliaup add 1.11
+    juliaup default 1.11
+fi
 
 PYTHON_PATH=$(which python3)
 if [ -x "$PYTHON_PATH" ]; then
@@ -62,10 +66,22 @@ else
     exit 1
 fi
 
-julia_version=$(julia --version | awk '{print($3)}')
+totalmem=$(grep MemTotal /proc/meminfo | awk '{printf "%i", $2 / 1024}')
+if [[ $totalmem -lt 27000 ]]; then
+    echo "Warning: Less than 27GB of memory detected. Using only one thread for sysimage compilation."
+    export JULIA_IMAGE_THREADS=1
+fi
 
-julia_major=${julia_version:0:4} 
-branch=$(git rev-parse --abbrev-ref HEAD)
+julia_version=$(julia --version | awk '{print($3)}')
+julia_major=${julia_version:0:3}
+if [[ $julia_major == "1.1" ]]; then
+    julia_major=${julia_version:0:4} 
+fi
+if [ -d .git ] || git rev-parse --git-dir > /dev/null 2>&1 ; then
+    branch=$(git rev-parse --abbrev-ref HEAD | sed 's/\//-/g')
+else
+    branch=""
+fi
 if test -f "kps-image-${julia_major}-${branch}.so"; then
     mv bin/kps-image-${julia_major}-${branch}.so kps-image-${julia_major}-${branch}.so.bak
 fi
@@ -105,12 +121,28 @@ else
         echo "Using Manifest-v1.11.toml.default ..."
     fi
 fi
-julia --project -e "include(\"./test/create_sys_image.jl\");"
-mv kps-image_tmp.so bin/kps-image-${julia_major}-${branch}.so
-julia --project -e "using Pkg; Pkg.precompile()"
-cd src
-touch *.jl # make sure all modules get recompiled in the next step
-cd ..
+if [[ $update == true ]]; then
+    julia --startup-file=no --pkgimages=no --project -e "include(\"./test/create_sys_image.jl\");"
+else
+    julia --startup-file=no --pkgimages=no --project -e "using Pkg; Pkg.instantiate();"
+    julia --startup-file=no --pkgimages=no --project -e "using TestEnv; TestEnv.activate(); include(\"./test/create_sys_image.jl\");"
+fi
+
+if [[ $branch != "" ]]; then
+    SOFILE="bin/kps-image-${julia_major}-${branch}.so"
+else
+    SOFILE="bin/kps-image-${julia_major}.so"
+fi
+if test -f $SOFILE; then
+    mv $SOFILE $SOFILE.bak
+fi
+mv kps-image_tmp.so $SOFILE
+julia --startup-file=no  --project -e "using Pkg; Pkg.precompile(); Pkg.resolve()"
+if [ -d src ]; then
+    cd src
+    touch *.jl # make sure all modules get recompiled in the next step
+    cd ..
+fi
 julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using KiteUtils, KiteControllers"
 julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using TestEnv; TestEnv.activate(); using ControlPlots, NativeFileDialog"
 julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using Pkg; Pkg.update()"
