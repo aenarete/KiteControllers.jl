@@ -1,16 +1,18 @@
 # Changelog
-### Unreleased
+
+### KiteControllers v0.2.14 2025-04-22
+#### Fixed
+- disabled multithreading in `run_julia` to avoid crashes related to PyPlot
+#### Changed
 - update the script `create_sys_image` to support both Julia 1.10 and Julia 1.11
+- add Aqua.jl for quality insurance
+- remove unused dependencies found by Aqua
+- bumped KiteUtils to 0.10.3
+- bumped KiteModels to 0.7
 
 ### KiteControllers v0.2.13 2025-01-22
 #### Fixed
 - add new version of `FFTW` as dependency to fix Windows issue
-### KiteControllers v0.2.13 2025-04-22
-#### Fixed
-- disabled multithreading to avoid crashes related to PyPlot
-#### Changed
-- bumped KiteUtils to 0.10.3
-- bumped KiteModels to 0.7
 
 ### KiteControllers v0.2.12 2025-01-21
 - change the point `zenith` to 79° elevation, 0° azimuth
