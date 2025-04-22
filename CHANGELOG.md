@@ -5,6 +5,12 @@
 ### KiteControllers v0.2.13 2025-01-22
 #### Fixed
 - add new version of `FFTW` as dependency to fix Windows issue
+### KiteControllers v0.2.13 2025-04-22
+#### Fixed
+- disabled multithreading to avoid crashes related to PyPlot
+#### Changed
+- bumped KiteUtils to 0.10.3
+- bumped KiteModels to 0.7
 
 ### KiteControllers v0.2.12 2025-01-21
 - change the point `zenith` to 79° elevation, 0° azimuth
