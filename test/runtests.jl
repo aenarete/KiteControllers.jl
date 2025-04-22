@@ -542,3 +542,5 @@ end
     KiteControllers._switch(fpp, PARKING)
     @test fpp._state == PARKING
 end
+
+include("aqua.jl")
