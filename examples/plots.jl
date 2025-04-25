@@ -214,8 +214,8 @@ function plot_aerodynamics(plot_lift_drag = false)
                       fig="CD_tot as function of AoA"))
 
     else
-        display(plotx(sl.time, sl.var_08, rad2deg.(sl.AoA), sl.acc, sl.var_15, sl.var_16; 
-                    ylabels=["LoD [-]", L"AoA~[°]", L"\alpha_{3b}~[°]", L"\alpha_{4b}~[°]"],
+        display(plotx(sl.time, sl.var_08, rad2deg.(sl.AoA), rad2deg.(sl.var_16); 
+                    ylabels=["LoD [-]", L"AoA~[°]", L"side\_slip~[°]"],
                     fig="aerodynamics"))
     end
     nothing
