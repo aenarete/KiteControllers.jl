@@ -214,7 +214,6 @@ function simulate(integrator, stopped=true)
             sys_state.var_11 = app.ssc.fpp.fpca.fpc.est_chi_dot
             sys_state.var_12 = app.ssc.fpp.fpca.fpc.c2
             sys_state.acc = norm(acc)
-            sys_state.var_15 = app.kps4.alpha_3b 
             sys_state.var_16 = app.kps4.side_slip
             
             sys_state.var_08 = norm(app.kps4.lift_force)/norm(app.kps4.drag_force)
