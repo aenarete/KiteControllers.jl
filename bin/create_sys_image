@@ -38,6 +38,21 @@ if ! command -v julia &> /dev/null; then
     juliaup default 1.11
 fi
 
+julia_version=$(julia --version | awk '{print($3)}')
+julia_major=${julia_version:0:3}
+if [[ $julia_major == "1.1" ]]; then
+    julia_major=${julia_version:0:4} 
+fi
+
+# if the current julia version is older than 1.10, exit
+if [[ $julia_major == "1.10" ]] || [[ $julia_major == "1.11" ]]; then
+    echo OK
+else
+    echo "The current Julia version is too old, installing Julia 1.11!"
+    juliaup add 1.11
+    juliaup default 1.11
+fi
+
 PYTHON_PATH=$(which python3)
 if [ -x "$PYTHON_PATH" ]; then
     echo "Python is found at $PYTHON_PATH"
@@ -72,11 +87,6 @@ if [[ $totalmem -lt 27000 ]]; then
     export JULIA_IMAGE_THREADS=1
 fi
 
-julia_version=$(julia --version | awk '{print($3)}')
-julia_major=${julia_version:0:3}
-if [[ $julia_major == "1.1" ]]; then
-    julia_major=${julia_version:0:4} 
-fi
 if [ -d .git ] || git rev-parse --git-dir > /dev/null 2>&1 ; then
     branch=$(git rev-parse --abbrev-ref HEAD | sed 's/\//-/g')
 else
