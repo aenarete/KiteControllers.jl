@@ -3,6 +3,8 @@
 ### Unreleased
 #### Added
 - add `yaw_rate` and `steering` to AoA plot
+#### Changed
+- the script create_sys_image now checks if the current Julia version is too old
 
 ### KiteControllers v0.2.14 2025-04-22
 #### Fixed
