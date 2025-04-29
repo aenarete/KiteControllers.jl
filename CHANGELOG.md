@@ -1,5 +1,9 @@
 # Changelog
 
+### Unreleased
+#### Added
+- add `yaw_rate` and `steering` to AoA plot
+
 ### KiteControllers v0.2.14 2025-04-22
 #### Fixed
 - disabled multithreading in `run_julia` to avoid crashes related to PyPlot
