@@ -153,6 +153,8 @@ function simulate(integrator, stopped=true)
     last_vel = [0.0, 0.0, 0.0]
     on_new_systate(app.ssc, sys_state)
     KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
+    last_yaw = 0.0
+    last_yaw_rate = 0.0
     while app.initialized
         local v_ro
         if app.viewer.stop
@@ -214,6 +216,13 @@ function simulate(integrator, stopped=true)
             sys_state.var_11 = app.ssc.fpp.fpca.fpc.est_chi_dot
             sys_state.var_12 = app.ssc.fpp.fpca.fpc.c2
             sys_state.acc = norm(acc)
+            if abs((sys_state.yaw - last_yaw) / app.dt ) < 20.0
+                sys_state.var_15 = (sys_state.yaw - last_yaw) / app.dt # yaw rate
+            else
+                sys_state.var_15 = last_yaw_rate
+            end
+            last_yaw = sys_state.yaw
+            last_yaw_rate = sys_state.var_15
             sys_state.var_16 = app.kps4.side_slip
             
             sys_state.var_08 = norm(app.kps4.lift_force)/norm(app.kps4.drag_force)
