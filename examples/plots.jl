@@ -1,3 +1,15 @@
+function l_tether(sl)
+    hcat(sl.l_tether...)[1,:]
+end
+
+function force(sl)
+    hcat(sl.force...)[1,:]
+end
+
+function v_reelout(sl)
+    hcat(sl.v_reelout...)[1,:]
+end
+
 function plot_timing()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
 
@@ -32,10 +44,11 @@ function fulldir(name)
 end
 
 function plot_main()
+    global sl
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
-    display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.l_tether, sl.force, 
-                  sl.v_reelout, sl.cycle;
+    display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(l_tether(sl)), force(sl), 
+    v_reelout(sl), sl.cycle;
         ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]", "cycle [-]"],
         yzoom=0.9, fig="main"))
      nothing
@@ -44,13 +57,15 @@ end
 function plot_power()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
-    energy = similar(sl.v_reelout)
-    en=0.0
+    energy = similar(v_reelout(sl))
+    en = 0.0
+    v_ro = v_reelout(sl)
+    f_ = force(sl)
     for i in eachindex(energy)
-        en +=  sl.force[i]*sl.v_reelout[i]*app.dt
+        en +=  f_[i] * v_ro[i] * app.dt
         energy[i] = en
     end
-    display(plotx(log.syslog.time, sl.force, sl.v_reelout, sl.force.*sl.v_reelout, energy./3600, sl.acc;
+    display(plotx(log.syslog.time, force(sl), v_reelout(sl), force(sl) .* v_reelout(sl), energy./3600, sl.acc;
             ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]", "Energy [Wh]", "acc [m/s^2]"],
             fig="power"))
     nothing
