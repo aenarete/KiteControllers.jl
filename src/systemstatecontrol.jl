@@ -60,8 +60,8 @@ function calc_v_set(ssc::SystemStateControl)
     else
         f_low = ssc.wc.wcs.f_low
     end
-    force = ssc.sys_state.force
-    v_act = ssc.sys_state.v_reelout
+    force = ssc.sys_state.force[1]
+    v_act = ssc.sys_state.v_reelout[1]
     if ssc.state in [ssParking, ssManualOperation]
         f_low = ssc.wc.wcs.f_low
         v_set = calc_v_set(ssc.wc, v_act, force, f_low, 0.0)
@@ -86,7 +86,7 @@ function calc_steering(ssc::SystemStateControl, manual_steering = 0.0; heading =
     v_a = ssc.sys_state.v_app
     chi = ssc.sys_state.course
     u_d = ssc.sys_state.depower
-    length = ssc.sys_state.l_tether
+    length = ssc.sys_state.l_tether[1]
     height = ssc.sys_state.Z[end]
     set_azimuth_elevation(ssc.fpp.fpca, phi, beta)
     on_new_systate(ssc.fpp, phi, beta, psi, chi, v_a, u_d)

@@ -194,7 +194,7 @@ function simulate(integrator, stopped=true)
             last_vel = deepcopy(app.kps4.vel_kite)
 
             on_new_systate(app.ssc, sys_state)
-            e_mech += (sys_state.force * sys_state.v_reelout)/3600*app.dt
+            e_mech += (sys_state.force[1] * sys_state.v_reelout[1])/3600*app.dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(app.ssc.fpp._state)
             sys_state.cycle  = app.ssc.fpp.fpca.cycle
