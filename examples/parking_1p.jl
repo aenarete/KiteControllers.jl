@@ -11,7 +11,7 @@ set.abs_tol=0.00006
 set.rel_tol=0.0001
 set.v_wind = 6.5
 
-using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
+using KiteViewers, KiteModels, ControlPlots, Rotations
 
 kcu::KCU = KCU(set)
 kps::KPS3 = KPS3(kcu)
