@@ -72,7 +72,7 @@ function simulate(integrator)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
             sys_state.orient = quat2viewer(QuatRotation(sys_state.orient))
-            KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
+            KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3, ned=false)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
             mtime = 0
