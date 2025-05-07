@@ -5,14 +5,15 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations
+using KiteViewers, KiteModels, ControlPlots, Rotations
 set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 set.v_wind = 10 # v_min1 6-25; v_min2 5.3-30
 
 include("parking_controller.jl")
-pcs = ParkingControllerSettings(dt=0.05)
+import .ParkingControllers as pcm
+pcs = pcm.ParkingControllerSettings(dt=0.05)
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -41,8 +42,8 @@ else
     pcs.c1 = 0.048
     pcs.c2 = 0    # has no big effect, can also be set to zero
 end
-println("pcs.kp_tr=$(pcs.kp_tr), pcs.ki_tr=$(pcs.ki_tr), pcs.kp=$(pcs.kp), pcs.ki=$(pcs.ki), MIN_DEPOWER=$(MIN_DEPOWER)")
-pc = ParkingController(pcs)
+@info "pcs.kp_tr=$(pcs.kp_tr), pcs.ki_tr=$(pcs.ki_tr), pcs.kp=$(pcs.kp), pcs.ki=$(pcs.ki), MIN_DEPOWER=$(MIN_DEPOWER)"
+pc = pcm.ParkingController(pcs)
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 =  60 # was 60
@@ -78,9 +79,9 @@ function simulate(integrator)
             if i == 100
                 pc.last_heading = sys_state.heading
             end
-            chi_set = navigate(pc, sys_state.azimuth, sys_state.elevation)
-            steering, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, sys_state.heading, chi_set; 
-                                                                     sys_state.elevation, v_app = sys_state.v_app)
+            chi_set = pcm.navigate(pc, sys_state.azimuth, sys_state.elevation)
+            steering, ndi_gain, psi_dot, psi_dot_set = pcm.calc_steering(pc, sys_state.heading, chi_set; 
+                                                                         sys_state.elevation, v_app = sys_state.v_app)
             PSI_DOT[i] = psi_dot
             PSI_DOT_SET[i] = psi_dot_set
             NDI_GAIN[i] = ndi_gain
