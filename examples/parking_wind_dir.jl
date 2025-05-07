@@ -19,7 +19,8 @@ set.rel_tol=0.0001
 set.sample_freq = 20
 
 include("parking_controller.jl")
-pcs = ParkingControllerSettings(dt=0.05)
+import .ParkingControllers as pcm
+pcs = pcm.ParkingControllerSettings(dt=0.05)
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -59,7 +60,7 @@ else
     pcs.c1 = 0.048
     pcs.c2 = 0    # has no big effect, can also be set to zero
 end
-pc = ParkingController(pcs)
+pc = pcm.ParkingController(pcs)
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 120
@@ -101,9 +102,9 @@ function sim_parking(integrator)
                 pc.last_heading = sys_state.heading
             end
             elevation = sys_state.elevation
-            chi_set = navigate(pc, sys_state.azimuth, elevation)
-            steering, ndi_gain, psi_dot, psi_dot_set = calc_steering(pc, sys_state.heading, chi_set; 
-                                                                     elevation, v_app = sys_state.v_app)
+            chi_set = pcm.navigate(pc, sys_state.azimuth, elevation)
+            steering, ndi_gain, psi_dot, psi_dot_set = pcm.calc_steering(pc, sys_state.heading, chi_set; 
+                                                                         elevation, v_app = sys_state.v_app)
             set_depower_steering(kps4.kcu, MIN_DEPOWER, steering)
         end  
         SET_STEERING[i] = steering
