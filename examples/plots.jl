@@ -74,7 +74,7 @@ end
 function plot_control()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
-    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), rad2deg.(wrap2pi.(sl.heading)), sl.force, 100*sl.depower, 100*sl.steering, sl.sys_state, sl.cycle, sl.fig_8;
+    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), rad2deg.(wrap2pi.(sl.heading)), force(sl), 100*sl.depower, 100*sl.steering, sl.sys_state, sl.cycle, sl.fig_8;
             ylabels=["elevation [°]", "azimuth [°]", "heading [°]", "force [N]", "depower [%]", "steering [%]", "fpp_state", "cycle", "fig8"],
             fig="control", ysize=10, yzoom=0.7))
     sleep(0.05)
@@ -96,10 +96,10 @@ end
 function plot_winch_control()
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
-    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), sl.force, sl.var_04, sl.v_reelout, 100*sl.depower, 100*sl.steering, sl.var_03;
+    display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), force(sl), sl.var_04, v_reelout(sl), 100*sl.depower, 100*sl.steering, sl.var_03;
             ylabels=["elevation [°]", "azimuth [°]", "force [N]", "set_force", "v_reelout [m/s]", "depower [%]", "steering [%]", "wc_state"],
             fig="winch_control", ysize=10))
-    display(plot(log.syslog.time, [sl.v_reelout, sl.var_05];
+    display(plot(log.syslog.time, [v_reelout(sl), sl.var_05];
             labels=["v_reelout", "pid2_v_set_out"],
             ylabel="v_reelout [n/s]",
             xlabel="time [s]",
