@@ -1,5 +1,7 @@
 # Prototype of a parking controller.
 # Components: PID controller, NDI block, and great circle navigation
+module ParkingControllers
+
 using DiscretePIDs, Parameters, Test
 import KiteControllers: wrap2pi
 
@@ -182,4 +184,5 @@ function test_parking_controller()
         test_navigate()
     end
     nothing
+end
 end
