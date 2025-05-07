@@ -2,6 +2,7 @@
 using Pkg
 if ! ("BayesOpt" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
+    # this will not work with Julia 1.11 or newer
     Pkg.add("BayesOpt")
 end
 
