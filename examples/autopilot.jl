@@ -402,17 +402,19 @@ function print_stats()
     peak_power = 0.0
     n = 0
     last_full_cycle = maximum(sl.cycle)-1
-    for i in eachindex(sl.force)
+    force_ = force(sl)
+    v_reelout_ = v_reelout(sl)
+    for i in eachindex(force_)
         if sl.cycle[i] in 2:last_full_cycle
-            av_power += sl.force[i]*sl.v_reelout[i]
+            av_power += force_[i] * v_reelout_[i]
             n+=1
         end
-        if abs(sl.force[i]*sl.v_reelout[i]) > peak_power
-            peak_power = abs(sl.force[i]*sl.v_reelout[i])
+        if abs(force_[i] * v_reelout_[i]) > peak_power
+            peak_power = abs(force_[i] * v_reelout_[i])
         end
     end
     av_power /= n
-    stats = Stats(sl[end].e_mech, av_power, peak_power, minimum(sl.force[Int64(round(5/app.dt)):end]), maximum(sl.force), 
+    stats = Stats(sl[end].e_mech, av_power, peak_power, minimum(force_[Int64(round(5/app.dt)):end]), maximum(force_), 
                   minimum(lg.z), maximum(lg.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
                   minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
     show_stats(stats)
