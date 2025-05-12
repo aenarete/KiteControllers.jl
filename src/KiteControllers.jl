@@ -106,6 +106,7 @@ function install_examples(add_packages=true)
     copy_examples()
     copy_settings()
     copy_control_settings()
+    copy_bin()
     if add_packages
         Pkg.add("KiteViewers")
         Pkg.add("KiteUtils")
@@ -119,6 +120,20 @@ function install_examples(add_packages=true)
         Pkg.add("Timers")
     end
     mkpath("output")
+end
+
+"""
+    copy_bin()
+
+Copy the script run_julia to the folder "bin"
+(it will be created if it doesn't exist).
+"""
+function copy_bin()
+    PATH = "bin"
+    mkpath(PATH)
+    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", PATH)
+    cp(joinpath(src_path, "run_julia"), joinpath(PATH, "run_julia"), force=true)
+    chmod(joinpath(PATH, "run_julia"), 0o774)
 end
 
 precompile(SystemStateControl, (WCSettings,))
