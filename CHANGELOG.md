@@ -6,18 +6,20 @@
 #### Added
 - add `yaw_rate` and `steering` to AoA plot
 #### Changed
-- removed outdated example `tune_4p.jl` from menu
+- remove outdated example `tune_4p.jl` from menu
 - the script create_sys_image now checks if the current Julia version is too old
+- bump KiteUtils to 0.10.5
+- bump KiteModels to 0.7.3
 
 ### KiteControllers v0.2.14 2025-04-22
 #### Fixed
-- disabled multithreading in `run_julia` to avoid crashes related to PyPlot
+- disable multithreading in `run_julia` to avoid crashes related to PyPlot
 #### Changed
 - update the script `create_sys_image` to support both Julia 1.10 and Julia 1.11
 - add Aqua.jl for quality insurance
 - remove unused dependencies found by Aqua
-- bumped KiteUtils to 0.10.3
-- bumped KiteModels to 0.7
+- bump KiteUtils to 0.10.3
+- bump KiteModels to 0.7
 
 ### KiteControllers v0.2.13 2025-01-22
 #### Fixed
