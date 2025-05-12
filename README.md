@@ -78,7 +78,7 @@ include("examples/autopilot.jl")
 
 You get a menu with all the examples by typing:
 ```julia
-include("examples/menu.jl")
+menu()
 ```
 
 ## This package provides
