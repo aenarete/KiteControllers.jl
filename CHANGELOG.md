@@ -1,6 +1,8 @@
 # Changelog
 
 ### Unreleased
+#### Fixed
+- `plot_main` had wrong labels
 #### Added
 - add `yaw_rate` and `steering` to AoA plot
 #### Changed

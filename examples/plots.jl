@@ -47,7 +47,7 @@ function plot_main()
     global sl
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
-    display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(l_tether(sl)), force(sl), 
+    display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), l_tether(sl), force(sl), 
     v_reelout(sl), sl.cycle;
         ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]", "force [N]", "v_ro [m/s]", "cycle [-]"],
         yzoom=0.9, fig="main"))
