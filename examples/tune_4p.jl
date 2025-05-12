@@ -1,5 +1,8 @@
 # activate the test environment if needed
 using Pkg
+if VERSION.minor > 10
+    error("This example is only compatible with Julia 1.10!")
+end
 if ! ("BayesOpt" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
     # this will not work with Julia 1.11 or newer
