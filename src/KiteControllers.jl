@@ -63,6 +63,58 @@ include("flightpathcalculator2.jl")
 include("flightpathplanner2.jl")
 include("systemstatecontrol.jl")
 
+function copy_files(relpath, files)
+    if ! isdir(relpath) 
+        mkdir(relpath)
+    end
+    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", relpath)
+    for file in files
+        cp(joinpath(src_path, file), joinpath(relpath, file), force=true)
+        chmod(joinpath(relpath, file), 0o774)
+    end
+    files
+end
+
+"""
+    copy_examples()
+
+Copy all example scripts to the folder "examples"
+(it will be created if it doesn't exist).
+"""
+function copy_examples()
+    PATH = "examples"
+    if ! isdir(PATH) 
+        mkdir(PATH)
+    end
+    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", PATH)
+    copy_files("examples", readdir(src_path))
+end
+
+function copy_control_settings()
+    files = ["settings.yaml", "system.yaml", "fpc_settings_hydra20.yaml", "fpc_settings.yaml", 
+             "fpc_settings_hydra20_426.yaml", "fpp_settings_hydra20_920.yaml", "fpp_settings_hydra20.yaml",
+             "fpp_settings.yaml"]
+    dst_path = abspath(joinpath(pwd(), "data"))
+    copy_files("data", files)
+    set_data_path(joinpath(pwd(), "data"))
+    println("Copied $(length(files)) files to $(dst_path) !")
+end
+
+function install_examples(add_packages=true)
+    copy_examples()
+    copy_settings()
+    copy_control_settings()
+    if add_packages
+        Pkg.add("KiteUtils")
+        Pkg.add("KitePodModels")
+        Pkg.add("WinchModels")
+        Pkg.add("ControlPlots")
+        Pkg.add("LaTeXStrings")
+        Pkg.add("StatsBase")
+        Pkg.add("Timers")
+    end
+end
+
 precompile(SystemStateControl, (WCSettings,))
 precompile(on_parking, (SystemStateControl,))
 precompile(on_autopilot, (SystemStateControl,))
