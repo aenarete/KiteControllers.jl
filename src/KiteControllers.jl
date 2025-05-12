@@ -3,7 +3,7 @@ module KiteControllers
 using Reexport
 @reexport using KiteUtils
 using WinchModels, Parameters, Observables, StaticArrays, NLsolve, Printf
-using YAML, StructTypes, StatsBase
+using YAML, StructTypes, StatsBase, Pkg
 import Base.reset
 import JLD2
 
