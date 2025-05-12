@@ -93,7 +93,9 @@ end
 function copy_control_settings()
     files = ["settings.yaml", "system.yaml", "fpc_settings_hydra20.yaml", "fpc_settings.yaml", 
              "fpc_settings_hydra20_426.yaml", "fpp_settings_hydra20_920.yaml", "fpp_settings_hydra20.yaml",
-             "fpp_settings.yaml"]
+             "fpp_settings.yaml","gui.yaml.default", "hydra10_951.yml", "hydra20_426.yml", "hydra20_600.yml",
+             "hydra20_920.yml", "settings_hydra20_600.yaml", "settings_hydra20_920.yaml", "settings_hydra20.yaml"
+             "system_8000.yaml", "wc_settings_8000_426.yaml", "wc_settings_8000.yaml", "wc_settings.yaml"]
     dst_path = abspath(joinpath(pwd(), "data"))
     copy_files("data", files)
     set_data_path(joinpath(pwd(), "data"))
@@ -105,6 +107,7 @@ function install_examples(add_packages=true)
     copy_settings()
     copy_control_settings()
     if add_packages
+        Pkg.add("KiteViewers")
         Pkg.add("KiteUtils")
         Pkg.add("KitePodModels")
         Pkg.add("WinchModels")
