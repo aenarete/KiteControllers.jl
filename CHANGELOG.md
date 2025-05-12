@@ -1,11 +1,12 @@
 # Changelog
 
-### Unreleased
+### KiteControllers v0.2.15 2025-05-12
 #### Fixed
 - `plot_main` had wrong labels
 #### Added
 - add `yaw_rate` and `steering` to AoA plot
 #### Changed
+- removed outdated example `tune_4p.jl` from menu
 - the script create_sys_image now checks if the current Julia version is too old
 
 ### KiteControllers v0.2.14 2025-04-22
