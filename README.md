@@ -31,7 +31,7 @@ julia --project="."
 and then, on the Julia prompt enter:
 ```julia
 using Pkg
-pkg"add KiteControllers"
+pkg"add KiteControllers#main"
 ```
 You can run the tests with:
 ```julia
@@ -39,7 +39,7 @@ using Pkg
 pkg"test KiteControllers"
 ```
 To add the examples and install the packages needed by the examples, run:
-```
+```julia
 using KiteControllers
 KiteControllers.install_examples()
 ```
