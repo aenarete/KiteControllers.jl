@@ -50,7 +50,7 @@ to check out this project from git. You can do this with:
 ```bash
 git clone https://github.com/aenarete/KiteControllers.jl.git
 cd KiteControllers.jl
-git checkout v0.2.14
+git checkout v0.2.15
 ```
 For the checkout command, use the tag of the latest version.
 It is suggested to create a system image:
