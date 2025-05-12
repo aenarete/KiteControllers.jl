@@ -42,6 +42,7 @@ To add the examples and install the packages needed by the examples, run:
 ```julia
 using KiteControllers
 KiteControllers.install_examples()
+exit()
 ```
 </details>
 
