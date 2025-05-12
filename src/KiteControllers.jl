@@ -118,6 +118,7 @@ function install_examples(add_packages=true)
         Pkg.add("StatsBase")
         Pkg.add("Timers")
     end
+    mkpath("output")
 end
 
 precompile(SystemStateControl, (WCSettings,))
