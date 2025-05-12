@@ -38,6 +38,11 @@ You can run the tests with:
 using Pkg
 pkg"test KiteControllers"
 ```
+To add the examples and install the packages needed by the examples, run:
+```
+using KiteControllers
+KiteControllers.install_examples()
+```
 </details>
 
 <details>
@@ -67,12 +72,12 @@ On Linux you can install the `autopilot` GUI app as normal application with the 
 
 You can now start Julia with `./bin/run_julia` and execute the autopilot or any other of the examples with:
 ```julia
-include("example/autopilot.jl")
+include("examples/autopilot.jl")
 ```
 
-You get a menu with the examples by typing:
+You get a menu with all the examples by typing:
 ```julia
-menu()
+include("examples/menu.jl")
 ```
 
 ## This package provides
