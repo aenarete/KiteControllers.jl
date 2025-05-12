@@ -50,7 +50,7 @@ to check out this project from git. You can do this with:
 ```bash
 git clone https://github.com/aenarete/KiteControllers.jl.git
 cd KiteControllers.jl
-git checkout v0.2.9
+git checkout v0.2.14
 ```
 For the checkout command, use the tag of the latest version.
 It is suggested to create a system image:
@@ -68,6 +68,11 @@ On Linux you can install the `autopilot` GUI app as normal application with the 
 You can now start Julia with `./bin/run_julia` and execute the autopilot or any other of the examples with:
 ```julia
 include("example/autopilot.jl")
+```
+
+You get a menu with the examples by typing:
+```julia
+menu()
 ```
 
 ## This package provides
