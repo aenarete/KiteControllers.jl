@@ -26,9 +26,9 @@ It is suggested to use a local Julia environment. You can create it with:
 ```bash
 mkdir myproject
 cd myproject
-julia --project="."
+julia --project=.
 ```
-and then, on the Julia prompt enter:
+(don't forget typing the dot at the end), and then, on the Julia prompt enter:
 ```julia
 using Pkg
 pkg"add KiteControllers#main"
