@@ -1,4 +1,7 @@
 # Changelog
+### KiteControllers v0.2.16 2025-05-13
+#### Added
+- the function `install_examples()`
 
 ### KiteControllers v0.2.15 2025-05-12
 #### Fixed
