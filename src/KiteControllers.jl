@@ -5,7 +5,7 @@ using Reexport
 using WinchModels, Parameters, Observables, StaticArrays, NLsolve, Printf
 using YAML, StructTypes, StatsBase, Pkg
 @reexport using WinchControllers
-import WinchControllers: on_timer
+import WinchControllers: on_timer, calc_v_set
 import JLD2
 
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types
@@ -19,17 +19,14 @@ export saturate, @limit, wrap2pi                                       # utility
 export reset, calc_output, on_timer, select_b, select_c, get_state    # methods of Integrator, UnitDelay etc.
 export on_control_command, on_est_sysstate, on_timer, calc_steering   # methods of FlightPathController 
 export set_tracking, set_v_set, set_inactive, set_v_act, set_v_set_in # methods of SpeedController
-export get_v_set_out, get_v_error                                     # methods of SpeedController
 export set_force, get_acc, get_speed                                  # methods of Winch
 export set_v_act, set_reset, set_f_set, set_v_sw, get_f_err           # methods of LowerForceController
-export get_f_set_low                                                  # methods of LowerForceController
-export get_f_set_upper                                                # methods of UpperForceController
 export calc_vro, set_vset_pc                                          # functions for winch control
-export calc_v_set, get_set_force, get_status                          # methods of WinchController
+export calc_v_set, get_status                          # methods of WinchController
 export on_autopilot, on_parking, on_reelin, on_stop, on_new_systate   # methods of SystemStateControl
 export on_winchcontrol, get_depower                                   # methods of SystemStateControl
 export ssParking, ssPowerProduction, ssReelIn, ssManualOperation
-export update, observe!, moving_average
+export update, observe!
 
 abstract type AbstractForceController end
 const AFC = AbstractForceController
