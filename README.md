@@ -151,7 +151,7 @@ Prof.dr. H.G.C. (Henri) Werij, Dean of Aerospace Engineering
 [A Methodology for the Design of Kite-Power Control Systems](https://research.tudelft.nl/en/publications/a-methodology-for-the-design-of-kite-power-control-systems)
 
 ## Donations
-If you like this software, please consider donating to https://gofund.me/508e041b .
+If you like this software, please consider donating to https://gofund.me/bba01d43 .
 
 ## Related
 - [Research Fechner](https://research.tudelft.nl/en/publications/?search=wind+Fechner&pageSize=50&ordering=rating&descending=true) for the scientific background of this code
