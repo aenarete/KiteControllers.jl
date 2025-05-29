@@ -4,7 +4,8 @@ using Reexport
 @reexport using KiteUtils
 using WinchModels, Parameters, Observables, StaticArrays, NLsolve, Printf
 using YAML, StructTypes, StatsBase, Pkg
-import Base.reset
+@reexport using WinchControllers
+import WinchControllers: on_timer
 import JLD2
 
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types
@@ -49,14 +50,9 @@ function __init__()
     end
 end
 
-include("utils.jl")
-include("components.jl")
 include("fpc_settings.jl")
 include("flightpathcontroller.jl")
 include("kite_model.jl")
-include("wc_settings.jl")
-include("wc_components.jl")
-include("winchcontroller.jl")
 include("fpp_settings.jl")
 include("kiteobserver.jl")
 include("flightpathcalculator2.jl")
