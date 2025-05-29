@@ -2,7 +2,7 @@
 
 julia_version = "1.11.5"
 manifest_format = "2.0"
-project_hash = "521c3e5849054b5e68ac58611e1884983b9e3ea1"
+project_hash = "f1351aea766f52cecef33cd876917d5066f27a0b"
 
 [[deps.Accessors]]
 deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "MacroTools"]
@@ -918,6 +918,12 @@ deps = ["DataAPI", "InlineStrings", "Parsers"]
 git-tree-sha1 = "b1be2855ed9ed8eac54e5caff2afcdb442d52c23"
 uuid = "ea10d353-3f73-51f8-a26c-33c1cb351aa5"
 version = "1.4.2"
+
+[[deps.WinchControllers]]
+deps = ["DocStringExtensions", "KiteUtils", "LinearAlgebra", "NLsolve", "Parameters", "Pkg", "StaticArrays", "Statistics", "StructTypes", "Timers", "WinchModels", "YAML"]
+git-tree-sha1 = "383098982c16281992e97adf0054b61068096de9"
+uuid = "9e74470a-8ab1-4f32-b878-f32ebd236ea2"
+version = "0.5.2"
 
 [[deps.WinchModels]]
 deps = ["DiscretePIDs", "KiteUtils", "Parameters"]
