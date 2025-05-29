@@ -17,12 +17,12 @@ wc_settings:
     pf_low: 0.00014  # P constant of the lower force controller 0.013,  0.00014 also works
     if_low: 0.01125  # I constant of the lower force controller 0.0225, 0.01125 also works
 
-    df_low: 0.0001  # D constant of upper force controller 0.000017
-    nf_low:  0     # filter constant n of upper force controller
+    df_low: 0.0001   # D constant of upper force controller 0.000017
+    nf_low:  0       # filter constant n of upper force controller
     kbf_low: 8.0     # back calculation constant for the anti-windup loop of the lower force controller
     ktf_low: 8.0     # tracking constant of the lower force controller
     f_low: 350       # lower force limit [N]
-    f_reelin: 2000    # set force for reel-in phase [N]
+    f_reelin: 2000   # set force for reel-in phase [N]
     f_high: 7650     # upper force limit [N]
     pf_high: 0.0002304 # P constant of upper force controller
     if_high: 0.012     # I constant of upper force controller
