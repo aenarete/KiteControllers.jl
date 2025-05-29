@@ -25,10 +25,6 @@ jobs:
           - windows-latest
         arch:
           - x64
-        include:
-          - os: macOS-latest
-            arch: aarch64
-            version: 1
 
     steps:
       - name: Install matplotlib
