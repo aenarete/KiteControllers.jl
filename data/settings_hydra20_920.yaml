@@ -11,14 +11,14 @@ system:
     fixed_font: "Liberation Mono"  # name or filepath+filename of alternative fixed pitch font
 
 initial:
-    l_tether: 330.0        # initial tether length       [m]
-    elevation: 62.0        # initial elevation angle   [deg]
-    v_reel_out: 0.0        # initial reel out speed    [m/s]
-    depower:   25.0        # initial depower settings    [%]
+    l_tethers: [330.0]        # initial tether length       [m]
+    elevations: [62.0]        # initial elevation angle   [deg]
+    v_reel_outs: [0.0]        # initial reel out speed    [m/s]
+    depowers:   [25.0]        # initial depower settings    [%]
 
 solver:
     abs_tol: 0.0003        # absolute tolerance of the DAE solver [m, m/s]
-    rel_tol: 0.0005         # relative tolerance of the DAE solver [-]
+    rel_tol: 0.0005        # relative tolerance of the DAE solver [-]
     solver: "DFBDF"        # DAE solver, IDA or DFBDF or DImplicitEuler
     linear_solver: "GMRES" # can be GMRES or Dense or LapackDense (only for IDA)
     max_order: 4           # maximal order, usually between 3 and 5 (for IDA and DFBDF)
