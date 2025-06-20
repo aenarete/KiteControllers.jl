@@ -5,7 +5,7 @@ using Reexport
 using WinchModels, Parameters, Observables, StaticArrays, NLsolve, Printf
 using YAML, StructTypes, StatsBase, Pkg
 @reexport using WinchControllers
-import WinchControllers: on_timer, calc_v_set, get_state
+import WinchControllers: on_timer, calc_v_set, get_state, update
 import JLD2
 
 export Integrator, FlightPathController, FPCSettings, WCSettings    # types

@@ -27,7 +27,7 @@ kps4::KPS4 = KPS4(kcu)
 @assert set.sample_freq == 20
 wcs::WCSettings = WCSettings(dt = 1/set.sample_freq)
 @assert wc_settings() == "wc_settings.yaml"
-WinchControllers.update(wcs); wcs.dt = 1/set.sample_freq
+update(wcs); wcs.dt = 1/set.sample_freq
 fcs::FPCSettings = FPCSettings(dt = wcs.dt)
 @assert fpc_settings() == "fpc_settings.yaml"
 update(fcs); fcs.dt = wcs.dt
