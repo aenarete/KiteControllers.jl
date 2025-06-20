@@ -1,5 +1,5 @@
 # Changelog
-### Unreleased
+### KiteControllers v0.2.17 2025-06-20
 #### Changed
 - remove all code related to the winch controller and use the package WinchControllers instead
 - bump KiteUtils and KiteModels
