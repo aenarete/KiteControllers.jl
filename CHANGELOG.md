@@ -1,4 +1,10 @@
 # Changelog
+### Unreleased
+#### Changed
+- remove all code related to the winch controller and use the package WinchControllers instead
+- bump KiteUtils and KiteModels
+- update yaml files for new version of KiteUtils
+
 ### KiteControllers v0.2.16 2025-05-13
 #### Added
 - the function `install_examples()`
