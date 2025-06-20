@@ -25,7 +25,7 @@ end
 #     UP_TURN_LEFT               = 10
 #     UP_FLY_UP                  = 11 # ssWaitUntil
 #     DEPOWER                    = 12 # ssDepower
-#     POWER                      = 13 # ssPower
+#     KiteControllers.KiteControllers.KiteControllers.POWER                      = 13 # ssPower
 #     PARKING                    = 14 # ssParking
 
 

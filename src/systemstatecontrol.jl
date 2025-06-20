@@ -119,7 +119,7 @@ function switch(ssc::SystemStateControl, state)
         _switch(ssc.fpp, DEPOWER)
     elseif state == ssWinchControl
         on_new_system_state(ssc.fpp.fpca, state, true)
-        _switch(ssc.fpp, POWER)
+        _switch(ssc.fpp, KiteControllers.POWER)
     end
     if ssc.fpp.fpps.log_level > 1
         println("New system state: ", Symbol(ssc.state))
