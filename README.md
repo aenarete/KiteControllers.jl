@@ -7,7 +7,7 @@
 Discrete controllers for kite power systems.
 
 This package is part of Julia Kite Power Tools, which consists of the following packages:
-<p align="center"><img src="./docs/kite_power_tools.png" width="500" /></p>
+<p align="center"><img src="https://github.com/aenarete/KiteControllers.jl/blob/main/docs/kite_power_tools.png" width="500" /></p>
 
 ## Installation
 <details>
