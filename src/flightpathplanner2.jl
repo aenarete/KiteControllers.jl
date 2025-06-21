@@ -30,7 +30,7 @@ end
 function start(fpp::FlightPathPlanner, v_wind)
     if fpp.fpca._sys_state == ssManualOperation || fpp.fpca._sys_state == ssParking
         # see: Table 5.3
-        _switch(fpp, KiteControllers.KiteControllers.POWER)
+        _switch(fpp, KiteControllers.POWER)
     end
     set_v_wind_gnd(fpp.fpca, v_wind)
 end
@@ -85,7 +85,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
         end
     end
     fpp.last_phi = phi 
-    if state == KiteControllers.KiteControllers.POWER
+    if state == KiteControllers.POWER
         fpp.finish = false
         if (beta > fpp.fpca._beta_set + 25.0 + fpp.fpca._radius)
             if depower < fpp.u_d_ro + fpp.delta_depower + fpp.const_dd * (fpp.u_d_ri - fpp.u_d_ro - fpp.delta_depower)
@@ -143,7 +143,7 @@ function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, t
     # see: Table 5.3
     elseif state == DEPOWER && length < fpp.l_low
         fpp.fpca.fig8 = 0
-        _switch(fpp, KiteControllers.POWER)
+        _switch(fpp, POWER)
     end
     fpp.timeout += 1
 end
@@ -182,7 +182,7 @@ function _switch(fpp::FlightPathPlanner, state)
     psi_dot_turn = fpp.fpca._omega / fpp.fpca._radius # desired turn rate during the turns
     sys_state = fpp.fpca._sys_state
     # see Table 5.3
-    if state == KiteControllers.POWER
+    if state == POWER
         depower = fpp.u_d_ro + fpp.delta_depower
         sys_state = ssPower
     elseif state == UPPER_TURN

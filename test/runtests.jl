@@ -226,7 +226,7 @@ end
     height = 100.0
     time = 0.0
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
-    fpp._state = KiteControllers.POWER
+    fpp._state = POWER
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
     fpp._state = LOW_LEFT
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)
@@ -245,9 +245,9 @@ end
     fpp.count = 50
     KiteControllers.on_new_data(fpp, depower, length, heading, height, time)   
     KiteControllers.start(fpp, se().v_wind)
-    KiteControllers._switch(fpp, KiteControllers.POWER)
-    @test fpp._state == KiteControllers.POWER
-    KiteControllers._switch(fpp, KiteControllers.POWER)
+    KiteControllers._switch(fpp, POWER)
+    @test fpp._state == POWER
+    KiteControllers._switch(fpp, POWER)
     KiteControllers._switch(fpp, LOW_RIGHT)
     @test fpp._state == LOW_RIGHT
     KiteControllers._switch(fpp, LOW_TURN)
