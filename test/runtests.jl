@@ -161,7 +161,7 @@ end
     @test isnothing(v_set)
     kcu = KCU(se())
     kps4 = KPS4(kcu)
-    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.04)
+    integrator = KiteModels.init!(kps4, stiffness_factor=0.04)
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     v_set = calc_v_set(ssc)

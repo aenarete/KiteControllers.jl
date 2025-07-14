@@ -166,7 +166,7 @@ function simulate(integrator, stopped=true)
                 app.particles = app.set.segments + 5
                 app.logger = Logger(app.particles, app.steps)
                 log!(app.logger, sys_state)
-                integrator = KiteModels.init_sim!(app.kps4; delta=0.0005, stiffness_factor=0.5)
+                integrator = KiteModels.init!(app.kps4; delta=0.0005, stiffness_factor=0.5)
             end
             if mod(i, 100) == 0 && app.set.log_level > 0
                 println("Free memory: $(round(Sys.free_memory()/1e9, digits=1)) GB") 
@@ -296,7 +296,7 @@ function play(stopped=false)
         end
         KiteViewers.plot_file[]=DEFAULT_LOG
         on_parking(app.ssc)
-        integrator = KiteModels.init_sim!(app.kps4; delta=0.0005, stiffness_factor=0.5)
+        integrator = KiteModels.init!(app.kps4; delta=0.0005, stiffness_factor=0.5)
         if app.run == 0; toc(); end
         app.run += 1
         simulate(integrator, stopped)

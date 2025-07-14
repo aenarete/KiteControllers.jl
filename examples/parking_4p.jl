@@ -139,7 +139,7 @@ function simulate(integrator)
 end
 
 function play()
-    integrator = KiteModels.init_sim!(kps4, stiffness_factor=0.5)
+    integrator = KiteModels.init!(kps4, stiffness_factor=0.5)
     toc()
     simulate(integrator)
     GC.enable(true)

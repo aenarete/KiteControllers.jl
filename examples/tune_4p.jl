@@ -88,7 +88,7 @@ function test_parking(suppress_overshoot_factor = 3.0)
     clear!(kps4)
     KitePodModels.init_kcu!(kcu, set)
     AZIMUTH .= zeros(Int64(MAX_TIME/dt))
-    integrator = KiteModels.init_sim!(kps4, delta=0.1, stiffness_factor=1)
+    integrator = KiteModels.init!(kps4, delta=0.1, stiffness_factor=1)
     simulate(integrator)
     res = calc_res(AZIMUTH, suppress_overshoot_factor)
     if res < LAST_RES
