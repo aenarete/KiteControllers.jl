@@ -4,7 +4,6 @@ authors = ["Uwe Fechner <fechner@aenarete.eu> and contributors"]
 version = "0.2.18"
 
 [deps]
-AtmosphericModels = "c59cac55-771d-4f45-b14d-1c681463a295"
 DiscretePIDs = "c1363496-6848-4723-8758-079b737f6baf"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 KiteUtils = "90980105-b163-44e5-ba9f-8b1c83bb0533"
