@@ -1,4 +1,10 @@
 # Changelog
+### KiteControllers v0.2.18 2025-07-14
+#### Changed
+- update KiteModels to 0.9.0; this version supports turbulent wind fields
+#### Fixes
+- fix broken dependencies (KiteUtils)
+
 ### KiteControllers v0.2.17 2025-06-20
 #### Changed
 - remove all code related to the winch controller and use the package WinchControllers instead
