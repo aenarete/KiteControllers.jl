@@ -33,8 +33,8 @@ fi
 
 if test -f "bin/kps-image-${julia_major}-${branch}.so"; then
     echo "Found system image!"
-    PLOT=1 julia -J  bin/kps-image-${julia_major}-${branch}.so  $GCT --project -i -e 'using KiteControllers'
+    PLOT=1 julia +1.11 -J  bin/kps-image-${julia_major}-${branch}.so  $GCT --project -i -e 'using KiteControllers'
 else
-    PLOT=1 julia --project  $GCT -i -e 'using KiteControllers'
+    PLOT=1 julia +1.11 --project  $GCT -i -e 'using KiteControllers'
     # julia --project
 fi

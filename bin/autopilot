@@ -26,7 +26,7 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 echo "Lauching KiteController..."
 if test -f "bin/kps-image-${julia_major}-${branch}.so"; then
     echo "Found system image!"
-    julia -J  bin/kps-image-${julia_major}-${branch}.so -t $FAST_CORES,1 $GCT --project -e "push!(LOAD_PATH,joinpath(pwd(),\"src\"));include(\"./examples/autopilot.jl\")"
+    julia +1.11 -J  bin/kps-image-${julia_major}-${branch}.so -t $FAST_CORES,1 $GCT --project -e "push!(LOAD_PATH,joinpath(pwd(),\"src\"));include(\"./examples/autopilot.jl\")"
 else
-    julia --project -t $FAST_CORES,1 $GCT -e "push!(LOAD_PATH,joinpath(pwd(),\"src\"));include(\"./examples/autopilot.jl\")"
+    julia +1.11 --project -t $FAST_CORES,1 $GCT -e "push!(LOAD_PATH,joinpath(pwd(),\"src\"));include(\"./examples/autopilot.jl\")"
 fi
