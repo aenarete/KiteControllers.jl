@@ -88,8 +88,7 @@ function simulate(integrator)
     return 1
 end
 
-function test_parking(suppress_overshoot_factor = 3.0)
-    global LAST_RES
+function test_parking()
     clear!(kps4)
     KitePodModels.init_kcu!(kcu, set)
     integrator = KiteModels.init!(kps4, stiffness_factor=0.04)

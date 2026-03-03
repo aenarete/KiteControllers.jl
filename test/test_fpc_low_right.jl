@@ -1,7 +1,7 @@
 # activate the test environment if needed
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
+    Pkg.activate(@__DIR__)
 end
 using ControlPlots, KiteControllers, Timers; tic()
 
@@ -11,12 +11,12 @@ using ControlPlots, KiteControllers, Timers; tic()
 # 3. update u_d and v_reelout from logfile
 # test fails if we allow v_ro > 0
 
-using KiteUtils
 using ControlPlots, KiteControllers, KiteModels, KiteViewers
+using KiteUtils: Settings, load_settings
 
 PROJECT="system_8000.yaml"
 
-set = deepcopy(se(PROJECT))
+set::Settings = deepcopy(load_settings(PROJECT))
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 wcs::WCSettings   = WCSettings(true, dt = 1/set.sample_freq)
@@ -92,8 +92,7 @@ function simulate(integrator)
     return 1
 end
 
-function test_parking(suppress_overshoot_factor = 3.0)
-    global LAST_RES
+function test_parking()
     clear!(kps4)
     KitePodModels.init_kcu!(kcu, set)
     integrator = KiteModels.init!(kps4, stiffness_factor=0.04)
