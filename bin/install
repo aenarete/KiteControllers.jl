@@ -79,7 +79,20 @@ if [[ "$(uname -s)" == "Linux" ]]; then
     # FcConfigSetDefaultSubstitute added in 2.15). The dynamic linker reuses already-loaded
     # system libs instead of the bundled ones, so we force the bundled versions in first.
     _PRELOADS=()
-    _BUNDLED=$(find ~/.julia/artifacts -maxdepth 3 -name "libcrypto.so.3"   -path "*/lib/*" 2>/dev/null | head -1); [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    _BUNDLED=$(find ~/.julia/artifacts -maxdepth 3 -name "libcrypto.so.3" -path "*/lib/*" 2>/dev/null | head -1); [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    # Preload libintl and libiconv before libglib (libglib depends on both; system versions may be missing).
+    _BUNDLED=$(find ~/.julia/artifacts -maxdepth 3 -name "libintl.so.8" -path "*/lib/*" 2>/dev/null | head -1); [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    _BUNDLED=$(find ~/.julia/artifacts -maxdepth 3 -name "libiconv.so.2" -path "*/lib/*" 2>/dev/null | head -1); [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    # Pick the glib that exports g_string_copy (needed by libgobject >= 2.75).
+    # Must be loaded before libgobject; multiple versions may coexist.
+    _BUNDLED=""
+    for _gl in $(find ~/.julia/artifacts -maxdepth 3 -name "libglib-2.0.so.0" -path "*/lib/*" 2>/dev/null); do
+        if nm -D "$_gl" 2>/dev/null | grep -q g_string_copy; then
+            _BUNDLED="$_gl"
+            break
+        fi
+    done
+    [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
     # Pick the fontconfig that exports FcConfigSetDefaultSubstitute (needed by Pango >= 1.57).
     # Multiple artifact versions may coexist; `find | head -1` can return the wrong one.
     _BUNDLED=""
