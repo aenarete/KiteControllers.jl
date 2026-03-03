@@ -6,6 +6,38 @@ fi
 
 export MPLBACKEND=qt5agg
 
+if [[ "$(uname -s)" == "Linux" ]]; then
+    export FONTCONFIG_FILE=/etc/fonts/fonts.conf
+    # Preload Julia-bundled libraries to avoid version conflicts with older system libs.
+    _PRELOADS=()
+    _BUNDLED=$(find ~/.julia/artifacts -maxdepth 3 -name "libcrypto.so.3" -path "*/lib/*" 2>/dev/null | head -1); [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    # Preload libintl and libiconv before libglib (libglib depends on both; system versions may be missing).
+    _BUNDLED=$(find ~/.julia/artifacts -maxdepth 3 -name "libintl.so.8" -path "*/lib/*" 2>/dev/null | head -1); [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    _BUNDLED=$(find ~/.julia/artifacts -maxdepth 3 -name "libiconv.so.2" -path "*/lib/*" 2>/dev/null | head -1); [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    # Pick the glib that exports g_string_copy (needed by libgobject >= 2.75).
+    _BUNDLED=""
+    for _gl in $(find ~/.julia/artifacts -maxdepth 3 -name "libglib-2.0.so.0" -path "*/lib/*" 2>/dev/null); do
+        if nm -D "$_gl" 2>/dev/null | grep -q g_string_copy; then
+            _BUNDLED="$_gl"
+            break
+        fi
+    done
+    [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    # Pick the fontconfig that exports FcConfigSetDefaultSubstitute (needed by Pango >= 1.57).
+    _BUNDLED=""
+    for _fc in $(find ~/.julia/artifacts -maxdepth 3 -name "libfontconfig.so.1" -path "*/lib/*" 2>/dev/null); do
+        if nm -D "$_fc" 2>/dev/null | grep -q FcConfigSetDefaultSubstitute; then
+            _BUNDLED="$_fc"
+            break
+        fi
+    done
+    [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    if [[ ${#_PRELOADS[@]} -gt 0 ]]; then
+        export LD_PRELOAD=$(IFS=:; echo "${_PRELOADS[*]}")
+    fi
+    unset _PRELOADS _BUNDLED
+fi
+
 if command -v nproc &> /dev/null; then
     FAST_CORES=$(($(nproc) / 2 - 1))
 else
@@ -23,7 +55,7 @@ else
 fi
 branch=$(git rev-parse --abbrev-ref HEAD)
 
-echo "Lauching KiteController..."
+echo "Launching KiteController..."
 if test -f "bin/kps-image-${julia_major}-${branch}.so"; then
     echo "Found system image!"
     julia +1.11 -J  bin/kps-image-${julia_major}-${branch}.so -t $FAST_CORES,1 $GCT --project -e "push!(LOAD_PATH,joinpath(pwd(),\"src\"));include(\"./examples/autopilot.jl\")"
