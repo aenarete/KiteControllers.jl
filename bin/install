@@ -294,9 +294,12 @@ end
     fi
 else
     echo "Julia $julia_major: instantiating all sub-projects..."
-    # Resolve sub-projects independently to avoid version conflicts when the main
-    # manifest contains versions newer than the local registry snapshot.
+    # Seed sub-project manifests from the already-resolved main manifest so that
+    # path-sourced packages (e.g. KiteControllers) with tight compat requirements
+    # (e.g. KiteUtils = "0.11.1") can be satisfied without a registry lookup.
     rm -f examples/Manifest*.toml test/Manifest*.toml
+    cp "Manifest-v${julia_major}.toml" "examples/Manifest-v${julia_major}.toml"
+    cp "Manifest-v${julia_major}.toml" "test/Manifest-v${julia_major}.toml"
     _ec=0; julia --project=examples -e '
 using Pkg
 try
