@@ -43,7 +43,7 @@ end
 
 function solve(km::KiteModel)
     function residual!(F, x)
-        x0, x1, psi_dot = calc_x0_x1_psi_dot(km, x)
+        x0, x1, _ = calc_x0_x1_psi_dot(km, x)
         F[begin]   = (x0 - x[begin]) * 0.5
         F[begin+1] = (x1 - x[begin+1])
     end
@@ -54,12 +54,9 @@ function solve(km::KiteModel)
     res = nlsolve(residual!, [ km.x0; km.beta], ftol=1e-10)
     @assert converged(res)
     x = res.zero
-    x0, x1, psi_dot = calc_x0_x1_psi_dot(km, x)
-    km.psi_dot = psi_dot
-    km.psi = wrap2pi(x0)
-    km.x0 = x0
-    km.beta = x1
-    km.phi = calc_output(km.int_phi, -(sin(x0) * km.omega))
+    km.x0, km.beta, km.psi_dot = calc_x0_x1_psi_dot(km, x)
+    km.psi = wrap2pi(km.x0)
+    km.phi = calc_output(km.int_phi, -(sin(km.x0) * km.omega))
 end
 
 function on_timer(km::KiteModel)
