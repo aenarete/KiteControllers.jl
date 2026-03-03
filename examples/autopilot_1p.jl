@@ -47,7 +47,6 @@ function simulate(integrator)
     j=0; k=0
     GC.gc()
     max_time = 0
-    t_gc_tot = 0
     sys_state = SysState(kps3)
     on_new_systate(ssc, sys_state)
     while true
@@ -66,7 +65,7 @@ function simulate(integrator)
         # execute winch controller
         v_ro = calc_v_set(ssc)
         #
-        t_sim = @elapsed KiteModels.next_step!(kps3, integrator; set_speed=v_ro, dt=dt)
+        KiteModels.next_step!(kps3, integrator; set_speed=v_ro, dt=dt)
         sys_state = SysState(kps3)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
@@ -88,7 +87,6 @@ function simulate(integrator)
                 max_time = mtime
             end            
             start_time_ns = time_ns()
-            t_gc_tot = 0
         end
         if ! isopen(viewer.fig.scene) break end
         if i*dt > MAX_TIME break end
@@ -124,10 +122,10 @@ function autopilot()
     on_autopilot(ssc)
 end
 
-on(viewer.btn_PLAY.clicks) do c; async_play(); end
-on(viewer.btn_STOP.clicks) do c; stop(viewer); on_stop(ssc) end
-on(viewer.btn_PARKING.clicks) do c; parking(); end
-on(viewer.btn_AUTO.clicks) do c; autopilot(); end
+on(viewer.btn_PLAY.clicks) do _; async_play(); end
+on(viewer.btn_STOP.clicks) do _; stop(viewer); on_stop(ssc) end
+on(viewer.btn_PARKING.clicks) do _; parking(); end
+on(viewer.btn_AUTO.clicks) do _; autopilot(); end
 
 play()
 stop(viewer)

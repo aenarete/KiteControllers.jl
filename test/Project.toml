@@ -12,6 +12,7 @@ NativeFileDialog = "e1fe445b-aa65-4df4-81c1-2041507f0fd4"
 NonlinearSolve = "8913a72c-1f9b-4ce2-8d82-65094dcecaec"
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Timers = "21f18d07-b854-4dab-86f0-c15a3821819a"
 
 [sources]
 KiteControllers = {path = ".."}
