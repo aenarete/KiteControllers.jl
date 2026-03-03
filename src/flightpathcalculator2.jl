@@ -40,7 +40,7 @@ end
 #     A new flight path is calculated and published:
 #     a) at the beginning of the reel-out phase (when the method onNewSystemState(ssIntermediate) is called )
 #     b) when the set value of the elevation changes (call of the method publish(beta_set))
-#     See also: docs/planned_fligh_path.png
+#     See also: docs/planned_flight_path.png
 @with_kw mutable struct FlightPathCalculator @deftype Float64
     fpc::FlightPathController
     fpps::FPPSettings
