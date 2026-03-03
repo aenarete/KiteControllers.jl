@@ -83,7 +83,7 @@ docs/flight_path_controller_III.png
     int2::Integrator                           = Integrator(fcs.dt)
     "anti-windup gain for limited steering signal"
     k_u                                        =  5.0
-    "anti-windup gatin for limited turn rate"
+    "anti-windup gain for limited turn rate"
     k_psi                                      = 10.0
     "heading/ course error (input of the PID controller)"
     err                                        =  0
@@ -296,9 +296,9 @@ function calc_sat1in_sat1out_sat2in_sat2out(fpc::FlightPathController, x)
     # calculate P, I, D output
     sat1_in = (fpc.fcs.p * fpc.err + int_out + int2_in) * fpc.fcs.gain
 
-    # calcuate saturated set value of the turn rate psi_dot
+    # calculate saturated set value of the turn rate psi_dot
     sat1_out = saturate(sat1_in, -fpc.psi_dot_max, fpc.psi_dot_max)
-    # nonlinar inversion
+    # nonlinear inversion
     sat2_in = linearize(fpc, sat1_out)
     # calculate the saturated set value of the steering
     sat2_out = saturate(sat2_in, -fpc.u_s_max, fpc.u_s_max)
