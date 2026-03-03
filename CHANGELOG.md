@@ -1,4 +1,13 @@
 # Changelog
+
+### KiteControllers v0.2.19
+#### Changed
+- TestEnv is not used any more
+- use subprojects
+- add `.JETLSConfig.toml.default` for new linter
+- fix linter warnings
+- update packages; the performance increased a lot
+
 ### KiteControllers v0.2.18 2025-07-14
 #### Changed
 - update KiteModels to 0.9.0; this version supports turbulent wind fields
