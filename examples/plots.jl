@@ -3,7 +3,7 @@ function l_tether(sl)
 end
 
 function force(sl)
-    hcat(sl.force...)[1,:]
+    hcat(sl.winch_force...)[1,:]
 end
 
 function v_reelout(sl)

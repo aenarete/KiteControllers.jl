@@ -60,7 +60,7 @@ function calc_v_set(ssc::SystemStateControl)
     else
         f_low = ssc.wc.wcs.f_low
     end
-    force = ssc.sys_state.force[1]
+    force = ssc.sys_state.winch_force[1]
     v_act = ssc.sys_state.v_reelout[1]
     if ssc.state in [ssParking, ssManualOperation]
         f_low = ssc.wc.wcs.f_low

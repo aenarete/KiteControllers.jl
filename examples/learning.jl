@@ -80,7 +80,7 @@ function residual(corr_vec=nothing; sim_time=500)
             t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
             sys_state = KiteModels.SysState(kps4)
             on_new_systate(ssc, sys_state)
-            e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt
+            e_mech += (sys_state.winch_force[1] * sys_state.v_reelout)/3600*dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(ssc.fpp._state)
             sys_state.var_01 = ssc.fpp.fpca.cycle

@@ -66,7 +66,7 @@ function simulate(integrator)
         end
         sys_state = SysState(kps4)
         on_new_systate(ssc, sys_state)
-        e_mech += (sys_state.force * sys_state.v_reelout)/3600*dt
+        e_mech += (sys_state.winch_force[1] * sys_state.v_reelout)/3600*dt
         sys_state.e_mech = e_mech
         if mod(i, TIME_LAPSE_RATIO) == 0
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
