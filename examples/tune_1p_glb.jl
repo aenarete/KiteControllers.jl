@@ -1,7 +1,7 @@
 # activate the test environment if needed
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
+    Pkg.activate(@__DIR__)
     Pkg.add("BlackBoxOptim")
 end
 
@@ -154,7 +154,7 @@ function est_noise(n=10)
     # println(res)
     avg = sum(res)/n
     noise = res .- avg
-    rel_noise = sum(abs2.(noise) / abs2(avg))/n
+    sum(abs2.(noise) / abs2(avg))/n
 end
 
 function plot_res()

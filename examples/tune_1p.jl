@@ -4,7 +4,7 @@ if VERSION.minor > 10
     error("This example is only compatible with Julia 1.10!")
 end
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
+    Pkg.activate(@__DIR__)
     Pkg.add("BayesOpt")
 end
 

@@ -1,7 +1,7 @@
 # activate the test environment if needed
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
+    Pkg.activate(@__DIR__)
 end
 using Timers; tic()
 
@@ -13,9 +13,6 @@ using Printf, LinearAlgebra
 import KiteViewers.GLMakie
 import KiteViewers.GLMakie.GLFW
 import KiteControllers.YAML
-if false; include("../src/flightpathcontroller.jl"); end
-if false; include("../src/flightpathcalculator2.jl"); end
-if false; include("../src/systemstatecontrol.jl"); end
 
 function read_project()
     config_file = joinpath(get_data_path(), "gui.yaml")

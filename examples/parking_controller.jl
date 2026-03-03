@@ -3,7 +3,7 @@
 module ParkingControllers
 
 using DiscretePIDs, Parameters, Test
-import KiteControllers: wrap2pi
+import KiteUtils: wrap2pi
 
 @with_kw mutable struct ParkingControllerSettings @deftype Float64
     dt

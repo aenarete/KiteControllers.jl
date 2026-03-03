@@ -1,13 +1,14 @@
 # activate the test environment if needed
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
+    Pkg.activate(@__DIR__)
 end
 using Timers; tic()
 
 using KiteControllers, KiteViewers, KiteModels, Rotations
+using KiteUtils: Settings, load_settings
 
-set = deepcopy(load_settings("system.yaml"))
+set::Settings = deepcopy(load_settings("system.yaml"))
 
 kcu::KCU = KCU(set)
 kps3::KPS3 = KPS3(kcu)

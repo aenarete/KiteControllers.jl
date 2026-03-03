@@ -4,7 +4,7 @@ if VERSION.minor > 10
     error("This example is only compatible with Julia 1.10!")
 end
 if ! ("BayesOpt" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
+    Pkg.activate(@__DIR__)
     # this will not work with Julia 1.11 or newer
     Pkg.add("BayesOpt")
 end
@@ -123,7 +123,7 @@ function tune_4p()
     # println(config.n_inner_iterations)
     lowerbound = [0.1, 7.]; upperbound = [1.5, 16.]
     optimizer, optimum = bayes_optimization(f, lowerbound, upperbound, config)
-    println("Opimal parameters: p = $(optimizer[1]),  d = $(optimizer[2])")
+    println("Optimal parameters: p = $(optimizer[1]),  d = $(optimizer[2])")
     println("Optimum value    : $(optimum)")
 end
 

@@ -1,18 +1,17 @@
 # park the kind while the wind direction changes
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using Pkg
-    using TestEnv; TestEnv.activate()
+    Pkg.activate(@__DIR__)
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, ControlPlots, Rotations, StatsBase
-import KiteControllers: calc_steering
+using ControlPlots, KiteControllers, KiteModels, KiteViewers, Rotations, Statistics
+using KiteUtils: Settings, load_settings
 
-if haskey(ENV, "USE_V9")
-    set = deepcopy(load_settings("system_v9.yaml"))
+set::Settings = if haskey(ENV, "USE_V9")
+    deepcopy(load_settings("system_v9.yaml"))
 else
-    set = deepcopy(load_settings("system.yaml"))
+    deepcopy(load_settings("system.yaml"))
 end
 set.abs_tol=0.00006
 set.rel_tol=0.0001

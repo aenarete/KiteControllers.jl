@@ -1,12 +1,14 @@
 # activate the test environment if needed
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
+    Pkg.activate(@__DIR__)
 end
 using Timers; tic()
 
-using KiteViewers, KiteModels, ControlPlots, Rotations
-set = deepcopy(load_settings("system.yaml"))
+using ControlPlots, KiteModels, KiteViewers, Rotations
+using KiteUtils: Settings, load_settings
+
+set::Settings = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 set.v_wind = 10 # v_min1 6-25; v_min2 5.3-30

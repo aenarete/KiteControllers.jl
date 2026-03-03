@@ -7,10 +7,9 @@
 # activate the test environment if needed
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
-    # pkg"add KiteModels#main"
+    Pkg.activate(@__DIR__)
 end
-using KiteModels, KiteControllers
+using KiteControllers, KiteModels
 
 function read_project()
     config_file = joinpath(get_data_path(), "gui.yaml")
