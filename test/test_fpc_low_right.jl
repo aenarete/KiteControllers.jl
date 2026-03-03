@@ -3,9 +3,7 @@ using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     using TestEnv; TestEnv.activate()
 end
-using KiteControllers, Timers, ControlPlots; tic()
-if false; include("../src/flightpathcontroller.jl"); end
-if false; include("../src/flightpathcalculator2.jl"); end
+using ControlPlots, KiteControllers, Timers; tic()
 
 # Test the flight path controller against the real 4point kite
 # 1. use initial condition from failure_low_right.arrow at 226.0s
@@ -14,7 +12,7 @@ if false; include("../src/flightpathcalculator2.jl"); end
 # test fails if we allow v_ro > 0
 
 using KiteUtils
-using KiteControllers, KiteModels, KiteViewers, ControlPlots
+using ControlPlots, KiteControllers, KiteModels, KiteViewers
 
 PROJECT="system_8000.yaml"
 
