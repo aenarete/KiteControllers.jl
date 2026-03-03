@@ -1,11 +1,12 @@
 # activate the test environment if needed
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
+     Pkg.activate(@__DIR__)
 end
-using KiteControllers, ControlPlots, Timers; tic()
+using ControlPlots, KiteControllers, Timers; tic()
+using KiteUtils: Settings, load_settings
 
-set = deepcopy(load_settings("system.yaml"))
+set::Settings = deepcopy(load_settings("system.yaml"))
 set.sample_freq = 50
 
 fcs::FPCSettings = FPCSettings(dt=1/set.sample_freq)

@@ -1,20 +1,20 @@
 # activate the test environment if needed
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
+     Pkg.activate(@__DIR__)
 end
-using KiteControllers, Timers, ControlPlots; tic()
+using ControlPlots, KiteControllers, Timers; tic()
+using KiteUtils: Settings, load_settings
 
 # Test the flight path controller against the real 4point kite
 # 1. park
 # 2. fly towards attractor point P1
 
-using KiteUtils
 using KiteControllers, KiteModels, KiteViewers
 
 PROJECT="system_8000.yaml"
 
-set = deepcopy(se(PROJECT))
+set::Settings = deepcopy(load_settings(PROJECT))
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 wcs::WCSettings   = WCSettings(dt=0.02);  wcs.dt = 1/set.sample_freq
