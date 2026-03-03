@@ -1,0 +1,469 @@
+#!/bin/bash -eu
+# SPDX-FileCopyrightText: 2025 Uwe Fechner
+# SPDX-License-Identifier: MIT
+
+if [[ $(basename $(pwd)) == "bin" ]]; then
+    cd ..
+fi
+
+# Check if juliaup is installed
+if ! command -v juliaup &> /dev/null; then
+    echo "Error: juliaup is not installed. Please install it first."
+    case "$(uname -s)" in
+        Linux|Darwin)
+            echo "  curl -fsSL https://install.julialang.org | sh -s -- --default-channel 1.11"
+            ;;
+        MINGW*|MSYS*|CYGWIN*)
+            echo "  winget install --name Julia --id 9NJNWW8PVKMN -e -s msstore"
+            ;;
+        *)
+            echo "  See https://github.com/JuliaLang/juliaup for installation instructions."
+            ;;
+    esac
+    exit 1
+fi
+
+# Check available disk space in home directory (require at least 5 GB)
+_required_kb=$((5 * 1024 * 1024))
+_available_kb=$(df -k "$HOME" | awk 'NR==2 {print $4}')
+if [[ -z "${_available_kb:-}" ]]; then
+    echo "Error: Could not determine free disk space for $HOME."
+    exit 1
+fi
+if (( _available_kb < _required_kb )); then
+    _available_gb=$(awk -v kb="$_available_kb" 'BEGIN {printf "%.2f", kb/1024/1024}')
+    echo "Error: Not enough free disk space in $HOME."
+    echo "At least 5.00 GB required, found ${_available_gb} GB."
+    exit 1
+fi
+unset _required_kb _available_kb _available_gb
+
+# Ask which Julia version to use
+echo "Which Julia version do you want to use?"
+echo "  1) Julia 1.11"
+echo "  2) Julia 1.12"
+read -rp "Enter 1 or 2 [default: 1]: " _julia_choice
+case "${_julia_choice}" in
+    1|"")
+        _desired_julia="1.11"
+        ;;
+    2)
+        _desired_julia="1.12"
+        ;;
+    *)
+        echo "Invalid choice: '${_julia_choice}'. Please enter 1 or 2."
+        exit 1
+        ;;
+esac
+echo "Installing and activating Julia ${_desired_julia}..."
+juliaup add "${_desired_julia}"
+juliaup default "${_desired_julia}"
+echo "Julia ${_desired_julia} is now the default."
+echo
+
+# Detect Julia version
+julia_version=$(julia --version | awk '{print($3)}')
+julia_major=${julia_version:0:3}
+if [[ $julia_major == "1.1" ]]; then
+    julia_major=${julia_version:0:4}
+fi
+
+echo "Detected Julia version: $julia_version (major: $julia_major)"
+
+export JULIA_PKG_SERVER_REGISTRY_PREFERENCE=eager
+
+if [[ "$(uname -s)" == "Linux" ]]; then
+    export FONTCONFIG_FILE=/etc/fonts/fonts.conf
+    # Preload Julia-bundled libraries to avoid version conflicts with older system libs.
+    # On Ubuntu 22.04: OpenSSL 3.0.2 (artifacts need 3.3+), fontconfig 2.13 (missing
+    # FcConfigSetDefaultSubstitute added in 2.15). The dynamic linker reuses already-loaded
+    # system libs instead of the bundled ones, so we force the bundled versions in first.
+    _PRELOADS=()
+    _BUNDLED=$(find ~/.julia/artifacts -maxdepth 3 -name "libcrypto.so.3"   -path "*/lib/*" 2>/dev/null | head -1); [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    # Pick the fontconfig that exports FcConfigSetDefaultSubstitute (needed by Pango >= 1.57).
+    # Multiple artifact versions may coexist; `find | head -1` can return the wrong one.
+    _BUNDLED=""
+    for _fc in $(find ~/.julia/artifacts -maxdepth 3 -name "libfontconfig.so.1" -path "*/lib/*" 2>/dev/null); do
+        if nm -D "$_fc" 2>/dev/null | grep -q FcConfigSetDefaultSubstitute; then
+            _BUNDLED="$_fc"
+            break
+        fi
+    done
+    [[ -n "$_BUNDLED" ]] && _PRELOADS+=("$_BUNDLED")
+    if [[ ${#_PRELOADS[@]} -gt 0 ]]; then
+        export LD_PRELOAD=$(IFS=:; echo "${_PRELOADS[*]}")
+    fi
+    unset _PRELOADS _BUNDLED
+fi
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    # Avoid Tk backend issues on macOS (e.g. non-responsive close button in PyPlot windows).
+    # Keep user override if MPLBACKEND is already set.
+    if [[ -z "${MPLBACKEND:-}" ]]; then
+        export MPLBACKEND=qtagg
+    fi
+fi
+
+# Detect current git branch
+if [ -d .git ] || git rev-parse --git-dir > /dev/null 2>&1 ; then
+    branch=$(git rev-parse --abbrev-ref HEAD | sed 's/\//-/g')
+else
+    branch=""
+fi
+
+# Delete any existing custom system image for this Julia version and branch
+if [[ $branch != "" ]]; then
+    SOFILE="bin/kps-image-${julia_major}-${branch}.so"
+else
+    SOFILE="bin/kps-image-${julia_major}.so"
+fi
+if test -f "$SOFILE"; then
+    echo "Deleting old system image: $SOFILE"
+    rm -f "$SOFILE"
+fi
+
+# Only accept Julia 1.11 and 1.12
+if [[ $julia_major != "1.11" ]] && [[ $julia_major != "1.12" ]]; then
+    echo "Error: Julia $julia_major is not supported. Only Julia 1.11 and 1.12 are supported."
+    echo "You can install Julia 1.11 with the following commands:"
+    echo "juliaup add 1.11"
+    echo "juliaup default 1.11"
+    exit 1
+fi
+
+# Copy the appropriate default manifest
+if [[ $julia_major == "1.11" ]]; then
+    if [ -f "Manifest-v1.11.toml.default" ]; then
+        cp Manifest-v1.11.toml.default Manifest-v1.11.toml
+        echo "Copied Manifest-v1.11.toml.default to Manifest-v1.11.toml"
+    else
+        echo "Warning: Manifest-v1.11.toml.default not found"
+        exit 1
+    fi
+else
+    # Default to 1.12 for newer versions
+    if [ -f "Manifest-v1.12.toml.default" ]; then
+        cp Manifest-v1.12.toml.default Manifest-v1.12.toml
+        echo "Copied Manifest-v1.12.toml.default to Manifest-v1.12.toml"
+    else
+        echo "Warning: Manifest-v1.12.toml.default not found"
+        exit 1
+    fi
+fi
+
+# Remove any existing Manifest.toml symlink (left by a previous install run) so Julia
+# creates a fresh regular file rather than writing through the old symlink.
+# Also remove the version-specific symlink if it is a symlink (not a real file), to
+# prevent Julia from writing through it into the wrong manifest.
+if [ -L "Manifest.toml" ]; then
+    rm -f Manifest.toml
+    echo "Removed stale symlink Manifest.toml"
+fi
+if [ -L "Manifest-v${julia_major}.toml" ]; then
+    rm -f "Manifest-v${julia_major}.toml"
+    echo "Removed stale symlink Manifest-v${julia_major}.toml"
+fi
+
+# Instantiate the project
+FAILED_RESOLVES=()
+RETRIED_RESOLVES=()
+echo "Instantiating project..."
+_ec=0; julia --project -e '
+using Pkg
+# Always resolve first so the manifest is regenerated for the current Julia version.
+# This avoids failures when the .default manifest was created with a different Julia
+# version (e.g. 1.12 manifest used with Julia 1.11 would reference missing stdlibs).
+function ensure_general_registry()
+    regs = try
+        Pkg.Registry.reachable_registries()
+    catch
+        Pkg.Registry.update()
+        Pkg.Registry.reachable_registries()
+    end
+    if !any(r -> r.name == "General", regs)
+        Pkg.Registry.add("General")
+    else
+        Pkg.Registry.update()
+    end
+end
+
+try
+    ensure_general_registry()
+    Pkg.resolve()
+    Pkg.instantiate()
+catch e
+    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
+    proj_dir = dirname(Base.active_project())
+    # Remove all manifest files to force a completely clean resolve
+    for f in readdir(proj_dir)
+        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
+            rm(joinpath(proj_dir, f), force=true)
+        end
+    end
+    ensure_general_registry()
+    Pkg.resolve()
+    Pkg.instantiate()
+    exit(2)
+end
+' || _ec=$?
+if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("main project")
+elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("main project"); fi
+# If Pkg.resolve() created a plain Manifest.toml (Julia 1.12 behavior), rename it
+# to the version-specific filename so the rest of the scripts stay consistent.
+if [ -f "Manifest.toml" ]; then
+    mv Manifest.toml "Manifest-v${julia_major}.toml"
+    echo "Renamed Manifest.toml to Manifest-v${julia_major}.toml"
+fi
+echo "Precompiling main project..."
+julia --project -e 'using Pkg; Pkg.precompile()'
+
+# Instantiate sub-projects: examples and test
+if [[ $julia_major == "1.11" ]]; then
+    echo "Instantiating examples and test project for Julia $julia_major..."
+    # Resolve sub-projects independently to avoid version conflicts when the main
+    # manifest contains versions newer than the local registry snapshot.
+    rm -f examples/Manifest*.toml test/Manifest*.toml
+    cp Manifest-v1.11.toml examples/Manifest-v1.11.toml
+    cp Manifest-v1.11.toml test/Manifest-v1.11.toml
+    _ec=0; julia --project=examples -e '
+using Pkg
+try
+    Pkg.resolve()
+    Pkg.instantiate()
+catch e
+    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
+    proj_dir = dirname(Base.active_project())
+    for f in readdir(proj_dir)
+        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
+            rm(joinpath(proj_dir, f), force=true)
+        end
+    end
+    Pkg.resolve()
+    Pkg.instantiate()
+    exit(2)
+end
+' || _ec=$?
+    if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("examples (1.11)")
+    elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("examples (1.11)"); fi
+    echo "Precompiling examples project..."
+    julia --project=examples -e 'using Pkg; Pkg.precompile()'
+    _ec=0; julia --project=test -e '
+using Pkg
+try
+    Pkg.resolve()
+    Pkg.instantiate()
+catch e
+    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
+    proj_dir = dirname(Base.active_project())
+    for f in readdir(proj_dir)
+        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
+            rm(joinpath(proj_dir, f), force=true)
+        end
+    end
+    Pkg.resolve()
+    Pkg.instantiate()
+    exit(2)
+end
+' || _ec=$?
+    if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("test (1.11)")
+    elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("test (1.11)"); fi
+    echo "Precompiling test project..."
+    julia --project=test -e 'using Pkg; Pkg.precompile()'
+
+    # Rename the manifest file to version-specific name
+    if [ -f "examples/Manifest.toml" ]; then
+        mv examples/Manifest.toml examples/Manifest-v${julia_major}.toml
+        echo "Renamed examples/Manifest.toml to examples/Manifest-v${julia_major}.toml"
+    fi
+    if [ -f "test/Manifest.toml" ]; then
+        mv test/Manifest.toml test/Manifest-v${julia_major}.toml
+        echo "Renamed test/Manifest.toml to test/Manifest-v${julia_major}.toml"
+    fi
+else
+    echo "Julia $julia_major: instantiating all sub-projects..."
+    # Resolve sub-projects independently to avoid version conflicts when the main
+    # manifest contains versions newer than the local registry snapshot.
+    rm -f examples/Manifest*.toml test/Manifest*.toml
+    _ec=0; julia --project=examples -e '
+using Pkg
+try
+    Pkg.resolve()
+    Pkg.instantiate()
+catch e
+    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
+    proj_dir = dirname(Base.active_project())
+    for f in readdir(proj_dir)
+        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
+            rm(joinpath(proj_dir, f), force=true)
+        end
+    end
+    Pkg.resolve()
+    Pkg.instantiate()
+    exit(2)
+end
+' || _ec=$?
+    if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("examples (1.12)")
+    elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("examples (1.12)"); fi
+    echo "Precompiling examples project..."
+    julia --project=examples -e 'using Pkg; Pkg.precompile()'
+    _ec=0; julia --project=test -e '
+using Pkg
+try
+    Pkg.resolve()
+    Pkg.instantiate()
+catch e
+    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
+    proj_dir = dirname(Base.active_project())
+    for f in readdir(proj_dir)
+        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
+            rm(joinpath(proj_dir, f), force=true)
+        end
+    end
+    Pkg.resolve()
+    Pkg.instantiate()
+    exit(2)
+end
+' || _ec=$?
+    if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("test (1.12)")
+    elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("test (1.12)"); fi
+    echo "Precompiling test project and running the tests..."
+    julia --project=test -e 'using Pkg; Pkg.precompile()'
+    julia --project -e 'using Pkg; Pkg.test()'
+    if [ -f "examples/Manifest.toml" ]; then
+        mv examples/Manifest.toml examples/Manifest-v${julia_major}.toml
+        echo "Renamed examples/Manifest.toml to examples/Manifest-v${julia_major}.toml"
+    fi
+    if [ -f "test/Manifest.toml" ]; then
+        mv test/Manifest.toml test/Manifest-v${julia_major}.toml
+        echo "Renamed test/Manifest.toml to test/Manifest-v${julia_major}.toml"
+    fi
+fi
+julia --project=examples -e 'using KiteControllers, KiteViewers, ControlPlots'
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    if julia -e '
+try
+    using PyCall
+    pyimport("matplotlib")
+    pyimport("matplotlib.backends.backend_qtagg")
+catch
+    exit(1)
+end
+'; then
+        echo
+        echo "QtAgg already installed; skipping QtAgg dependency installation."
+    else
+        echo
+        echo "Installing QtAgg dependencies for PyPlot on macOS..."
+        julia -e '
+using Pkg
+
+for pkg in ["PyCall", "PyPlot", "Conda"]
+    if Base.find_package(pkg) === nothing
+        Pkg.add(pkg)
+    end
+end
+
+if get(ENV, "PYTHON", nothing) != ""
+    ENV["PYTHON"] = ""
+    Pkg.build("PyCall")
+end
+
+using Conda
+Conda.add("matplotlib")
+Conda.add("pyqt")
+
+Pkg.build("PyPlot")
+
+println("Installed matplotlib + pyqt in Conda.jl environment.")
+println("QtAgg should now be available for matplotlib/PyPlot.jl.")
+'
+    fi
+fi
+
+echo
+if [[ ${#FAILED_RESOLVES[@]} -eq 0 && ${#RETRIED_RESOLVES[@]} -eq 0 ]]; then
+    echo "Resolve/instantiate report: all resolve calls succeeded on the first attempt."
+elif [[ ${#FAILED_RESOLVES[@]} -eq 0 ]]; then
+    echo "Resolve/instantiate report: all resolve calls succeeded, but the following needed a clean retry"
+    echo "  (original pinned package versions were NOT used):"
+    for _label in "${RETRIED_RESOLVES[@]}"; do
+        echo "  - ${_label}"
+    done
+else
+    echo "Resolve/instantiate report: the following resolve calls FAILED:"
+    for _label in "${FAILED_RESOLVES[@]}"; do
+        echo "  - ${_label}"
+    done
+    if [[ ${#RETRIED_RESOLVES[@]} -gt 0 ]]; then
+        echo "  The following needed a clean retry (original pinned package versions were NOT used):"
+        for _label in "${RETRIED_RESOLVES[@]}"; do
+            echo "  - ${_label}"
+        done
+    fi
+fi
+
+# Handle .JETLSConfig.toml configuration file
+_jetls_warning=0
+if [ ! -f ".JETLSConfig.toml" ]; then
+    if [ -f ".JETLSConfig.toml.default" ]; then
+        cp .JETLSConfig.toml.default .JETLSConfig.toml
+        echo "Copied .JETLSConfig.toml.default to .JETLSConfig.toml"
+    else
+        echo "Warning: .JETLSConfig.toml.default not found"
+    fi
+else
+    # Only warn if the files differ
+    if [ -f ".JETLSConfig.toml.default" ]; then
+        if ! cmp -s ".JETLSConfig.toml" ".JETLSConfig.toml.default"; then
+            _jetls_warning=1
+        fi
+    fi
+fi
+
+echo
+printf "\033[1;32mInstallation complete!\033[0m\n"
+echo
+echo "You can now launch Julia by typing"
+echo "cd .."
+echo "bin/run_julia"
+echo "and then get the menu with the examples by typing:"
+echo "menu()"
+
+# Add alias to shell configuration file
+if [[ "$(uname -s)" == "Linux" && -f ~/.bashrc ]]; then
+    if ! grep -q "alias jl='bin/run_julia'" ~/.bashrc; then
+        echo "alias jl='bin/run_julia'" >> ~/.bashrc
+        echo
+        echo "Added alias 'jl' to ~/.bashrc"
+        echo "Run 'source ~/.bashrc' or restart your terminal to use it"
+    fi
+elif [[ "$(uname -s)" == "Darwin" ]]; then
+    # On macOS, check for zsh (default since Catalina) or bash configuration files
+    _config_file=""
+    if [[ -f ~/.zshrc ]]; then
+        _config_file=~/.zshrc
+    elif [[ -f ~/.bash_profile ]]; then
+        _config_file=~/.bash_profile
+    elif [[ -f ~/.bashrc ]]; then
+        _config_file=~/.bashrc
+    fi
+
+    if [[ -n "$_config_file" ]]; then
+        if ! grep -q "alias jl='bin/run_julia'" "$_config_file"; then
+            echo "alias jl='bin/run_julia'" >> "$_config_file"
+            echo
+            echo "Added alias 'jl' to $_config_file"
+            echo "Run 'source $_config_file' or restart your terminal to use it"
+        fi
+    fi
+    unset _config_file
+fi
+
+echo
+
+# Warn if .JETLSConfig.toml already existed
+if [[ $_jetls_warning -eq 1 ]]; then
+    echo "Warning: .JETLSConfig.toml already exists and was not overwritten."
+    echo "If you want to use the default configuration, delete it and run this script again."
+fi
