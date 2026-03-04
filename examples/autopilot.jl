@@ -10,6 +10,7 @@ DRAG_CORR::Float64 = 0.93
 
 using ControlPlots, KiteControllers, KiteModels, KiteViewers, LaTeXStrings, NativeFileDialog, Statistics
 using LinearAlgebra, Printf
+using KiteViewers: Viewer3D
 import KiteViewers.GLMakie
 import KiteViewers.GLMakie.GLFW
 import KiteControllers.YAML
@@ -340,12 +341,12 @@ function stop_()
     end
     clear_viewer(app.viewer)
 end
-
+c
 stop_()
-on(app.viewer.btn_PARKING.clicks) do c; parking(); end
-on(app.viewer.btn_AUTO.clicks) do c; autopilot(); end
-on(app.viewer.btn_STOP.clicks) do c; stop_(); end
-on(app.viewer.btn_PLAY.clicks) do c;
+on(app.viewer.btn_PARKING.clicks) do _; parking(); end
+on(app.viewer.btn_AUTO.clicks) do _; autopilot(); end
+on(app.viewer.btn_STOP.clicks) do _; stop_(); end
+on(app.viewer.btn_PLAY.clicks) do _;
     if ! app.viewer.stop
         app.parking = false
     end
