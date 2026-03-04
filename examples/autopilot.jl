@@ -68,7 +68,7 @@ function init(app::KiteApp; init_viewer=false)
     app.max_time = app.next_max_time
     app.kcu   = KCU(app.set)
     project=(KiteUtils.PROJECT)
-    app.kps4 = KPS4(app.kcu)
+    app.kps4 = KPS4(app.kcu::KCU)
     KiteUtils.PROJECT = project
     app.wcs = WCSettings(true; dt=1/app.set.sample_freq)
     
@@ -130,7 +130,7 @@ init(app; init_viewer=true)
 
 function simulate(integrator, stopped=true)
     start_time_ns = time_ns()
-    clear_viewer(app.viewer)
+    clear_viewer(app.viewer::Viewer3D)
     KiteViewers.running[] = ! stopped
     app.viewer.stop = stopped
     if ! stopped
@@ -333,9 +333,8 @@ function stop_()
     on_stop(app.ssc)
     clear!(app.kps4)
     if ! isnothing(app.viewer)
-        clear_viewer(app.viewer)
+        clear_viewer(app.viewer::Viewer3D)
     end
-    clear_viewer(app.viewer)
 end
 
 stop_()
