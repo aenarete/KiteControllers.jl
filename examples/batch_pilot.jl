@@ -17,6 +17,7 @@ import KiteControllers.YAML
     NoError
     HitGround
     VelocityTooHigh
+    VelocityTooLow
 end 
 
 function read_project()
@@ -168,8 +169,13 @@ function simulate(app::KiteApp)
             break
         end
 
-        if sys_state.v_reelout[1] > 9.0
+        if sys_state.v_reelout[1] > 1.1 * app.set.v_ro_max
             error = VelocityTooHigh
+            break
+        end
+
+        if sys_state.v_reelout[1] < 1.1 * app.set.v_ro_min
+            error = VelocityTooLow
             break
         end
 
