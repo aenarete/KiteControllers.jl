@@ -13,7 +13,10 @@ using KiteControllers, KiteModels, Statistics
 using Dates, LinearAlgebra, Printf
 
 default_projects = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml", "hydra10_951.yml"]
-projects = isempty(ARGS) ? default_projects : copy(ARGS)
+projects = isempty(ARGS) ? default_projects : [
+    (endswith(lowercase(project), ".yml") || endswith(lowercase(project), ".yaml")) ? project : "$(project).yml"
+    for project in ARGS
+]
 
 include("stats.jl")
 
