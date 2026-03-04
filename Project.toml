@@ -29,7 +29,7 @@ YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 [compat]
 DiscretePIDs = "0.1.5, 1.0"
 JLD2 = "0.5.11"
-KiteUtils = "0.11.3"
+KiteUtils = "0.11.4"
 NLSolversBase = "7.10.0, 8.0"
 NLsolve = "4.5"
 Observables = "0.3, 0.4, 0.5"
