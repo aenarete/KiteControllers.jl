@@ -63,10 +63,28 @@ else
     branch=""
 fi
 
+script_file=""
+if [[ $# -gt 0 ]]; then
+    script_file="$1"
+    shift
+    if [[ ! -f "$script_file" ]]; then
+        echo "Error: script file '$script_file' not found."
+        exit 1
+    fi
+fi
+
 if test -f "bin/kps-image-${julia_major}-${branch}.so"; then
     echo "Found system image!"
-    PLOT=1 julia -J  bin/kps-image-${julia_major}-${branch}.so  $GCT --project -i -e 'using KiteControllers'
+    if [[ -n "$script_file" ]]; then
+        PLOT=1 julia -J bin/kps-image-${julia_major}-${branch}.so $GCT --project "$script_file" "$@"
+    else
+        PLOT=1 julia -J bin/kps-image-${julia_major}-${branch}.so $GCT --project -i -e 'using KiteControllers'
+    fi
 else
-    PLOT=1 julia --project  $GCT -i -e 'using KiteControllers'
+    if [[ -n "$script_file" ]]; then
+        PLOT=1 julia --project $GCT "$script_file" "$@"
+    else
+        PLOT=1 julia --project $GCT -i -e 'using KiteControllers'
+    fi
     # julia --project
 fi
