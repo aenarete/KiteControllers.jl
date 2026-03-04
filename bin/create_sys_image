@@ -77,13 +77,7 @@ fi
 if test -f "kps-image-${julia_major}-${branch}.so"; then
     mv bin/kps-image-${julia_major}-${branch}.so kps-image-${julia_major}-${branch}.so.bak
 fi
-if [[ $julia_major == "1.10" ]]; then
-    cp Manifest-v1.10.toml.default Manifest-v1.10.toml
-    echo "Using Manifest-v1.10.toml.default ..."        
-else
-    cp Manifest-v1.11.toml.default Manifest-v1.11.toml
-    echo "Using Manifest-v1.11.toml.default ..."
-fi
+
 julia --startup-file=no --pkgimages=no --project -e "using Pkg; Pkg.instantiate();"
 julia --startup-file=no --pkgimages=no --project=test -e "include(\"./test/create_sys_image.jl\")"
 
