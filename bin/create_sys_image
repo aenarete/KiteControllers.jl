@@ -28,7 +28,7 @@ fi
 
 # if the current julia version is older than 1.10, exit
 if [[ $julia_major == "1.11" ]] || [[ $julia_major == "1.12" ]]; then
-    echo OK
+    echo "Supported Julia version found!"
 else
     echo "The current Julia version is not supported, installing Julia 1.11!"
     juliaup add 1.11
