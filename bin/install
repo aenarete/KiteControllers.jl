@@ -235,7 +235,7 @@ if [[ $julia_major == "1.11" ]]; then
     echo "Instantiating examples and test project for Julia $julia_major..."
     # Resolve sub-projects independently to avoid version conflicts when the main
     # manifest contains versions newer than the local registry snapshot.
-    rm -f examples/Manifest*.toml test/Manifest*.toml
+    rm -f examples/Manifest-v1.11.toml examples/Manifest.toml test/Manifest-v1.11.toml test/Manifest.toml
     cp Manifest-v1.11.toml examples/Manifest-v1.11.toml
     cp Manifest-v1.11.toml test/Manifest-v1.11.toml
     _ec=0; julia --project=examples -e '
@@ -297,7 +297,7 @@ else
     # Seed sub-project manifests from the already-resolved main manifest so that
     # path-sourced packages (e.g. KiteControllers) with tight compat requirements
     # (e.g. KiteUtils = "0.11.1") can be satisfied without a registry lookup.
-    rm -f examples/Manifest*.toml test/Manifest*.toml
+    rm -f "examples/Manifest-v${julia_major}.toml" examples/Manifest.toml "test/Manifest-v${julia_major}.toml" test/Manifest.toml
     cp "Manifest-v${julia_major}.toml" "examples/Manifest-v${julia_major}.toml"
     cp "Manifest-v${julia_major}.toml" "test/Manifest-v${julia_major}.toml"
     _ec=0; julia --project=examples -e '
