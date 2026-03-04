@@ -7,28 +7,26 @@ using Pkg
 if ! ("KiteControllers" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
-using Timers; tic()
+using Timers
 
 using KiteControllers, KiteModels, Statistics
 using Dates, LinearAlgebra, Printf
-import KiteControllers.YAML
+
+# project = "hydra20_600.yml" 
+# project = "hydra20_426.yml"
+project = "hydra20_920.yml"
 
 @enum SimError begin
     NoError
     HitGround
     VelocityTooHigh
     VelocityTooLow
-end 
+end
+
+const tolerance = 1.1 # allow 10% tolerance for velocity limits, to avoid false positives due to numerical issues
 
 function read_project()
-    # prefer the local project data/ directory; fall back to get_data_path()
-    local_data = joinpath(dirname(@__DIR__), "data")
-    config_file = joinpath(local_data, "gui.yaml")
-    if ! isfile(config_file)
-        config_file = joinpath(get_data_path(), "gui.yaml")
-    end
-    dict = YAML.load_file(config_file)
-    dict["gui"]["project"]
+    return project
 end
 
 PROJECT = read_project()
@@ -169,12 +167,12 @@ function simulate(app::KiteApp)
             break
         end
 
-        if sys_state.v_reelout[1] > 1.1 * app.set.v_ro_max
+        if sys_state.v_reelout[1] > tolerance * app.set.v_ro_max
             error = VelocityTooHigh
             break
         end
 
-        if sys_state.v_reelout[1] < 1.1 * app.set.v_ro_min
+        if sys_state.v_reelout[1] < tolerance * app.set.v_ro_min
             error = VelocityTooLow
             break
         end
@@ -189,19 +187,19 @@ function simulate(app::KiteApp)
 end
 
 # ── run ────────────────────────────────────────────────────────────────────────
+tic()
 init(app)
 
 timestamp   = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
-output_name = "batch-$timestamp"
+output_name = "batch-$(first(splitext(PROJECT)))-$timestamp"
 output_path = joinpath(dirname(@__DIR__), "output")
 
 steps, error = simulate(app)
 if error != NoError
     println("\nSimulation error: $error")
 else
-    println("\nSimulation completed successfully (steps = $steps)")
+    println("\nSimulation completed successfully (project = $project, steps = $steps)")
 end
-
 println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
 save_log(app.logger, output_name; path = output_path)
 toc()
