@@ -1,5 +1,13 @@
 # Changelog
 
+### unreleased
+#### Changed
+- bump KiteUtils to 0.11.4
+- the `run_julia` script accepts now a script name as parameter
+#### Added
+- add script `batch_pilot.jl` for simulating a set of projects
+- add Bash script `patch_pilot`
+
 ### KiteControllers v0.2.19
 #### Changed
 - TestEnv is not used any more

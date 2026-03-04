@@ -15,8 +15,8 @@ initial:
     elevations: [62.0]        # initial elevation angle   [deg]
     v_reel_outs: [0.0]        # initial reel out speed    [m/s]
     depowers:   [25.0]        # initial depower settings    [%]
-    delta: 0.001              # initial quotient of actual and unstretched tether length    
-    stiffness_factor: 0.1     # relative stiffness of the first round of solving the initial equilibrium 
+    delta: 0.0015             # initial quotient of actual and unstretched tether length    
+    stiffness_factor: 0.01    # relative stiffness of the first round of solving the initial equilibrium 
 
 solver:
     abs_tol: 0.0003        # absolute tolerance of the DAE solver [m, m/s]
@@ -25,7 +25,7 @@ solver:
     linear_solver: "GMRES" # can be GMRES or Dense or LapackDense (only for IDA)
     max_order: 4           # maximal order, usually between 3 and 5 (for IDA and DFBDF)
     max_iter:  200         # max number of iterations of the steady-state-solver
-    dtmax:     0.01        # max internal step size of the DAE solver [s]; Inf means no limit
+    dtmax:     0.025        # max internal step size of the DAE solver [s]; Inf means no limit
 
 steering:
     c0:       0.0          # steering offset   -0.0032           [-]
