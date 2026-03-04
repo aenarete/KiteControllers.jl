@@ -262,9 +262,9 @@ function calc_stats(logfile::String)
         av_power = mean(force_ .* v_reelout_)
     end
     start_idx = clamp(Int64(round(5 / dt)), 1, length(force_))
-    stats = Stats(sl[end].e_mech, av_power, peak_power, minimum(force_[start_idx:end]), maximum(force_), 
-                  minimum(lg.z), maximum(lg.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
-                  minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
+    return Stats(sl[end].e_mech, av_power, peak_power, minimum(force_[start_idx:end]), maximum(force_), 
+                 minimum(lg.z), maximum(lg.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
+                 minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
 end
 
 # ── run ────────────────────────────────────────────────────────────────────────
