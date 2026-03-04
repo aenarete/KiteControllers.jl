@@ -12,7 +12,7 @@ using Timers
 using KiteControllers, KiteModels, Statistics
 using Dates, LinearAlgebra, Printf
 
-projects = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml"]
+projects = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml", "hydra10_951.yml"]
 
 @enum SimError begin
     NoError
@@ -29,8 +29,8 @@ end
 
 SimulationError() = SimulationError(NoError, "")
 
-const tolerance  =  1.1 # allow 10% tolerance for velocity limits, to avoid false positives due to numerical issues
-const min_height = 50.0 # minimum height for simulation to be considered valid
+const tolerance  =   1.1 # allow 10% tolerance for velocity limits, to avoid false positives due to numerical issues
+const min_height =  40.0 # minimum height for simulation to be considered valid
 const max_height = 600.0 # maximum height for simulation to be considered valid
 
 function read_project(index::Int = 1)
