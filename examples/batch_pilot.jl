@@ -10,8 +10,14 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteModels, Statistics
-using LinearAlgebra, Printf, Dates
+using Dates, LinearAlgebra, Printf
 import KiteControllers.YAML
+
+@enum SimError begin
+    NoError
+    HitGround
+    VelocityTooHigh
+end 
 
 function read_project()
     # prefer the local project data/ directory; fall back to get_data_path()
@@ -92,6 +98,7 @@ function simulate(app::KiteApp)
 
     println("Simulating $(app.max_time) s  (dt = $(app.dt) s, $(app.steps) steps) ...")
 
+    error = NoError
     i = 1
     while i * app.dt <= app.max_time
         local v_ro
@@ -156,13 +163,23 @@ function simulate(app::KiteApp)
 
         log!(app.logger::Logger, sys_state)
 
+        if sys_state.Z[end] < 0
+            error = HitGround
+            break
+        end
+
+        if sys_state.v_reelout[1] > 9.0
+            error = VelocityTooHigh
+            break
+        end
+
         if mod(i, Int64(round(10.0/app.dt))) == 0
-            @printf("  t = %6.1f s  state = %s\n", i * app.dt, string(app.ssc.state))
+            @printf("  t = %6.1f s  height = %6.1f m\n", i * app.dt, sys_state.Z[end])
         end
 
         i += 1
     end
-    return i - 1
+    return i - 1, error
 end
 
 # ── run ────────────────────────────────────────────────────────────────────────
@@ -172,9 +189,14 @@ timestamp   = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
 output_name = "batch-$timestamp"
 output_path = joinpath(dirname(@__DIR__), "output")
 
-steps = simulate(app)
+steps, error = simulate(app)
+if error != NoError
+    println("\nSimulation error: $error")
+else
+    println("\nSimulation completed successfully (steps = $steps)")
+end
 
 println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
 save_log(app.logger, output_name; path = output_path)
-println("Done!")
 toc()
+nothing
