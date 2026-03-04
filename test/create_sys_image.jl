@@ -1,9 +1,4 @@
-# activate the test environment if needed
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
-    Pkg.resolve()
-end
 
 @info "Loading packages ..."
 using BenchmarkTools, KiteUtils, NLsolve, Parameters, StaticArrays, WinchModels, PackageCompiler, KiteViewers, 
