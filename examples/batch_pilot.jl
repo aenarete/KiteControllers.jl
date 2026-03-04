@@ -16,12 +16,22 @@ projects = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml"]
 
 @enum SimError begin
     NoError
-    HitGround
+    TooLow
+    TooHigh
     VelocityTooHigh
     VelocityTooLow
 end
 
-const tolerance = 1.1 # allow 10% tolerance for velocity limits, to avoid false positives due to numerical issues
+struct SimulationError
+    code::SimError
+    message::String
+end
+
+SimulationError() = SimulationError(NoError, "")
+
+const tolerance  =  1.1 # allow 10% tolerance for velocity limits, to avoid false positives due to numerical issues
+const min_height = 50.0 # minimum height for simulation to be considered valid
+const max_height = 600.0 # maximum height for simulation to be considered valid
 
 function read_project(index::Int = 1)
     return projects[index]  
@@ -91,7 +101,7 @@ function simulate(app::KiteApp)
 
     println("Simulating $(app.max_time) s  (dt = $(app.dt) s, $(app.steps) steps) ...")
 
-    error = NoError
+    error = SimulationError()
     i = 1
     while i * app.dt <= app.max_time
         local v_ro
@@ -156,18 +166,23 @@ function simulate(app::KiteApp)
 
         log!(app.logger::Logger, sys_state)
 
-        if sys_state.Z[end] < 0
-            error = HitGround
+        if sys_state.Z[end] < min_height
+            error = SimulationError(TooLow, "Height $(round(sys_state.Z[end], digits = 2)) m is below minimum $(min_height) m")
+            break
+        end
+
+        if sys_state.Z[end] > max_height
+            error = SimulationError(TooHigh, "Height $(round(sys_state.Z[end], digits = 2)) m exceeds maximum $(max_height) m")
             break
         end
 
         if sys_state.v_reelout[1] > tolerance * app.set.v_ro_max
-            error = VelocityTooHigh
+            error = SimulationError(VelocityTooHigh, "Reel-out speed $(round(sys_state.v_reelout[1], digits = 3)) m/s exceeds limit $(round(tolerance * app.set.v_ro_max, digits = 3)) m/s")
             break
         end
 
         if sys_state.v_reelout[1] < tolerance * app.set.v_ro_min
-            error = VelocityTooLow
+            error = SimulationError(VelocityTooLow, "Reel-out speed $(round(sys_state.v_reelout[1], digits = 3)) m/s is below limit $(round(tolerance * app.set.v_ro_min, digits = 3)) m/s")
             break
         end
 
@@ -181,27 +196,39 @@ function simulate(app::KiteApp)
 end
 
 # ── run ────────────────────────────────────────────────────────────────────────
-tic()
-for project in projects
-    println("Running project $project ...")
-    app = KiteApp(deepcopy(load_settings(project)), 0.0,
-                nothing, nothing, nothing, nothing, nothing, nothing, nothing,
-                0.0, 0, 0, false)
-    app.max_time = app.set.sim_time
-    init(app)
+let
+    tic()
+    results = Tuple{String, SimulationError}[]
+    for project in projects
+        println("Running project $project ...")
+        app = KiteApp(deepcopy(load_settings(project)), 0.0,
+                    nothing, nothing, nothing, nothing, nothing, nothing, nothing,
+                    0.0, 0, 0, false)
+        app.max_time = app.set.sim_time
+        init(app)
 
-    timestamp   = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
-    output_name = "batch-$(first(splitext(project)))-$timestamp"
-    output_path = joinpath(dirname(@__DIR__), "output")
+        timestamp   = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
+        output_name = "batch-$(first(splitext(project)))-$timestamp"
+        output_path = joinpath(dirname(@__DIR__), "output")
 
-    steps, error = simulate(app)
-    if error != NoError
-        println("\nSimulation error: $error")
-    else
-        println("\nSimulation completed successfully (project = $project, steps = $steps)")
+        steps, error = simulate(app)
+        push!(results, (project, error))
+        if error.code != NoError
+            println("\nSimulation error ($(error.code)): $(error.message)")
+        else
+            println("\nSimulation completed successfully (project = $project, steps = $steps)")
+        end
+        println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
+        save_log(app.logger::Logger, output_name; path = output_path)
+        toc()
     end
-    println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
-    save_log(app.logger, output_name; path = output_path)
-    toc()
+
+    println("\nError summary:")
+    println(rpad("Project", 18), " | ", rpad("error.code", 14), " | error.message")
+    println(repeat("-", 18), "-+-", repeat("-", 14), "-+-", repeat("-", 50))
+    for (project, error) in results
+        println(rpad(project, 18), " | ", rpad(string(error.code), 14), " | ", error.message)
+    end
 end
+
 nothing
