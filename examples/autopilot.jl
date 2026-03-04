@@ -300,12 +300,12 @@ function play(stopped=false)
         simulate(integrator, stopped)
         app.initialized = false
         stopped = ! app.viewer.sw.active[]
-        if app.logger.index > 100
+        if !isnothing(app.logger) && (app.logger::Logger).index > 100
             KiteViewers.plot_file[]=DEFAULT_LOG
             if app.set.log_level > 0
-                println("Saving log... $(app.logger.index)")
+                println("Saving log... $((app.logger::Logger).index)")
             end
-            save_log(app.logger, basename(DEFAULT_LOG); path=dirname(DEFAULT_LOG))
+            save_log(app.logger::Logger, basename(DEFAULT_LOG); path=dirname(DEFAULT_LOG))
         end
         if @isdefined __PRECOMPILE__
             break
