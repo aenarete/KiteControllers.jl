@@ -12,7 +12,8 @@ using Timers
 using KiteControllers, KiteModels, Statistics
 using Dates, LinearAlgebra, Printf
 
-projects = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml", "hydra10_951.yml"]
+default_projects = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml", "hydra10_951.yml"]
+projects = isempty(ARGS) ? default_projects : copy(ARGS)
 
 include("stats.jl")
 
