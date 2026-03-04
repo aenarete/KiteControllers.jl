@@ -87,11 +87,15 @@ function init(app::KiteApp; init_viewer=false)
                                    "print_stats", "load logfile", "save logfile"]
         app.viewer.menu_rel_tol.options[]=["0.005","0.001","0.0005","0.0001","0.00005", "0.00001",
                                            "0.000005","0.000001"]
-        app.viewer.menu_time_lapse.options[]=["1x","2x","3x","4x","6x","9x","12x"]
+        app.viewer.menu_time_lapse.options[]=["1x","2x","3x","4x","6x","9x","12x","18x","24x"]
         app.viewer.menu_project.options[]=["Open...", "Save as...", "Edit..."]
     end
-    if app.set.time_lapse==12.0
-        app.viewer.menu_time_lapse.i_selected[] = 7
+    if app.set.time_lapse==24.0
+        app.viewer.menu_time_lapse.i_selected[] = 9
+    elseif app.set.time_lapse==18.0
+        app.viewer.menu_time_lapse.i_selected[] = 8
+    elseif app.set.time_lapse==12.0
+        app.viewer.menu_time_lapse.i_selected[] = 7    
     elseif app.set.time_lapse==9.0
         app.viewer.menu_time_lapse.i_selected[] = 6
     elseif app.set.time_lapse==6.0
