@@ -12,9 +12,7 @@ using Timers
 using KiteControllers, KiteModels, Statistics
 using Dates, LinearAlgebra, Printf
 
-# project = "hydra20_600.yml" 
-# project = "hydra20_426.yml"
-project = "hydra20_920.yml"
+projects = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml"]
 
 @enum SimError begin
     NoError
@@ -25,11 +23,10 @@ end
 
 const tolerance = 1.1 # allow 10% tolerance for velocity limits, to avoid false positives due to numerical issues
 
-function read_project()
-    return project
+function read_project(index::Int = 1)
+    return projects[index]  
 end
 
-PROJECT = read_project()
 # ensure KiteUtils uses this project's data/ directory, regardless of cwd
 set_data_path(joinpath(dirname(@__DIR__), "data"))
 
@@ -49,10 +46,7 @@ mutable struct KiteApp
     initialized::Bool
 end
 
-app = KiteApp(deepcopy(load_settings(PROJECT)), 0.0,
-              nothing, nothing, nothing, nothing, nothing, nothing, nothing,
-              0.0, 0, 0, false)
-app.max_time = app.set.sim_time
+
 
 function init(app::KiteApp)
     app.kcu  = KCU(app.set)
@@ -177,7 +171,7 @@ function simulate(app::KiteApp)
             break
         end
 
-        if mod(i, Int64(round(10.0/app.dt))) == 0
+        if mod(i, Int64(round(200.0/app.dt))) == 0
             @printf("  t = %6.1f s  height = %6.1f m\n", i * app.dt, sys_state.Z[end])
         end
 
@@ -188,19 +182,26 @@ end
 
 # ── run ────────────────────────────────────────────────────────────────────────
 tic()
-init(app)
+for project in projects
+    println("Running project $project ...")
+    app = KiteApp(deepcopy(load_settings(project)), 0.0,
+                nothing, nothing, nothing, nothing, nothing, nothing, nothing,
+                0.0, 0, 0, false)
+    app.max_time = app.set.sim_time
+    init(app)
 
-timestamp   = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
-output_name = "batch-$(first(splitext(PROJECT)))-$timestamp"
-output_path = joinpath(dirname(@__DIR__), "output")
+    timestamp   = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
+    output_name = "batch-$(first(splitext(project)))-$timestamp"
+    output_path = joinpath(dirname(@__DIR__), "output")
 
-steps, error = simulate(app)
-if error != NoError
-    println("\nSimulation error: $error")
-else
-    println("\nSimulation completed successfully (project = $project, steps = $steps)")
+    steps, error = simulate(app)
+    if error != NoError
+        println("\nSimulation error: $error")
+    else
+        println("\nSimulation completed successfully (project = $project, steps = $steps)")
+    end
+    println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
+    save_log(app.logger, output_name; path = output_path)
+    toc()
 end
-println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
-save_log(app.logger, output_name; path = output_path)
-toc()
 nothing
