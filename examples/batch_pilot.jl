@@ -14,6 +14,8 @@ using Dates, LinearAlgebra, Printf
 
 projects = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml", "hydra10_951.yml"]
 
+include("stats.jl")
+
 @enum SimError begin
     NoError
     TooLow
@@ -195,10 +197,60 @@ function simulate(app::KiteApp)
     return i - 1, error
 end
 
+function calc_stats(logfile::String)
+    output_path = joinpath(dirname(@__DIR__), "output")
+    lg = load_log(logfile; path = output_path)
+    sl  = lg.syslog
+    dt = 1.0
+    if length(sl.time) > 1
+        deltas = diff(sl.time)
+        first_positive = findfirst(d -> d > 0, deltas)
+        if !isnothing(first_positive)
+            dt_candidate = Float64(deltas[first_positive])
+            if isfinite(dt_candidate) && dt_candidate > 0
+                dt = dt_candidate
+            end
+        end
+    end
+    elev_ro = deepcopy(sl.elevation)
+    az_ro = deepcopy(sl.azimuth)
+    for i in eachindex(sl.sys_state)
+        if ! (sl.sys_state[i] in (5,6,7,8))
+            elev_ro[i] = 0
+            az_ro[i] = 0
+        end
+    end
+    av_power = 0.0
+    peak_power = 0.0
+    n = 0
+    last_full_cycle = maximum(sl.cycle)-1
+    force_ = hcat(sl.winch_force...)[1, :]
+    v_reelout_ = hcat(sl.v_reelout...)[1, :]
+    for i in eachindex(force_)
+        if sl.cycle[i] in 2:last_full_cycle
+            av_power += force_[i] * v_reelout_[i]
+            n+=1
+        end
+        if abs(force_[i] * v_reelout_[i]) > peak_power
+            peak_power = abs(force_[i] * v_reelout_[i])
+        end
+    end
+    if n > 0
+        av_power /= n
+    else
+        av_power = mean(force_ .* v_reelout_)
+    end
+    start_idx = clamp(Int64(round(5 / dt)), 1, length(force_))
+    stats = Stats(sl[end].e_mech, av_power, peak_power, minimum(force_[start_idx:end]), maximum(force_), 
+                  minimum(lg.z), maximum(lg.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
+                  minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
+end
+
 # ── run ────────────────────────────────────────────────────────────────────────
 let
     tic()
     results = Tuple{String, SimulationError}[]
+    av_powers = Float64[]
     for project in projects
         println("Running project $project ...")
         app = KiteApp(deepcopy(load_settings(project)), 0.0,
@@ -220,14 +272,18 @@ let
         end
         println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
         save_log(app.logger::Logger, output_name; path = output_path)
+        stats = calc_stats(output_name)
+        push!(av_powers, stats.av_power)
+        @printf("Average power: %.1f W\n", stats.av_power)
         toc()
     end
 
-    println("\nError summary:")
-    println(rpad("Project", 18), " | ", rpad("error.code", 14), " | error.message")
-    println(repeat("-", 18), "-+-", repeat("-", 14), "-+-", repeat("-", 50))
-    for (project, error) in results
-        println(rpad(project, 18), " | ", rpad(string(error.code), 14), " | ", error.message)
+    println("\nResults summary:")
+    println(rpad("Project", 18), " | ", rpad("error.code", 14), " | ", rpad("av_power [W]", 12), " | error.message")
+    println(repeat("-", 18), "-+-", repeat("-", 14), "-+-", repeat("-", 12), "-+-", repeat("-", 42))
+    for i in eachindex(results)
+        project, error = results[i]
+        @printf("%s | %s | %12.1f | %s\n", rpad(project, 18), rpad(string(error.code), 14), av_powers[i], error.message)
     end
 end
 
