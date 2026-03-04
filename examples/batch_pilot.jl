@@ -24,17 +24,6 @@ function env_float(name::String, default::Float64)
     return isnothing(parsed) ? default : parsed
 end
 
-const INIT_DELTA = env_float("BATCH_INIT_DELTA", 0.0015)
-const INIT_STIFFNESS_FACTOR = env_float("BATCH_INIT_STIFFNESS", 0.01)
-
-if !(0.0 < INIT_DELTA <= 0.003)
-    error("BATCH_INIT_DELTA=$(INIT_DELTA) is outside allowed range (0, 0.003].")
-end
-
-if !(0.004 <= INIT_STIFFNESS_FACTOR <= 0.5)
-    error("BATCH_INIT_STIFFNESS=$(INIT_STIFFNESS_FACTOR) is outside allowed range [0.004, 0.5].")
-end
-
 include("stats.jl")
 
 @enum SimError begin
@@ -108,7 +97,7 @@ end
 
 function simulate(app::KiteApp)
     on_parking(app.ssc::SystemStateControl)
-    integrator = KiteModels.init!(app.kps4::KPS4; delta = INIT_DELTA, stiffness_factor = INIT_STIFFNESS_FACTOR)
+    integrator = KiteModels.init!(app.kps4::KPS4; delta = app.set.delta, stiffness_factor = app.set.stiffness_factor)
 
     sys_state = SysState(app.kps4::KPS4)
     sys_state.e_mech   = 0
@@ -270,7 +259,6 @@ end
 # ── run ────────────────────────────────────────────────────────────────────────
 let
     tic()
-    @printf("init parameters: delta=%.6f, stiffness_factor=%.3f\n", INIT_DELTA, INIT_STIFFNESS_FACTOR)
     results = Tuple{String, SimulationError}[]
     av_powers = Float64[]
     for project in projects
@@ -279,6 +267,8 @@ let
                     nothing, nothing, nothing, nothing, nothing, nothing, nothing,
                     0.0, 0, 0, false)
         app.max_time = app.set.sim_time
+        @printf("init parameters: delta=%.6f, stiffness_factor=%.3f\n", app.set.delta, app.set.stiffness_factor)
+
         init(app)
 
         timestamp   = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
