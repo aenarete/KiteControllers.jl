@@ -136,8 +136,6 @@ function simulate(integrator, stopped=true)
     if ! stopped
         set_status(app.viewer, "ssParking")
     end
-    rel_side_area = app.set.rel_side_area/100.0  # defined in percent
-    K = 1 - rel_side_area                        # correction factor for the drag
     i=1
     j=0; k=0
     GC.enable(true)
@@ -147,7 +145,6 @@ function simulate(integrator, stopped=true)
         GC.enable(false)
     end
     max_time = 0
-    t_gc_tot = 0
     sys_state = SysState(app.kps4)
     sys_state.e_mech = 0
     sys_state.sys_state = Int16(app.ssc.fpp._state)
@@ -265,7 +262,6 @@ function simulate(integrator, stopped=true)
                     max_time = mtime
                 end            
                 start_time_ns = time_ns()
-                t_gc_tot = 0
             end
             i += 1
         end
@@ -341,7 +337,7 @@ function stop_()
     end
     clear_viewer(app.viewer)
 end
-c
+
 stop_()
 on(app.viewer.btn_PARKING.clicks) do _; parking(); end
 on(app.viewer.btn_AUTO.clicks) do _; autopilot(); end
@@ -351,7 +347,7 @@ on(app.viewer.btn_PLAY.clicks) do _;
         app.parking = false
     end
 end
-on(app.viewer.menu_time_lapse.selection) do c;
+on(app.viewer.menu_time_lapse.selection) do _;
     val=app.viewer.menu_time_lapse.selection[][begin:end-1]
     app.set.time_lapse=parse(Int64, val)
 end
@@ -460,7 +456,7 @@ function do_menu(c)
     end
 end
 
-on(app.viewer.btn_OK.clicks) do c
+on(app.viewer.btn_OK.clicks) do _
     do_menu(app.viewer.menu.selection[])
 end
 
@@ -475,7 +471,7 @@ on(app.viewer.menu_rel_tol.selection) do c
     app.set.abs_tol = factor * 0.0006 
 end
 
-on(app.viewer.menu_project.i_selected) do c
+on(app.viewer.menu_project.i_selected) do _
     global PROJECT, app
     sel = app.viewer.menu_project.selection[]
     if sel == "Open..."
