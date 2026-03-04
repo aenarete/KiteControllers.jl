@@ -18,6 +18,7 @@ function plot_timing()
     display(ControlPlots.plotx(sl.time, sl.t_sim, 100*sl.steering, 100*sl.depower;
                                ylabels=["t_sim [ms]", "steering [%]","depower [%]"],
                                fig="timing"))
+    println("Time limit:                $(time_limit*1000) ms")
     println("Mean    time per timestep: $(mean(sl.t_sim)) ms")
     println("Maximum time per timestep: $(maximum(sl.t_sim[10:end])) ms")
     index = Int64(round(12/app.dt))
