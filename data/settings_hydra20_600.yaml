@@ -23,7 +23,9 @@ solver:
     linear_solver: "GMRES" # can be GMRES or Dense or LapackDense (only for IDA)
     max_order: 4           # maximal order, usually between 3 and 5 (for IDA and DFBDF)
     max_iter:  200         # max number of iterations of the steady-state-solver
-    dtmax:     0.025        # max internal step size of the DAE solver [s]; Inf means no limit
+    dtmax:     0.025       # max internal step size of the DAE solver [s]; Inf means no limit
+    delta: 0.001           # initial quotient of actual and unstretched tether length    
+    stiffness_factor: 0.1  # relative stiffness of the first round of solving the initial equilibrium 
 
 steering:
     c0:       0.0          # steering offset   -0.0032           [-]

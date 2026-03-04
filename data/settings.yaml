@@ -15,10 +15,12 @@ initial:
     elevations:  [70.7]      # initial elevation angle   [deg]
     v_reel_outs: [0.0]       # initial reel out speed    [m/s]
     depowers:    [25.0]      # initial depower settings    [%]
+    delta: 0.001             # initial quotient of actual and unstretched tether length    
+    stiffness_factor: 0.1    # relative stiffness of the first round of solving the initial equilibrium 
 
 solver:
     abs_tol: 0.0003        # absolute tolerance of the DAE solver [m, m/s]
-    rel_tol: 0.0005         # relative tolerance of the DAE solver [-]
+    rel_tol: 0.0005        # relative tolerance of the DAE solver [-]
     solver: "DFBDF"        # DAE solver, IDA or DFBDF or DImplicitEuler
     linear_solver: "GMRES" # can be GMRES or LapackDense or Dense (only for IDA)
     max_order: 4           # maximal order, usually between 3 and 5 (IDA and DFBDF)
