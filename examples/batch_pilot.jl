@@ -310,7 +310,12 @@ let
             meta:
               project: "$(project)"
               timestamp: "$(timestamp)"
+              duration: $(@sprintf("%.1f", steps * app.dt)) # simulated duration [s]
+            error:
+              code: "$(error.code)"
+              message: "$(error.message)"
             stats:
+              cycles:        $(@sprintf("%7d   ", stats.cycles))  # number of full reel-out/reel-in cycles
               e_mech:        $(fmt(stats.e_mech))  # total mechanical energy [Wh]
               av_power:      $(fmt(stats.av_power))  # average reel-out power [W]
               peak_power:    $(fmt(stats.peak_power))  # peak reel-out power [W]
@@ -322,7 +327,6 @@ let
               max_elev_ro:   $(fmt(stats.max_elev_ro))  # maximum elevation angle during reel-out [deg]
               min_az_ro:     $(fmt(stats.min_az_ro))  # minimum azimuth angle during reel-out [deg]
               max_az_ro:     $(fmt(stats.max_az_ro))  # maximum azimuth angle during reel-out [deg]
-              cycles:        $(@sprintf("%7d   ", stats.cycles))  # number of full reel-out/reel-in cycles
             """
         write(joinpath(output_path, "$(output_name)_stats.yaml"), stats_yaml)
         push!(av_powers, stats.av_power)
