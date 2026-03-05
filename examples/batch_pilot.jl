@@ -12,11 +12,13 @@ using Timers
 using KiteControllers, KiteModels, Statistics
 using Dates, LinearAlgebra, Printf
 
-default_projects = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml", "hydra10_951.yml"]
-projects = isempty(ARGS) ? default_projects : [
+DEFAULT_PROJECTS = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml", "hydra10_951.yml"]
+PROJECTS = isempty(ARGS) ? DEFAULT_PROJECTS : [
     (endswith(lowercase(project), ".yml") || endswith(lowercase(project), ".yaml")) ? project : "$(project).yml"
     for project in ARGS
 ]
+
+SAVELOG = false
 
 function env_float(name::String, default::Float64)
     value = get(ENV, name, "")
@@ -46,7 +48,7 @@ const min_height =  40.0 # minimum height for simulation to be considered valid
 const max_height = 600.0 # maximum height for simulation to be considered valid
 
 function read_project(index::Int = 1)
-    return projects[index]  
+    return PROJECTS[index]  
 end
 
 # ensure KiteUtils uses this project's data/ directory, regardless of cwd
@@ -207,9 +209,10 @@ function simulate(app::KiteApp)
     return i - 1, error
 end
 
-function calc_stats(logfile::String)
-    output_path = joinpath(dirname(@__DIR__), "output")
-    lg = load_log(logfile; path = output_path)
+function calc_stats(logger::Logger)
+    @info "Calculating statistics from log ..."
+    lg = extract_log(logger)
+    @info "Finished extracting log. Calculating stats ..."
     sl  = lg.syslog
     dt = 1.0
     if length(sl.time) > 1
@@ -234,8 +237,8 @@ function calc_stats(logfile::String)
     peak_power = 0.0
     n = 0
     last_full_cycle = maximum(sl.cycle)-1
-    force_ = hcat(sl.winch_force...)[1, :]
-    v_reelout_ = hcat(sl.v_reelout...)[1, :]
+    force_ = getindex.(sl.winch_force, 1)
+    v_reelout_ = getindex.(sl.v_reelout, 1)
     for i in eachindex(force_)
         if sl.cycle[i] in 2:last_full_cycle
             av_power += force_[i] * v_reelout_[i]
@@ -256,12 +259,21 @@ function calc_stats(logfile::String)
                  minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
 end
 
+function extract_log(logger::Logger)
+    nl = length(logger)
+    for fn in fieldnames(typeof(logger))
+        f = getfield(logger, fn)
+        f isa Vector && resize!(f, nl)
+    end
+    KiteUtils.sys_log(logger)
+end
+
 # ── run ────────────────────────────────────────────────────────────────────────
 let
     tic()
     results = Tuple{String, SimulationError}[]
     av_powers = Float64[]
-    for project in projects
+    for project in PROJECTS
         println("Running project $project ...")
         app = KiteApp(deepcopy(load_settings(project)), 0.0,
                     nothing, nothing, nothing, nothing, nothing, nothing, nothing,
@@ -282,9 +294,11 @@ let
         else
             println("\nSimulation completed successfully (project = $project, steps = $steps)")
         end
-        println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
-        save_log(app.logger::Logger, output_name; path = output_path)
-        stats = calc_stats(output_name)
+        if SAVELOG
+            println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
+            save_log(app.logger::Logger, output_name; path = output_path)
+        end
+        stats = calc_stats(app.logger)
         push!(av_powers, stats.av_power)
         @printf("Average power: %.1f W\n", stats.av_power)
         toc()
