@@ -9,18 +9,56 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 
-using ControlPlots, KiteControllers, LaTeXStrings, Statistics
+using ControlPlots, KiteControllers, LaTeXStrings, Statistics, YAML
 using REPL.TerminalMenus
 
-# Hard-coded default log file (override by passing a path as a command-line argument)
-const PLOT_FILE = if isempty(ARGS)
-    joinpath(@__DIR__, "..", "output", "batch-hydra20_600.arrow")
-elseif dirname(ARGS[1]) == ""
-    # bare filename — look in the output folder
-    joinpath(@__DIR__, "..", "output", ARGS[1])
-else
-    ARGS[1]
+include("yaml_utils.jl")
+
+# Paths
+const GUI_YAML   = joinpath(@__DIR__, "..", "data", "gui.yaml")
+const OUTPUT_DIR = joinpath(@__DIR__, "..", "output")
+
+# ---------------------------------------------------------------------------
+# Project management helpers
+# ---------------------------------------------------------------------------
+"""Return sorted list of project names that have a batch-*.arrow file."""
+function discover_projects()
+    files = filter(f -> startswith(f, "batch-") && endswith(f, ".arrow"),
+                   readdir(OUTPUT_DIR))
+    sort([replace(replace(f, r"^batch-" => ""), r"\.arrow$" => "") for f in files])
 end
+
+"""Read currently selected project name (without .yml) from gui.yaml."""
+function read_project_name()
+    cfg = YAML.load_file(GUI_YAML)
+    project = get(get(cfg, "gui", Dict()), "project", "hydra20_600.yml")
+    replace(project, r"\.yml$" => "")
+end
+
+"""Persist selected project name to gui.yaml."""
+function write_project_name(project::String)
+    content = read(GUI_YAML, String)
+    # Replace the value after "project:" up to the first whitespace/newline/comment
+    new_content = replace(content, r"(project:\s+)\S+" => SubstitutionString("\\1" * project * ".yml"))
+    write(GUI_YAML, new_content)
+end
+
+"""Return the full path to the batch arrow file for a given project name."""
+function project_arrow(project::String)
+    joinpath(OUTPUT_DIR, "batch-" * project * ".arrow")
+end
+
+# Mutable reference to the active log file (updated when project is changed)
+const PLOT_FILE = Ref{String}(
+    if isempty(ARGS)
+        project_arrow(read_project_name())
+    elseif dirname(ARGS[1]) == ""
+        # bare filename — look in the output folder
+        joinpath(OUTPUT_DIR, ARGS[1])
+    else
+        ARGS[1]
+    end
+)
 
 # ---------------------------------------------------------------------------
 # Helper accessors (same as in plots.jl)
@@ -46,7 +84,7 @@ end
 # Load helper
 # ---------------------------------------------------------------------------
 function load_plot_log()
-    load_log(basename(PLOT_FILE); path=dirname(PLOT_FILE))
+    load_log(basename(PLOT_FILE[]); path=dirname(PLOT_FILE[]))
 end
 
 # ---------------------------------------------------------------------------
@@ -240,9 +278,36 @@ function plot_timing2()
 end
 
 # ---------------------------------------------------------------------------
+# Project selection sub-menu
+# ---------------------------------------------------------------------------
+function select_project_menu()
+    projects = discover_projects()
+    if isempty(projects)
+        println("No batch-*.arrow files found in $OUTPUT_DIR")
+        return
+    end
+    current = read_project_name()
+    println("\nCurrent project: $current")
+    opts = vcat(projects, ["cancel"])
+    menu = RadioMenu(opts, pagesize=8)
+    choice = request("\nSelect project: ", menu)
+    if choice == -1 || choice == length(opts)
+        println("Project selection cancelled.")
+        return
+    end
+    selected = projects[choice]
+    write_project_name(selected)
+    PLOT_FILE[] = project_arrow(selected)
+    println("Project set to: $selected")
+    println("Log file: $(PLOT_FILE[])")
+    nothing
+end
+
+# ---------------------------------------------------------------------------
 # Interactive menu (REPL.TerminalMenus RadioMenu)
 # ---------------------------------------------------------------------------
 const MENU_ITEMS = [
+    ("select project",     select_project_menu),
     ("plot_main",          plot_main),
     ("plot_power",         plot_power),
     ("plot_control",       plot_control),
@@ -262,11 +327,12 @@ const OPTIONS = [item[1] for item in MENU_ITEMS]
 push!(OPTIONS, "quit")
 
 function run_menu()
-    println("\nLog file: $PLOT_FILE")
+    println("\nLog file: $(PLOT_FILE[])")
     active = true
     while active
         menu   = RadioMenu(OPTIONS, pagesize=8)
-        choice = request("\nChoose plot to display or `q` to quit: ", menu)
+        active_project = read_project_name()
+        choice = request("\nActive project: \e[1m$active_project\e[0m  Select new project or choose plot to display or `q` to quit: ", menu)
         if choice != -1 && choice != length(OPTIONS)
             name, fn = MENU_ITEMS[choice]
             println("Running $name …")
