@@ -4,7 +4,7 @@ if [[ $(basename $(pwd)) == "bin" ]]; then
     cd ..
 fi
 
-export MPLBACKEND=qt5agg
+# export MPLBACKEND=qt5agg
 export QT_QPA_PLATFORM=xcb
 export NO_AT_BRIDGE=1
 
