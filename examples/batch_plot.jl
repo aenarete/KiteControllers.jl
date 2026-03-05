@@ -59,16 +59,7 @@ end
 function plot_power()
     log = load_plot_log()
     sl  = log.syslog
-    dt  = log_dt(sl)
-    energy = similar(v_reelout(sl))
-    en = 0.0
-    v_ro = v_reelout(sl)
-    f_   = force(sl)
-    for i in eachindex(energy)
-        en += f_[i] * v_ro[i] * dt
-        energy[i] = en
-    end
-    display(plotx(sl.time, force(sl), v_reelout(sl), force(sl) .* v_reelout(sl), energy ./ 3600, sl.acc;
+    display(plotx(sl.time, force(sl), v_reelout(sl), force(sl) .* v_reelout(sl), sl.e_mech, sl.acc;
             ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]", "Energy [Wh]", "acc [m/s^2]"],
             fig="power"))
     nothing
@@ -257,9 +248,7 @@ const MENU_ITEMS = [
     ("plot_side_view",     plot_side_view),
     ("plot_side_view2",    plot_side_view2),
     ("plot_side_view3",    plot_side_view3),
-    ("plot_front_view3",   plot_front_view3),
-    ("plot_timing",        plot_timing),
-    ("plot_timing2",       plot_timing2),
+    ("plot_front_view3",   plot_front_view3)
 ]
 
 const OPTIONS = [item[1] for item in MENU_ITEMS]

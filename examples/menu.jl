@@ -2,6 +2,7 @@ using REPL.TerminalMenus
 
 options = ["autopilot_4p = include(\"autopilot.jl\")",
            "batch_pilot = include(\"batch_pilot.jl\")",
+           "batch_plot = include(\"batch_plot.jl\")",
            "joystick = include(\"joystick.jl\")",
            "minipilot = include(\"minipilot.jl\")",
            "minipilot_12 = include(\"minipilot_12.jl\")",
