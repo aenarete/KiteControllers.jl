@@ -10,7 +10,7 @@ end
 using Timers
 
 using KiteControllers, KiteModels, Statistics
-using Dates, LinearAlgebra, Printf
+using Dates, LinearAlgebra, Printf, YAML
 
 DEFAULT_PROJECTS = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml", "hydra10_951.yml"]
 PROJECTS = isempty(ARGS) ? DEFAULT_PROJECTS : [
@@ -19,6 +19,7 @@ PROJECTS = isempty(ARGS) ? DEFAULT_PROJECTS : [
 ]
 
 SAVELOG = false
+TIMESTAMPS = false
 
 function env_float(name::String, default::Float64)
     value = get(ENV, name, "")
@@ -282,9 +283,13 @@ let
         @printf("init parameters: delta=%.6f, stiffness_factor=%.3f\n", app.set.delta, app.set.stiffness_factor)
 
         init(app)
-
-        timestamp   = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
-        output_name = "batch-$(first(splitext(project)))-$timestamp"
+        if TIMESTAMPS
+            timestamp   = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
+            output_name = "batch-$(first(splitext(project)))-$timestamp"
+        else
+            timestamp   = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
+            output_name = "batch-$(first(splitext(project)))"
+        end
         output_path = joinpath(dirname(@__DIR__), "output")
 
         steps, error = simulate(app)
@@ -299,6 +304,25 @@ let
             save_log(app.logger::Logger, output_name; path = output_path)
         end
         stats = calc_stats(app.logger)
+        fmt(x) = @sprintf("%10.2f", x)
+        stats_yaml = """
+            meta:
+              project: "$(project)"
+              timestamp: "$(timestamp)"
+            stats:
+              e_mech:        $(fmt(stats.e_mech))  # total mechanical energy [Wh]
+              av_power:      $(fmt(stats.av_power))  # average reel-out power [W]
+              peak_power:    $(fmt(stats.peak_power))  # peak reel-out power [W]
+              min_force:     $(fmt(stats.min_force))  # minimum tether force [N]
+              max_force:     $(fmt(stats.max_force))  # maximum tether force [N]
+              min_height:    $(fmt(stats.min_height))  # minimum kite height [m]
+              max_height:    $(fmt(stats.max_height))  # maximum kite height [m]
+              min_elevation: $(fmt(stats.min_elevation))  # minimum elevation angle [deg]
+              max_elev_ro:   $(fmt(stats.max_elev_ro))  # maximum elevation angle during reel-out [deg]
+              min_az_ro:     $(fmt(stats.min_az_ro))  # minimum azimuth angle during reel-out [deg]
+              max_az_ro:     $(fmt(stats.max_az_ro))  # maximum azimuth angle during reel-out [deg]
+            """
+        write(joinpath(output_path, "$(output_name)_stats.yaml"), stats_yaml)
         push!(av_powers, stats.av_power)
         @printf("Average power: %.1f W\n", stats.av_power)
         toc()
