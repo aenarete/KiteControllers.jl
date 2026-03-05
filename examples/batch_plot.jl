@@ -275,4 +275,6 @@ function run_menu()
     end
 end
 
-run_menu()
+ if ! @isdefined __PRECOMPILE__
+    run_menu()
+end
