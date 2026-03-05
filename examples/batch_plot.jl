@@ -13,7 +13,14 @@ using ControlPlots, KiteControllers, LaTeXStrings, Statistics
 using REPL.TerminalMenus
 
 # Hard-coded default log file (override by passing a path as a command-line argument)
-const PLOT_FILE = isempty(ARGS) ? joinpath(@__DIR__, "..", "output", "batch-hydra20_600.arrow") : ARGS[1]
+const PLOT_FILE = if isempty(ARGS)
+    joinpath(@__DIR__, "..", "output", "batch-hydra20_600.arrow")
+elseif dirname(ARGS[1]) == ""
+    # bare filename — look in the output folder
+    joinpath(@__DIR__, "..", "output", ARGS[1])
+else
+    ARGS[1]
+end
 
 # ---------------------------------------------------------------------------
 # Helper accessors (same as in plots.jl)
