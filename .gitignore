@@ -30,3 +30,4 @@ bin/kps-image-1.11-new_wc.so
 data/windfield_100_4050_500_70_0.5_5.3.npz
 Manifest-v1.12.toml
 .JETLSConfig.toml
+output/batch-*.yaml
