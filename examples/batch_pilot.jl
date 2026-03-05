@@ -18,7 +18,7 @@ PROJECTS = isempty(ARGS) ? DEFAULT_PROJECTS : [
     for project in ARGS
 ]
 
-SAVELOG = false
+SAVELOG = true
 TIMESTAMPS = false
 
 function env_float(name::String, default::Float64)
