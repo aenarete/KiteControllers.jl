@@ -6,7 +6,7 @@ fi
 
 mkdir -p output
 
-export MPLBACKEND=qt5agg
+# export MPLBACKEND=qt5agg
 export JULIA_PKG_SERVER_REGISTRY_PREFERENCE="eager"
 
 if ! command -v juliaup &> /dev/null; then
