@@ -413,7 +413,7 @@ function print_stats()
     av_power /= n
     stats = Stats(sl[end].e_mech, av_power, peak_power, minimum(force_[Int64(round(5/app.dt)):end]), maximum(force_), 
                   minimum(lg.z), maximum(lg.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
-                  minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
+                  minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)), last_full_cycle)
     show_stats(stats)
 end
 
