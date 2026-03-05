@@ -211,9 +211,7 @@ function simulate(app::KiteApp)
 end
 
 function calc_stats(logger::Logger)
-    @info "Calculating statistics from log ..."
     lg = extract_log(logger)
-    @info "Finished extracting log. Calculating stats ..."
     sl  = lg.syslog
     dt = 1.0
     if length(sl.time) > 1
