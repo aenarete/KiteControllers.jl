@@ -6,6 +6,8 @@ let
         println("Precompiling $name ...")
         try
             fn()
+            sleep(1)
+            GC.gc()
         catch e
             println("  Skipped $name: $e")
         end
