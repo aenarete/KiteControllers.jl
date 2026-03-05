@@ -6,6 +6,7 @@ fi
 
 export MPLBACKEND=qt5agg
 export QT_QPA_PLATFORM=xcb
+export NO_AT_BRIDGE=1
 
 if [[ "$(uname -s)" == "Linux" ]]; then
     export FONTCONFIG_FILE=/etc/fonts/fonts.conf
