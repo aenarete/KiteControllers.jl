@@ -10,7 +10,7 @@ end
 using Timers
 
 using KiteControllers, KiteModels, Statistics
-using Dates, LinearAlgebra, Printf, YAML
+using Dates, LinearAlgebra, Printf
 
 DEFAULT_PROJECTS = ["hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml", "hydra10_951.yml"]
 PROJECTS = isempty(ARGS) ? DEFAULT_PROJECTS : [
@@ -255,9 +255,10 @@ function calc_stats(logger::Logger)
         av_power = mean(force_ .* v_reelout_)
     end
     start_idx = clamp(Int64(round(5 / dt)), 1, length(force_))
+    cycles = last_full_cycle - 1
     return Stats(sl[end].e_mech, av_power, peak_power, minimum(force_[start_idx:end]), maximum(force_), 
                  minimum(lg.z), maximum(lg.z), minimum(rad2deg.(sl.elevation)), maximum(rad2deg.(elev_ro)),
-                 minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)))
+                 minimum(rad2deg.(az_ro)), maximum(rad2deg.(az_ro)), cycles)
 end
 
 function extract_log(logger::Logger)
@@ -321,6 +322,7 @@ let
               max_elev_ro:   $(fmt(stats.max_elev_ro))  # maximum elevation angle during reel-out [deg]
               min_az_ro:     $(fmt(stats.min_az_ro))  # minimum azimuth angle during reel-out [deg]
               max_az_ro:     $(fmt(stats.max_az_ro))  # maximum azimuth angle during reel-out [deg]
+              cycles:        $(@sprintf("%7d   ", stats.cycles))  # number of full reel-out/reel-in cycles
             """
         write(joinpath(output_path, "$(output_name)_stats.yaml"), stats_yaml)
         push!(av_powers, stats.av_power)
