@@ -5,6 +5,7 @@ if [[ $(basename $(pwd)) == "bin" ]]; then
 fi
 
 export MPLBACKEND=qt5agg
+export QT_QPA_PLATFORM=xcb
 
 if [[ "$(uname -s)" == "Linux" ]]; then
     export FONTCONFIG_FILE=/etc/fonts/fonts.conf
