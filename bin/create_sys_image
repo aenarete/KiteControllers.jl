@@ -6,7 +6,7 @@ fi
 
 mkdir -p output
 
-# export MPLBACKEND=qt5agg
+export MPLBACKEND=agg
 export JULIA_PKG_SERVER_REGISTRY_PREFERENCE="eager"
 
 if ! command -v juliaup &> /dev/null; then
@@ -116,7 +116,7 @@ if test -f "kps-image-${julia_major}-${branch}.so"; then
 fi
 
 julia --startup-file=no --pkgimages=no --project -e "using Pkg; Pkg.instantiate();"
-julia -t 1 --startup-file=no --pkgimages=no --project=test -e "include(\"./test/create_sys_image.jl\")"
+julia --startup-file=no --pkgimages=no --project=test -e "include(\"./test/create_sys_image.jl\")"
 
 if [[ $branch != "" ]]; then
     SOFILE="bin/kps-image-${julia_major}-${branch}.so"
