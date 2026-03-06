@@ -285,6 +285,44 @@ end
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------
+function highlight_yaml(content::String)
+    RESET  = "\033[0m"
+    BOLD   = "\033[1m"
+    CYAN   = "\033[36m"
+    YELLOW = "\033[33m"
+    GREEN  = "\033[32m"
+    MAGENTA = "\033[35m"
+
+    buf = IOBuffer()
+    for line in split(content, '\n')
+        # Section header: "key:" with nothing after colon
+        m = match(r"^(\s*)([\w]+)(\s*:\s*)$", line)
+        if m !== nothing
+            indent, key, colon = m.captures
+            print(buf, indent * BOLD * CYAN * key * RESET * colon * "\n")
+            continue
+        end
+        # Key: value  # optional inline comment
+        m = match(r"^(\s*)([\w]+)(\s*:\s*)(\"[^\"]*\"|-?[0-9][0-9.]*|[^#\n]*?)(\s*)(#[^\n]*)?\n?$", line)
+        if m !== nothing
+            indent, key, colon, value, space, comment = m.captures
+            value   = something(value,   "")
+            space   = something(space,   "")
+            comment = something(comment, "")
+            # choose value color: string → yellow, number → magenta, empty → default
+            val_color = occursin(r"^\s*\"", value) ? YELLOW :
+                        occursin(r"^\s*-?[0-9]", value) ? MAGENTA : RESET
+            colored = indent * CYAN * key * RESET * colon *
+                      val_color * value * RESET * space *
+                      (isempty(comment) ? "" : GREEN * comment * RESET)
+            print(buf, colored * "\n")
+            continue
+        end
+        print(buf, line * "\n")
+    end
+    String(take!(buf))
+end
+
 function print_statistics()
     project = read_project_name()
     stats_file = joinpath(OUTPUT_DIR, "batch-" * project * "_stats.yaml")
@@ -292,7 +330,8 @@ function print_statistics()
         println("No stats file found: $stats_file")
         return
     end
-    print(read(stats_file, String))
+    println("\033[2J\033[H")  # clear terminal
+    print(highlight_yaml(read(stats_file, String)))
     nothing
 end
 
