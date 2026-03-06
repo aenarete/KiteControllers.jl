@@ -33,6 +33,15 @@ const AFC = AbstractForceController
 const EPSILON = 1e-6
 const FTOL    = 1e-8 # tolerance of residual for nonlinar solver
 
+"""
+    SystemState
+
+Top-level system state enum used by [`SystemStateControl`](@ref).
+
+Values: `ssManualOperation`, `ssParking`, `ssPowerProduction`, `ssReelIn`,
+`ssWinchControl`, `ssPower`, `ssKiteReelOut`, `ssIntermediate`, `ssWaitUntil`,
+`ssDepower`, `ssLaunching`, `ssLanding`, `ssEmergencyLanding`, `ssTouchdown`.
+"""
 @enum SystemState begin ssManualOperation; ssParking; ssPower; ssKiteReelOut; 
                         ssWaitUntil;    # wait until high elevation
                         ssDepower;
@@ -118,7 +127,7 @@ end
 """
     copy_bin()
 
-Copy the script run_julia to the folder "bin"
+Copy the script `run_julia` to the folder "bin"
 (it will be created if it doesn't exist).
 """
 function copy_bin()

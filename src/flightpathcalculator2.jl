@@ -12,35 +12,17 @@ function addxy(vec, x, y)
 end
 
 @enum FPPS INITIAL=0 UPPER_TURN LOW_RIGHT LOW_TURN LOW_LEFT TURN_LEFT FLY_RIGHT TURN_RIGHT FLY_LEFT UP_TURN UP_TURN_LEFT UP_FLY_UP DEPOWER POWER PARKING
-#     INITIAL                    = 0  # ssManualOperation
-#     UPPER_TURN                 = 1  # ssIntermediate
-#     LOW_RIGHT                  = 2  # ssIntermediate
-#     LOW_TURN                   = 3  # ssIntermediate
-#     LOW_LEFT                   = 4  # ssIntermediate
-#     TURN_LEFT                  = 5  # ssKiteReelOut
-#     FLY_RIGHT                  = 6  # ssKiteReelOut
-#     TURN_RIGHT                 = 7  # ssKiteReelOut
-#     FLY_LEFT                   = 8  # ssKiteReelOut
-#     UP_TURN                    = 9  # ssWaitUntil
-#     UP_TURN_LEFT               = 10
-#     UP_FLY_UP                  = 11 # ssWaitUntil
-#     DEPOWER                    = 12 # ssDepower
-#     KiteControllers.KiteControllers.POWER                      = 13 # ssPower
-#     PARKING                    = 14 # ssParking
 
+"""
+    FlightPathCalculator
 
-#     Component, that calculates the planned flight path as specified in the PhD thesis of
-#     Uwe Fechner in chapter five.
-#     Inputs:
-#     a) The elevation angle at the end of the power phase (transition from ssPower to ssIntermediate)
-#     b) azimuth and elevation angle of the kite at each time step for the calculation of omega
-#     Outputs:
-#     a) the planned flight path as defined in the message PlannedFlightPath (see above)
-#     b) the angular speed of the kite (omega), projected on the unit sphere in degrees per second
-#     A new flight path is calculated and published:
-#     a) at the beginning of the reel-out phase (when the method onNewSystemState(ssIntermediate) is called )
-#     b) when the set value of the elevation changes (call of the method publish(beta_set))
-#     See also: docs/planned_flight_path.png
+Computes the planned figure-of-eight flight path attractor points and the angular speed
+of the kite (omega) on the unit sphere. A new path is calculated:
+- at the beginning of the reel-out phase (when `onNewSystemState(ssIntermediate)` is called)
+- when the elevation set-point changes (call `publish(beta_set)`)
+
+See also `docs/planned_flight_path.png`.
+"""
 @with_kw mutable struct FlightPathCalculator @deftype Float64
     fpc::FlightPathController
     fpps::FPPSettings

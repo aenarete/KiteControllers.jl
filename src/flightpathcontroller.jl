@@ -8,20 +8,20 @@ const TAU_VA = 0.0 # time constant for averaging the apparent wind velocity
 FlightPathController as specified in chapter six of the PhD thesis of Uwe Fechner.
 
 Main inputs are calls to the functions:
-- on_control_command()
-- on_est_sys_state()
+- `on_control_command()``
+- `on_est_sys_state()`
 
-Main output is the set value of the steering u_s, returned by the method:
-- calc_steering()
+Main output is the set value of the steering `u_s`, returned by the method:
+- `calc_steering()`
 
 Once per time step the method
-- on_timer
+- `on_timer()`
 must be called.
 
 See also:
-docs/flight_path_controller_I.png and
-docs/flight_path_controller_II.png and
-docs/flight_path_controller_III.png
+`docs/flight_path_controller_I.png` and
+`docs/flight_path_controller_II.png` and
+`docs/flight_path_controller_III.png`
 """
 @with_kw mutable struct FlightPathController @deftype Float64
     "struct holding the settings of the flight path controller"
@@ -113,7 +113,7 @@ end
 
 Input:  
 Either the attractor point (MVector of azimuth and elevation in radian),
-or psi_dot, the set value for the turn rate in degrees per second.
+or `psi_dot`, the set value for the turn rate in degrees per second.
 """
 function on_control_command(fpc::FlightPathController; attractor=nothing, psi_dot_set=nothing, radius=nothing, intermediate = true)
     fpc.intermediate = intermediate
@@ -151,10 +151,10 @@ Parameters:
 - psi:      heading of the kite in radian
 - chi:      course of the kite in radian
 - omega:    angular velocity of the kite on the unit sphere in degrees/s ???
-- u_d:      depower settings             [0..1]
-- u_d_prime normalized depower settings  [0..1]
+- `u_d`:      depower settings             [0..1]
+- `u_d_prime` normalized depower settings  [0..1]
 
-Either u_d or u_d_prime must be provided.
+Either `u_d` or `u_d_prime` must be provided.
 """
 function on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, va; u_d=nothing, u_d_prime=nothing)
     fpc.phi = phi
@@ -208,8 +208,8 @@ end
 """
     navigate(fpc, limit=50.0)
 
-Calculate the desired flight direction chi_set using great circle navigation.
-Limit delta_beta to the value of the parameter limit (in degrees).
+Calculate the desired flight direction `chi_set` using great circle navigation.
+Limit `delta_beta` to the value of the parameter limit (in degrees).
 """
 function navigate(fpc::FlightPathController, limit=50.0)
     # navigate only if steering towards the attractor point is active
@@ -235,8 +235,8 @@ end
 Nonlinear, dynamic inversion block (NDI) according to Eq. 6.4 and Eq. 6.12.
 
 Parameters:
-- psi_dot: desired turn rate in radians per second
-- fix_va: keep va fixed for the second term of the turn rate law; was useful in some
+- `psi_dot`: desired turn rate in radians per second
+- `fix_va`: keep va fixed for the second term of the turn rate law; was useful in some
   simulink tests.
 """
 function linearize(fpc::FlightPathController, psi_dot; fix_va=false)
@@ -276,10 +276,10 @@ end
 """
     calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
 
-see: docs/flight_path_controller_II.png
+see: `docs/flight_path_controller_II.png`
 
 Parameters:
-- x: vector of k_u_in, k_psi_in and int2_in
+- x: vector of `k_u_in`, `k_psi_in` and `int2_in`
 """
 function calc_sat1in_sat1out_sat2in_sat2out(fpc::FlightPathController, x)
     k_u_in   = x[1]
@@ -310,11 +310,11 @@ end
 """
     function calc_steering(fpc, parking)
 
-Calculate the steering output u_s and the turn rate error err,
-but also the signals Kpsi_out, Ku_out and int_in.
+Calculate the steering output `u_s` and the turn rate error `err`,
+but also the signals `Kpsi_out`, `Ku_out` and `int_in`.
 
 Implements the simulink block diagram, shown in:
-01_doc/flight_path_controller_I.png
+`01_doc/flight_path_controller_I.png`
 
 If the parameter parking is true, only the heading is controlled, not the course.
 """
@@ -322,8 +322,8 @@ function calc_steering(fpc::FlightPathController, parking)
     """
         residual!(fpc, x)
 
-    see: docs/flight_path_controller_II.png
-    x: vector of k_u_in, k_psi_in and int2_in
+    see: `docs/flight_path_controller_II.png`
+    x: vector of `k_u_in`, `k_psi_in` and `int2_in`
     """
     function residual!(F, x)
         sat1_in, sat1_out, sat2_in, sat2_out, int_in = calc_sat1in_sat1out_sat2in_sat2out(fpc, x)

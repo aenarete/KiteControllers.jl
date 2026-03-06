@@ -1,3 +1,9 @@
+"""
+Settings of the FlightPathPlanner.
+
+Loaded from the YAML file returned by `fpp_settings()` (typically `data/fpp_settings.yaml`).
+Construct with `FPPSettings(true)` to auto-load from disk, or `FPPSettings()` for defaults.
+"""
 @with_kw mutable struct FPPSettings @deftype Float64
     log_level::Int64 = 2
     min_depower::Float64 =  22 # in percent

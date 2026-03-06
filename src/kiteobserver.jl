@@ -1,4 +1,12 @@
 # observe the flight path and collect useful information to optimize it
+"""
+    KiteObserver
+
+Collects flight path statistics from a simulation log to enable correction of the
+elevation profile over successive figure-of-eight cycles.
+
+Construct with `KiteObserver()`, then call `observe!(ob, log)` to populate.
+"""
 mutable struct KiteObserver
     time::Vector{Float64}
     length::Vector{Float64}
@@ -21,6 +29,12 @@ function save_corr(corr_vec)
     JLD2.save(joinpath(get_data_path(), "corr_vec.jld2"), Dict("corr_vec" => corr_vec))
 end
 
+"""
+    observe!(ob::KiteObserver, log::SysLog, elev_nom=26)
+
+Process a `SysLog` and populate the `KiteObserver` with per-half-cycle
+elevation measurements and correction values for the flight path planner.
+"""
 function observe!(ob::KiteObserver, log::SysLog, elev_nom=26)
     sl  = log.syslog
     last_sign = -1

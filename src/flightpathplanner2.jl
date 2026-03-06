@@ -1,7 +1,14 @@
 # Provides the component FlightPathPlanner. Implementation as specified in chapter five of
 # the PhD thesis of Uwe Fechner.
 
+"""
+    FlightPathPlanner
 
+Manages the sequence of flight path phases (reel-out, turns, intermediate, depower,
+parking) according to the state machine described in chapter 5 of the PhD thesis of
+Uwe Fechner. It drives the [`FlightPathCalculator`](@ref) and thereby the
+[`FlightPathController`](@ref) with appropriate attractor or turn-rate commands.
+"""
 @with_kw mutable struct FlightPathPlanner @deftype Float64
     fpps::FPPSettings
     fpca::FlightPathCalculator
