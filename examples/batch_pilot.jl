@@ -304,11 +304,13 @@ let
         end
         stats = calc_stats(app.logger)
         fmt(x) = @sprintf("%10.2f", x)
+        v_wind_200 = app.set.v_wind * calc_wind_factor(app.kps4.am, 200.0)
         stats_yaml = """
             meta:
               project: "$(project)"
               timestamp: "$(timestamp)"
-              duration: $(@sprintf("%.1f", steps * app.dt)) # simulated duration [s]
+              duration:      $(fmt(steps * app.dt))  # simulated duration [s]
+              v_wind_200:    $(fmt(v_wind_200))  # wind speed at 200m height [m/s]
             error:
               code: "$(error.code)"
               message: "$(error.message)"
