@@ -33,3 +33,4 @@ Manifest-v1.12.toml
 output/batch-*.yaml
 bin/kps-image-1.12-main.so
 bin/kps-image-1.12-main.so.bak
+docs/build
