@@ -3,6 +3,7 @@ let
     include("../examples/batch_plot.jl")
 
     for (name, fn) in MENU_ITEMS
+        name == "select project" && continue
         println("Precompiling $name ...")
         try
             fn()
