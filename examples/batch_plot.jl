@@ -283,10 +283,25 @@ function select_project_menu()
 end
 
 # ---------------------------------------------------------------------------
+# Statistics
+# ---------------------------------------------------------------------------
+function print_statistics()
+    project = read_project_name()
+    stats_file = joinpath(OUTPUT_DIR, "batch-" * project * "_stats.yaml")
+    if !isfile(stats_file)
+        println("No stats file found: $stats_file")
+        return
+    end
+    print(read(stats_file, String))
+    nothing
+end
+
+# ---------------------------------------------------------------------------
 # Interactive menu (REPL.TerminalMenus RadioMenu)
 # ---------------------------------------------------------------------------
 const MENU_ITEMS = [
     ("select project",     select_project_menu),
+    ("statistics",         print_statistics),
     ("plot_main",          plot_main),
     ("plot_power",         plot_power),
     ("plot_control",       plot_control),
