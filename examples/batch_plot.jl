@@ -256,27 +256,6 @@ function plot_front_view3()
     nothing
 end
 
-function plot_timing()
-    log = load_plot_log()
-    sl  = log.syslog
-    dt  = log_dt(sl)
-    display(plotx(sl.time, sl.t_sim, 100*sl.steering, 100*sl.depower;
-                  ylabels=["t_sim [ms]", "steering [%]", "depower [%]"],
-                  fig="timing"))
-    println("Mean    time per timestep: $(mean(sl.t_sim)) ms")
-    println("Maximum time per timestep: $(maximum(sl.t_sim[10:end])) ms")
-    index = Int64(round(12 / dt))
-    println("Maximum for t>12s        : $(maximum(sl.t_sim[index:end])) ms")
-    nothing
-end
-
-function plot_timing2()
-    log = load_plot_log()
-    sl  = log.syslog
-    display(plot(sl.time, sl.t_sim; ylabel="t_sim [ms]", fig="timing2"))
-    nothing
-end
-
 # ---------------------------------------------------------------------------
 # Project selection sub-menu
 # ---------------------------------------------------------------------------
