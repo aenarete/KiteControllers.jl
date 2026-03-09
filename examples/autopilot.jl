@@ -79,7 +79,7 @@ function init(app::KiteApp; init_viewer=false)
     app.fpps = FPPSettings(true)
     app.fpps.log_level = app.set.log_level
     u_d0 = 0.01 * se(project).depower_offset
-    u_d = 0.01 * se(project).depower
+    u_d = 0.01 * se(project).depowers[1]
     app.ssc = SystemStateControl(app.wcs, app.fcs, app.fpps; u_d0, u_d, v_wind=app.set.v_wind)
     if init_viewer
         app.viewer= Viewer3D(app.set, app.show_kite; menus=true)
@@ -134,7 +134,7 @@ function simulate(integrator, stopped=true)
     KiteViewers.running[] = ! stopped
     app.viewer.stop = stopped
     if ! stopped
-        set_status(app.viewer, "ssParking")
+        set_status(app.viewer::Viewer3D, "ssParking")
     end
     i=1
     j=0; k=0
@@ -145,13 +145,13 @@ function simulate(integrator, stopped=true)
         GC.enable(false)
     end
     max_time = 0
-    sys_state = SysState(app.kps4)
+    sys_state = SysState(app.kps4::KPS4)
     sys_state.e_mech = 0
     sys_state.sys_state = Int16(app.ssc.fpp._state)
     e_mech = 0.0
     last_vel = [0.0, 0.0, 0.0]
-    on_new_systate(app.ssc, sys_state)
-    KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
+    on_new_systate(app.ssc::SystemStateControl, sys_state)
+    KiteViewers.update_system(app.viewer::Viewer3D, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
     last_yaw = 0.0
     last_yaw_rate = 0.0
     while app.initialized
@@ -164,8 +164,8 @@ function simulate(integrator, stopped=true)
                 app.steps = Int64(app.max_time/app.dt)
                 app.particles = app.set.segments + 5
                 app.logger = Logger(app.particles, app.steps)
-                log!(app.logger, sys_state)
-                integrator = KiteModels.init!(app.kps4; delta=app.set.delta, stiffness_factor=app.set.stiffness_factor)
+                log!(app.logger::Logger, sys_state)
+                integrator = KiteModels.init!(app.kps4::KPS4; delta=app.set.delta, stiffness_factor=app.set.stiffness_factor)
             end
             if mod(i, 100) == 0 && app.set.log_level > 0
                 println("Free memory: $(round(Sys.free_memory()/1e9, digits=1)) GB") 
