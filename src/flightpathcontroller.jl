@@ -185,7 +185,7 @@ function on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, 
         if isnothing(u_d)
             error("on_est_sysstate: either u_d or u_d_prime must be provided")
         end
-        fpc.u_d_prime = (u_d::Float64 - fpc.u_d0) / (fpc.u_d_max - fpc.u_d0)
+        fpc.u_d_prime = (u_d::AbstractFloat - fpc.u_d0) / (fpc.u_d_max - fpc.u_d0)
     else
         fpc.u_d_prime = u_d_prime
     end
@@ -359,13 +359,13 @@ function calc_steering(fpc::FlightPathController, parking)
             if fpc.fcs.prn
                 @printf "===>>> Reset integrator to zero!\n"
             end
-            reset(fpc.int, 0.0)
+            reset(fpc.int::Integrator, 0.0)
         else
             if fpc.fcs.prn
                 @printf "est_psi_dot: %.3f" fpc.est_psi_dot
                 @printf "initial integrator output: %.3f" (fpc.est_psi_dot / fpc.fcs.gain - fpc.err * fpc.fcs.p)
             end
-            reset(fpc.int, fpc.est_psi_dot / fpc.fcs.gain - fpc.err * fpc.fcs.p)
+            reset(fpc.int::Integrator, fpc.est_psi_dot / fpc.fcs.gain - fpc.err * fpc.fcs.p)
         end
         fpc.reset_int1 = false
     end
@@ -373,7 +373,7 @@ function calc_steering(fpc::FlightPathController, parking)
         if fpc.fcs.prn
             @printf "initial output of integrator two: %.3f" fpc.err * fpc.fcs.d
         end
-        reset(fpc.int2, (fpc.err * fpc.fcs.d))
+        reset(fpc.int2::Integrator, (fpc.err * fpc.fcs.d))
     end
     if fpc.fcs.init_opt_to_zero
         res = nlsolve(residual!, [ 0.0; 0.0], ftol=FTOL)
@@ -394,9 +394,9 @@ function calc_steering(fpc::FlightPathController, parking)
     fpc.int_in = int_in
     if ! isnothing(fpc.psi_dot_set)
         if fpc.fcs.use_radius && ! isnothing(fpc.radius)
-            fpc.psi_dot_set_final = fpc.omega / fpc.radius # desired turn rate during the turns
+            fpc.psi_dot_set_final = fpc.omega / fpc.radius::Float64 # desired turn rate during the turns
         end
-        fpc.psi_dot_set = fpc.psi_dot_set * TAU + fpc.psi_dot_set_final * (1-TAU)
+        fpc.psi_dot_set = fpc.psi_dot_set::Float64 * TAU + fpc.psi_dot_set_final::Float64 * (1-TAU)
         fpc.u_s = saturate(linearize(fpc, fpc.psi_dot_set), -1.0, 1.0)
     else
         fpc.u_s = sat2_out
@@ -406,8 +406,8 @@ function calc_steering(fpc::FlightPathController, parking)
 end
 
 function on_timer(fpc::FlightPathController)
-    on_timer(fpc.int)
-    on_timer(fpc.int2)
+    on_timer(fpc.int::Integrator)
+    on_timer(fpc.int2::Integrator)
 end
 
 function get_state(fpc::FlightPathController)
