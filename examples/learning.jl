@@ -9,7 +9,7 @@ using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
-using KiteControllers, KiteModels
+using KiteControllers, KiteModels, YAML
 
 function read_project()
     config_file = joinpath(get_data_path(), "gui.yaml")
@@ -46,7 +46,7 @@ function residual(corr_vec=nothing; sim_time=500)
     fcs = FPCSettings(dt=wcs.dt)
     fpps = FPPSettings()
     u_d0 = 0.01 * set.depower_offset
-    u_d  = 0.01 * set.depower
+    u_d  = 0.01 * set.depowers[1]
     ssc = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
     if ! isnothing(corr_vec)
         ssc.fpp.corr_vec = corr_vec
@@ -108,7 +108,7 @@ function residual(corr_vec=nothing; sim_time=500)
     l_out = length(ob.corr_vec)
     println("l_out: $l_out")
     if l_out < l_in
-        for i in 1:(l_in-l_out)
+        for _ in 1:(l_in-l_out)
             push!(ob.corr_vec, 0)
         end
     end
@@ -132,7 +132,6 @@ function train(use_last=true; max_iter=40, norm_tol=1.0)
         KiteControllers.save_corr(corr_vec)
     end
     initial = KiteControllers.load_corr()
-    last_norm=1000
     best_corr_vec = deepcopy(initial)
     best_norm = norm(best_corr_vec)
     j = 0
@@ -163,11 +162,10 @@ function train(use_last=true; max_iter=40, norm_tol=1.0)
             break
         end
         if j > 4
-            println("Convergance failed!")
+            println("Convergence failed!")
             println("Best norm: $best_norm")
             break
         end
-        last_norm=norm(res)
     end
     KiteControllers.save_corr(best_corr_vec)
     best_corr_vec
