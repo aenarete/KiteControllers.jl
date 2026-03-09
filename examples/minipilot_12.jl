@@ -66,7 +66,6 @@ function simulate(integrator, stopped=true)
     if Sys.total_memory()/1e9 > 24 && MAX_TIME < 500
         GC.enable(false)
     end
-    t_gc_tot = 0
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)

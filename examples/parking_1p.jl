@@ -13,9 +13,8 @@ set.rel_tol=0.0001
 set.v_wind = 6.5
 
 using ControlPlots, KiteModels, KiteViewers, Rotations
-using KiteModels: set_depower_steering
 using KiteControllers: FPCSettings, FPPSettings, SystemStateControl, WCSettings,
-      calc_heading, calc_steering, on_new_systate, on_parking, on_winchcontrol, on_stop
+      on_parking, on_winchcontrol, on_stop, on_new_systate, calc_steering
 
 kcu::KCU = KCU(set)
 kps::KPS3 = KPS3(kcu)
@@ -23,7 +22,7 @@ wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
 fcs::FPCSettings = FPCSettings(true, dt = wcs.dt)
 fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
-u_d = 0.01 * set.depower
+u_d = 0.01 * set.depowers[1]
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
@@ -129,9 +128,9 @@ function autopilot()
     on_winchcontrol(ssc)
 end
 
-on(viewer.btn_STOP.clicks) do c; stop(viewer); on_stop(ssc) end
-on(viewer.btn_PLAY.clicks) do c; async_play(); end
-on(viewer.btn_PARKING.clicks) do c; parking(); end
+on(viewer.btn_STOP.clicks) do _; stop(viewer); on_stop(ssc) end
+on(viewer.btn_PLAY.clicks) do _; async_play(); end
+on(viewer.btn_PARKING.clicks) do _; parking(); end
 
 play()
 stop(viewer)
