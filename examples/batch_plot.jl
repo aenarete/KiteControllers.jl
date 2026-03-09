@@ -9,6 +9,10 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 
+if !@isdefined __PRECOMPILE__
+    __PRECOMPILE__ = false
+end
+
 using ControlPlots, KiteControllers, LaTeXStrings, Statistics, YAML
 using REPL.TerminalMenus
 
@@ -381,6 +385,6 @@ function run_menu()
     end
 end
 
- if ! @isdefined __PRECOMPILE__
+if !__PRECOMPILE__
     run_menu()
 end
