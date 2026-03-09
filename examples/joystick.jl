@@ -12,8 +12,9 @@ set::Settings = deepcopy(load_settings("system.yaml"))
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 if ! @isdefined js;
-    const js = open_joystick();
-    const jsaxes = JSState(); 
+    global js
+    const js = open_joystick()
+    const jsaxes = JSState()
     const jsbuttons = JSButtonState()
     async_read!(js, jsaxes, jsbuttons)
 end
@@ -21,7 +22,7 @@ wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
 fcs::FPCSettings =  FPCSettings(true, dt=wcs.dt)
 fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
-u_d  = 0.01 * set.depower
+u_d  = 0.01 * set.depowers[1]
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
@@ -52,7 +53,7 @@ function simulate(integrator)
             depower = KiteControllers.get_depower(ssc)
             # println("dp: ", dp)
             if depower < 0.22; depower = 0.22; end
-            heading = calc_heading(app.kps4; neg_azimuth=true)
+            heading = calc_heading(kps4; neg_azimuth=true)
             steering = calc_steering(ssc, jsaxes.x; heading)
             set_depower_steering(kps4.kcu, depower, steering)
             println("depower: ", depower, " steering: ", round(steering, digits=3))
@@ -67,7 +68,7 @@ function simulate(integrator)
         end
         sys_state = SysState(kps4)
         on_new_systate(ssc, sys_state)
-        e_mech += (sys_state.winch_force[1] * sys_state.v_reelout)/3600*dt
+        e_mech += (sys_state.winch_force[1] * sys_state.v_reelout[1])/3600*dt
         sys_state.e_mech = e_mech
         if mod(i, TIME_LAPSE_RATIO) == 0
             KiteViewers.update_system(viewer, sys_state; scale = 0.08, kite_scale=3)
@@ -131,10 +132,10 @@ function autopilot()
     on_winchcontrol(ssc)
 end
 
-on(viewer.btn_PLAY.clicks) do c; async_play(); end
-on(viewer.btn_STOP.clicks) do c; stop(viewer); on_stop(ssc) end
-on(viewer.btn_PARKING.clicks) do c; parking(); end
-on(viewer.btn_AUTO.clicks) do c; autopilot(); end
+on(viewer.btn_PLAY.clicks) do _; async_play(); end
+on(viewer.btn_STOP.clicks) do _; stop(viewer); on_stop(ssc) end
+on(viewer.btn_PARKING.clicks) do _; parking(); end
+on(viewer.btn_AUTO.clicks) do _; autopilot(); end
 
 on(jsbuttons.btn1) do val; if val async_play() end; end
 on(jsbuttons.btn2) do val; if val stop(viewer) end; end
