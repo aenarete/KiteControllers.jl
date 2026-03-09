@@ -29,3 +29,9 @@ pattern = "`__PRECOMPILE__` may be undefined"
 match_by = "message"
 match_type = "literal"
 severity = "off"
+
+[[diagnostic.patterns]]
+pattern = "`PROJECT` may be undefined"
+match_by = "message"
+match_type = "literal"
+severity = "off"
