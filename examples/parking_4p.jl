@@ -154,8 +154,8 @@ function play1()
     end
 end
 
-on(viewer.btn_PLAY.clicks) do c; play1(); end
-on(viewer.btn_PARKING.clicks) do c; parking(); end
+on(viewer.btn_PLAY.clicks) do _; play1(); end
+on(viewer.btn_PARKING.clicks) do _; parking(); end
 
 play()
 stop(viewer)
