@@ -171,28 +171,28 @@ function simulate(integrator, stopped=true)
                 println("Free memory: $(round(Sys.free_memory()/1e9, digits=1)) GB") 
             end
             if i > 100
-                dp = KiteControllers.get_depower(app.ssc)
+                dp = KiteControllers.get_depower(app.ssc::SystemStateControl)
                 if dp < 0.22 dp = 0.22 end
-                heading = calc_heading(app.kps4; neg_azimuth=true, one_point=false)
+                heading = calc_heading(app.kps4::KPS4; neg_azimuth=true, one_point=false)
                 app.ssc.sys_state.heading = heading
-                app.ssc.sys_state.azimuth = -calc_azimuth(app.kps4)
+                app.ssc.sys_state.azimuth = -calc_azimuth(app.kps4::KPS4)
                 #  steering = calc_steering(app.ssc; heading)
-                steering = -calc_steering(app.ssc)
-                set_depower_steering(app.kps4.kcu, dp, steering)
+                steering = -calc_steering(app.ssc::SystemStateControl)
+                set_depower_steering(app.kps4::KPS4.kcu, dp, steering)
             end
             if i == 200 && ! app.parking
-                on_autopilot(app.ssc)
+                on_autopilot(app.ssc::SystemStateControl)
             end
             # execute winch controller
-            v_ro = calc_v_set(app.ssc)
+            v_ro = calc_v_set(app.ssc::SystemStateControl)
             #
-            t_sim = @elapsed KiteModels.next_step!(app.kps4, integrator; set_speed=v_ro, dt=app.dt)
-            sys_state.orient .= calc_orient_quat(app.kps4)
-            sys_state=SysState(app.kps4)
-            acc = (app.kps4.vel_kite - last_vel)/app.dt
-            last_vel = deepcopy(app.kps4.vel_kite)
+            t_sim = @elapsed KiteModels.next_step!(app.kps4::KPS4, integrator; set_speed=v_ro, dt=app.dt)
+            sys_state.orient .= calc_orient_quat(app.kps4::KPS4)
+            sys_state=SysState(app.kps4::KPS4)
+            acc = (app.kps4::KPS4.vel_kite - last_vel)/app.dt
+            last_vel = deepcopy(app.kps4::KPS4.vel_kite)
 
-            on_new_systate(app.ssc, sys_state)
+            on_new_systate(app.ssc::SystemStateControl, sys_state)
             e_mech += (sys_state.winch_force[1] * sys_state.v_reelout[1])/3600*app.dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(app.ssc.fpp._state)
@@ -293,8 +293,8 @@ function play(stopped=false)
             init(app)
         end
         KiteViewers.plot_file[]=DEFAULT_LOG
-        on_parking(app.ssc)
-        integrator = KiteModels.init!(app.kps4; delta=app.set.delta, stiffness_factor=app.set.stiffness_factor)
+        on_parking(app.ssc::SystemStateControl)
+        integrator = KiteModels.init!(app.kps4::KPS4; delta=app.set.delta, stiffness_factor=app.set.stiffness_factor)
         if app.run == 0; toc(); end
         app.run += 1
         simulate(integrator, stopped)
@@ -317,21 +317,21 @@ end
 function parking()
     app.parking     = true
     app.viewer.stop = false
-    on_parking(app.ssc)
+    on_parking(app.ssc::SystemStateControl)
 end
 
 function autopilot()
     app.parking     = false
     app.viewer.stop = false
-    on_autopilot(app.ssc)
+    on_autopilot(app.ssc::SystemStateControl)
 end
 
 function stop_()
     if app.set.log_level > 0
         println("Stopping...")
     end
-    on_stop(app.ssc)
-    clear!(app.kps4)
+    on_stop(app.ssc::SystemStateControl)
+    clear!(app.kps4::KPS4)
     if ! isnothing(app.viewer)
         clear_viewer(app.viewer::Viewer3D)
     end
@@ -374,7 +374,7 @@ function save_log_as()
                 println("Copying: ", source, " => ", dest)
             end
             cp(source, dest; force=true)
-            KiteViewers.set_status(app.viewer, "Saved log as:")
+            KiteViewers.set_status(app.viewer::Viewer3D, "Saved log as:")
             KiteViewers.plot_file[] = replace(filename, homedir() => "~")
         end
     end
