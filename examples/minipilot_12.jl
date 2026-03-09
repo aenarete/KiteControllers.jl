@@ -16,7 +16,7 @@ wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
 fcs::FPCSettings = FPCSettings(true, dt=wcs.dt)
 fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
-u_d  = 0.01 * set.depower
+u_d  = 0.01 * set.depowers[1]
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 dt::Float64 = wcs.dt
 
@@ -28,7 +28,7 @@ function init_globals()
     fcs  = FPCSettings(true, dt=wcs.dt)
     fpps = FPPSettings(true)
     u_d0 = 0.01 * set.depower_offset
-    u_d  = 0.01 * set.depower
+    u_d  = 0.01 * set.depowers[1]
     ssc = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 end
 
@@ -62,7 +62,6 @@ function simulate(integrator, stopped=true)
         set_status(viewer, "ssParking")
     end
     i=1
-    j=0; k=0
     GC.gc()
     if Sys.total_memory()/1e9 > 24 && MAX_TIME < 500
         GC.enable(false)
@@ -155,10 +154,10 @@ function stop_()
 end
 
 stop_()
-on(viewer.btn_PARKING.clicks) do c; parking(); end
-on(viewer.btn_AUTO.clicks) do c; autopilot(); end
-on(viewer.btn_STOP.clicks) do c; stop_(); end
-on(viewer.btn_PLAY.clicks) do c;
+on(viewer.btn_PARKING.clicks) do _; parking(); end
+on(viewer.btn_AUTO.clicks) do _; autopilot(); end
+on(viewer.btn_STOP.clicks) do _; stop_(); end
+on(viewer.btn_PLAY.clicks) do _;
     global PARKING
     if ! viewer.stop
         PARKING = false
