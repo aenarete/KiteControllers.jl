@@ -5,6 +5,10 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
+if !@isdefined __PRECOMPILE__
+    __PRECOMPILE__ = false
+end
+
 LOG_LIFT_DRAG::Bool = false
 DRAG_CORR::Float64 = 0.93 
 
@@ -307,7 +311,7 @@ function play(stopped=false)
             end
             save_log(app.logger::Logger, basename(DEFAULT_LOG); path=dirname(DEFAULT_LOG))
         end
-        if @isdefined __PRECOMPILE__
+        if __PRECOMPILE__
             break
         end
     end
@@ -502,7 +506,7 @@ on(app.viewer.t_sim.stored_string) do c
     app.set.sim_time=val
 end
 
-if @isdefined __PRECOMPILE__
+if __PRECOMPILE__
     app.max_time = 30
     app.next_max_time = 30
     play(false)
