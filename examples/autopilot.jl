@@ -12,7 +12,8 @@ end
 LOG_LIFT_DRAG::Bool = false
 DRAG_CORR::Float64 = 0.93 
 
-using ControlPlots, KiteControllers, KiteModels, KiteViewers, LaTeXStrings, NativeFileDialog, Statistics
+using KiteViewers
+using ControlPlots, KiteControllers, KiteModels, LaTeXStrings, NativeFileDialog, Statistics
 using LinearAlgebra, Printf
 using KiteViewers: Viewer3D
 import KiteViewers.GLMakie
@@ -311,7 +312,7 @@ function play(stopped=false)
             end
             save_log(app.logger::Logger, basename(DEFAULT_LOG); path=dirname(DEFAULT_LOG))
         end
-        if __PRECOMPILE__
+        if (@isdefined __PRECOMPILE__) && __PRECOMPILE__
             break
         end
     end
