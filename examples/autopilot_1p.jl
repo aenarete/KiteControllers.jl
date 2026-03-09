@@ -17,7 +17,7 @@ wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
 fcs::FPCSettings = FPCSettings(true, dt = wcs.dt)
 fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
-u_d = 0.01 * set.depower
+u_d = 0.01 * set.depowers[1]
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 dt::Float64 = wcs.dt
 

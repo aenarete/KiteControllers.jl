@@ -33,7 +33,7 @@ function SystemStateControl(wcs::WCSettings, fcs::FPCSettings, fpps::FPPSettings
     attractor = zeros(2)
     attractor[end] = deg2rad(80.0) # beta_set
     on_control_command(fpca.fpc, attractor=attractor)
-    publish(fpca) # initialise the flight path calculator
+    publish(fpca) # initialize the flight path calculator
     res
 end
 

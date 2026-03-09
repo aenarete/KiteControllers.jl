@@ -136,7 +136,9 @@ function on_control_command(fpc::FlightPathController; attractor=nothing, psi_do
     end
     if ! isnothing(psi_dot_set)
         fpc.psi_dot_set_final = deg2rad(psi_dot_set)
-        fpc.psi_dot_set = fpc.psi_dot_set_final * 2.0
+        if !isnothing(fpc.psi_dot_set_final)
+            fpc.psi_dot_set = fpc.psi_dot_set_final::Float64 * 2.0
+        end
     else
         fpc.psi_dot_set = nothing
     end
@@ -180,7 +182,10 @@ function on_est_sysstate(fpc::FlightPathController, phi, beta, psi, chi, omega, 
     fpc.chi = chi
     # Eq. 6.4: calculate the normalized depower setting
     if isnothing(u_d_prime)
-        fpc.u_d_prime = (u_d - fpc.u_d0) / (fpc.u_d_max - fpc.u_d0)
+        if isnothing(u_d)
+            error("on_est_sysstate: either u_d or u_d_prime must be provided")
+        end
+        fpc.u_d_prime = (u_d::Float64 - fpc.u_d0) / (fpc.u_d_max - fpc.u_d0)
     else
         fpc.u_d_prime = u_d_prime
     end
@@ -358,17 +363,17 @@ function calc_steering(fpc::FlightPathController, parking)
         else
             if fpc.fcs.prn
                 @printf "est_psi_dot: %.3f" fpc.est_psi_dot
-                @printf "initial integrator output: %.3f" (fpc.est_psi_dot / fpc.gain - fpc.err * fpc.P)
+                @printf "initial integrator output: %.3f" (fpc.est_psi_dot / fpc.fcs.gain - fpc.err * fpc.fcs.p)
             end
-            reset(fpc.int, fpc.est_psi_dot / fpc.gain - fpc.err * fpc.P)
+            reset(fpc.int, fpc.est_psi_dot / fpc.fcs.gain - fpc.err * fpc.fcs.p)
         end
         fpc.reset_int1 = false
     end
     if fpc.fcs.reset_int2 && fpc._i == 1
         if fpc.fcs.prn
-            @printf "initial output of integrator two: %.3f" fpc.err * fpc.D
+            @printf "initial output of integrator two: %.3f" fpc.err * fpc.fcs.d
         end
-        fpc.int2.reset((fpc.err * fpc.D))
+        reset(fpc.int2, (fpc.err * fpc.fcs.d))
     end
     if fpc.fcs.init_opt_to_zero
         res = nlsolve(residual!, [ 0.0; 0.0], ftol=FTOL)
