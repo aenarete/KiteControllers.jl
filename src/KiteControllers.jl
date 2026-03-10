@@ -2,36 +2,37 @@ module KiteControllers
 
 using Reexport
 @reexport using KiteUtils
-using WinchModels, Parameters, Observables, StaticArrays, NLsolve, Printf
-using YAML, StructTypes, StatsBase, Pkg
+using NLsolve, Observables, Parameters, Printf, StaticArrays, WinchModels
+using Pkg, StatsBase, StructTypes, YAML
 @reexport using WinchControllers
-import WinchControllers: on_timer, calc_v_set, get_state, update, reset
+import WinchControllers: calc_v_set, get_state, on_timer, reset, update
 import JLD2
 
-export Integrator, FlightPathController, FPCSettings, WCSettings    # types
-export WinchController, KiteModel, KiteObserver
-export UnitDelay, RateLimiter, Mixer_2CH, Mixer_3CH, CalcVSetIn
-export Winch, SpeedController, LowerForceController, UpperForceController
-export FlightPathCalculator, SystemStateControl, SystemState
-export FlightPathPlanner, FPPSettings, POWER, LOW_LEFT, FLY_LEFT, TURN_LEFT, LOW_RIGHT, LOW_TURN 
-export FLY_RIGHT, TURN_RIGHT, UP_TURN, UP_TURN_LEFT, UP_FLY_UP, UPPER_TURN, DEPOWER, PARKING
-export saturate, @limit, wrap2pi                                       # utility function
-export reset, calc_output, on_timer, select_b, select_c, get_state    # methods of Integrator, UnitDelay etc.
-export on_control_command, on_est_sysstate, on_timer, calc_steering   # methods of FlightPathController 
-export set_tracking, set_v_set, set_inactive, set_v_act, set_v_set_in # methods of SpeedController
-export set_force, get_acc, get_speed                                  # methods of Winch
-export set_v_act, set_reset, set_f_set, set_v_sw, get_f_err           # methods of LowerForceController
+export FPCSettings, FlightPathController, Integrator, WCSettings    # types
+export KiteModel, KiteObserver, WinchController
+export CalcVSetIn, Mixer_2CH, Mixer_3CH, RateLimiter, UnitDelay
+export LowerForceController, SpeedController, UpperForceController, Winch
+export FlightPathCalculator, SystemState, SystemStateControl
+export FLY_LEFT, FPPSettings, FlightPathPlanner, LOW_LEFT, LOW_RIGHT, LOW_TURN, POWER,
+    TURN_LEFT 
+export DEPOWER, FLY_RIGHT, PARKING, TURN_RIGHT, UPPER_TURN, UP_FLY_UP, UP_TURN, UP_TURN_LEFT
+export @limit, saturate, wrap2pi                                       # utility function
+export calc_output, get_state, on_timer, reset, select_b, select_c    # methods of Integrator, UnitDelay etc.
+export calc_steering, on_control_command, on_est_sysstate, on_timer   # methods of FlightPathController 
+export set_inactive, set_tracking, set_v_act, set_v_set, set_v_set_in # methods of SpeedController
+export get_acc, get_speed, set_force                                  # methods of Winch
+export get_f_err, set_f_set, set_reset, set_v_act, set_v_sw           # methods of LowerForceController
 export calc_vro, set_vset_pc                                          # functions for winch control
 export calc_v_set, get_status                          # methods of WinchController
-export on_autopilot, on_parking, on_reelin, on_stop, on_new_systate   # methods of SystemStateControl
-export on_winchcontrol, get_depower                                   # methods of SystemStateControl
-export ssParking, ssPowerProduction, ssReelIn, ssManualOperation
-export update, observe!
+export on_autopilot, on_new_systate, on_parking, on_reelin, on_stop   # methods of SystemStateControl
+export get_depower, on_winchcontrol                                   # methods of SystemStateControl
+export ssManualOperation, ssParking, ssPowerProduction, ssReelIn
+export observe!, update
 
 abstract type AbstractForceController end
 const AFC = AbstractForceController
 const EPSILON = 1e-6
-const FTOL    = 1e-8 # tolerance of residual for nonlinar solver
+const FTOL    = 1e-8 # tolerance of residual for nonlinear solver
 
 """
     SystemState

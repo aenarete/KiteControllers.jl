@@ -53,7 +53,7 @@ function FlightPathPlanner(fpps::FPPSettings, fpca::FlightPathCalculator)
 end
 
 #  Call the related method of the flight path controller directly.
-function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, psi_dot=nothing, radius=nothing, intermediate = false)
+function _publish_fpc_command(fpp::FlightPathPlanner, _; attractor=nothing, psi_dot=nothing, radius=nothing, intermediate = false)
     if ! isnothing(psi_dot)
         psi_dot = rad2deg(psi_dot)
     end
@@ -63,9 +63,9 @@ function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, p
     on_control_command(fpp.fpca.fpc, attractor=attractor, psi_dot_set=psi_dot, radius=radius, intermediate=intermediate)
     if fpp.fpps.log_level > 2
         println("New FPC command. Intermediate: ", intermediate)
-            if isnothing(psi_dot)
+            if isnothing(psi_dot) && !isnothing(attractor)
                 @printf "New attractor point:  [%.2f,  %.2f]\n" rad2deg(attractor[begin]) rad2deg(attractor[begin+1])
-            else
+            elseif !isnothing(psi_dot)
                 if isnothing(radius)
                     @printf "New psi_dot_set: %.3f [°/s]\n" psi_dot
                 else
