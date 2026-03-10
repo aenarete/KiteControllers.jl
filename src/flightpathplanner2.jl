@@ -4,10 +4,30 @@
 """
     FlightPathPlanner
 
-Manages the sequence of flight path phases (reel-out, turns, intermediate, depower,
-parking) according to the state machine described in chapter 5 of the PhD thesis of
-Uwe Fechner. It drives the [`FlightPathCalculator`](@ref) and thereby the
-[`FlightPathController`](@ref) with appropriate attractor or turn-rate commands.
+Top-level flight path planner as specified in chapter 5 of the PhD thesis of Uwe Fechner.
+
+Manages the sequence of flight path phases (power, turns, intermediate, depower, parking)
+by running a state machine whose transitions are evaluated on every call to
+[`on_new_data`](@ref). It drives the [`FlightPathCalculator`](@ref), and thereby the
+[`FlightPathController`](@ref), with appropriate attractor points or turn-rate commands.
+
+# Fields
+- `fpps::FPPSettings`: flight path planner settings (geometry, limits, PID gains).
+- `fpca::FlightPathCalculator`: the associated flight path calculator.
+- `corr_vec::Vector{Float64}`: elevation-angle correction look-up vector (loaded from `fpps.corr_vec`).
+- `_state::FPPS`: current planner state (one of the `FPPS` enum values); starts at `INITIAL`.
+- `delta_depower`: additional depower offset applied when generated power is too high.
+- `const_dd`: depower interpolation coefficient `δ_d` (default `0.7`).
+- `u_d_ro`: relative depower during reel-out (`0.01 * fpps.min_depower`).
+- `u_d_ri`: relative depower during reel-in (`0.01 * fpps.max_depower`).
+- `u_d_pa`: relative depower during parking (default `0.25`).
+- `l_low`: lower tether-length limit for the reel-in/reel-out cycle [m].
+- `l_up`: upper tether-length limit for the reel-in/reel-out cycle [m].
+- `z_up`: maximum allowed kite height [m].
+- `count`: general-purpose iteration counter.
+- `finish::Bool`: flag set when the current reel-out cycle should finish after returning to centre.
+- `last_phi`: azimuth angle from the previous time step [°], used for zero-crossing detection.
+- `timeout`: counter incremented each call to `on_new_data`; reset on every state transition.
 """
 @with_kw mutable struct FlightPathPlanner @deftype Float64
     fpps::FPPSettings
