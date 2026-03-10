@@ -51,11 +51,22 @@ function get_state(fpp::FlightPathPlanner)
     Int(fpp._state)
 end
 
-# Parameters:
-# phi:  the azimuth angle of the kite position in radian
-# beta: the elevation angle of the kite position in radian
-# psi:  heading of the kite in radian
-# u_d:  relative depower of the kite (0..1)
+"""
+    on_new_systate(fpp::FlightPathPlanner, phi, beta, heading, course, v_a, u_d)
+
+Forward the current estimated kite system state to the [`FlightPathController`](@ref)
+by calling `on_est_sysstate`. Sign conventions are applied before forwarding: azimuth and
+heading angles are negated to match the controller's coordinate frame.
+
+# Arguments
+- `fpp`:     the `FlightPathPlanner` instance.
+- `phi`:     azimuth angle of the kite in radians (positive to the left).
+- `beta`:    elevation angle of the kite in radians.
+- `heading`: kite heading angle `ψ` in radians, in the range `0 .. 2π`.
+- `course`:  kite course angle `χ` in radians, in the range `0 .. 2π`.
+- `v_a`:     apparent wind speed in m/s.
+- `u_d`:     relative depower setting of the kite, in the range `0.0 .. 1.0`.
+"""
 function on_new_systate(fpp::FlightPathPlanner, phi, beta, heading, course, v_a, u_d)
     psi = wrap2pi(heading)
     chi = wrap2pi(course)
@@ -184,7 +195,7 @@ function _publish_fpc_command(fpp::FlightPathPlanner, turn; attractor=nothing, p
 end
 
 #  Switch the state of the FPP. Execute all actions, that are needed when the new state is entered.
-#  Return immidiately, if the new state is equal to the old state.
+#  Return immediately, if the new state is equal to the old state.
 function _switch(fpp::FlightPathPlanner, state)
     global depower
     if state == fpp._state
