@@ -183,7 +183,7 @@ function simulate(integrator, stopped=true)
                 app.ssc.sys_state.azimuth = -calc_azimuth(app.kps4::KPS4)
                 #  steering = calc_steering(app.ssc; heading)
                 steering = -calc_steering(app.ssc::SystemStateControl)
-                set_depower_steering(app.kps4::KPS4.kcu, dp, steering)
+                set_depower_steering((app.kps4::KPS4).kcu, dp, steering)
             end
             if i == 200 && ! app.parking
                 on_autopilot(app.ssc::SystemStateControl)
