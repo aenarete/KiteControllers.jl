@@ -107,8 +107,8 @@ end
 function install_examples(add_packages=true)
     Base.invokelatest(copy_examples)
     copy_settings()
-    copy_control_settings()
-    copy_bin()
+    Base.invokelatest(copy_control_settings)
+    Base.invokelatest(copy_bin)
     if add_packages
         Pkg.add("KiteViewers")
         Pkg.add("KiteUtils")
