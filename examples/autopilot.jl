@@ -194,8 +194,8 @@ function simulate(integrator, stopped=true)
             t_sim = @elapsed KiteModels.next_step!(app.kps4::KPS4, integrator; set_speed=v_ro, dt=app.dt)
             sys_state.orient .= calc_orient_quat(app.kps4::KPS4)
             sys_state=SysState(app.kps4::KPS4)
-            acc = (app.kps4::KPS4.vel_kite - last_vel)/app.dt
-            last_vel = deepcopy(app.kps4::KPS4.vel_kite)
+            acc = ((app.kps4::KPS4).vel_kite - last_vel)/app.dt
+            last_vel = deepcopy((app.kps4::KPS4).vel_kite)
 
             on_new_systate(app.ssc::SystemStateControl, sys_state)
             e_mech += (sys_state.winch_force[1] * sys_state.v_reelout[1])/3600*app.dt
