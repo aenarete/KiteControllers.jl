@@ -29,8 +29,7 @@ Uwe Fechner. It drives the [`FlightPathCalculator`](@ref) and thereby the
 end
 
 function FlightPathPlanner(fpps::FPPSettings, fpca::FlightPathCalculator)
-    fpp = FlightPathPlanner(fpps=fpps, fpca=fpca, corr_vec=fpps.corr_vec)
-    # fpp.corr_vec = fpps.corr_vec
+    FlightPathPlanner(fpps=fpps, fpca=fpca, corr_vec=fpps.corr_vec)
 end
 
 # Start automated power production; Precondition: The kite is parking at a high elevation angle.
@@ -63,19 +62,25 @@ function on_new_systate(fpp::FlightPathPlanner, phi, beta, heading, course, v_a,
     on_est_sysstate(fpp.fpca.fpc, -phi, beta, -psi, -chi, fpp.fpca._omega, v_a, u_d=u_d)
 end
 
-#    on_new_data
-# Determine, if a state change is need it and change it by calling the switch method, if neccessary.
-#
-# Parameters:
-# depower: 0.0 .. 1.0
-# length: tether length [m]
-# heading: 0 .. 2 pi (psi)
-# height: height [m]
-# Inherited:
-# fpp.fpca._phi:   azimuth in degrees
-# fpp.fpca._beta:  elevation in degrees
-# fpp.fpca._omega: angular speed in degrees per second
-function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, time=0.0)
+"""
+    on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, _=0.0)
+
+Evaluate the current kite state and trigger a flight-phase transition via `_switch` when
+the transition conditions defined in Tables 5.3–5.6 of the PhD thesis are satisfied.
+
+# Arguments
+- `fpp`:     the `FlightPathPlanner` instance.
+- `depower`: relative depower setting of the kite, in the range `0.0 .. 1.0`.
+- `length`:  tether length in metres.
+- `heading`: kite heading angle `ψ` in radians, in the range `0 .. 2π`.
+- `height`:  kite height above ground in metres.
+
+# State read from `fpp.fpca`
+- `_phi`:   kite azimuth angle in degrees.
+- `_beta`:  kite elevation angle in degrees.
+- `_omega`: kite angular speed in degrees per second.
+"""
+function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, _=0.0)
     phi, psi  = fpp.fpca._phi, heading
     beta = fpp.fpca._beta
     phi_1 = fpp.fpca._t1[begin]
