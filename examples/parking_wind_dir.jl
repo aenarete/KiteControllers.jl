@@ -34,20 +34,20 @@ fpps::FPPSettings = FPPSettings()
 @assert fpp_settings() == "fpp_settings.yaml"
 update(fpps)
 u_d0 = 0.01 * set.depower_offset
-u_d = 0.01 * set.depower
+u_d = 0.01 * set.depowers[1]
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
 
-if KiteUtils.PROJECT == "system.yaml"
+MIN_DEPOWER = if KiteUtils.PROJECT == "system.yaml"
     # result of tuning
     pcs.kp_tr=0.06
     pcs.ki_tr=0.0012
     pcs.kp = 15
     pcs.ki = 0.5
-    MIN_DEPOWER       = 0.22
     pcs.c1 = 0.048
     pcs.c2 = 0 # has no big effect, can also be set to zero
+    0.22
 else
     # result of tuning
     println("not system.yaml")
@@ -55,9 +55,9 @@ else
     pcs.ki_tr=0.0024
     pcs.kp = 30
     pcs.ki = 1.0
-    MIN_DEPOWER       = 0.4
     pcs.c1 = 0.048
     pcs.c2 = 0    # has no big effect, can also be set to zero
+    0.4
 end
 pc = pcm.ParkingController(pcs)
 
@@ -102,7 +102,7 @@ function sim_parking(integrator)
             end
             elevation = sys_state.elevation
             chi_set = pcm.navigate(pc, sys_state.azimuth, elevation)
-            steering, ndi_gain, psi_dot, psi_dot_set = pcm.calc_steering(pc, sys_state.heading, chi_set; 
+            steering, _, _, _ = pcm.calc_steering(pc, sys_state.heading, chi_set; 
                                                                          elevation, v_app = sys_state.v_app)
             set_depower_steering(kps4.kcu, MIN_DEPOWER, steering)
         end  
@@ -172,7 +172,7 @@ function play_parking()
     integrator = KiteModels.init!(kps4; delta=0.001, stiffness_factor=0.5)
     toc()
     try
-        steps = sim_parking(integrator)
+        sim_parking(integrator)
     catch e
         if isa(e, AssertionError)
             println("AssertionError! Halting simulation.")
