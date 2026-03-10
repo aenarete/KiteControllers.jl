@@ -41,3 +41,9 @@ pattern = "`sys_state` may be undefined"
 match_by = "message"
 match_type = "literal"
 severity = "off"
+
+[[diagnostic.patterns]]
+pattern = "`KiteControllers._publish_fpc_command` is not defined"
+match_by = "message"
+match_type = "literal"
+severity = "off"
