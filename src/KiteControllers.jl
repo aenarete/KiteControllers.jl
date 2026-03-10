@@ -70,7 +70,7 @@ function copy_files(relpath, files)
     if ! isdir(relpath) 
         mkdir(relpath)
     end
-    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", relpath)
+    src_path = joinpath(@__DIR__, "..", relpath)
     for file in files
         cp(joinpath(src_path, file), joinpath(relpath, file), force=true)
         chmod(joinpath(relpath, file), 0o774)
@@ -89,7 +89,7 @@ function copy_examples()
     if ! isdir(PATH) 
         mkdir(PATH)
     end
-    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", PATH)
+    src_path = joinpath(@__DIR__, "..", PATH)
     copy_files("examples", readdir(src_path))
 end
 
@@ -114,7 +114,7 @@ Copy the script `run_julia` to the folder "bin"
 function copy_bin()
     PATH = "bin"
     mkpath(PATH)
-    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", PATH)
+    src_path = joinpath(@__DIR__, "..", PATH)
     cp(joinpath(src_path, "run_julia"), joinpath(PATH, "run_julia"), force=true)
     chmod(joinpath(PATH, "run_julia"), 0o774)
 end
@@ -122,7 +122,7 @@ end
 function install_examples(add_packages=true)
     copy_examples()
     copy_settings()
-    copy_control_settings()
+    Base.invokelatest(copy_control_settings)
     copy_bin()
     if add_packages
         Pkg.add("KiteViewers")

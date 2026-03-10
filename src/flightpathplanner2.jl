@@ -53,7 +53,7 @@ function FlightPathPlanner(fpps::FPPSettings, fpca::FlightPathCalculator)
 end
 
 #  Call the related method of the flight path controller directly.
-function _publish_fpc_command(fpp::FlightPathPlanner, _; attractor=nothing, psi_dot=nothing, radius=nothing, intermediate = false)
+function _publish_fpc_command(fpp::FlightPathPlanner, __unused__; attractor=nothing, psi_dot=nothing, radius=nothing, intermediate = false)
     if ! isnothing(psi_dot)
         psi_dot = rad2deg(psi_dot)
     end
@@ -221,7 +221,7 @@ the transition conditions defined in Tables 5.3–5.6 of the PhD thesis are sati
 - `_beta`:  kite elevation angle in degrees.
 - `_omega`: kite angular speed in degrees per second.
 """
-function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, _=0.0)
+function on_new_data(fpp::FlightPathPlanner, depower, length, heading, height, __unused__=0.0)
     phi, psi  = fpp.fpca._phi, heading
     beta = fpp.fpca._beta
     phi_1 = fpp.fpca._t1[begin]
