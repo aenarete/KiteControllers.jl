@@ -12,7 +12,8 @@ set.abs_tol=0.00006
 set.rel_tol=0.0001
 set.v_wind = 6.5
 
-using ControlPlots, KiteModels, KiteViewers, Rotations
+using KiteViewers
+using ControlPlots, KiteModels, Rotations
 using KiteControllers: FPCSettings, FPPSettings, SystemStateControl, WCSettings,
       on_parking, on_winchcontrol, on_stop, on_new_systate, calc_steering
 
