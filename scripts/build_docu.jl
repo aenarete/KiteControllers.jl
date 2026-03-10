@@ -18,4 +18,4 @@ if !("Documenter" ∈ keys(Pkg.project().dependencies))
     using Pkg
     Pkg.activate("docs")
 end
-using LiveServer; servedocs(launch_browser=true)
+using LiveServer; servedocs()
