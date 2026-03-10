@@ -59,12 +59,12 @@ The `FPPS` (@enum) describes the sub-states of the flight path planner:
 | `DEPOWER` | Depower phase |
 | `PARKING` | Parking phase |
 
-## Controllers
+## Planner and Controllers
 
 ```@docs
-FlightPathController
-FlightPathCalculator
 FlightPathPlanner
+FlightPathCalculator
+FlightPathController
 SystemStateControl
 ```
 
