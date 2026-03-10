@@ -45,7 +45,6 @@ function fulldir(name)
 end
 
 function plot_main()
-    global sl
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), l_tether(sl), force(sl), 
