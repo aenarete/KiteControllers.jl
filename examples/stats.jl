@@ -14,19 +14,15 @@ struct Stats
 end
 
 function show_stats(stats::Stats)
-    HEIGHT=380
-    UPPER_BORDER=20
-    fig = GLMakie.Figure(size = (400, HEIGHT))
-    if Sys.islinux()
-        # sudo apt install ttf-bitstream-vera 
-        lin_font="/usr/share/fonts/truetype/ttf-bitstream-vera/VeraMono.ttf"
-        if isfile(lin_font)
-            font=lin_font
-        else
-            font="/usr/share/fonts/truetype/freefont/FreeMono.ttf"
-        end
+    HEIGHT = 380
+    UPPER_BORDER = 20
+    fig  = GLMakie.Figure(size = (400, HEIGHT))
+    font = if Sys.islinux()
+        # sudo apt install ttf-bitstream-vera
+        lin_font = "/usr/share/fonts/truetype/ttf-bitstream-vera/VeraMono.ttf"
+        isfile(lin_font) ? lin_font : "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
     else
-        font="Courier New"
+        "Courier New"
     end
     function print(lbl::String, value::String; line, font=font)
         GLMakie.text!(fig.scene, 20, HEIGHT-UPPER_BORDER-line*32; text=lbl, fontsize = 24, space=:pixel)
