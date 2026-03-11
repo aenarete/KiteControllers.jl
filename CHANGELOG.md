@@ -19,7 +19,6 @@
 - add Bash script `patch_pilot`
 - add Bash script `jetls` to run the static code analysis
 
-
 ### KiteControllers v0.2.18 2025-07-14
 #### Changed
 - update KiteModels to 0.9.0; this version supports turbulent wind fields
