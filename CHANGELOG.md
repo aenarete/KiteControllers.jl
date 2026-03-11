@@ -14,6 +14,7 @@
 - documented more functions of `FlightPathPlanner
 
 #### Added
+- add `Documenter.jl` based documentation
 - add script `batch_pilot.jl` for simulating a set of projects
 - add Bash script `patch_pilot`
 - add Bash script `jetls` to run the static code analysis
