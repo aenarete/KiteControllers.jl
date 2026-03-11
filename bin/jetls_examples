@@ -7,4 +7,6 @@ if [[ $(basename $(pwd)) == "bin" ]]; then
     cd ..
 fi
 
-jetls check --root=. src/
+echo -e "\033[1mChecking examples with jetls...\033[0m"
+jetls -t 1,0 -- check --root=. examples/*.jl
+echo
