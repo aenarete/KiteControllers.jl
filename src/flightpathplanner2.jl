@@ -162,7 +162,23 @@ function _switch(fpp::FlightPathPlanner, state)
     fpp._state = state
 end
 
-# Start automated power production; Precondition: The kite is parking at a high elevation angle.
+"""
+    start(fpp::FlightPathPlanner, v_wind)
+
+Start automated power production.
+
+Transitions the flight path planner from the parking or manual-operation state into the
+power-production phase (state `POWER`) and updates the ground-level wind speed used by the
+flight path calculator.
+
+**Precondition:** the kite must be parked at a high elevation angle (system state
+`ssManualOperation` or `ssParking`). If the system is in any other state this call has no
+effect on the flight phase, though the wind speed is still updated.
+
+# Arguments
+- `fpp`:    the `FlightPathPlanner` instance.
+- `v_wind`: current ground-level wind speed in m/s.
+"""
 function start(fpp::FlightPathPlanner, v_wind)
     if fpp.fpca._sys_state == ssManualOperation || fpp.fpca._sys_state == ssParking
         # see: Table 5.3
@@ -171,12 +187,22 @@ function start(fpp::FlightPathPlanner, v_wind)
     set_v_wind_gnd(fpp.fpca, v_wind)
 end
 
-#  Check, if the new flight path planner is active. 
+"""
+    is_active(fpp::FlightPathPlanner)
+
+Return `true` if the flight path planner has left its initial state, i.e. [`start`](@ref)
+has been called and the planner is actively managing the flight phase.
+"""
 function is_active(fpp::FlightPathPlanner)
     fpp._state != INITIAL
 end
 
-# Return the state of the flight path planner as integer for logging.
+"""
+    get_state(fpp::FlightPathPlanner)
+
+Return the current flight phase of the planner as an `Int`, suitable for logging.
+The integer corresponds to the underlying `@enum` value (e.g. `INITIAL`, `POWER`, …).
+"""
 function get_state(fpp::FlightPathPlanner)
     Int(fpp._state)
 end

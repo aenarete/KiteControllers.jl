@@ -17,6 +17,19 @@ calc_v_set(::SystemStateControl)
 get_depower
 ```
 
+## FlightPathPlanner
+
+The flight path planner manages flight-phase transitions and forwards kite state
+to the flight path controller.
+
+```@docs
+start(::FlightPathPlanner, ::Any)
+is_active(::FlightPathPlanner)
+get_state(::FlightPathPlanner)
+on_new_systate(::FlightPathPlanner, ::Any, ::Any, ::Any, ::Any, ::Any, ::Any)
+on_new_data
+```
+
 ## FlightPathController
 
 The flight path controller translates planned trajectory information into a

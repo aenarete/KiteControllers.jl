@@ -26,6 +26,7 @@ export calc_vro, set_vset_pc                                          # function
 export calc_v_set, get_status                          # methods of WinchController
 export on_autopilot, on_new_systate, on_parking, on_reelin, on_stop   # methods of SystemStateControl
 export get_depower, on_winchcontrol                                   # methods of SystemStateControl
+export is_active, on_new_data, start                                  # methods of FlightPathPlanner
 export ssManualOperation, ssParking, ssPowerProduction, ssReelIn
 export observe!, update
 
