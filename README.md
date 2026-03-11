@@ -64,7 +64,7 @@ cd bin
 ./create_sys_image
 cd ..
 ```
-The startup time without system image is about 30s, with system image 5s, but creating a system image takes 15min or more.
+The startup time without system image is about 30s, with system image 5s, but creating a system image takes 15 minutes or more.
 
 On Linux you can install the `autopilot` GUI app as normal application with the command `bin/install_app`.
 
