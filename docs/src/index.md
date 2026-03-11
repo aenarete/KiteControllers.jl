@@ -28,16 +28,88 @@ The winch components (`WinchController`, `Winch`, `SpeedController`,
 
 ## Installation
 
-```julia
-using Pkg
-pkg"add KiteControllers"
+```@raw html
+<details>
+<summary>Installation of Julia</summary>
 ```
 
-To add examples and their dependencies:
+If you do not have Julia installed yet, please read [Installation](https://github.com/aenarete/KiteSimulators.jl/blob/main/docs/Installation.md).
 
+```@raw html
+</details>
+
+<details>
+<summary>Installation as package</summary>
+```
+
+### Installation of KiteControllers as package
+
+It is suggested to use a local Julia environment. You can create it with:
+```bash
+mkdir myproject
+cd myproject
+julia --project=.
+```
+(don't forget typing the dot at the end), and then, on the Julia prompt enter:
+```julia
+using Pkg
+pkg"add KiteControllers#main"
+```
+You can run the tests with:
+```julia
+using Pkg
+pkg"test KiteControllers"
+```
+To add the examples and install the packages needed by the examples, run:
 ```julia
 using KiteControllers
 KiteControllers.install_examples()
+exit()
+```
+
+```@raw html
+</details>
+
+<details>
+<summary>Installation using git</summary>
+```
+
+### Installation of KiteControllers using git
+
+In most cases -- if you want to modify, tune and understand kite controllers -- it is better to check out this project from git. You can do this with:
+```bash
+git clone https://github.com/aenarete/KiteControllers.jl.git
+cd KiteControllers.jl
+```
+Then, run the install script and optionally create a system image:
+```bash
+cd bin
+./install
+./create_sys_image
+cd ..
+```
+The startup time without system image is about 30s, with system image 5s, but creating a system image takes 15 minutes or more.
+
+On Linux you can install the `autopilot` GUI app as normal application with the command `bin/install_app`.
+
+```@raw html
+</details>
+```
+
+### Running the first example
+
+You can now start Julia with `./bin/run_julia` and execute the autopilot or any other of the examples with:
+```julia
+include("examples/autopilot.jl")
+```
+Clicking on the "RUN" button starts the simulation. When the simulation is finished, you can click on the "OK"
+button at the top left. After some time a plot of the flight should appear. You can use the drop-down menu
+on the left to select other plots or the statistics. You can also load or save log files or projects.
+A project consists of a kite/ physical system, controller settings and a wind condition.
+
+You get a menu with all the examples by typing:
+```julia
+menu()
 ```
 
 ## Quick Start
