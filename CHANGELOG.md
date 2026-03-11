@@ -4,9 +4,14 @@
 #### Changed
 - bump KiteUtils to 0.11.4
 - the `run_julia` script accepts now a script name as parameter
+- improve script `install`
+- improved installation instructions
+- documented more functions of `FlightPathPlanner`
+- fix all JETLS warnings
 #### Added
 - add script `batch_pilot.jl` for simulating a set of projects
 - add Bash script `patch_pilot`
+- add Bash script `jetls` to run the static code analysis
 
 ### KiteControllers v0.2.19
 #### Changed
