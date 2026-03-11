@@ -52,21 +52,21 @@ exit()
 
 ### Installation of KiteControllers using git
 
-In most cases -- if you want to modify, tune and understand kite controllers -- it is better
-to check out this project from git. You can do this with:
+In most cases -- if you want to modify, tune and understand kite controllers -- it is better to check out this project from git. You can do this with:
 ```bash
 git clone https://github.com/aenarete/KiteControllers.jl.git
 cd KiteControllers.jl
-git checkout v0.2.15
 ```
-For the checkout command, use the tag of the latest version.
-It is suggested to create a system image:
+Then, run the install script and optionally create a system image:
 ```bash
 cd bin
-./create_sys_image --update
+./install
+./create_sys_image
 cd ..
 ```
-On Linux you can install the `autopilot` GUI app as normal application with the command `bin/install`.
+The startup time without system image is about 30s, with system image 5s, but creating a system image takes 15min or more.
+
+On Linux you can install the `autopilot` GUI app as normal application with the command `bin/install_app`.
 
 </details>
 
