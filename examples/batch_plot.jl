@@ -399,6 +399,24 @@ function run_menu()
     end
 end
 
+function run_command(cmd::String)
+    idx = findfirst(item -> item[1] == cmd, MENU_ITEMS)
+    if isnothing(idx)
+        println("Unknown command: $cmd")
+        println("Available commands: ", join([item[1] for item in MENU_ITEMS], ", "))
+        return
+    end
+    name, fn = MENU_ITEMS[idx]
+    println("Running $name …")
+    fn()
+    println("Close the plot window to exit.")
+    ControlPlots.plt.show(block=true)
+end
+
 if !__PRECOMPILE__
-    run_menu()
+    if length(ARGS) >= 2
+        run_command(ARGS[2])
+    else
+        run_menu()
+    end
 end
