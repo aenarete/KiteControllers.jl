@@ -1,8 +1,7 @@
 # batch_plot.jl
 # Command-line plotting tool for kite simulation logs.
 # No GUI — select a plot from a text menu.
-# Default input file: output/sim_log.arrow
-# Usage: julia batch_plot.jl [path/to/file.arrow]
+# Usage: julia batch_plot.jl [path/to/project.yml]
 
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
@@ -53,14 +52,27 @@ function project_arrow(project::String)
 end
 
 # Mutable reference to the active log file (updated when project is changed)
+function _resolve_plot_file(arg::String)
+    # Full path given
+    dirname(arg) != "" && return arg
+    # Already looks like a complete arrow filename
+    endswith(arg, ".arrow") && return joinpath(OUTPUT_DIR, arg)
+    # Try treating as a project name: batch-<arg>.arrow
+    candidate = joinpath(OUTPUT_DIR, "batch-" * arg * ".arrow")
+    isfile(candidate) && return candidate
+    # Fall back to using the arg as a bare filename in output/
+    joinpath(OUTPUT_DIR, arg)
+end
+
 const PLOT_FILE = Ref{String}(
     if isempty(ARGS)
         project_arrow(read_project_name())
-    elseif dirname(ARGS[1]) == ""
-        # bare filename — look in the output folder
-        joinpath(OUTPUT_DIR, ARGS[1])
     else
-        ARGS[1]
+        resolved = _resolve_plot_file(ARGS[1])
+        # Persist the selected project to gui.yaml so the menu reflects it
+        project_name = replace(replace(basename(resolved), r"\.arrow$" => ""), r"^batch-" => "")
+        write_project_name(project_name)
+        resolved
     end
 )
 
@@ -368,7 +380,9 @@ function run_menu()
     active = true
     while active
         menu   = RadioMenu(OPTIONS, pagesize=8)
-        active_project = read_project_name()
+        # Derive active project name from the current log file
+        log_base = replace(basename(PLOT_FILE[]), r"\.arrow$" => "")
+        active_project = replace(log_base, r"^batch-" => "")
         choice = request("\nActive project: \e[1m$active_project\e[0m  Select new project or choose plot to display or `q` to quit: ", menu)
         if choice != -1 && choice != length(OPTIONS)
             name, fn = MENU_ITEMS[choice]
