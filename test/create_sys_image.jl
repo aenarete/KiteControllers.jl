@@ -6,7 +6,7 @@ end
 @info "Loading packages ..."
 using BenchmarkTools, ControlPlots, KiteModels, KitePodModels, KiteUtils, KiteViewers,
       NLsolve, PackageCompiler, Parameters, StaticArrays, Statistics, StructTypes,
-      WinchModels, YAML
+      WinchModels, WinchControllers, YAML
 
 @info "Creating sysimage ..."
 push!(LOAD_PATH,joinpath(pwd(),"src"))
@@ -18,7 +18,7 @@ open(precompile_script, "w") do io
 end
 
 PackageCompiler.create_sysimage(
-    [:BenchmarkTools, :KiteUtils, :NLsolve, :Parameters, :StaticArrays, :WinchModels, :KiteViewers, 
+    [:BenchmarkTools, :KiteUtils, :NLsolve, :Parameters, :StaticArrays, :WinchModels, :WinchControllers, :KiteViewers, 
      :KiteModels, :KitePodModels, :StructTypes, :YAML, :Statistics, :ControlPlots];
     sysimage_path="kps-image_tmp.so",
     include_transitive_dependencies=true,
