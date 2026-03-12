@@ -11,7 +11,7 @@
 - the `run_julia` script accepts now a script name as parameter
 - improve script `install`
 - improved installation instructions
-- documented more functions of `FlightPathPlanner
+- documented more functions of `FlightPathPlanner`
 - the examples `tune_1p.jl` and `tune_4p.jl` where updated. They now use the NOMAD optimizer.
 - the performance improved by a factor of about 7. The GUI can now 24x real-time. 
   In batch mode, 180x realtime can be achieved
