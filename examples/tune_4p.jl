@@ -9,7 +9,7 @@ set = deepcopy(load_settings("system.yaml"))
 set.abs_tol = 0.0006
 set.rel_tol = 0.001
 
-using KiteControllers, KiteModels, NOMAD, ControlPlots
+using ControlPlots, KiteControllers, KiteModels, NOMAD
 using KiteControllers: calc_steering
 plt.close("all")
 
