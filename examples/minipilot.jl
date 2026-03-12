@@ -39,10 +39,6 @@ TIME_LAPSE_RATIO  = 4
 SHOW_KITE         = true
 # end of user parameter section #
 
-phi_set = 21.48
-# on_control_command(ssc.fpp.fpca.fpc, attractor=[deg2rad(phi_set), deg2rad(51.88)])
-# on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
-
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
 PARKING = Ref(false)
 
