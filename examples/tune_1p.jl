@@ -101,8 +101,8 @@ function test_parking(p=fcs.p, i=fcs.i, d=fcs.d; suppress_overshoot=10, suppress
         fpc._i = 0
         fpc.k_u_in = 0.0
         fpc.k_psi_in = 0.0
-        reset(fpc.int, 0.0)
-        reset(fpc.int2, 0.0)
+        WinchControllers.reset(fpc.int, 0.0)
+        WinchControllers.reset(fpc.int2, 0.0)
     end
     fcs.p = p
     fcs.i = i
