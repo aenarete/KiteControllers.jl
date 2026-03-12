@@ -87,7 +87,7 @@ function test_parking!(LAST_RES, p=fcs.p, i=fcs.i, d=fcs.d, gain=fcs.gain; suppr
     global AZIMUTH
     clear!(kps4)
     KitePodModels.init_kcu!(kcu, set)
-    on_parking(ssc)
+    # on_parking(ssc)
     # fully reset FPC state that persists across runs:
     # - _i=0 triggers the integrator-reset logic on the first step
     # - int/int2 reset clears the I and D integrators (reset_int2 is false by default)
@@ -151,24 +151,22 @@ function tune_4p!(LAST_RES)
     optimizer = result.x_sol
     optimum = result.bbo_sol[1]
     println("Optimal parameters: p = $(optimizer[1]),  d = $(optimizer[2])")
-    println("Optimum value    : $(optimum)")
+    println("Optimum value    : $(optimum)\n")
     fcs.p = optimizer[1]
     fcs.d = optimizer[2]
-    println(test_parking!(LAST_RES))
+    test_parking!(LAST_RES)
     plt.close("all")
     println(" p: ", fcs.p, " i: ", fcs.i, " d: ", fcs.d)
     show_result(copy(T), copy(AZIMUTH))
 end
 
-# fcs.p=2.255470121692552*0.7
-# fcs.i=0.0
-# fcs.d=38.724898029839586
 fcs.p = 7.79
 fcs.i = -0.04
 fcs.d = 33.48
 fcs.use_chi = false
 fcs.gain = -0.2
 
+on_parking(ssc)
 test_parking!(LAST_RES)
 show_result(copy(T), copy(AZIMUTH))
 println()
