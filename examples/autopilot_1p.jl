@@ -5,7 +5,7 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, Rotations
+using KiteControllers, KiteModels, KiteViewers, Rotations
 using KiteUtils: Settings, load_settings
 
 set::Settings = deepcopy(load_settings("system.yaml"))
