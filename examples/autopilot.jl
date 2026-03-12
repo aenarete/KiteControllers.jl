@@ -233,7 +233,7 @@ function simulate(integrator, stopped=true)
             if i > 10
                 sys_state.t_sim = t_sim*1000
             end
-            log!(app.logger, sys_state)
+            log!(app.logger::Logger, sys_state)
             if mod(app.set.time_lapse, 3) == 0
                 ratio = 3
             elseif mod(app.set.time_lapse, 2) == 0
@@ -246,8 +246,8 @@ function simulate(integrator, stopped=true)
             end
             app.viewer.mod_text = 3*ratio
             if mod(i, Int64(app.set.time_lapse)/ratio) == 0 
-                KiteViewers.update_system(app.viewer, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
-                set_status(app.viewer, String(Symbol(app.ssc.state)))
+                KiteViewers.update_system(app.viewer::Viewer3D, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
+                set_status(app.viewer::Viewer3D, String(Symbol(app.ssc.state)))
                 # re-enable garbage collector when we are short of memory
                 if Sys.free_memory()/1e9 < 4.0
                     GC.enable(true)
@@ -273,9 +273,9 @@ function simulate(integrator, stopped=true)
         if ! isopen(app.viewer.fig.scene) break end
         if KiteViewers.status[] == "Stopped" && i > 10 
             if app.set.log_level > 0
-                @timev KiteModels.next_step!(app.kps4, integrator; set_speed=v_ro, dt=app.dt)
+                @timev KiteModels.next_step!(app.kps4::KPS4, integrator; set_speed=v_ro, dt=app.dt)
             else
-                KiteModels.next_step!(app.kps4, integrator; set_speed=v_ro, dt=app.dt)
+                KiteModels.next_step!(app.kps4::KPS4, integrator; set_speed=v_ro, dt=app.dt)
             end
             break 
         end
@@ -515,6 +515,10 @@ else
     app.viewer.menu_rel_tol.i_selected[]=2
     app.viewer.menu_rel_tol.i_selected[]=DEFAULT_TOLERANCE
     play(true)
+end
+if @isdefined __PRECOMPILE__ 
+    do_menu(app.viewer.menu.selection[])
+    sleep(0.1)   
 end
 stop_()
 KiteViewers.GLMakie.closeall()
