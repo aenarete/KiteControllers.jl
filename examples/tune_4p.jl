@@ -83,7 +83,7 @@ end
 # tests the parking controller and returns the sum of the square of 
 # the azimuth error in degrees squared and divided by the test duration
 function test_parking(p=fcs.p, i=fcs.i, d=fcs.d, gain=fcs.gain; suppress_overshoot_factor=3.0)
-    global LAST_RES
+    global LAST_RES, AZIMUTH
     clear!(kps4)
     KitePodModels.init_kcu!(kcu, set)
     on_parking(ssc)
@@ -132,7 +132,7 @@ function tune_4p()
     global LAST_RES
     LAST_RES = 1e10
     lowerbound = [0.5, 10.0]
-    upperbound = [10.0, 80.0]
+    upperbound = [12.0, 80.0]
     x0 = [fcs.p, fcs.d]
     function bb(x::Vector{Float64})
         result = f(x)
@@ -152,14 +152,20 @@ function tune_4p()
     optimum = result.bbo_sol[1]
     println("Optimal parameters: p = $(optimizer[1]),  d = $(optimizer[2])")
     println("Optimum value    : $(optimum)")
+    fcs.p = optimizer[1]
+    fcs.d = optimizer[2]
+    println(test_parking())
+    plt.close("all")
+    println(" p: ", fcs.p, " i: ", fcs.i, " d: ", fcs.d)
+    show_result(copy(T), copy(AZIMUTH))
 end
 
 # fcs.p=2.255470121692552*0.7
 # fcs.i=0.0
 # fcs.d=38.724898029839586
-fcs.p = 10.0
+fcs.p = 7.79
 fcs.i = -0.04
-fcs.d = 26.48
+fcs.d = 33.48
 fcs.use_chi = false
 fcs.gain = -0.2
 
