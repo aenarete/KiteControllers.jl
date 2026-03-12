@@ -156,14 +156,14 @@ end
 
 function play1()
     if viewer.stop
-        play()
+        Base.invokelatest(play)
         stop(viewer)
     end
 end
 
-on(viewer.btn_PLAY.clicks) do _; play1(); end
+on(viewer.btn_PLAY.clicks) do _; Base.invokelatest(play1); end
 
-play()
+Base.invokelatest(play)
 stop(viewer)
 p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)],
              [rad2deg.(PSI_DOT), rad2deg.(PSI_DOT_SET)], NDI_GAIN, V_APP; 
