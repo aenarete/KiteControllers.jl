@@ -1,41 +1,40 @@
 # activate the test environment if needed
 using Pkg
-if ! ("NOMAD" ∈ keys(Pkg.project().dependencies))
+if !("NOMAD" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
-    Pkg.add("NOMAD")
 end
 
 using KiteUtils
 
 set = deepcopy(load_settings("system.yaml"))
-set.abs_tol=0.00006
-set.rel_tol=0.0001
+set.abs_tol = 0.00006
+set.rel_tol = 0.0001
 
 using KiteControllers, KiteModels, NOMAD, ControlPlots
 using KiteControllers: calc_steering
 
-kcu::KCU  = KCU(set)
+kcu::KCU = KCU(set)
 kps::KPS3 = KPS3(kcu)
-wcs::WCSettings   = WCSettings(true, dt = 1/set.sample_freq)
-fcs::FPCSettings  = FPCSettings(true, dt=wcs.dt)
+wcs::WCSettings = WCSettings(true, dt=1 / set.sample_freq)
+fcs::FPCSettings = FPCSettings(true, dt=wcs.dt)
 fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
-u_d  = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
+u_d = 0.01 * set.depower
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
-MAX_ITER          = 200
-SHOW_KITE         = false
+MAX_ITER = 200
+SHOW_KITE = false
 # end of user parameter section #
 
 LAST_RES = 1e10
-T::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
-AZIMUTH::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
+T::Vector{Float64} = zeros(Int64(MAX_TIME / dt))
+AZIMUTH::Vector{Float64} = zeros(Int64(MAX_TIME / dt))
 
 function simulate(integrator)
-    i=1
+    i = 1
     sys_state = SysState(kps)
     on_new_systate(ssc, sys_state)
     while true
@@ -53,36 +52,38 @@ function simulate(integrator)
                 steering = 0.1          # disturbance pulse
             end
             set_depower_steering(kps.kcu, depower, steering)
-        end  
+        end
         v_ro = 0.0
         KiteModels.next_step!(kps, integrator; set_speed=v_ro, dt=dt)
         sys_state = SysState(kps)
         T[i] = dt * i
-        AZIMUTH[i] = sys_state.azimuth        
+        AZIMUTH[i] = sys_state.azimuth
         on_new_systate(ssc, sys_state)
-        if i*dt >= MAX_TIME break end
+        if i * dt >= MAX_TIME
+            break
+        end
         i += 1
     end
     return 1
 end
 
 function calc_res(az, suppress_overshoot=10, suppress_tail=10, t1=20, t2=40)
-    n1=Int(t1/dt)
-    n2=Int(t2/dt)
+    n1 = Int(t1 / dt)
+    n2 = Int(t2 / dt)
     n = length(az)
-    res = sum(abs2.(rad2deg.(az[n1:n])))/40
-    overshoot = zeros(n-n1)
+    res = sum(abs2.(rad2deg.(az[n1:n]))) / 40
+    overshoot = zeros(n - n1)
     for i in 1:(n-n1)
         if az[i+n1] < 0
             overshoot[i] = -az[i+n1]
         end
     end
-    res += sum(abs.(rad2deg.(overshoot)))/40 * suppress_overshoot
-    tail = zeros(n-n2)
+    res += sum(abs.(rad2deg.(overshoot))) / 40 * suppress_overshoot
+    tail = zeros(n - n2)
     for i in 1:(n-n2)
         tail[i] = abs(az[i+n2])
     end
-    tail = sum(rad2deg.(tail))/20 * suppress_tail
+    tail = sum(rad2deg.(tail)) / 20 * suppress_tail
     res += tail
     println("res: $(res), tail: $tail")
     res = 1.0 - 100 / res
@@ -98,15 +99,15 @@ function test_parking(p=fcs.p, i=fcs.i, d=fcs.d; suppress_overshoot=10, suppress
     on_parking(ssc)
     let fpc = ssc.fpp.fpca.fpc
         fpc._i = 0
-        fpc.k_u_in  = 0.0
+        fpc.k_u_in = 0.0
         fpc.k_psi_in = 0.0
-        reset(fpc.int,  0.0)
+        reset(fpc.int, 0.0)
         reset(fpc.int2, 0.0)
     end
     fcs.p = p
     fcs.i = i
     fcs.d = d
-    AZIMUTH .= zeros(Int64(MAX_TIME/dt))
+    AZIMUTH .= zeros(Int64(MAX_TIME / dt))
     integrator = KiteModels.init!(kps, stiffness_factor=0.04)
     status = simulate(integrator)
     if status != 1
@@ -144,8 +145,8 @@ function tune_1p()
         return (!failed, !failed, [result])
     end
     p = NomadProblem(2, 1, ["OBJ"], bb;
-                     lower_bound = lowerbound,
-                     upper_bound = upperbound)
+        lower_bound=lowerbound,
+        upper_bound=upperbound)
     p.options.max_bb_eval = MAX_ITER
     result = solve(p, x0)
     if !hasproperty(result, :x_sol) || isnothing(result.x_sol)
@@ -153,7 +154,7 @@ function tune_1p()
         return
     end
     optimizer = result.x_sol
-    optimum   = result.bbo_sol[1]
+    optimum = result.bbo_sol[1]
     println("Optimal parameters: p = $(optimizer[1]),  d/p = $(optimizer[2])")
     println("Optimum value     : $(optimum)")
     fcs.p = optimizer[1]

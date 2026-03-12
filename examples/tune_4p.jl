@@ -1,41 +1,40 @@
 # activate the test environment if needed
 using Pkg
-if ! ("NOMAD" ∈ keys(Pkg.project().dependencies))
+if !("NOMAD" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
-    Pkg.add("NOMAD")
 end
 
 using KiteUtils
 set = deepcopy(load_settings("system.yaml"))
-set.abs_tol=0.0006
-set.rel_tol=0.001
+set.abs_tol = 0.0006
+set.rel_tol = 0.001
 
 using KiteControllers, KiteModels, NOMAD, ControlPlots
 using KiteControllers: calc_steering
 plt.close("all")
 
-kcu::KCU  = KCU(set)
+kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
-wcs::WCSettings   = WCSettings(true, dt = 1/set.sample_freq)
-fcs::FPCSettings  = FPCSettings(true, dt=wcs.dt)
+wcs::WCSettings = WCSettings(true, dt=1 / set.sample_freq)
+fcs::FPCSettings = FPCSettings(true, dt=wcs.dt)
 fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
-u_d  = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
+u_d = 0.01 * set.depower
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 120
-MAX_ITER          = 40
-SHOW_KITE         = false
+MAX_ITER = 40
+SHOW_KITE = false
 # end of user parameter section #
 
 LAST_RES = 1e10
-T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
-AZIMUTH::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
+T::Vector{Float64} = zeros(Int64(MAX_TIME / dt))
+AZIMUTH::Vector{Float64} = zeros(Int64(MAX_TIME / dt))
 
 function simulate(integrator)
-    i=1
+    i = 1
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     while true
@@ -53,30 +52,32 @@ function simulate(integrator)
                 steering = 0.1          # disturbance pulse
             end
             set_depower_steering(kps4.kcu, depower, steering)
-        end  
+        end
         v_ro = 0.0
         KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
         sys_state = SysState(kps4)
         T[i] = dt * i
-        AZIMUTH[i] = sys_state.azimuth        
+        AZIMUTH[i] = sys_state.azimuth
         on_new_systate(ssc, sys_state)
-        if i*dt >= MAX_TIME break end
+        if i * dt >= MAX_TIME
+            break
+        end
         i += 1
     end
     return 1
 end
 
 function calc_res(az, suppress_overshoot_factor, t1=5)
-    n1 = Int(t1/dt)
-    n  = length(az)
-    res = sum(abs2.(rad2deg.(az[n1:n])))/40
-    overshoot = zeros(n-n1)
+    n1 = Int(t1 / dt)
+    n = length(az)
+    res = sum(abs2.(rad2deg.(az[n1:n]))) / 40
+    overshoot = zeros(n - n1)
     for i in 1:n-n1
         if az[n1+i-1] < 0
             overshoot[i] = -az[n1+i-1]
         end
     end
-    res += sum(abs2.(rad2deg.(overshoot)))/40 * suppress_overshoot_factor
+    res += sum(abs2.(rad2deg.(overshoot))) / 40 * suppress_overshoot_factor
     res
 end
 
@@ -93,18 +94,18 @@ function test_parking(p=fcs.p, i=fcs.i, d=fcs.d, gain=fcs.gain; suppress_oversho
     # - k_u_in/k_psi_in reset gives NLsolve a clean starting point
     let fpc = ssc.fpp.fpca.fpc
         fpc._i = 0
-        fpc.k_u_in  = 0.0
+        fpc.k_u_in = 0.0
         fpc.k_psi_in = 0.0
-        reset(fpc.int,  0.0)
+        reset(fpc.int, 0.0)
         reset(fpc.int2, 0.0)
     end
     # fcs === ssc.fpp.fpca.fpc.fcs (same object); set gains after on_parking to
     # ensure they are not overwritten by any reset triggered during the transition
-    fcs.p    = p
-    fcs.i    = i
-    fcs.d    = d
+    fcs.p = p
+    fcs.i = i
+    fcs.d = d
     fcs.gain = gain
-    AZIMUTH .= zeros(Int64(MAX_TIME/dt))
+    AZIMUTH .= zeros(Int64(MAX_TIME / dt))
     integrator = KiteModels.init!(kps4, delta=0.001, stiffness_factor=0.01)
     status = simulate(integrator)
     if status != 1
@@ -140,8 +141,8 @@ function tune_4p()
         return (!failed, !failed, [result])
     end
     p = NomadProblem(2, 1, ["OBJ"], bb;
-                     lower_bound = lowerbound,
-                     upper_bound = upperbound)
+        lower_bound=lowerbound,
+        upper_bound=upperbound)
     p.options.max_bb_eval = MAX_ITER
     result = solve(p, x0)
     if !hasproperty(result, :x_sol) || isnothing(result.x_sol)
