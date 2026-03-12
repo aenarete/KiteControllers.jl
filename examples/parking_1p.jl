@@ -1,3 +1,8 @@
+# parking_1p.jl — Demonstrate the parking controller for a one-point kite model (KPS3).
+# Simulates the kite flying to and holding a parked (zero-azimuth) position using the
+# new parking controller, with a brief steering disturbance applied mid-flight.
+# Displays a real-time 3D viewer and plots the azimuth over time when done.
+
 # activate the test environment if needed
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
