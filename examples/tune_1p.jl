@@ -26,8 +26,7 @@ dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
 MAX_TIME::Float64 = 60
-TIME_LAPSE_RATIO  =  1
-MAX_ITER          = 60
+MAX_ITER          = 200
 SHOW_KITE         = false
 # end of user parameter section #
 
@@ -136,7 +135,7 @@ end
 function tune_1p()
     global LAST_RES
     LAST_RES = 1e10
-    lowerbound = [10., 0.]
+    lowerbound = [8., 0.]
     upperbound = [30., 1.8]
     x0 = [fcs.p, fcs.d / max(fcs.p, 1e-6)]
     function bb(x::Vector{Float64})
@@ -159,10 +158,11 @@ function tune_1p()
     println("Optimum value     : $(optimum)")
     fcs.p = optimizer[1]
     fcs.d = optimizer[2] * optimizer[1]
+    println(test_parking())
 end
 
-fcs.p = 17.0
+fcs.p = 12.0
 fcs.i = 0.5
-fcs.d = 0.85*21.0
+fcs.d = fcs.p * 0.98
 println(test_parking())
 show_result(copy(T), copy(AZIMUTH))
