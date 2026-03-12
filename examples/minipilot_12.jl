@@ -52,7 +52,7 @@ STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 DEPOWER_::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 LAST_I::Int64=0
 
-function simulate(integrator, kps4, stopped=true)
+function simulate(integrator, kps4, ssc, PARKING, stopped=true)
     global LAST_I
     start_time_ns = time_ns()
     clear_viewer(viewer)
@@ -109,7 +109,6 @@ function simulate(integrator, kps4, stopped=true)
                 end
                 wait_until(start_time_ns + 1e9*dt, always_sleep=true)          
                 start_time_ns = time_ns()
-                t_gc_tot = 0
             end
             i += 1
         end
@@ -126,7 +125,7 @@ function play(stopped=false)
     on_parking(ssc)
     integrator = KiteModels.init!(kps4; stiffness_factor=0.02)
     toc()
-    steps = simulate(integrator, kps4, stopped)
+    steps = simulate(integrator, kps4, ssc, PARKING, stopped)
     stopped = ! viewer.sw.active[]
     GC.enable(true)
 end
