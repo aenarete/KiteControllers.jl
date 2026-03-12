@@ -1,4 +1,4 @@
-# Examples
+# Examples, if installed as Package
 
 The example scripts can be copied to a local `examples/` folder with:
 
@@ -12,8 +12,15 @@ Or install everything (examples + required packages) in one step:
 ```julia
 KiteControllers.install_examples()
 ```
-
----
+# Examples, if installed using Git
+Launch Julia with:
+```
+jl
+```
+Then you get the menu of the examples by typing:
+```
+menu()
+```
 
 ## autopilot.jl — Full Autopilot Simulation
 
@@ -84,10 +91,8 @@ on_parking(ssc, tether_length=200.0)
 
 ## minipilot.jl — Minimal Autopilot
 
-A stripped-down autopilot without a 3-D viewer, suitable for batch simulations.
-Exposes the core control loop in ~50 lines.
-
----
+A stripped-down autopilot without 2D plots for understanding how to build a GUI
+based simulator. Exposes the core control loop in ~50 lines.
 
 ## batch_pilot.jl — Batch Simulation
 
