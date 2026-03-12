@@ -1,7 +1,11 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 KiteControllers = "b19fd437-5b3a-4cca-b199-c3ded0f20ded"
+LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
 
 [compat]
 Documenter = "1"
 julia = "1.11, 1.12"
+
+[sources]
+KiteControllers = {path = ".."}
