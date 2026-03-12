@@ -43,7 +43,7 @@ phi_set = 21.48
 # on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
 
 viewer::Viewer3D = Viewer3D(set, SHOW_KITE)
-PARKING::Bool = false
+PARKING = Ref(false)
 
 steps = 0
 T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
@@ -52,7 +52,7 @@ STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 DEPOWER_::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 LAST_I::Int64=0
 
-function simulate(integrator, kps4, ssc, PARKING, stopped=true)
+function simulate(integrator, kps4, ssc, PARKING::Ref{Bool}, stopped=true)
     global LAST_I
     start_time_ns = time_ns()
     clear_viewer(viewer)
@@ -82,7 +82,7 @@ function simulate(integrator, kps4, ssc, PARKING, stopped=true)
                 steering = -calc_steering(ssc)
                 set_depower_steering(kps4.kcu, dp, steering)
             end
-            if i == 200 && ! PARKING
+            if i == 200 && ! PARKING[]
                 on_autopilot(ssc)
             end
             # execute winch controller
@@ -119,8 +119,8 @@ function simulate(integrator, kps4, ssc, PARKING, stopped=true)
     return div(i, TIME_LAPSE_RATIO)
 end
 
-function play(stopped=false)
-    global steps, kcu, kps4, wcs, fcs, fpps, ssc
+function play(ssc, kps4, PARKING::Ref{Bool}, stopped=false)
+    global steps, kcu, wcs, fcs, fpps
     init_globals(kcu, wcs, fcs, fpps)
     on_parking(ssc)
     integrator = KiteModels.init!(kps4; stiffness_factor=0.02)
@@ -131,15 +131,13 @@ function play(stopped=false)
 end
 
 function parking()
-    global PARKING
-    PARKING = true
+    PARKING[] = true
     viewer.stop=false
     on_parking(ssc)
 end
 
 function autopilot()
-    global PARKING
-    PARKING = false
+    PARKING[] = false
     viewer.stop=false
     on_autopilot(ssc)
 end
@@ -156,13 +154,12 @@ on(viewer.btn_PARKING.clicks) do _; parking(); end
 on(viewer.btn_AUTO.clicks) do _; autopilot(); end
 on(viewer.btn_STOP.clicks) do _; stop_(); end
 on(viewer.btn_PLAY.clicks) do _;
-    global PARKING
     if ! viewer.stop
-        PARKING = false
+        PARKING[] = false
     end
 end
 
-play(false)
+play(ssc, kps4, PARKING, false)
 stop_()
 KiteViewers.GLMakie.closeall()
 
