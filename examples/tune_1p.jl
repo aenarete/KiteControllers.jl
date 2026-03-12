@@ -1,3 +1,9 @@
+# tune_1p.jl — Tune the flight path controller (FPC) parameters for a one-point kite
+# model (KPS3) using the NOMAD black-box optimizer. Runs repeated simulations with
+# varying PID gains, evaluates the resulting flight performance metrics, and reports
+# the optimal parameter set found within MAX_ITER iterations over MAX_TIME seconds
+# of simulated flight.
+
 # activate the test environment if needed
 using Pkg
 if !("NOMAD" ∈ keys(Pkg.project().dependencies))
