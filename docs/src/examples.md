@@ -98,11 +98,55 @@ records key statistics (mean power, reel-out speed, etc.) to an
 **Run from the command line:**
 
 ```bash
-julia --project=examples examples/batch_pilot.jl
+bin/batch_pilot hydra20_426
 ```
 
 Statistics are written to `output/batch-<project>_stats.yaml` and the full
 time-series log to `output/batch-<project>.arrow`.
+
+---
+
+## batch_plot — Post-processing Viewer
+
+Interactive command-line tool for visualising the Arrow log files produced by
+`batch_pilot`.  Backed by `examples/batch_plot.jl` and the launcher script
+`bin/batch_plot`.
+
+**Basic usage:**
+
+```bash
+# Open the interactive plot-selection menu for a project
+bin/batch_plot hydra20_426
+
+# Run a specific plot directly (window stays open until closed)
+bin/batch_plot hydra20_426 plot_main
+bin/batch_plot hydra20_426 plot_elev_az
+
+# List all projects that have a log file in output/
+bin/batch_plot --list
+
+# List all available plot commands
+bin/batch_plot --list-commands
+```
+
+**Available plot commands:**
+
+| Command | Description |
+|:--------|:------------|
+| `statistics` | Print summary statistics to the terminal |
+| `plot_main` | Height, elevation, azimuth, tether length, force, reel-out speed, cycle |
+| `plot_power` | Force, reel-out speed, mechanical power, energy, acceleration |
+| `plot_control` | Elevation, azimuth, heading, force, depower, steering, FPP state |
+| `plot_control_II` | Azimuth, heading, steering, course, psi_dot, NDI gain |
+| `plot_winch_control` | Elevation, azimuth, force, set-force, reel-out speed, winch state |
+| `plot_aerodynamics` | Lift-to-drag ratio, angle of attack, steering, yaw rate, side-slip |
+| `plot_elev_az` | Elevation vs. azimuth scatter |
+| `plot_elev_az2` | Elevation vs. azimuth from cycle 2 onward |
+| `plot_elev_az3` | Elevation vs. azimuth from cycle 3 onward |
+| `plot_side_view` | Side view (height vs. x position) |
+| `plot_side_view2` | Side view from cycle 2 onward |
+| `plot_side_view3` | Side view from cycle 3 onward |
+| `plot_front_view3` | Front view from cycle 3 onward |
 
 ---
 
@@ -130,6 +174,7 @@ isolation.
 | `minipilot.jl` | Minimal autopilot without viewer |
 | `parking_4p.jl` | Parking sequence |
 | `batch_pilot.jl` | Batch / sweep simulations |
+| `batch_plot` | Post-processing and interactive plotting of batch logs |
 | `tune_4p.jl` | Gain tuning |
 | `joystick.jl` | Manual steering with automated winch |
 | `plots.jl` | Post-processing and plotting of Arrow log files |

@@ -15,7 +15,7 @@ by running a state machine whose transitions are evaluated on every call to
 - `fpps::FPPSettings`: flight path planner settings (geometry, limits, PID gains).
 - `fpca::FlightPathCalculator`: the associated flight path calculator.
 - `corr_vec::Vector{Float64}`: elevation-angle correction look-up vector (loaded from `fpps.corr_vec`).
-- `_state::FPPS`: current planner state (one of the `FPPS` enum values); starts at `INITIAL`.
+- `_state::FPPS`: current planner state (one of the [`FPPS` enum values](@ref Flight-Path-Planner-States)); starts at `INITIAL`.
 - `delta_depower`: additional depower offset applied when generated power is too high.
 - `const_dd`: depower interpolation coefficient `δ_d` (default `0.7`).
 - `u_d_ro`: relative depower during reel-out (`0.01 * fpps.min_depower`).

@@ -1,5 +1,33 @@
 """
-Settings of the FlightPathController
+Settings of the FlightPathController.
+
+Loaded from the YAML file returned by `fpc_settings()` (typically `data/fpc_settings.yaml`).
+Construct with `FPCSettings(true; dt)` to auto-load from disk, or `FPCSettings(; dt)` for defaults.
+
+# Fields
+- `dt::Float64`: controller sample period [s].
+- `log_level::Int64`: logging verbosity (0 = silent, 2 = default).
+- `prn::Bool`: enable general debug printing.
+- `prn_ndi_gain::Bool`: print NDI gain each step.
+- `prn_est_psi_dot::Bool`: print estimated turn rate each step.
+- `prn_va::Bool`: print apparent wind speed each step.
+- `use_radius::Bool`: use turn-radius control mode instead of heading-rate mode.
+- `use_chi`: use course angle χ as the controlled variable instead of heading ψ.
+- `reset_int1::Bool`: reset the main integrator to the last estimated turn rate on state entry.
+- `reset_int2::Bool`: reset the D-term integrator at the second time step after a state transition.
+- `reset_int1_to_zero::Bool`: reset the main integrator to zero (overrides `reset_int1`).
+- `init_opt_to_zero::Bool`: initialize the root-finder with zero instead of the previous solution.
+- `p`: proportional gain of the PID controller.
+- `i`: integral gain of the PID controller.
+- `d`: derivative gain of the PID controller.
+- `gain`: common scaling factor applied to all of P, I and D.
+- `c1`: NDI model coefficient c₁ (default ≈ 0.0613).
+- `c2`: NDI model coefficient c₂ (default ≈ 1.226).
+- `k_c1`: correction factor for the NDI c₁ term; increase to enlarge the turn radius.
+- `k_c2`: c₂ scaling factor used during the reel-out phase.
+- `k_c2_high`: c₂ scaling factor for reel-out at high elevation angles.
+- `k_c2_int`: c₂ scaling factor for the intermediate phases (`LOW_RIGHT`, `LOW_TURN`, `LOW_LEFT`).
+- `k_ds`: influence of the depower angle on the steering sensitivity.
 """
 @with_kw mutable struct FPCSettings @deftype Float64
     "period time"

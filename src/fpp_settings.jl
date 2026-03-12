@@ -3,6 +3,28 @@ Settings of the FlightPathPlanner.
 
 Loaded from the YAML file returned by `fpp_settings()` (typically `data/fpp_settings.yaml`).
 Construct with `FPPSettings(true)` to auto-load from disk, or `FPPSettings()` for defaults.
+
+# Fields
+- `log_level::Int64`: logging verbosity (0 = silent, 2 = default).
+- `min_depower::Float64`: minimum depower during reel-out [%].
+- `max_depower::Float64`: maximum depower during reel-in [%].
+- `parking_depower::Float64`: depower level used while parking [%].
+- `min_length::Float64`: lower tether-length limit for the reel-in/reel-out cycle [m].
+- `max_length::Float64`: upper tether-length limit for the reel-in/reel-out cycle [m].
+- `max_height::Float64`: maximum allowed kite height [m].
+- `beta_set::Float64`: target elevation angle for the figure-of-eight centre point [°].
+- `w_fig::Float64`: half-width of the figure-of-eight pattern [°].
+- `psi_dot_max::Float64`: maximum turn rate of the kite [rad/s].
+- `r_min::Float64`: minimal turn radius [°].
+- `r_max::Float64`: maximal turn radius [°].
+- `heading_offset_low::Float64`: heading lead angle before finishing right/left turns [°].
+- `heading_offset_int::Float64`: heading lead angle for the turn around the intermediate point [°].
+- `heading_offset_high::Float64`: heading lead angle for elevation angles > 47.5° [°].
+- `heading_offset_up::Float64`: heading lead angle before finishing the up-turn [°].
+- `heading_upper_turn::Float64`: heading angle that triggers the upper turn [°].
+- `k_factor::Float64`: scaling factor for the attractor distance.
+- `timeout::Float64`: maximum number of time steps allowed in a single planner state before a forced transition.
+- `corr_vec::Vector{Float64}`: elevation-angle correction look-up table (12 entries).
 """
 @with_kw mutable struct FPPSettings @deftype Float64
     log_level::Int64 = 2

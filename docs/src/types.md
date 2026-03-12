@@ -24,40 +24,44 @@ SystemState
 
 The `SystemState` enum has the following values:
 
-| Value | Description |
-|:------|:------------|
-| `ssManualOperation` | Manual control — no automation |
-| `ssParking` | Kite is parked at high elevation |
-| `ssPowerProduction` | Automated power production (figure-of-eight) |
-| `ssReelIn` | Tether is being reeled in |
-| `ssWinchControl` | Automated winch control with manual steering |
-| `ssPower` | Power phase in progress |
-| `ssKiteReelOut` | Kite is being reeled out |
-| `ssIntermediate` | Transition phase before reel-out |
-| `ssWaitUntil` | Waiting until kite reaches high elevation |
-| `ssDepower` | Kite is being depowered |
-| `ssLaunching` | Kite launch sequence |
-| `ssLanding` | Kite landing sequence |
-| `ssEmergencyLanding` | Emergency landing |
-| `ssTouchdown` | Touchdown state |
+| Value | Integer | Description |
+|:------|--------:|:------------|
+| `ssManualOperation` | 0 | Manual control — no automation |
+| `ssParking` | 1 | Kite is parked at high elevation |
+| `ssPower` | 2 | Power phase in progress |
+| `ssKiteReelOut` | 3 | Kite is being reeled out |
+| `ssWaitUntil` | 4 | Waiting until kite reaches high elevation |
+| `ssDepower` | 5 | Kite is being depowered |
+| `ssIntermediate` | 6 | Transition phase before reel-out |
+| `ssLaunching` | 7 | Kite launch sequence |
+| `ssEmergencyLanding` | 8 | Emergency landing |
+| `ssLanding` | 9 | Kite landing sequence |
+| `ssReelIn` | 10 | Tether is being reeled in |
+| `ssTouchdown` | 11 | Touchdown state |
+| `ssPowerProduction` | 12 | Automated power production (figure-of-eight) |
+| `ssWinchControl` | 13 | Automated winch control with manual steering |
 
 ## Flight Path Planner States
 
 The `FPPS` (@enum) describes the sub-states of the flight path planner:
 
-| Value | Meaning |
-|:------|:--------|
-| `POWER` | Power phase |
-| `LOW_LEFT` / `LOW_RIGHT` | Low intermediate turns |
-| `LOW_TURN` | Turn around intermediate point |
-| `FLY_LEFT` / `FLY_RIGHT` | Straight-flight sections of figure-of-eight |
-| `TURN_LEFT` / `TURN_RIGHT` | Turns at the extremes of figure-of-eight |
-| `UP_TURN` | Ascending turn before depower |
-| `UP_TURN_LEFT` | Left part of ascending turn |
-| `UP_FLY_UP` | Ascending straight section |
-| `UPPER_TURN` | Upper turn after ascending |
-| `DEPOWER` | Depower phase |
-| `PARKING` | Parking phase |
+| Value | Integer | Meaning |
+|:------|--------:|:--------|
+| `INITIAL` | 0 | Initial state |
+| `UPPER_TURN` | 1 | Upper turn after ascending |
+| `LOW_RIGHT` | 2 | Low intermediate turn (right) |
+| `LOW_TURN` | 3 | Turn around intermediate point |
+| `LOW_LEFT` | 4 | Low intermediate turn (left) |
+| `TURN_LEFT` | 5 | Turn at the left extreme of figure-of-eight |
+| `FLY_RIGHT` | 6 | Straight-flight section to the right |
+| `TURN_RIGHT` | 7 | Turn at the right extreme of figure-of-eight |
+| `FLY_LEFT` | 8 | Straight-flight section to the left |
+| `UP_TURN` | 9 | Ascending turn before depower |
+| `UP_TURN_LEFT` | 10 | Left part of ascending turn |
+| `UP_FLY_UP` | 11 | Ascending straight section |
+| `DEPOWER` | 12 | Depower phase |
+| `POWER` | 13 | Power phase |
+| `PARKING` | 14 | Parking phase |
 
 ## Planner and Controllers
 
