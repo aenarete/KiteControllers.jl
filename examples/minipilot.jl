@@ -4,7 +4,7 @@ if ! ("KiteViewers" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteControllers, KiteViewers, KiteModels, Statistics
+using KiteControllers, KiteModels, KiteViewers, Statistics
 using KiteUtils: Settings, load_settings
 
 set::Settings = deepcopy(load_settings("system.yaml"))
@@ -15,19 +15,19 @@ wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)
 fcs::FPCSettings = FPCSettings(true, dt=wcs.dt)
 fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
-u_d  = 0.01 * set.depower
+u_d  = 0.01 * set.depowers[1]
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 dt::Float64 = wcs.dt
 
-function init_globals()
-    global kcu, kps4, wcs, fcs, fpps, ssc
+function init_globals(kcu, wcs, fcs, fpps)
+    global kps4, ssc
     kcu   = KCU(set)
     kps4 = KPS4(kcu)
     wcs  = WCSettings(true, dt = 1/set.sample_freq)
     fcs  = FPCSettings(true, dt=wcs.dt)
     fpps = FPPSettings(true)
     u_d0 = 0.01 * set.depower_offset
-    u_d  = 0.01 * set.depower
+    u_d  = 0.01 * set.depowers[1]
     ssc = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 end
 
@@ -42,7 +42,7 @@ phi_set = 21.48
 # on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
 
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
-PARKING::Bool = false
+PARKING = Ref(false)
 
 steps = 0
 T::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
@@ -51,7 +51,7 @@ STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 DEPOWER_::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 LAST_I::Int64=0
 
-function simulate(integrator, stopped=true)
+function simulate(integrator, kps4, ssc, PARKING::Ref{Bool}, stopped=true)
     global LAST_I
     start_time_ns = time_ns()
     clear_viewer(viewer)
@@ -61,12 +61,10 @@ function simulate(integrator, stopped=true)
         set_status(viewer, "ssParking")
     end
     i=1
-    j=0; k=0
     GC.gc()
     if Sys.total_memory()/1e9 > 24 && MAX_TIME < 500
         GC.enable(false)
     end
-    t_gc_tot = 0
     sys_state = SysState(kps4)
     on_new_systate(ssc, sys_state)
     KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
@@ -77,19 +75,19 @@ function simulate(integrator, stopped=true)
             if i > 100
                 dp = KiteControllers.get_depower(ssc)
                 if dp < 0.22 dp = 0.22 end
-                heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
+                heading = calc_heading(kps4::KPS4; neg_azimuth=true, one_point=false)
                 ssc.sys_state.heading = heading
                 ssc.sys_state.azimuth = -calc_azimuth(kps4)
                 steering = -calc_steering(ssc)
                 set_depower_steering(kps4.kcu, dp, steering)
             end
-            if i == 200 && ! PARKING
+            if i == 200 && ! PARKING[]
                 on_autopilot(ssc)
             end
             # execute winch controller
             v_ro = calc_v_set(ssc)
             #
-            t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
+            t_sim = @elapsed KiteModels.next_step!(kps4::KPS4, integrator; set_speed=v_ro, dt=dt)
             sys_state = SysState(kps4)
             if i <= length(T)
                 T[i] = dt * i
@@ -110,7 +108,6 @@ function simulate(integrator, stopped=true)
                 end
                 wait_until(start_time_ns + 1e9*dt, always_sleep=true)          
                 start_time_ns = time_ns()
-                t_gc_tot = 0
             end
             i += 1
         end
@@ -121,27 +118,25 @@ function simulate(integrator, stopped=true)
     return div(i, TIME_LAPSE_RATIO)
 end
 
-function play(stopped=false)
-    global steps, kcu, kps4, wcs, fcs, fpps, ssc
-    init_globals()
+function play(ssc, kps4, PARKING::Ref{Bool}, stopped=false)
+    global steps, kcu, wcs, fcs, fpps
+    init_globals(kcu, wcs, fcs, fpps)
     on_parking(ssc)
     integrator = KiteModels.init!(kps4, stiffness_factor=0.04)
     toc()
-    steps = simulate(integrator, stopped)
+    steps = simulate(integrator, kps4, ssc, PARKING, stopped)
     stopped = ! viewer.sw.active[]
     GC.enable(true)
 end
 
 function parking()
-    global PARKING
-    PARKING = true
+    PARKING[] = true
     viewer.stop=false
     on_parking(ssc)
 end
 
 function autopilot()
-    global PARKING
-    PARKING = false
+    PARKING[] = false
     viewer.stop=false
     on_autopilot(ssc)
 end
@@ -154,17 +149,16 @@ function stop_()
 end
 
 stop_()
-on(viewer.btn_PARKING.clicks) do c; parking(); end
-on(viewer.btn_AUTO.clicks) do c; autopilot(); end
-on(viewer.btn_STOP.clicks) do c; stop_(); end
-on(viewer.btn_PLAY.clicks) do c;
-    global PARKING
+on(viewer.btn_PARKING.clicks) do _; parking(); end
+on(viewer.btn_AUTO.clicks) do _; autopilot(); end
+on(viewer.btn_STOP.clicks) do _; stop_(); end
+on(viewer.btn_PLAY.clicks) do _;
     if ! viewer.stop
-        PARKING = false
+        PARKING[] = false
     end
 end
 
-play(false)
+play(ssc, kps4, PARKING, false)
 stop_()
 KiteViewers.GLMakie.closeall()
 
