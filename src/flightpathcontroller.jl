@@ -22,6 +22,51 @@ See also:
 `docs/flight_path_controller_I.png` and
 `docs/flight_path_controller_II.png` and
 `docs/flight_path_controller_III.png`
+
+# Fields
+- `fcs::`[`FPCSettings`](@ref): settings of the flight path controller.
+- `count::Int64`: cycle counter used for periodic debug output.
+- `attractor::MVector{2, Float64}`: current attractor point [azimuth, elevation] in radians.
+- `psi_dot_set`: desired turn rate [rad/s], or `nothing` when navigating to an attractor.
+- `psi_dot_set_final`: final desired turn rate [rad/s] after the low-pass filter settles.
+- `phi`: azimuth angle of the kite [rad].
+- `beta`: elevation angle of the kite [rad].
+- `psi`: heading of the kite [rad].
+- `chi`: course (track angle) of the kite [rad].
+- `chi_factor`: blending weight between heading and course (0 = heading only, 1 = course only).
+- `omega`: angular velocity of the kite on the unit sphere [°/s].
+- `est_psi_dot`: estimated turn rate based on heading change [rad/s].
+- `est_chi_dot`: estimated turn rate based on course change [rad/s].
+- `chi_set`: desired flight direction (bearing) computed by `navigate()` [rad].
+- `u_d0`: minimum depower setting (fully powered kite).
+- `u_d_max`: maximum depower setting (fully depowered kite).
+- `u_d_prime`: normalised depower setting in [0, 1].
+- `u_s_max`: saturation limit for the steering output.
+- `psi_dot_max`: saturation limit for the commanded turn rate [rad/s].
+- `u_d`: actual depower setting in [0, 1].
+- `k_c2`: active c₂ scaling factor for reel-out phase (copied from `fcs.k_c2`).
+- `k_c2_int`: active c₂ scaling factor for intermediate phases (copied from `fcs.k_c2_int`).
+- `k_c2_hight`: active c₂ scaling factor for high-elevation reel-out (copied from `fcs.k_c2_high`).
+- `c1`: effective NDI coefficient c₁ = `fcs.c1 * fcs.k_c1` [rad/m].
+- `c2`: effective NDI coefficient c₂ (updated each step based on apparent wind speed).
+- `intermediate::Bool`: `true` while in an intermediate planner phase (`LOW_*`).
+- `va`: apparent wind speed at the kite [m/s].
+- `va_av`: low-pass filtered apparent wind speed [m/s].
+- `va_min`: minimum apparent wind speed used for full NDI [m/s].
+- `ndi_gain`: quotient of NDI output over input (used for anti-windup).
+- `int::Integrator`: integrator for the I term of the PID controller.
+- `int2::Integrator`: integrator for the D term of the PID controller.
+- `k_u`: anti-windup gain for the saturated steering signal.
+- `k_psi`: anti-windup gain for the saturated turn rate.
+- `err`: heading/course error fed into the PID controller [rad].
+- `res::MVector{2, Float64}`: residual vector of the nonlinear solver.
+- `u_s`: steering output of the FPC in [-1, 1].
+- `k_psi_out`, `k_u_out`, `k_psi_in`, `k_u_in`: internal anti-windup signals.
+- `int_in`, `int2_in`: inputs to the I and D integrators (for logging).
+- `reset_int1::Bool`: flag to reset the main integrator at the next `calc_steering` call.
+- `radius`: commanded turn radius [m], or `nothing` when not in radius-control mode.
+- `_n`: filter coefficient for the discrete derivative in the D term.
+- `_i`: call counter for `calc_steering`; used to trigger one-shot initialisations.
 """
 @with_kw mutable struct FlightPathController @deftype Float64
     "struct holding the settings of the flight path controller"

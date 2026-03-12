@@ -12,7 +12,7 @@ by running a state machine whose transitions are evaluated on every call to
 [`FlightPathController`](@ref), with appropriate attractor points or turn-rate commands.
 
 # Fields
-- `fpps::FPPSettings`: flight path planner settings (geometry, limits, PID gains).
+- `fpps::`[`FPPSettings`](@ref): flight path planner settings (geometry, limits, PID gains).
 - `fpca::FlightPathCalculator`: the associated flight path calculator.
 - `corr_vec::Vector{Float64}`: elevation-angle correction look-up vector (loaded from `fpps.corr_vec`).
 - `_state::FPPS`: current planner state (one of the [`FPPS` enum values](@ref Flight-Path-Planner-States)); starts at `INITIAL`.
