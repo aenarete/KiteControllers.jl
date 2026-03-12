@@ -113,7 +113,7 @@ time-series log to `output/batch-<project>.arrow`.
 
 ## batch_plot — Post-processing Viewer
 
-Interactive command-line tool for visualising the Arrow log files produced by
+Interactive command-line tool for visualizing the Arrow log files produced by
 `batch_pilot`.  Backed by `examples/batch_plot.jl` and the launcher script
 `bin/batch_plot`.
 
@@ -153,37 +153,30 @@ bin/batch_plot --list-commands
 | `plot_side_view3` | Side view from cycle 3 onward |
 | `plot_front_view3` | Front view from cycle 3 onward |
 
----
-
 ## tune_4p.jl — Controller Tuning
 
 Interactive script for tuning the flight path controller gains (`p`, `i`, `d`, `gain`)
 for a four-line kite.  Changes gain values and immediately re-runs the simulation to
-visualise the effect.
-
----
+visualize the effect.
 
 ## joystick.jl — Manual Joystick Control
 
 Allows manual steering via a gamepad or joystick while the winch is controlled
-automatically by the `WinchController`.  Useful for testing the winch loop in
-isolation.
-
----
+automatically or half-automatically by the `WinchController`.  Useful for learning how to steer a kite manually. Half-automatically means you provide a set point for the reel-out speed manually, but the `WinchController` ensures that the maximal and minimal force are respected.
 
 ## Learning Resources
 
 | File | Purpose |
 |:-----|:--------|
 | `autopilot.jl` | Full autopilot — best starting point |
-| `minipilot.jl` | Minimal autopilot without viewer |
-| `parking_4p.jl` | Parking sequence |
-| `batch_pilot.jl` | Batch / sweep simulations |
+| `minipilot.jl` | Minimal autopilot without 2D plotting |
+| `parking_4p.jl` | Parking of the 4 point kite with disturbance |
+| `batch_pilot.jl` | Batch simulations of projects |
 | `batch_plot` | Post-processing and interactive plotting of batch logs |
-| `tune_4p.jl` | Gain tuning |
-| `joystick.jl` | Manual steering with automated winch |
-| `plots.jl` | Post-processing and plotting of Arrow log files |
-| `stats.jl` | Statistical analysis of batch results |
+| `tune_4p.jl` | Gain tuning of the parking controller |
+| `joystick.jl` | Manual steering with automated or half-automated winch control |
+| `plots.jl` | Post-processing and plotting of Arrow log files, not to be executed on its own |
+| `stats.jl` | Statistical analysis of batch results, not to be executed on its own |
 
 ---
 
