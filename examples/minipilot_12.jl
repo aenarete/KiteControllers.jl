@@ -125,7 +125,7 @@ function play(ssc, kps4, PARKING::Ref{Bool}, stopped=false)
     on_parking(ssc)
     integrator = KiteModels.init!(kps4; stiffness_factor=0.02)
     toc()
-    steps = simulate(integrator, kps4, ssc, PARKING, stopped)
+    simulate(integrator, kps4, ssc, PARKING, stopped)
     stopped = ! viewer.sw.active[]
     GC.enable(true)
 end
