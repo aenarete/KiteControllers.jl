@@ -87,20 +87,7 @@ function test_parking!(LAST_RES, p=fcs.p, i=fcs.i, d=fcs.d, gain=fcs.gain; suppr
     global AZIMUTH
     clear!(kps4)
     KitePodModels.init_kcu!(kcu, set)
-    # on_parking(ssc)
-    # fully reset FPC state that persists across runs:
-    # - _i=0 triggers the integrator-reset logic on the first step
-    # - int/int2 reset clears the I and D integrators (reset_int2 is false by default)
-    # - k_u_in/k_psi_in reset gives NLsolve a clean starting point
-    let fpc = ssc.fpp.fpca.fpc
-        fpc._i = 0
-        fpc.k_u_in = 0.0
-        fpc.k_psi_in = 0.0
-        WinchControllers.reset(fpc.int, 0.0)
-        WinchControllers.reset(fpc.int2, 0.0)
-    end
-    # fcs === ssc.fpp.fpca.fpc.fcs (same object); set gains after on_parking to
-    # ensure they are not overwritten by any reset triggered during the transition
+
     fcs.p = p
     fcs.i = i
     fcs.d = d
