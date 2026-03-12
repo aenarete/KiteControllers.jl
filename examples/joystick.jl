@@ -118,7 +118,7 @@ end
 function async_play()
     if viewer.stop
         @async begin
-            play()
+            Base.invokelatest(play)
             stop(viewer)
         end
     end
@@ -132,16 +132,16 @@ function autopilot()
     on_winchcontrol(ssc)
 end
 
-on(viewer.btn_PLAY.clicks) do _; async_play(); end
+on(viewer.btn_PLAY.clicks) do _; Base.invokelatest(async_play); end
 on(viewer.btn_STOP.clicks) do _; stop(viewer); on_stop(ssc) end
 on(viewer.btn_PARKING.clicks) do _; parking(); end
 on(viewer.btn_AUTO.clicks) do _; autopilot(); end
 
-on(jsbuttons.btn1) do val; if val async_play() end; end
+on(jsbuttons.btn1) do val; if val Base.invokelatest(async_play) end; end
 on(jsbuttons.btn2) do val; if val stop(viewer) end; end
 on(jsbuttons.btn3) do val; if val autopilot() end; end
 on(jsbuttons.btn4) do val; if val on_reelin(ssc) end; end
 on(jsbuttons.btn5) do val; if val on_parking(ssc) end; end
 
-play()
+Base.invokelatest(play)
 stop(viewer)
