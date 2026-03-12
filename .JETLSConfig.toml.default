@@ -61,3 +61,24 @@ match_by   = "message"
 match_type = "literal"
 severity   = "off"
 path       = "examples/**"
+
+[[diagnostic.patterns]]
+pattern    = "`js` may be undefined"
+match_by   = "message"
+match_type = "literal"
+severity   = "off"
+path       = "examples/**"
+
+[[diagnostic.patterns]]
+pattern    = "`jsaxes` may be undefined"
+match_by   = "message"
+match_type = "literal"
+severity   = "off"
+path       = "examples/**"
+
+[[diagnostic.patterns]]
+pattern    = "`jsbuttons` may be undefined"
+match_by   = "message"
+match_type = "literal"
+severity   = "off"
+path       = "examples/**"
