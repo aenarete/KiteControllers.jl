@@ -169,7 +169,7 @@ fcs.d = 33.48
 fcs.use_chi = false
 fcs.gain = -0.2
 
-println(test_parking())
+test_parking()
 show_result(copy(T), copy(AZIMUTH))
 
 # best query: 65.0176,1.37134, 50
