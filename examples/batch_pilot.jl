@@ -8,6 +8,7 @@
 #
 # Example usage:
 #   julia --project=examples examples/batch_pilot.jl
+#   ./bin/batch_pilot --help
 
 using Pkg
 if ! ("KiteControllers" ∈ keys(Pkg.project().dependencies))
