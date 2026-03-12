@@ -29,7 +29,7 @@ MAX_ITER = 40
 SHOW_KITE = false
 # end of user parameter section #
 
-LAST_RES = 1e10
+LAST_RES = Ref(1e10)
 T::Vector{Float64} = zeros(Int64(MAX_TIME / dt))
 AZIMUTH::Vector{Float64} = zeros(Int64(MAX_TIME / dt))
 
@@ -87,7 +87,13 @@ function test_parking!(LAST_RES, p=fcs.p, i=fcs.i, d=fcs.d, gain=fcs.gain; suppr
     global AZIMUTH
     clear!(kps4)
     KitePodModels.init_kcu!(kcu, set)
-
+    let fpc = ssc.fpp.fpca.fpc
+        fpc._i = 0 
+        fpc.k_u_in = 0.0
+        fpc.k_psi_in = 0.0
+        WinchControllers.reset(fpc.int, 0.0)
+        WinchControllers.reset(fpc.int2, 0.0)
+    end
     fcs.p = p
     fcs.i = i
     fcs.d = d
@@ -99,8 +105,8 @@ function test_parking!(LAST_RES, p=fcs.p, i=fcs.i, d=fcs.d, gain=fcs.gain; suppr
         return 1e6  # large penalty for failed simulation
     end
     res = calc_res(AZIMUTH, suppress_overshoot_factor)
-    if res < LAST_RES
-        LAST_RES = res
+    if res < LAST_RES[]
+        LAST_RES[] = res
         println(res, " p: ", fcs.p, " i: ", fcs.i, " d: ", fcs.d)
         display(show_result(copy(T), copy(AZIMUTH)))
     end
@@ -117,7 +123,7 @@ function f(x)
 end
 
 function tune_4p!(LAST_RES)
-    LAST_RES = 1e10
+    LAST_RES[] = 1e10
     lowerbound = [0.5, 10.0]
     upperbound = [12.0, 80.0]
     x0 = [fcs.p, fcs.d]
