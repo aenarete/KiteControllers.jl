@@ -22,7 +22,7 @@ Then you get the menu of the examples by typing:
 menu()
 ```
 
-## autopilot.jl — Full Autopilot Simulation
+## [autopilot.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/autopilot.jl) — Full Autopilot Simulation
 
 The primary example demonstrating the complete control stack.
 
@@ -107,7 +107,7 @@ time-series log to `output/batch-<project>.arrow`.
 
 ---
 
-## batch_plot — Post-processing Viewer
+## [batch_plot](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/batch_plot.jl) — Post-processing Viewer
 
 Interactive command-line tool for visualizing the Arrow log files produced by
 `batch_pilot`.  Backed by `examples/batch_plot.jl` and the launcher script
@@ -149,13 +149,13 @@ bin/batch_plot --list-commands
 | `plot_side_view3` | Side view from cycle 3 onward |
 | `plot_front_view3` | Front view from cycle 3 onward |
 
-## tune_4p.jl — Controller Tuning
+## [tune_4p.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/tune_4p.jl) — Controller Tuning
 
 Interactive script for tuning the flight path controller gains (`p`, `i`, `d`, `gain`)
 for a four-line kite.  Changes gain values and immediately re-runs the simulation to
 visualize the effect.
 
-## joystick.jl — Manual Joystick Control
+## [joystick.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/joystick.jl) — Manual Joystick Control
 
 Allows manual steering via a gamepad or joystick while the winch is controlled
 automatically or half-automatically by the `WinchController`.  Useful for learning how to steer a kite manually. Half-automatically means you provide a set point for the reel-out speed manually, but the `WinchController` ensures that the maximal and minimal force are respected.
