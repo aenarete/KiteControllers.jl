@@ -92,7 +92,7 @@ end
 
 # tests the parking controller and returns the sum of the square of 
 # the azimuth error in degrees squared and divided by the test duration
-function test_parking(suppress_overshoot=10, suppress_tail=10)
+function test_parking(p=fcs.p, i=fcs.i, d=fcs.d; suppress_overshoot=10, suppress_tail=10)
     global LAST_RES
     clear!(kps)
     KitePodModels.init_kcu!(kcu, set)
@@ -104,9 +104,9 @@ function test_parking(suppress_overshoot=10, suppress_tail=10)
         reset(fpc.int,  0.0)
         reset(fpc.int2, 0.0)
     end
-    fcs.p = TMP_P
-    fcs.i = TMP_I
-    fcs.d = TMP_D
+    fcs.p = p
+    fcs.i = i
+    fcs.d = d
     AZIMUTH .= zeros(Int64(MAX_TIME/dt))
     integrator = KiteModels.init!(kps, stiffness_factor=0.04)
     status = simulate(integrator)
@@ -126,17 +126,11 @@ function show_result(t=T, az=AZIMUTH)
     plot(t, rad2deg.(az); xlabel="Time [s]", ylabel="Azimuth [deg]")
 end
 
-TMP_P = fcs.p
-TMP_I = fcs.i
-TMP_D = fcs.d
-
 function f(x)
-    global TMP_P, TMP_D
-    TMP_P = x[1]
-    TMP_D = x[2] * x[1]
-    if TMP_D < 0; TMP_D = 0.0; end
+    p = x[1]
+    d = max(x[2] * x[1], 0.0)
     println("x: ", x)
-    test_parking()
+    test_parking(p, fcs.i, d)
 end
 
 function tune_1p()
@@ -144,7 +138,7 @@ function tune_1p()
     LAST_RES = 1e10
     lowerbound = [10., 0.]
     upperbound = [30., 1.8]
-    x0 = [TMP_P, TMP_D / max(TMP_P, 1e-6)]
+    x0 = [fcs.p, fcs.d / max(fcs.p, 1e-6)]
     function bb(x::Vector{Float64})
         result = f(x)
         failed = result >= 1e6
@@ -167,8 +161,8 @@ function tune_1p()
     fcs.d = optimizer[2] * optimizer[1]
 end
 
-TMP_P = 21.0
-TMP_I = 0.5
-TMP_D = 0.85*21.0
+fcs.p = 17.0
+fcs.i = 0.5
+fcs.d = 0.85*21.0
 println(test_parking())
 show_result(copy(T), copy(AZIMUTH))
