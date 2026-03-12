@@ -29,7 +29,7 @@ MAX_ITER = 200
 SHOW_KITE = false
 # end of user parameter section #
 
-LAST_RES = 1e10
+LAST_RES = Ref(1e10)
 T::Vector{Float64} = zeros(Int64(MAX_TIME / dt))
 AZIMUTH::Vector{Float64} = zeros(Int64(MAX_TIME / dt))
 
@@ -92,11 +92,9 @@ end
 
 # tests the parking controller and returns the sum of the square of 
 # the azimuth error in degrees squared and divided by the test duration
-function test_parking(p=fcs.p, i=fcs.i, d=fcs.d; suppress_overshoot=10, suppress_tail=10)
-    global LAST_RES
+function test_parking(LAST_RES, p=fcs.p, i=fcs.i, d=fcs.d; suppress_overshoot=10, suppress_tail=10)
     clear!(kps)
     KitePodModels.init_kcu!(kcu, set)
-    on_parking(ssc)
     let fpc = ssc.fpp.fpca.fpc
         fpc._i = 0
         fpc.k_u_in = 0.0
@@ -114,8 +112,8 @@ function test_parking(p=fcs.p, i=fcs.i, d=fcs.d; suppress_overshoot=10, suppress
         return 1e6
     end
     res = calc_res(AZIMUTH, suppress_overshoot, suppress_tail)
-    if res < LAST_RES
-        LAST_RES = res
+    if res < LAST_RES[]
+        LAST_RES[] = res
         println(res, " p: ", fcs.p, " d: ", fcs.d)
         display(show_result(copy(T), copy(AZIMUTH)))
     end
@@ -130,19 +128,18 @@ function f(x)
     p = x[1]
     d = max(x[2] * x[1], 0.0)
     println("x: ", x)
-    test_parking(p, fcs.i, d)
+    test_parking(LAST_RES, p, fcs.i, d)
 end
 
-function tune_1p()
-    global LAST_RES
-    LAST_RES = 1e10
+function tune_1p!(LAST_RES)
+    LAST_RES[] = 1e10
     lowerbound = [8., 0.]
     upperbound = [30., 1.8]
     x0 = [fcs.p, fcs.d / max(fcs.p, 1e-6)]
     function bb(x::Vector{Float64})
-        result = f(x)
-        failed = result >= 1e6
-        return (!failed, !failed, [result])
+        res = f(x)
+        failed = res >= 1e6
+        return (!failed, !failed, [res])
     end
     p = NomadProblem(2, 1, ["OBJ"], bb;
         lower_bound=lowerbound,
@@ -159,11 +156,14 @@ function tune_1p()
     println("Optimum value     : $(optimum)")
     fcs.p = optimizer[1]
     fcs.d = optimizer[2] * optimizer[1]
-    println(test_parking())
+    test_parking(LAST_RES)
 end
 
 fcs.p = 12.0
 fcs.i = 0.5
 fcs.d = fcs.p * 0.98
-println(test_parking())
+on_parking(ssc)
+test_parking(LAST_RES)
 show_result(copy(T), copy(AZIMUTH))
+println()
+@info "Use 'tune_1p!(LAST_RES)' to start the tuning process (this may take a while depending on MAX_ITER)."
