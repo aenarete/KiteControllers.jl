@@ -85,8 +85,7 @@ function calc_res(az, suppress_overshoot=10, suppress_tail=10, t1=20, t2=40)
     end
     tail = sum(rad2deg.(tail)) / 20 * suppress_tail
     res += tail
-    println("res: $(res), tail: $tail")
-    res = 1.0 - 100 / res
+    # println("res: $(res), tail: $tail")
     res
 end
 
@@ -145,6 +144,7 @@ function tune_1p!(LAST_RES)
         lower_bound=lowerbound,
         upper_bound=upperbound)
     p.options.max_bb_eval = MAX_ITER
+    p.options.display_degree = 0
     result = solve(p, x0)
     if !hasproperty(result, :x_sol) || isnothing(result.x_sol)
         println("NOMAD did not find a feasible solution. Status: $(result.status)")
