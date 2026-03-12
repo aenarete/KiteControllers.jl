@@ -68,11 +68,12 @@ const PLOT_FILE = Ref{String}(
     if isempty(ARGS)
         project_arrow(read_project_name())
     else
-        resolved = _resolve_plot_file(ARGS[1])
-        # Persist the selected project to gui.yaml so the menu reflects it
-        project_name = replace(replace(basename(resolved), r"\.arrow$" => ""), r"^batch-" => "")
-        write_project_name(project_name)
-        resolved
+        let resolved = _resolve_plot_file(ARGS[1])
+            # Persist the selected project to gui.yaml so the menu reflects it
+            project_name = replace(replace(basename(resolved), r"\.arrow$" => ""), r"^batch-" => "")
+            write_project_name(project_name)
+            resolved
+        end
     end
 )
 

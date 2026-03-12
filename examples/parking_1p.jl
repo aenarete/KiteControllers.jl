@@ -19,8 +19,9 @@ set.v_wind = 6.5
 
 using KiteViewers
 using ControlPlots, KiteModels, Rotations
+using KiteControllers
 using KiteControllers: FPCSettings, FPPSettings, SystemStateControl, WCSettings,
-      on_parking, on_winchcontrol, on_stop, on_new_systate, calc_steering
+                       on_parking, on_stop, on_winchcontrol
 
 kcu::KCU = KCU(set)
 kps::KPS3 = KPS3(kcu)
