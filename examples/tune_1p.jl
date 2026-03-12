@@ -1,11 +1,8 @@
 # activate the test environment if needed
 using Pkg
-if VERSION.minor > 10
-    error("This example is only compatible with Julia 1.10!")
-end
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("NOMAD" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
-    Pkg.add("BayesOpt")
+    Pkg.add("NOMAD")
 end
 
 using KiteUtils
@@ -14,7 +11,8 @@ set = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
 set.rel_tol=0.0001
 
-using KiteControllers, KiteModels, BayesOpt, ControlPlots
+using KiteControllers, KiteModels, NOMAD, ControlPlots
+using KiteControllers: calc_steering
 
 kcu::KCU  = KCU(set)
 kps::KPS3 = KPS3(kcu)
@@ -23,7 +21,7 @@ fcs::FPCSettings  = FPCSettings(true, dt=wcs.dt)
 fpps::FPPSettings = FPPSettings(true)
 u_d0 = 0.01 * set.depower_offset
 u_d  = 0.01 * set.depower
-ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind = set.v_wind)
 dt::Float64 = wcs.dt
 
 # the following values can be changed to match your interest
@@ -34,29 +32,26 @@ SHOW_KITE         = false
 # end of user parameter section #
 
 LAST_RES = 1e10
-ITER = 1
-if ! @isdefined T;       const T = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined AZIMUTH; const AZIMUTH = zeros(Int64(MAX_TIME/dt)); end
-if ! @isdefined P; const P = zeros(Int64(MAX_ITER+11)); end
-if ! @isdefined D; const D = zeros(Int64(MAX_ITER+11)); end
-if ! @isdefined RES; const RES = zeros(Int64(MAX_ITER+11)); end
+T::Vector{Float64}       = zeros(Int64(MAX_TIME/dt))
+AZIMUTH::Vector{Float64} = zeros(Int64(MAX_TIME/dt))
 
 function simulate(integrator)
-    global  AZIMUTH
     i=1
     sys_state = SysState(kps)
     on_new_systate(ssc, sys_state)
     while true
         if i > 100
-            depower = KiteControllers.get_depower(ssc)
-            if depower < 0.22; depower = 0.22; end
-            steering = calc_steering(ssc, 0)
+            depower = max(KiteControllers.get_depower(ssc), 0.22)
+            local steering
+            try
+                steering = calc_steering(ssc, 0)
+            catch e
+                println("calc_steering failed at t=$(round(i*dt, digits=2)): $e")
+                return 2
+            end
             time = i * dt
-            # disturbance
-            if time < 20
-                steering = 0.0
-            elseif time < 21
-                steering = 0.1
+            if time >= 20 && time < 20.5
+                steering = 0.1          # disturbance pulse
             end
             set_depower_steering(kps.kcu, depower, steering)
         end  
@@ -97,79 +92,83 @@ end
 
 # tests the parking controller and returns the sum of the square of 
 # the azimuth error in degrees squared and divided by the test duration
-function test_parking()
+function test_parking(suppress_overshoot=10, suppress_tail=10)
     global LAST_RES
-    global  AZIMUTH
-    global  ITER
     clear!(kps)
-    KitePodModels.init_kcu!(kcu, se())
+    KitePodModels.init_kcu!(kcu, set)
+    on_parking(ssc)
+    let fpc = ssc.fpp.fpca.fpc
+        fpc._i = 0
+        fpc.k_u_in  = 0.0
+        fpc.k_psi_in = 0.0
+        reset(fpc.int,  0.0)
+        reset(fpc.int2, 0.0)
+    end
+    fcs.p = TMP_P
+    fcs.i = TMP_I
+    fcs.d = TMP_D
     AZIMUTH .= zeros(Int64(MAX_TIME/dt))
     integrator = KiteModels.init!(kps, stiffness_factor=0.04)
-    simulate(integrator)
-    res = calc_res(AZIMUTH)
+    status = simulate(integrator)
+    if status != 1
+        return 1e6
+    end
+    res = calc_res(AZIMUTH, suppress_overshoot, suppress_tail)
     if res < LAST_RES
         LAST_RES = res
         println(res, " p: ", fcs.p, " d: ", fcs.d)
-        display(show_result())
+        display(show_result(copy(T), copy(AZIMUTH)))
     end
     res
 end
 
-function show_result()
-    plot(T, rad2deg.(AZIMUTH))
+function show_result(t=T, az=AZIMUTH)
+    plot(t, rad2deg.(az); xlabel="Time [s]", ylabel="Azimuth [deg]")
 end
 
+TMP_P = fcs.p
+TMP_I = fcs.i
+TMP_D = fcs.d
+
 function f(x)
-    global ITER, RES
-    fcs.p = x[1]
-    fcs.i = 0.5
-    fcs.d = x[2]*x[1]
-    if fcs.d < 0; fcs.d = 0; end
-    P[ITER] = fcs.p
-    D[ITER] = fcs.d
+    global TMP_P, TMP_D
+    TMP_P = x[1]
+    TMP_D = x[2] * x[1]
+    if TMP_D < 0; TMP_D = 0.0; end
     println("x: ", x)
-    res = test_parking()
-    RES[ITER] = res
-    ITER+=1
-    res
+    test_parking()
 end
 
 function tune_1p()
     global LAST_RES
-    global ITER
-    ITER = 1
     LAST_RES = 1e10
-    fcs.i = 0.5
-    config = ConfigParameters()         # calls initialize_parameters_to_default of the C API
-    config.noise = 1e-4
-    config.n_iterations = MAX_ITER
-    println(config.noise)
-    println(config.n_inner_iterations)
-    set_kernel!(config, "kMaternARD5")  # calls set_kernel of the C API
-    config.sc_type = SC_MAP
-    lowerbound = [10., 0.]; upperbound = [30., 1.8]
-    x, optimum = bayes_optimization(f, lowerbound, upperbound, config)
-    fcs.p = x[1]
-    fcs.d = x[2]*x[1]
-end
-
-function est_noise(n=10)
-    res = zeros(n)
-    for i in 1:n
-        res[i] = test_parking()
+    lowerbound = [10., 0.]
+    upperbound = [30., 1.8]
+    x0 = [TMP_P, TMP_D / max(TMP_P, 1e-6)]
+    function bb(x::Vector{Float64})
+        result = f(x)
+        failed = result >= 1e6
+        return (!failed, !failed, [result])
     end
-    # println(res)
-    avg = sum(res)/n
-    noise = res .- avg
-    rel_noise = sum(abs2.(noise) / abs2(avg))/n
+    p = NomadProblem(2, 1, ["OBJ"], bb;
+                     lower_bound = lowerbound,
+                     upper_bound = upperbound)
+    p.options.max_bb_eval = MAX_ITER
+    result = solve(p, x0)
+    if !hasproperty(result, :x_sol) || isnothing(result.x_sol)
+        println("NOMAD did not find a feasible solution. Status: $(result.status)")
+        return
+    end
+    optimizer = result.x_sol
+    optimum   = result.bbo_sol[1]
+    println("Optimal parameters: p = $(optimizer[1]),  d/p = $(optimizer[2])")
+    println("Optimum value     : $(optimum)")
+    fcs.p = optimizer[1]
+    fcs.d = optimizer[2] * optimizer[1]
 end
 
-function plot_res()
-    plot(1:71, [P, D, 10*RES])
-end
-
-fcs.p=17.33 # 14.36 # 15.61 # 14.43 # 13.65 # 14.08 # 14.72 # 15.41 # 14.74 # 14.35 # 13.68 # 13.87 # 14.99 # 13.63
-fcs.i=0.5
-fcs.d=23.88 # 18.81 # 21.03 # 22.45 # 22.74 # 21.28 # 16.67 # 20.89 # 25.97 # 19.61 # 25.94 # 50 # 23.09 # 27.75
+TMP_P = 21.0
+TMP_I = 0.5
+TMP_D = 0.85*21.0
 println(test_parking())
-show_result()
+show_result(copy(T), copy(AZIMUTH))

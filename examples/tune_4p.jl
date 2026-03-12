@@ -126,12 +126,11 @@ end
 TMP_P    = fcs.p
 TMP_I    = fcs.i
 TMP_D    = fcs.d
-TMP_GAIN = -0.1  # negative because use_chi=false flips sign vs. use_chi=true
+TMP_GAIN = fcs.gain
 
 function f(x)
     global TMP_P, TMP_I, TMP_D
     TMP_P = x[1]
-    TMP_I = 0.04
     TMP_D = x[2]
     println("x: ", x)
     test_parking()
@@ -141,7 +140,7 @@ function tune_4p()
     global LAST_RES
     LAST_RES = 1e10
     lowerbound = [0.5, 10.0]
-    upperbound = [5.0, 80.0]
+    upperbound = [10.0, 80.0]
     x0 = [TMP_P, TMP_D]
     function bb(x::Vector{Float64})
         result = f(x)
@@ -166,11 +165,11 @@ end
 # fcs.p=2.255470121692552*0.7
 # fcs.i=0.0
 # fcs.d=38.724898029839586
-TMP_P = 2.0638775
-TMP_I = 0.04
-TMP_D = 10.00111825
+TMP_P = 10.0
+TMP_I = -0.04
+TMP_D = 26.48
 fcs.use_chi = false
-TMP_GAIN = -1
+TMP_GAIN = -0.2
 fcs.gain = TMP_GAIN
 
 println(test_parking())
