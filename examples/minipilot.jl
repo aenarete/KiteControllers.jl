@@ -1,3 +1,5 @@
+# Minimal example for flying full power cycles that runs a short kite power system 
+# simulation in the 3D viewer using an autopilot. No 2D plots of the results.
 using Pkg
 if ! ("KiteViewers" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
