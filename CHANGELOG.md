@@ -12,12 +12,15 @@
 - improve script `install`
 - improved installation instructions
 - documented more functions of `FlightPathPlanner
+- the examples `tune_1p.jl` and `tune_4p.jl` where updated. They now use the NOMAD optimizer. 
 
 #### Added
 - add `Documenter.jl` based documentation
 - add script `batch_pilot.jl` for simulating a set of projects
-- add Bash script `patch_pilot`
+- add Bash script `batch_pilot` as driver for `batch_pilot`. It supports the --help command.
+- add Bash script `batch_plot` to plot the results and calculate statistics. It supports the --help command.
 - add Bash script `jetls` to run the static code analysis
+- add Bash script `jetls_examples` to run the static code analysis on the files in the `examples` folder.
 
 ### KiteControllers v0.2.18 2025-07-14
 #### Changed
