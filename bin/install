@@ -365,7 +365,7 @@ end
         echo "Renamed test/Manifest.toml to test/Manifest-v${julia_major}.toml"
     fi
 fi
-julia --project=examples -e 'using KiteControllers, KiteViewers, ControlPlots'
+julia --project=examples -e 'using KiteControllers, KiteViewers, ControlPlots, NOMAD'
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
     if julia -e '
