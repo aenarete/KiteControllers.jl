@@ -20,8 +20,8 @@ u_d  = 0.01 * set.depowers[1]
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
 dt::Float64 = wcs.dt
 
-function init_globals()
-    global kcu, kps4, wcs, fcs, fpps, ssc
+function init_globals(kcu, wcs, fcs, fpps)
+    global kps4, ssc
     kcu   = KCU(set)
     kps4 = KPS4(kcu)
     wcs  = WCSettings(true, dt = 1/set.sample_freq)
@@ -52,7 +52,7 @@ STEERING::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 DEPOWER_::Vector{Float64}      = zeros(Int64(MAX_TIME/dt))
 LAST_I::Int64=0
 
-function simulate(integrator, stopped=true)
+function simulate(integrator, kps4, stopped=true)
     global LAST_I
     start_time_ns = time_ns()
     clear_viewer(viewer)
@@ -76,7 +76,7 @@ function simulate(integrator, stopped=true)
             if i > 100
                 dp = KiteControllers.get_depower(ssc)
                 if dp < 0.22 dp = 0.22 end
-                heading = calc_heading(kps4; neg_azimuth=true, one_point=false)
+                heading = calc_heading(kps4::KPS4; neg_azimuth=true, one_point=false)
                 ssc.sys_state.heading = heading
                 ssc.sys_state.azimuth = -calc_azimuth(kps4)
                 steering = -calc_steering(ssc)
@@ -88,7 +88,7 @@ function simulate(integrator, stopped=true)
             # execute winch controller
             v_ro = calc_v_set(ssc)
             #
-            t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
+            t_sim = @elapsed KiteModels.next_step!(kps4::KPS4, integrator; set_speed=v_ro, dt=dt)
             sys_state = SysState(kps4)
             if i <= length(T)
                 T[i] = dt * i
@@ -122,11 +122,11 @@ end
 
 function play(stopped=false)
     global steps, kcu, kps4, wcs, fcs, fpps, ssc
-    init_globals()
+    init_globals(kcu, wcs, fcs, fpps)
     on_parking(ssc)
     integrator = KiteModels.init!(kps4; stiffness_factor=0.02)
     toc()
-    steps = simulate(integrator, stopped)
+    steps = simulate(integrator, kps4, stopped)
     stopped = ! viewer.sw.active[]
     GC.enable(true)
 end
