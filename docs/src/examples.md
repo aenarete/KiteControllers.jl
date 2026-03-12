@@ -74,8 +74,6 @@ for step in 1:set.sim_time * set.sample_freq
 end
 ```
 
----
-
 ## parking_4p.jl — Parking Controller
 
 Demonstrates how to bring a four-line kite to a stable parking position at
@@ -89,7 +87,7 @@ on_parking(ssc, tether_length=200.0)
 
 ---
 
-## minipilot.jl — Minimal Autopilot
+## [minipilot.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/minipilot.jl) — Minimal Autopilot
 
 A stripped-down autopilot without 2D plots for understanding how to build a GUI
 based simulator. Exposes the core control loop in ~50 lines.
