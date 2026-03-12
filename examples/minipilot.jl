@@ -118,8 +118,8 @@ function simulate(integrator, kps4, ssc, PARKING::Ref{Bool}, stopped=true)
     return div(i, TIME_LAPSE_RATIO)
 end
 
-function play(ssc, kps4, PARKING::Ref{Bool}, stopped=false)
-    global steps, kcu, wcs, fcs, fpps
+function play(PARKING::Ref{Bool}, stopped=false)
+    global steps, kcu, kps4, wcs, fcs, fpps, ssc
     init_globals(kcu, wcs, fcs, fpps)
     on_parking(ssc)
     integrator = KiteModels.init!(kps4, stiffness_factor=0.04)
@@ -158,7 +158,7 @@ on(viewer.btn_PLAY.clicks) do _;
     end
 end
 
-play(ssc, kps4, PARKING, false)
+play(PARKING, false)
 stop_()
 KiteViewers.GLMakie.closeall()
 
