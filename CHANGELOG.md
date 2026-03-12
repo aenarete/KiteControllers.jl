@@ -1,6 +1,6 @@
 # Changelog
 
-### KiteControllers v0.2.19
+### KiteControllers v0.2.19 - 2026-03-13
 #### Changed
 - TestEnv is not used any more
 - use subprojects
@@ -12,12 +12,14 @@
 - improve script `install`
 - improved installation instructions
 - documented more functions of `FlightPathPlanner
-- the examples `tune_1p.jl` and `tune_4p.jl` where updated. They now use the NOMAD optimizer. 
+- the examples `tune_1p.jl` and `tune_4p.jl` where updated. They now use the NOMAD optimizer.
+- the performance improved by a factor of about 7. The GUI can now 24x real-time. 
+  In batch mode, 180x realtime can be achieved
 
 #### Added
 - add `Documenter.jl` based documentation
 - add script `batch_pilot.jl` for simulating a set of projects
-- add Bash script `batch_pilot` as driver for `batch_pilot`. It supports the --help command.
+- add Bash script `batch_pilot` as driver for `batch_pilot`. It supports the --help command. It can run 180x realtime.
 - add Bash script `batch_plot` to plot the results and calculate statistics. It supports the --help command.
 - add Bash script `jetls` to run the static code analysis
 - add Bash script `jetls_examples` to run the static code analysis on the files in the `examples` folder.
