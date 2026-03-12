@@ -153,10 +153,13 @@ function tune_1p!(LAST_RES)
     optimizer = result.x_sol
     optimum = result.bbo_sol[1]
     println("Optimal parameters: p = $(optimizer[1]),  d/p = $(optimizer[2])")
-    println("Optimum value     : $(optimum)")
+    println("Optimum value     : $(optimum)\n")
     fcs.p = optimizer[1]
     fcs.d = optimizer[2] * optimizer[1]
     test_parking(LAST_RES)
+    plt.close("all")
+    println(" p: ", fcs.p, " i: ", fcs.i, " d: ", fcs.d)
+    show_result(copy(T), copy(AZIMUTH))
 end
 
 fcs.p = 12.0
