@@ -1,7 +1,13 @@
 # batch_pilot.jl
 # Runs a full kite simulation without GUI or plots.
 # Reads settings.yaml (and associated yaml config files) and saves the result to
-#   output/batch-<timestamp>.arrow
+# output/batch-<timestamp>.arrow
+# This can be used for batch simulations, e.g. for parameter tuning or sensitivity
+# analysis. You can specify a custom settings file as a command-line argument, or
+# set the PROJECT environment variable to point to a specific yaml file in the data/ directory. By default, it runs a predefined set of projects.
+#
+# Example usage:
+#   julia --project=examples examples/batch_pilot.jl
 
 using Pkg
 if ! ("KiteControllers" ∈ keys(Pkg.project().dependencies))
