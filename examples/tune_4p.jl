@@ -135,9 +135,9 @@ function tune_4p!(LAST_RES)
     upperbound = [12.0, 80.0]
     x0 = [fcs.p, fcs.d]
     function bb(x::Vector{Float64})
-        result = f(x)
-        failed = result >= 1e6
-        return (!failed, !failed, [result])
+        res = f(x)
+        failed = res >= 1e6
+        return (!failed, !failed, [res])
     end
     p = NomadProblem(2, 1, ["OBJ"], bb;
         lower_bound=lowerbound,
