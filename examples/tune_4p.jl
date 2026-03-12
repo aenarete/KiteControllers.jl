@@ -83,8 +83,8 @@ end
 
 # tests the parking controller and returns the sum of the square of 
 # the azimuth error in degrees squared and divided by the test duration
-function test_parking(p=fcs.p, i=fcs.i, d=fcs.d, gain=fcs.gain; suppress_overshoot_factor=3.0)
-    global LAST_RES, AZIMUTH
+function test_parking!(LAST_RES, p=fcs.p, i=fcs.i, d=fcs.d, gain=fcs.gain; suppress_overshoot_factor=3.0)
+    global AZIMUTH
     clear!(kps4)
     KitePodModels.init_kcu!(kcu, set)
     on_parking(ssc)
@@ -96,8 +96,8 @@ function test_parking(p=fcs.p, i=fcs.i, d=fcs.d, gain=fcs.gain; suppress_oversho
         fpc._i = 0
         fpc.k_u_in = 0.0
         fpc.k_psi_in = 0.0
-        reset(fpc.int, 0.0)
-        reset(fpc.int2, 0.0)
+        WinchControllers.reset(fpc.int, 0.0)
+        WinchControllers.reset(fpc.int2, 0.0)
     end
     # fcs === ssc.fpp.fpca.fpc.fcs (same object); set gains after on_parking to
     # ensure they are not overwritten by any reset triggered during the transition
@@ -126,11 +126,10 @@ end
 
 function f(x)
     println("x: ", x)
-    test_parking(x[1], fcs.i, x[2], fcs.gain)
+    test_parking!(LAST_RES, x[1], fcs.i, x[2], fcs.gain)
 end
 
-function tune_4p()
-    global LAST_RES
+function tune_4p!(LAST_RES)
     LAST_RES = 1e10
     lowerbound = [0.5, 10.0]
     upperbound = [12.0, 80.0]
@@ -155,7 +154,7 @@ function tune_4p()
     println("Optimum value    : $(optimum)")
     fcs.p = optimizer[1]
     fcs.d = optimizer[2]
-    println(test_parking())
+    println(test_parking!(LAST_RES))
     plt.close("all")
     println(" p: ", fcs.p, " i: ", fcs.i, " d: ", fcs.d)
     show_result(copy(T), copy(AZIMUTH))
@@ -170,8 +169,10 @@ fcs.d = 33.48
 fcs.use_chi = false
 fcs.gain = -0.2
 
-test_parking()
+test_parking!(LAST_RES)
 show_result(copy(T), copy(AZIMUTH))
+println()
+@info "Use 'tune_4p!(LAST_RES)' to start the tuning process (this may take a while depending on MAX_ITER)."
 
 # best query: 65.0176,1.37134, 50
 # best query: 120,    3.99829, 70.3259
