@@ -32,10 +32,6 @@ TIME_LAPSE_RATIO = 2
 SHOW_KITE = true
 # end of user parameter section #
 
-phi_set = 21.48
-# on_control_command(ssc.fpp.fpca.fpc, attractor=[deg2rad(phi_set), deg2rad(51.88)])
-# on_control_command(ssc.fpp.fpca.fpc, psi_dot_set=-23.763, radius=-4.35)
-
 viewer::Viewer3D = Viewer3D(SHOW_KITE)
 
 steps = 0
@@ -69,7 +65,6 @@ function simulate(integrator)
         sys_state = SysState(kps3)
         on_new_systate(ssc, sys_state)
         if mod(i, TIME_LAPSE_RATIO) == 0
-            sys_state.orient = quat2viewer(QuatRotation(sys_state.orient))
             KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=6.6)
             set_status(viewer, String(Symbol(ssc.state)))
             wait_until(start_time_ns + 1e9*dt, always_sleep=true) 
