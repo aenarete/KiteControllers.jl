@@ -47,11 +47,17 @@ else
 fi
 
 GCT="--gcthreads=$FAST_CORES,1"
+JULIA_THREADS="-t $FAST_CORES,1"
 
 julia_version=$(julia --version | awk '{print($3)}')
 julia_major=${julia_version:0:3} 
 if [[ $julia_major == "1.1" ]]; then
     julia_major=${julia_version:0:4}
+    if [[ $julia_major == "1.11" ]]; then
+        JULIA_THREADS="-t 1"
+    elif [[ $julia_major == "1.12" ]]; then
+        JULIA_THREADS="-t 1,0"
+    fi
 else
     GCT=""
 fi
@@ -60,7 +66,7 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 echo "Launching KiteController..."
 if test -f "bin/kps-image-${julia_major}-${branch}.so"; then
     echo "Found system image!"
-    julia  -J  bin/kps-image-${julia_major}-${branch}.so -t $FAST_CORES,1 $GCT --project -e "push!(LOAD_PATH,joinpath(pwd(),\"src\"));include(\"./examples/autopilot.jl\")"
+    julia  -J  bin/kps-image-${julia_major}-${branch}.so $JULIA_THREADS $GCT --project -e "push!(LOAD_PATH,joinpath(pwd(),\"src\"));include(\"./examples/autopilot.jl\")"
 else
-    julia  --project -t $FAST_CORES,1 $GCT -e "push!(LOAD_PATH,joinpath(pwd(),\"src\"));include(\"./examples/autopilot.jl\")"
+    julia  --project $JULIA_THREADS $GCT -e "push!(LOAD_PATH,joinpath(pwd(),\"src\"));include(\"./examples/autopilot.jl\")"
 fi
