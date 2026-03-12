@@ -87,10 +87,11 @@ on_parking(ssc, tether_length=200.0)
 
 ---
 
-## [minipilot.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/minipilot.jl) — Minimal Autopilot
+## minipilot.jl — Minimal Autopilot
 
 A stripped-down autopilot without 2D plots for understanding how to build a GUI
-based simulator. Exposes the core control loop in ~50 lines.
+based simulator. Exposes the core control loop in ~50 lines. [Source on
+GitHub](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/minipilot.jl).
 
 ## batch_pilot.jl — Batch Simulation
 
