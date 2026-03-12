@@ -19,7 +19,7 @@ end
 
 PROJECT=read_project()
 
-using KiteControllers, ControlPlots, NonlinearSolve, LinearAlgebra
+using ControlPlots, KiteControllers, LinearAlgebra, NonlinearSolve
 import JLD2
 
 function test_ob(lg, plot=true)
@@ -47,7 +47,7 @@ function residual(corr_vec=nothing; sim_time=500)
     fpps = FPPSettings()
     u_d0 = 0.01 * set.depower_offset
     u_d  = 0.01 * set.depowers[1]
-    ssc = SystemStateControl(wcs, fcs, fpps; u_d0, u_d)
+    ssc = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
     if ! isnothing(corr_vec)
         ssc.fpp.corr_vec = corr_vec
     end
@@ -79,7 +79,7 @@ function residual(corr_vec=nothing; sim_time=500)
             t_sim = @elapsed KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
             sys_state = KiteModels.SysState(kps4)
             on_new_systate(ssc, sys_state)
-            e_mech += (sys_state.winch_force[1] * sys_state.v_reelout)/3600*dt
+            e_mech += (sys_state.winch_force[1] * sys_state.v_reelout[1])/3600*dt
             sys_state.e_mech = e_mech
             sys_state.sys_state = Int16(ssc.fpp._state)
             sys_state.var_01 = ssc.fpp.fpca.cycle
@@ -97,7 +97,7 @@ function residual(corr_vec=nothing; sim_time=500)
     end
 
     on_parking(ssc)
-    integrator=KiteModels.init!(kps4; delta=0.001, stiffness_factor=0.5)
+    integrator=KiteModels.init!(kps4; delta=0.001, stiffness_factor=0.004)
     simulate(integrator)
     on_stop(ssc)
     KiteControllers.save_log(logger, "tmp")
