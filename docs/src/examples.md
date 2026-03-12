@@ -74,7 +74,7 @@ for step in 1:set.sim_time * set.sample_freq
 end
 ```
 
-## parking_4p.jl — Parking Controller
+## [parking_4p.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/parking_4p.jl) — Parking Controller
 
 Demonstrates how to bring a four-line kite to a stable parking position at
 high elevation using `on_parking`.
@@ -85,15 +85,12 @@ using KiteControllers, KiteModels
 on_parking(ssc, tether_length=200.0)
 ```
 
----
-
-## minipilot.jl — Minimal Autopilot
+## [minipilot.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/minipilot.jl) — Minimal Autopilot
 
 A stripped-down autopilot without 2D plots for understanding how to build a GUI
-based simulator. Exposes the core control loop in ~50 lines. [Source on
-GitHub](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/minipilot.jl).
+based simulator. Exposes the core control loop in ~50 lines.
 
-## batch_pilot.jl — Batch Simulation
+## [batch_pilot.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/batch_pilot.jl) — Batch Simulation
 
 Runs multiple simulations back-to-back over a range of wind speeds and
 records key statistics (mean power, reel-out speed, etc.) to an
