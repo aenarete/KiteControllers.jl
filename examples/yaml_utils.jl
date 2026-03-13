@@ -1,4 +1,15 @@
-# modify a variable in a yaml file
+# Utilities for editing simple YAML-style settings files as plain text.
+#
+# readfile(filename)
+#   Returns all file lines as Vector{String}.
+#
+# writefile(lines, filename)
+#   Writes a Vector{String} back to disk, one line per entry.
+#
+# change_value(lines, varname, value)
+#   Finds lines whose left-trimmed content starts with varname and replaces
+#   the value field before a trailing '#' comment, preserving spacing and
+#   comments. Numeric values are converted to text via repr(value).
 
 # read as text
 function readfile(filename)
