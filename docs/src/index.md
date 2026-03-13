@@ -99,15 +99,18 @@ On Linux you can install the `autopilot` GUI app as normal application with the 
 ### Running the first example
 
 You can now start Julia with `./bin/run_julia` and execute the autopilot or any other of the examples with:
+
 ```julia
 include("examples/autopilot.jl")
 ```
+
 Clicking on the "RUN" button starts the simulation. When the simulation is finished, you can click on the "OK"
 button at the top left. After some time a plot of the flight should appear. You can use the drop-down menu
 on the left to select other plots or the statistics. You can also load or save log files or projects.
 A project consists of a kite/ physical system, controller settings and a wind condition.
 
 You get a menu with all the examples by typing:
+
 ```julia
 menu()
 ```
@@ -116,7 +119,7 @@ See [Examples, if installed using Git](@ref) to learn more about the provided ex
 
 ## Package Structure
 
-```
+```text
 KiteControllers.jl
 ├── SystemStateControl   – top-level state machine
 ├── FlightPathPlanner    – path planning (chapter 5 of PhD thesis)
