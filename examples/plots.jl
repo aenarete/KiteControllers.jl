@@ -2,9 +2,21 @@ function l_tether(sl)
     hcat(sl.l_tether...)[1,:]
 end
 
+function resolved_log_file(name)
+    log_path = joinpath(fulldir(name), basename(name))
+    if isfile(log_path)
+        return log_path
+    elseif !endswith(log_path, ".arrow") && isfile(log_path * ".arrow")
+        return log_path * ".arrow"
+    else
+        return nothing
+    end
+end
+
 function log_file_exists()
-    isfile(KiteViewers.plot_file[]) && return true
-    println("Log file not found: $(KiteViewers.plot_file[])")
+    log_path = resolved_log_file(KiteViewers.plot_file[])
+    log_path !== nothing && return true
+    println("Log file not found: $(joinpath(fulldir(KiteViewers.plot_file[]), basename(KiteViewers.plot_file[])))")
     return false
 end
 

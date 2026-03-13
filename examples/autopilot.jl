@@ -427,6 +427,7 @@ function show_stats(stats::Stats)
 end
 
 function print_stats()
+    log_file_exists() || return
     lg = load_log(basename(KiteViewers.plot_file[]); path=dirname(KiteViewers.plot_file[]))
     sl  = lg.syslog
     elev_ro = deepcopy(sl.elevation)
