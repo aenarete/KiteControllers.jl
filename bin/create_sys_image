@@ -100,6 +100,9 @@ else
     exit 1
 fi
 
+# create a logfile for the sysimage creation process
+./batch_pilot hydra20_600
+
 # Check memory and limit threads if needed
 if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
     # Windows: use wmic or PowerShell
