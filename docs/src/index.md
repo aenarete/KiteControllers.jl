@@ -112,29 +112,7 @@ You get a menu with all the examples by typing:
 menu()
 ```
 
-## Quick Start
-
-```julia
-using KiteControllers
-
-# Load settings
-wcs  = WCSettings(true)
-fcs  = FPCSettings(true)
-fpps = FPPSettings(true)
-
-# Create top-level controller
-ssc = SystemStateControl(wcs, fcs, fpps; u_d0=0.01, u_d=0.25, v_wind=10.0)
-
-# Set the state machine to power production mode
-on_autopilot(ssc)
-
-# Each simulation time step:
-# 1. Feed new kite state
-on_new_systate(ssc, sys_state)
-
-# 2. Query the winch speed set-point
-v_set = calc_v_set(ssc)
-```
+See [Examples, if installed using Git](@ref) to learn more about the provided examples.
 
 ## Package Structure
 

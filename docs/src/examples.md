@@ -129,15 +129,15 @@ automatically or half-automatically by the `WinchController`.  Useful for learni
 
 | File | Purpose |
 |:-----|:--------|
-| `autopilot.jl` | Full autopilot — best starting point |
-| `minipilot.jl` | Minimal autopilot without 2D plotting |
-| `parking_4p.jl` | Parking of the 4 point kite with disturbance |
-| `batch_pilot.jl` | Batch simulations of projects |
-| `batch_plot` | Post-processing and interactive plotting of batch logs |
-| `tune_4p.jl` | Gain tuning of the parking controller |
-| `joystick.jl` | Manual steering with automated or half-automated winch control |
-| `plots.jl` | Post-processing and plotting of Arrow log files, not to be executed on its own |
-| `stats.jl` | Statistical analysis of batch results, not to be executed on its own |
+| [`autopilot.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/autopilot.jl) | Full autopilot — start running this as first step |
+| [`minipilot.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/minipilot.jl) | Minimal autopilot without 2D plotting, good for understanding the code |
+| [`parking_4p.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/parking_4p.jl) | Parking of the 4 point kite with disturbance |
+| [`batch_pilot.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/batch_pilot.jl) | Batch simulations of projects |
+| [`batch_plot`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/batch_plot.jl) | Post-processing and interactive plotting of batch logs |
+| [`tune_4p.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/tune_4p.jl) | Gain tuning of the parking controller |
+| [`joystick.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/joystick.jl) | Manual steering with automated or half-automated winch control |
+| [`plots.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/plots.jl) | Post-processing and plotting of Arrow log files, not to be executed on its own |
+| [`stats.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/stats.jl) | Statistical analysis of batch results, not to be executed on its own |
 
 ---
 
