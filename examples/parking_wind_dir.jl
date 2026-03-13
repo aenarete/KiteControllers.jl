@@ -7,6 +7,7 @@ using Timers; tic()
 
 using ControlPlots, KiteControllers, KiteModels, KiteViewers, Rotations, Statistics
 using KiteUtils: Settings, load_settings
+using KiteModels: reactivate_host_app
 
 set::Settings = if haskey(ENV, "USE_V9")
     deepcopy(load_settings("system_v9.yaml"))
@@ -161,6 +162,9 @@ function sim_parking(integrator)
         end
         if ! isopen(viewer.fig.scene) break end
         if i*dt >= MAX_TIME break end
+        if i==1
+            bring_viewer_to_front()
+        end
         i += 1
     end
     misses = j/k * 100
@@ -169,7 +173,7 @@ function sim_parking(integrator)
 end
 
 function play_parking()
-    integrator = KiteModels.init!(kps4; delta=0.001, stiffness_factor=0.5)
+    integrator = KiteModels.init!(kps4; delta=0.001, stiffness_factor=0.01)
     toc()
     try
         sim_parking(integrator)
@@ -192,3 +196,4 @@ p=plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),[rad2deg.(UPWIND_DIR_), rad
          ylabels=["Azimuth [°]", "azimuth_east [°]", "upwind_dir [°]", "Heading [°]", "Steering [%]"],
          labels=["azimuth", "azimuth_east", ["upwind_dir", "filtered_upwind_dir"], "heading", ["set_steering", "steering"]])
 display(p)
+reactivate_host_app()
