@@ -32,47 +32,12 @@ The primary example demonstrating the complete control stack.
 - Builds a `SystemStateControl` and connects it to the kite model
 - Runs a real-time simulation loop with a 3-D viewer
 
-**Minimal usage pattern:**
+**Screenshot:**
 
-```julia
-using KiteControllers, KiteModels, KiteViewers
+![Minimal usage pattern](autopilot.png)
 
-# ---- Settings ----
-set  = load_settings("system")
-wcs  = WCSettings(true; dt = 1/set.sample_freq)
-fcs  = FPCSettings(true; dt = wcs.dt)
-fpps = FPPSettings(true)
-
-# ---- Kite model ----
-kcu  = KCU(set)
-kps4 = KPS4(kcu)
-
-# ---- Controller ----
-ssc = SystemStateControl(
-    wcs, fcs, fpps;
-    u_d0    = 0.01 * set.depower_offset,
-    u_d     = 0.01 * set.depower,
-    v_wind  = set.v_wind,
-)
-
-# ---- Start power production ----
-on_autopilot(ssc)
-
-# ---- Simulation loop ----
-for step in 1:set.sim_time * set.sample_freq
-    # integrate kite model one time step …
-    next_step!(kps4; set_speed=nothing, dt=wcs.dt)
-
-    # build a SysState from the kite model
-    sys_state = SysState(kps4)
-
-    # feed the controller
-    on_new_systate(ssc, sys_state)
-
-    # get winch command
-    v_set = calc_v_set(ssc)
-end
-```
+You can select one of the four, pre-defined projects, run the simulation, and on the left you have menu options to 
+print the statistics or show one of the many 2D plots, visualizing the results.
 
 ## [parking_4p.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/parking_4p.jl) — Parking Controller
 
