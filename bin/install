@@ -356,21 +356,9 @@ fi
 julia --project=examples -e 'using KiteControllers, KiteViewers, ControlPlots, NOMAD'
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
-    if julia -e '
-try
-    using PyCall
-    pyimport("matplotlib")
-    pyimport("matplotlib.backends.backend_qtagg")
-catch
-    exit(1)
-end
-'; then
-        echo
-        echo "QtAgg already installed; skipping QtAgg dependency installation."
-    else
-        echo
-        echo "Installing QtAgg dependencies for PyPlot on macOS..."
-        julia -e '
+    echo
+    echo "Installing QtAgg dependencies for PyPlot on macOS..."
+    julia -e '
 using Pkg
 
 for pkg in ["PyCall", "PyPlot", "Conda"]
@@ -393,7 +381,6 @@ Pkg.build("PyPlot")
 println("Installed matplotlib + pyqt in Conda.jl environment.")
 println("QtAgg should now be available for matplotlib/PyPlot.jl.")
 '
-    fi
 fi
 
 echo
