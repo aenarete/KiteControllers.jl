@@ -5,8 +5,7 @@
 
 using Pkg
 
-if !("Documenter" ∈ keys(Pkg.project().dependencies))
-    using Pkg
+if !("LiveServer" ∈ keys(Pkg.project().dependencies))
     Pkg.activate("docs")
 end
 using LiveServer; servedocs()
