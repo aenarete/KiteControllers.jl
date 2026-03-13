@@ -182,11 +182,11 @@ All settings are stored as YAML files in the `data/` folder.
 
 | File | Settings struct |
 |:-----|:----------------|
-| `settings.yaml` | General kite / simulation settings (`KiteUtils.Settings`) |
-| `system.yaml` | System-level parameters |
-| `fpc_settings.yaml` | [`FPCSettings`](@ref) — flight path controller |
-| `fpp_settings.yaml` | [`FPPSettings`](@ref) — flight path planner |
-| `wc_settings.yaml` | `WCSettings` — winch controller |
+| [`settings.yaml`](https://github.com/aenarete/KiteControllers.jl/blob/main/data/settings.yaml) | General kite / simulation settings (`KiteUtils.Settings`) |
+| [`system.yaml`](https://github.com/aenarete/KiteControllers.jl/blob/main/data/system.yaml) | System-level parameters |
+| [`fpc_settings.yaml`](https://github.com/aenarete/KiteControllers.jl/blob/main/data/fpc_settings.yaml) | [`FPCSettings`](@ref) — flight path controller |
+| [`fpp_settings.yaml`](https://github.com/aenarete/KiteControllers.jl/blob/main/data/fpp_settings.yaml) | [`FPPSettings`](@ref) — flight path planner |
+| [`wc_settings.yaml`](https://github.com/aenarete/KiteControllers.jl/blob/main/data/wc_settings.yaml) | `WCSettings` — winch controller |
 
 Copy the default configuration files with:
 
