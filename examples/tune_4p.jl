@@ -169,6 +169,7 @@ on_parking(ssc)
 test_parking!(LAST_RES)
 show_result(copy(T), copy(AZIMUTH))
 println()
+reactivate_host_app()
 @info "Use 'tune_4p!(LAST_RES)' to start the tuning process (this may take a while depending on MAX_ITER)."
 
 # best query: 65.0176,1.37134, 50
