@@ -16,6 +16,7 @@ using KiteUtils: Settings, load_settings
 using KitePodModels: KCU
 using KiteModels
 using KiteModels: KPS4
+using KiteModels: reactivate_host_app
 
 set::Settings = deepcopy(load_settings("system.yaml"))
 set.abs_tol=0.00006
@@ -140,6 +141,9 @@ function simulate(integrator)
         end
         if ! isopen(viewer.fig.scene) break end
         if i*dt >= MAX_TIME break end
+        if i==1
+            bring_viewer_to_front()
+        end
         i += 1
     end
     misses = j/k * 100
@@ -172,3 +176,4 @@ p = plotx(T, rad2deg.(AZIMUTH), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STE
           labels=["azimuth", "heading", ["set_steering", "steering"], ["psi_dot", "psi_dot_set"], "NDI_GAIN", "v_app"],  
           fig="Azimuth, heading, steering and more")
 display(p)
+reactivate_host_app()
