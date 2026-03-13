@@ -469,3 +469,6 @@ if [[ $_jetls_warning -eq 1 ]]; then
     echo "Warning: .JETLSConfig.toml already exists and was not overwritten."
     echo "If you want to use the default configuration, delete it and run this script again."
 fi
+
+# Ensure output directory exists for simulation logs
+mkdir -p output

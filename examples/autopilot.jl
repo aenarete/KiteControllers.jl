@@ -31,7 +31,10 @@ end
 
 PROJECT = read_project()
 GLMakie.activate!(title = PROJECT)
-DEFAULT_LOG::String = joinpath("output", "last_sim_log")
+OUTPUT_DIR::String = "output"
+mkpath(OUTPUT_DIR)
+@assert isdir(OUTPUT_DIR)
+DEFAULT_LOG::String = joinpath(OUTPUT_DIR, "last_sim_log")
 
 function test_observer(plot=true)
     log = load_log("uncorrected")
@@ -132,6 +135,7 @@ DEFAULT_TOLERANCE = 3
 # end of user parameter section #
 
 init(app; init_viewer=true)
+bring_viewer_to_front()
 
 function simulate(integrator, stopped=true)
     start_time_ns = time_ns()

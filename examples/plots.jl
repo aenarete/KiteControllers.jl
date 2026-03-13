@@ -2,6 +2,12 @@ function l_tether(sl)
     hcat(sl.l_tether...)[1,:]
 end
 
+function log_file_exists()
+    isfile(KiteViewers.plot_file[]) && return true
+    println("Log file not found: $(KiteViewers.plot_file[])")
+    return false
+end
+
 function force(sl)
     hcat(sl.winch_force...)[1,:]
 end
@@ -11,6 +17,7 @@ function v_reelout(sl)
 end
 
 function plot_timing()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
 
     sl  = log.syslog
@@ -27,6 +34,7 @@ function plot_timing()
 end
 
 function plot_timing2()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
 
     sl  = log.syslog
@@ -45,6 +53,7 @@ function fulldir(name)
 end
 
 function plot_main()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), l_tether(sl), force(sl), 
@@ -55,6 +64,7 @@ function plot_main()
 end
 
 function plot_power()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     energy = similar(v_reelout(sl))
@@ -72,6 +82,7 @@ function plot_power()
 end
 
 function plot_control()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), rad2deg.(wrap2pi.(sl.heading)), force(sl), 100*sl.depower, 100*sl.steering, sl.sys_state, sl.cycle, sl.fig_8;
@@ -85,6 +96,7 @@ function plot_control()
 end
 
 function plot_control_II()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, rad2deg.(sl.azimuth), -rad2deg.(wrap2pi.(sl.heading)), 100*sl.steering, sl.var_12, rad2deg.(sl.course.-pi), rad2deg.(sl.var_09), rad2deg.(sl.var_10), sl.var_06, sl.sys_state;
@@ -94,6 +106,7 @@ function plot_control_II()
 end
 
 function plot_winch_control()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotx(log.syslog.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth), force(sl), sl.var_04, v_reelout(sl), 100*sl.depower, 100*sl.steering, sl.var_03;
@@ -108,6 +121,7 @@ function plot_winch_control()
 end
 
 function plot_elev_az()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     display(plotxy(rad2deg.(sl.azimuth), rad2deg.(sl.elevation);
@@ -118,6 +132,7 @@ function plot_elev_az()
 end
 
 function plot_elev_az2()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     index=1
@@ -135,6 +150,7 @@ function plot_elev_az2()
 end
 
 function plot_elev_az3()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl  = log.syslog
     index=1
@@ -152,6 +168,7 @@ function plot_elev_az3()
 end
 
 function plot_side_view()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     display(plotxy(log.x, log.z;
     ylabel="pos_x [m]",
@@ -161,6 +178,7 @@ function plot_side_view()
 end
 
 function plot_side_view2()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     index = 1
     sl    = log.syslog
@@ -178,6 +196,7 @@ function plot_side_view2()
 end
 
 function plot_side_view3()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     index = 1
     sl    = log.syslog
@@ -195,6 +214,7 @@ function plot_side_view3()
 end
 
 function plot_front_view3()
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     index = 1
     sl    = log.syslog
@@ -212,6 +232,7 @@ function plot_front_view3()
 end
 
 function plot_aerodynamics(plot_lift_drag = false)
+    log_file_exists() || return
     log = load_log(basename(KiteViewers.plot_file[]); path=fulldir(KiteViewers.plot_file[]))
     sl    = log.syslog
 
