@@ -19,7 +19,7 @@ include("yaml_utils.jl")
 
 # Paths
 const GUI_YAML   = joinpath(@__DIR__, "..", "data", "gui.yaml")
-const OUTPUT_DIR = joinpath(@__DIR__, "..", "output")
+const BATCH_OUTPUT_DIR = joinpath(@__DIR__, "..", "output")
 
 # ---------------------------------------------------------------------------
 # Project management helpers
@@ -27,7 +27,7 @@ const OUTPUT_DIR = joinpath(@__DIR__, "..", "output")
 """Return sorted list of project names that have a batch-*.arrow file."""
 function discover_projects()
     files = filter(f -> startswith(f, "batch-") && endswith(f, ".arrow"),
-                   readdir(OUTPUT_DIR))
+                   readdir(BATCH_OUTPUT_DIR))
     sort([replace(replace(f, r"^batch-" => ""), r"\.arrow$" => "") for f in files])
 end
 
@@ -48,7 +48,7 @@ end
 
 """Return the full path to the batch arrow file for a given project name."""
 function project_arrow(project::String)
-    joinpath(OUTPUT_DIR, "batch-" * project * ".arrow")
+    joinpath(BATCH_OUTPUT_DIR, "batch-" * project * ".arrow")
 end
 
 # Mutable reference to the active log file (updated when project is changed)
@@ -56,12 +56,12 @@ function _resolve_plot_file(arg::String)
     # Full path given
     dirname(arg) != "" && return arg
     # Already looks like a complete arrow filename
-    endswith(arg, ".arrow") && return joinpath(OUTPUT_DIR, arg)
+    endswith(arg, ".arrow") && return joinpath(BATCH_OUTPUT_DIR, arg)
     # Try treating as a project name: batch-<arg>.arrow
-    candidate = joinpath(OUTPUT_DIR, "batch-" * arg * ".arrow")
+    candidate = joinpath(BATCH_OUTPUT_DIR, "batch-" * arg * ".arrow")
     isfile(candidate) && return candidate
     # Fall back to using the arg as a bare filename in output/
-    joinpath(OUTPUT_DIR, arg)
+    joinpath(BATCH_OUTPUT_DIR, arg)
 end
 
 const PLOT_FILE = Ref{String}(
@@ -279,7 +279,7 @@ end
 function select_project_menu()
     projects = discover_projects()
     if isempty(projects)
-        println("No batch-*.arrow files found in $OUTPUT_DIR")
+        println("No batch-*.arrow files found in $BATCH_OUTPUT_DIR")
         return
     end
     current = read_project_name()
@@ -342,7 +342,7 @@ end
 
 function print_statistics()
     project = read_project_name()
-    stats_file = joinpath(OUTPUT_DIR, "batch-" * project * "_stats.yaml")
+    stats_file = joinpath(BATCH_OUTPUT_DIR, "batch-" * project * "_stats.yaml")
     if !isfile(stats_file)
         println("No stats file found: $stats_file")
         return
