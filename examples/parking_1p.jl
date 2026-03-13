@@ -18,6 +18,7 @@ set.rel_tol=0.0001
 set.v_wind = 6.5
 
 using KiteViewers
+using KiteModels: reactivate_host_app
 using ControlPlots, KiteModels, Rotations
 using KiteControllers
 using KiteControllers: FPCSettings, FPPSettings, SystemStateControl, WCSettings,
@@ -147,3 +148,4 @@ stop(viewer)
 
 p = plot(T, rad2deg.(AZIMUTH); xlabel="Time [s]", ylabel="Azimuth [deg]")
 display(p)
+reactivate_host_app()
