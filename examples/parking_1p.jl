@@ -103,6 +103,9 @@ function simulate(integrator)
         end
         if ! isopen(viewer.fig.scene) break end
         if i*dt >= MAX_TIME break end
+        if i==1
+            bring_viewer_to_front()
+        end
         i += 1
     end
     misses = j/k * 100
