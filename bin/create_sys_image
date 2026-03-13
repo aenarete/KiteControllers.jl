@@ -115,8 +115,8 @@ if test -f "kps-image-${julia_major}-${branch}.so"; then
     mv bin/kps-image-${julia_major}-${branch}.so kps-image-${julia_major}-${branch}.so.bak
 fi
 
-julia --startup-file=no --pkgimages=no --project -e "using Pkg; Pkg.instantiate();"
-julia --startup-file=no --pkgimages=no --project=test -e "include(\"./test/create_sys_image.jl\")"
+julia --startup-file=no --project -e "using Pkg; Pkg.instantiate();"
+julia --startup-file=no --project=test -e "include(\"./test/create_sys_image.jl\")"
 
 if [[ $branch != "" ]]; then
     SOFILE="bin/kps-image-${julia_major}-${branch}.so"
@@ -128,11 +128,6 @@ if test -f $SOFILE; then
 fi
 mv kps-image_tmp.so $SOFILE
 julia --startup-file=no  --project -e "using Pkg; Pkg.precompile(); Pkg.resolve()"
-if [ -d src ]; then
-    cd src
-    touch *.jl # make sure all modules get recompiled in the next step
-    cd ..
-fi
 julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using KiteUtils, KiteControllers"
 julia --project=test -J bin/kps-image-${julia_major}-${branch}.so -e "using ControlPlots, NativeFileDialog"
 julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using Pkg; Pkg.instantiate()"
