@@ -194,6 +194,10 @@ if [ -f "Manifest.toml" ]; then
     echo "Removed stale Manifest.toml"
 fi
 
+# Resolve and instantiate a project, retrying once after deleting only the
+# plain manifest and the manifest matching the active Julia version.
+# The second argument controls registry refresh and is passed into Julia as a
+# one-shot env var: JULIA_INSTALL_UPDATE_REGISTRY=1 (update) or 0 (skip).
 run_resolve_with_retry() {
     local project_path="$1"
     local update_registry="$2"
