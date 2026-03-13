@@ -122,5 +122,7 @@ on(viewer.btn_STOP.clicks) do _; stop(viewer); on_stop(ssc) end
 on(viewer.btn_PARKING.clicks) do _; parking(); end
 on(viewer.btn_AUTO.clicks) do _; autopilot(); end
 
+bring_viewer_to_front()
+
 play()
 stop(viewer)
