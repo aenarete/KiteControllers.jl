@@ -194,15 +194,22 @@ if [ -f "Manifest.toml" ]; then
     echo "Removed stale Manifest.toml"
 fi
 
-# Instantiate the project
-FAILED_RESOLVES=()
-RETRIED_RESOLVES=()
-echo "Instantiating project..."
-_ec=0; julia --project -e '
+run_resolve_with_retry() {
+    local project_path="$1"
+    local update_registry="$2"
+    local -a julia_args
+
+    if [[ -n "$project_path" ]]; then
+        julia_args=(--project="$project_path")
+    else
+        julia_args=(--project)
+    fi
+
+    JULIA_INSTALL_UPDATE_REGISTRY="$update_registry" julia "${julia_args[@]}" -e '
 using Pkg
-# Always resolve first so the manifest is regenerated for the current Julia version.
-# This avoids failures when the .default manifest was created with a different Julia
-# version (e.g. 1.12 manifest used with Julia 1.11 would reference missing stdlibs).
+
+const UPDATE_REGISTRY = get(ENV, "JULIA_INSTALL_UPDATE_REGISTRY", "0") == "1"
+
 function ensure_general_registry()
     regs = try
         Pkg.Registry.reachable_registries()
@@ -217,38 +224,70 @@ function ensure_general_registry()
     end
 end
 
+function clean_active_manifest!(proj_dir)
+    active_manifest = "Manifest-v$(VERSION.major).$(VERSION.minor).toml"
+    for f in readdir(proj_dir)
+        if f == "Manifest.toml" || f == active_manifest
+            rm(joinpath(proj_dir, f), force=true)
+        end
+    end
+end
+
 try
-    ensure_general_registry()
+    if UPDATE_REGISTRY
+        ensure_general_registry()
+    end
     Pkg.resolve()
     Pkg.instantiate()
 catch e
     @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
-    proj_dir = dirname(Base.active_project())
-    # Remove all manifest files to force a completely clean resolve
-    for f in readdir(proj_dir)
-        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
-            rm(joinpath(proj_dir, f), force=true)
-        end
+    clean_active_manifest!(dirname(Base.active_project()))
+    if UPDATE_REGISTRY
+        ensure_general_registry()
     end
-    ensure_general_registry()
     Pkg.resolve()
     Pkg.instantiate()
     exit(2)
 end
-' || _ec=$?
+'
+}
+
+normalize_manifest_name() {
+    local manifest_dir="$1"
+    local plain_manifest
+    local target_manifest
+    local display_prefix=""
+
+    if [[ -n "$manifest_dir" ]]; then
+        plain_manifest="${manifest_dir}/Manifest.toml"
+        target_manifest="${manifest_dir}/Manifest-v${julia_major}.toml"
+        display_prefix="${manifest_dir}/"
+    else
+        plain_manifest="Manifest.toml"
+        target_manifest="Manifest-v${julia_major}.toml"
+    fi
+
+    if [ -f "$plain_manifest" ]; then
+        if [ ! -f "$target_manifest" ]; then
+            mv "$plain_manifest" "$target_manifest"
+            echo "Renamed ${display_prefix}Manifest.toml to ${display_prefix}Manifest-v${julia_major}.toml"
+        else
+            rm -f "$plain_manifest"
+            echo "Removed extra ${display_prefix}Manifest.toml (kept ${display_prefix}Manifest-v${julia_major}.toml)"
+        fi
+    fi
+}
+
+# Instantiate the project
+FAILED_RESOLVES=()
+RETRIED_RESOLVES=()
+echo "Instantiating project..."
+_ec=0; run_resolve_with_retry "" 1 || _ec=$?
 if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("main project")
 elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("main project"); fi
 # If Pkg.resolve() created a plain Manifest.toml (Julia 1.12 behavior), rename it
 # to the version-specific filename so the rest of the scripts stay consistent.
-if [ -f "Manifest.toml" ]; then
-    if [ ! -f "Manifest-v${julia_major}.toml" ]; then
-        mv Manifest.toml "Manifest-v${julia_major}.toml"
-        echo "Renamed Manifest.toml to Manifest-v${julia_major}.toml"
-    else
-        rm -f Manifest.toml
-        echo "Removed extra Manifest.toml (kept Manifest-v${julia_major}.toml)"
-    fi
-fi
+normalize_manifest_name ""
 echo "Precompiling main project..."
 julia --project -e 'using Pkg; Pkg.precompile()'
 
@@ -261,86 +300,26 @@ if [[ $julia_major == "1.11" ]]; then
     cp Manifest-v1.11.toml examples/Manifest-v1.11.toml
     cp Manifest-v1.11.toml test/Manifest-v1.11.toml
     cp Manifest-v1.11.toml docs/Manifest-v1.11.toml
-    _ec=0; julia --project=examples -e '
-using Pkg
-try
-    Pkg.resolve()
-    Pkg.instantiate()
-catch e
-    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
-    proj_dir = dirname(Base.active_project())
-    for f in readdir(proj_dir)
-        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
-            rm(joinpath(proj_dir, f), force=true)
-        end
-    end
-    Pkg.resolve()
-    Pkg.instantiate()
-    exit(2)
-end
-' || _ec=$?
+    _ec=0; run_resolve_with_retry "examples" 0 || _ec=$?
     if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("examples (1.11)")
     elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("examples (1.11)"); fi
     echo "Precompiling examples project..."
     julia --project=examples -e 'using Pkg; Pkg.precompile()'
-    _ec=0; julia --project=test -e '
-using Pkg
-try
-    Pkg.resolve()
-    Pkg.instantiate()
-catch e
-    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
-    proj_dir = dirname(Base.active_project())
-    for f in readdir(proj_dir)
-        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
-            rm(joinpath(proj_dir, f), force=true)
-        end
-    end
-    Pkg.resolve()
-    Pkg.instantiate()
-    exit(2)
-end
-' || _ec=$?
+    _ec=0; run_resolve_with_retry "test" 0 || _ec=$?
     if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("test (1.11)")
     elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("test (1.11)"); fi
     echo "Precompiling test project..."
     julia --project=test -e 'using Pkg; Pkg.precompile()'
-    _ec=0; julia --project=docs -e '
-using Pkg
-try
-    Pkg.resolve()
-    Pkg.instantiate()
-catch e
-    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
-    proj_dir = dirname(Base.active_project())
-    for f in readdir(proj_dir)
-        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
-            rm(joinpath(proj_dir, f), force=true)
-        end
-    end
-    Pkg.resolve()
-    Pkg.instantiate()
-    exit(2)
-end
-' || _ec=$?
+    _ec=0; run_resolve_with_retry "docs" 0 || _ec=$?
     if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("docs (1.11)")
     elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("docs (1.11)"); fi
     echo "Precompiling docs project..."
     julia --project=docs -e 'using Pkg; Pkg.precompile()'
 
     # Rename the manifest file to version-specific name
-    if [ -f "examples/Manifest.toml" ]; then
-        mv examples/Manifest.toml examples/Manifest-v${julia_major}.toml
-        echo "Renamed examples/Manifest.toml to examples/Manifest-v${julia_major}.toml"
-    fi
-    if [ -f "test/Manifest.toml" ]; then
-        mv test/Manifest.toml test/Manifest-v${julia_major}.toml
-        echo "Renamed test/Manifest.toml to test/Manifest-v${julia_major}.toml"
-    fi
-    if [ -f "docs/Manifest.toml" ]; then
-        mv docs/Manifest.toml docs/Manifest-v${julia_major}.toml
-        echo "Renamed docs/Manifest.toml to docs/Manifest-v${julia_major}.toml"
-    fi
+    normalize_manifest_name "examples"
+    normalize_manifest_name "test"
+    normalize_manifest_name "docs"
 else
     echo "Julia $julia_major: instantiating all sub-projects..."
     # Seed sub-project manifests from the already-resolved main manifest so that
@@ -350,66 +329,15 @@ else
     cp "Manifest-v${julia_major}.toml" "examples/Manifest-v${julia_major}.toml"
     cp "Manifest-v${julia_major}.toml" "test/Manifest-v${julia_major}.toml"
     cp "Manifest-v${julia_major}.toml" "docs/Manifest-v${julia_major}.toml"
-    _ec=0; julia --project=examples -e '
-using Pkg
-try
-    Pkg.resolve()
-    Pkg.instantiate()
-catch e
-    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
-    proj_dir = dirname(Base.active_project())
-    for f in readdir(proj_dir)
-        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
-            rm(joinpath(proj_dir, f), force=true)
-        end
-    end
-    Pkg.resolve()
-    Pkg.instantiate()
-    exit(2)
-end
-' || _ec=$?
+    _ec=0; run_resolve_with_retry "examples" 0 || _ec=$?
     if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("examples (1.12)")
     elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("examples (1.12)"); fi
     echo "Precompiling examples project..."
     julia --project=examples -e 'using Pkg; Pkg.precompile()'
-    _ec=0; julia --project=test -e '
-using Pkg
-try
-    Pkg.resolve()
-    Pkg.instantiate()
-catch e
-    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
-    proj_dir = dirname(Base.active_project())
-    for f in readdir(proj_dir)
-        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
-            rm(joinpath(proj_dir, f), force=true)
-        end
-    end
-    Pkg.resolve()
-    Pkg.instantiate()
-    exit(2)
-end
-' || _ec=$?
+    _ec=0; run_resolve_with_retry "test" 0 || _ec=$?
     if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("test (1.12)")
     elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("test (1.12)"); fi
-    _ec=0; julia --project=docs -e '
-using Pkg
-try
-    Pkg.resolve()
-    Pkg.instantiate()
-catch e
-    @warn "Pkg.resolve()/instantiate() failed, attempting clean resolve..." exception=e
-    proj_dir = dirname(Base.active_project())
-    for f in readdir(proj_dir)
-        if startswith(f, "Manifest") && endswith(f, ".toml") && !endswith(f, ".default")
-            rm(joinpath(proj_dir, f), force=true)
-        end
-    end
-    Pkg.resolve()
-    Pkg.instantiate()
-    exit(2)
-end
-' || _ec=$?
+    _ec=0; run_resolve_with_retry "docs" 0 || _ec=$?
     if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("docs (1.12)")
     elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("docs (1.12)"); fi
     echo "Precompiling test project and running the tests..."
@@ -417,18 +345,9 @@ end
     echo "Precompiling docs project..."
     julia --project=docs -e 'using Pkg; Pkg.precompile()'
     julia --project -e 'using Pkg; Pkg.test()'
-    if [ -f "examples/Manifest.toml" ]; then
-        mv examples/Manifest.toml examples/Manifest-v${julia_major}.toml
-        echo "Renamed examples/Manifest.toml to examples/Manifest-v${julia_major}.toml"
-    fi
-    if [ -f "test/Manifest.toml" ]; then
-        mv test/Manifest.toml test/Manifest-v${julia_major}.toml
-        echo "Renamed test/Manifest.toml to test/Manifest-v${julia_major}.toml"
-    fi
-    if [ -f "docs/Manifest.toml" ]; then
-        mv docs/Manifest.toml docs/Manifest-v${julia_major}.toml
-        echo "Renamed docs/Manifest.toml to docs/Manifest-v${julia_major}.toml"
-    fi
+    normalize_manifest_name "examples"
+    normalize_manifest_name "test"
+    normalize_manifest_name "docs"
 fi
 julia --project=examples -e 'using KiteControllers, KiteViewers, ControlPlots, NOMAD'
 
