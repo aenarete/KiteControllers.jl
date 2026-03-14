@@ -7,7 +7,7 @@ using ControlPlots, KiteControllers, Timers; tic()
 using KiteUtils: Settings, load_settings
 
 set::Settings = deepcopy(load_settings("system.yaml"))
-fcs = FPCSettings(dt=1/set.sample_freq)
+fcs::FPCSettings = FPCSettings(dt=1/set.sample_freq)
 DURATION = 100.0
 SAMPLES = Int(DURATION / fcs.dt + 1)
 TIME = range(0.0, DURATION, SAMPLES)
@@ -15,7 +15,7 @@ TIME = range(0.0, DURATION, SAMPLES)
 # Test the flight path controller against the simplified kite model as shown
 # in diagram docs/flight_path_controller_test1.png .
 u_d0 = 0.01 * set.depower_offset
-u_d  = 0.01 * set.depower
+u_d  = 0.01 * set.depowers[1]
 fpc = FlightPathController(fcs; u_d0, u_d)
 kite = KiteModel(fcs)
 kite.omega = 0.08
