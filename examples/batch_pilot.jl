@@ -281,6 +281,7 @@ let
     results = Tuple{String, SimulationError}[]
     av_powers = Float64[]
     for project in PROJECTS
+        wall_start_ns = time_ns()
         println("Running project $project ...")
         app = KiteApp(deepcopy(load_settings(project)), 0.0,
                     nothing, nothing, nothing, nothing, nothing, nothing, nothing,
@@ -309,6 +310,7 @@ let
             println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
             save_log(app.logger::Logger, output_name; path = output_path)
         end
+        wall_time = (time_ns() - wall_start_ns) / 1e9
         stats = calc_stats(app.logger)
         fmt(x) = @sprintf("%10.2f", x)
         v_wind_200 = app.set.v_wind * calc_wind_factor(app.kps4.am, 200.0)
@@ -317,6 +319,7 @@ let
               project: "$(project)"
               timestamp: "$(timestamp)"
               duration:      $(fmt(steps * app.dt))  # simulated duration [s]
+              wall_time:     $(fmt(wall_time))  # elapsed wall-clock time for setup/sim/save [s]
               v_wind_200:    $(fmt(v_wind_200))  # wind speed at 200m height [m/s]
             error:
               code: "$(error.code)"
