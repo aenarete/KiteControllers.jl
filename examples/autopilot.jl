@@ -461,6 +461,9 @@ function print_stats()
 end
 
 function do_menu(c)
+    if isnothing(app.viewer) || !isopen(app.viewer.fig.scene)
+        return nothing
+    end
     if c == "save logfile"
         save_log_as()
     elseif c == "load logfile"
