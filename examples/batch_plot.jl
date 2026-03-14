@@ -14,6 +14,7 @@ end
 
 using ControlPlots, KiteControllers, LaTeXStrings, Statistics, YAML
 using REPL.TerminalMenus
+using KiteModels: reactivate_host_app
 
 include("yaml_utils.jl")
 
@@ -393,6 +394,7 @@ function run_menu()
             catch e
                 println("Error in $name: $e")
             end
+            reactivate_host_app()
         else
             println("Left menu. Press <ctrl><d> to quit Julia!")
             active = false
@@ -412,6 +414,7 @@ function run_command(cmd::String)
     fn()
     println("Close the plot window to exit.")
     ControlPlots.plt.show(block=true)
+    reactivate_host_app()
 end
 
 if !__PRECOMPILE__
