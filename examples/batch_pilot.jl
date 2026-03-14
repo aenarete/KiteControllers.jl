@@ -287,7 +287,7 @@ let
                     nothing, nothing, nothing, nothing, nothing, nothing, nothing,
                     0.0, 0, 0, false)
         app.max_time = app.set.sim_time
-        @printf("init parameters: delta=%.6f, stiffness_factor=%.3f\n", app.set.delta, app.set.stiffness_factor)
+        @printf("\nInit parameters: delta=%.6f, stiffness_factor=%.3f\n", app.set.delta, app.set.stiffness_factor)
 
         init(app)
         if TIMESTAMPS
@@ -300,11 +300,14 @@ let
         output_path = joinpath(dirname(@__DIR__), "output")
 
         steps, error = simulate(app)
+        sim_time = steps * app.dt
+        wall_time_sim = (time_ns() - wall_start_ns) / 1e9
         push!(results, (project, error))
         if error.code != NoError
             println("\nSimulation error ($(error.code)): $(error.message)")
         else
-            println("\nSimulation completed successfully (project = $project, steps = $steps)")
+            @printf("\nSimulation completed successfully (project = %s, sim_time = %.2f s, wall_time = %.2f s)\n",
+                    project, sim_time, wall_time_sim)
         end
         if SAVELOG
             println("\nSaving log to output/$(output_name).arrow  ($(app.logger.index) entries) ...")
