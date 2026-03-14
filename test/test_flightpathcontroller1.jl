@@ -6,6 +6,7 @@ end
 using ControlPlots, KiteControllers, Timers; tic()
 using Printf: @sprintf
 using Statistics: mean
+using Test: @test, @testset
 using KiteUtils: Settings, load_settings
 using Printf: @sprintf
 
@@ -23,8 +24,9 @@ fpc = FlightPathController(fcs; u_d0, u_d)
 kite = KiteModel(fcs)
 kite.omega = 0.08
 v_a = 20.0
-u_d = 0.2 # was: u_d_prime
-on_control_command(fpc, psi_dot_set=51.566)
+u_d = 0.19 # was: u_d_prime
+psi_dot_set = 51.566
+on_control_command(fpc; psi_dot_set=psi_dot_set)
 PSI, BETA, PHI, PSI_DOT = zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES), zeros(SAMPLES)
 u_s = 0.0
 for i in 1:SAMPLES
@@ -50,19 +52,30 @@ p=plotx(TIME, PSI, BETA, PSI_DOT;
       fig = "test_fpc1")
 display(p)
 
-start_idx = findfirst(t -> t >= 10.0, TIME)
-if start_idx !== nothing
-    psi_dot_slice = @view PSI_DOT[start_idx:end]
-    psi_dot_avg = mean(psi_dot_slice)
-    psi_dot_min = minimum(psi_dot_slice)
-    psi_dot_max = maximum(psi_dot_slice)
-    psi_dot_avg_deg = rad2deg(psi_dot_avg)
-    psi_dot_min_deg = rad2deg(psi_dot_min)
-    psi_dot_max_deg = rad2deg(psi_dot_max)
-    println("psi_dot stats for t>=10s [deg/s]:")
-    println("avg: $(@sprintf("%.2f", psi_dot_avg_deg))")
-    println("min: $(@sprintf("%.2f", psi_dot_min_deg))")
-    println("max: $(@sprintf("%.2f", psi_dot_max_deg))")
+@testset "Flight path controller psi_dot tracking" begin
+    start_idx = findfirst(t -> t >= 10.0, TIME)
+    @test start_idx !== nothing
+
+    if start_idx !== nothing
+        psi_dot_slice = @view PSI_DOT[start_idx:end]
+        psi_dot_avg = mean(psi_dot_slice)
+        psi_dot_min = minimum(psi_dot_slice)
+        psi_dot_max = maximum(psi_dot_slice)
+        psi_dot_avg_deg = rad2deg(psi_dot_avg)
+        psi_dot_min_deg = rad2deg(psi_dot_min)
+        psi_dot_max_deg = rad2deg(psi_dot_max)
+        psi_dot_error_pct = ((psi_dot_avg_deg / psi_dot_set) - 1) * 100
+        variation_pct = ((psi_dot_max_deg - psi_dot_min_deg) / (2 * psi_dot_set)) * 100
+        println("psi_dot stats for t>=10s:")
+        println("avg:        $(@sprintf("%6.2f", psi_dot_avg_deg)) °/s")
+        println("min:        $(@sprintf("%6.2f", psi_dot_min_deg)) °/s")
+        println("max:        $(@sprintf("%6.2f", psi_dot_max_deg)) °/s")
+        println("error:      $(@sprintf("%6.2f", psi_dot_error_pct)) %")
+        println("variation: ±$(@sprintf("%6.2f", variation_pct)) %\n")
+        @test abs(psi_dot_error_pct) < 5.0
+        @test variation_pct < 25.0
+    end
 end
+nothing
 
 #     return TIME, PSI, BETA, PHI, PSI_DOT
