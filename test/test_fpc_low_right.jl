@@ -27,7 +27,7 @@ attractor=[55.73, 56.95]
 # attractor=[0, 90] # zenith
 
 u_d0 = 0.01 * set.depower_offset
-u_d = 0.01 * set.depower
+u_d = 0.01 * set.depowers[1]
 fpc = FlightPathController(fcs; u_d0, u_d)
 fpca = FlightPathCalculator(fpc, fpps)
 kite = KiteModel(fcs)

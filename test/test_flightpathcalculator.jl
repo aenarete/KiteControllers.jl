@@ -1,7 +1,7 @@
 # activate the test environment if needed
 using Pkg
 if ! ("KiteModels" ∈ keys(Pkg.project().dependencies))
-    using TestEnv; TestEnv.activate()
+     Pkg.activate(@__DIR__)
 end
 using Timers; tic()
 

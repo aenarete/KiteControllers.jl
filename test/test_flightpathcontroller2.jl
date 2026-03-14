@@ -18,7 +18,7 @@ TIME = range(0.0, DURATION, SAMPLES)
 # in diagram docs/flight_path_controller_test1.png. Steer towards an
 # attractor point.
 u_d0 = 0.01 * set.depower_offset
-u_d  = 0.01 * set.depower
+u_d  = 0.01 * set.depowers[1]
 fpc = FlightPathController(fcs; u_d0, u_d)
 kite = KiteModel(fcs)
 kite.omega = 0.08
