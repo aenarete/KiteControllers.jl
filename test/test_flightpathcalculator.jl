@@ -6,8 +6,9 @@ end
 using Timers; tic()
 
 using KiteControllers, KiteModels
+using KiteUtils: Settings
 
-set = deepcopy(load_settings("system.yaml"))
+set::Settings = deepcopy(load_settings("system.yaml"))
 kcu::KCU   = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 
@@ -17,6 +18,6 @@ fpps::FPPSettings = FPPSettings()
 u_d0 = 0.01 * set.depower_offset
 u_d  = 0.01 * set.depower
 ssc::SystemStateControl = SystemStateControl(wcs, fcs, fpps; u_d0, u_d, v_wind=set.v_wind)
-dt = wcs.dt
+dt::Float64 = wcs.dt
 
 fpca = ssc.fpp.fpca

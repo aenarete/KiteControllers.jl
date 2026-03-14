@@ -50,6 +50,11 @@ viewer::Viewer3D = Viewer3D(SHOW_KITE)
 
 log = load_log("failure_low_right.arrow2")
 sl  = log.syslog
+log_len = length(sl)
+
+if I_START < 1 || I_START > log_len
+    error("I_START=$(I_START) is outside log range 1:$(log_len)")
+end
 
 steps = Int64(MAX_TIME/dt)
 particles = set.segments + 5
@@ -57,30 +62,44 @@ logger::Logger = Logger(particles, steps)
 
 function simulate(integrator)
     i=1
-    sys_state = sl[I_START]
+    # Read initial controller state from individual columns to avoid
+    # StructArray row access issues on undefined references.
+    phi = sl.azimuth[I_START]
+    beta = sl.elevation[I_START]
+    psi = wrap2pi(sl.heading[I_START])
+    chi = wrap2pi(sl.course[I_START])
+    v_a = sl.v_app[I_START]
+    last_phi_printed = nothing
+    sys_state = SysState(kps4)
     println("on_control_command...")
     on_control_command(fpc; attractor=deg2rad.(attractor), intermediate=true)
     while true
-        phi  = sys_state.azimuth
-        v_a = sys_state.v_app
-        # chi = sys_state.course
-        u_d = sl[I_START+i-1].depower
-        beta = sys_state.elevation
-        # psi = sys_state.heading
-        psi = wrap2pi(sys_state.heading)
-        chi = wrap2pi(sys_state.course)
+        idx = I_START + i - 1
+        if idx > log_len
+            println("Stopping: reached end of input log at index $(log_len).")
+            break
+        end
+        u_d = sl.depower[idx]
+        v_ro = sl.v_reelout[idx]
         KiteControllers.set_azimuth_elevation(fpca, phi, beta)
         omega = fpca._omega
         # println("omega: $omega")
-        println("phi: ", rad2deg(phi))
+        if isnothing(last_phi_printed) || phi != last_phi_printed
+            println("phi: ", rad2deg(phi))
+            last_phi_printed = phi
+        end
         on_est_sysstate(fpc, phi, beta, -psi, -chi, omega, v_a; u_d=u_d)
         steering = calc_steering(fpc, true)
         on_timer(fpc)
         set_depower_steering(kps4.kcu, u_d, steering)
-        v_ro = sl[I_START+i-1].v_reelout
         # v_ro = -1
         KiteModels.next_step!(kps4, integrator; set_speed=v_ro, dt=dt)
         sys_state = SysState(kps4)
+        phi = sys_state.azimuth
+        v_a = sys_state.v_app
+        beta = sys_state.elevation
+        psi = wrap2pi(sys_state.heading)
+        chi = wrap2pi(sys_state.course)
         sys_state.var_06 = fpca.fpc.ndi_gain
         sys_state.var_07 = fpca.fpc.chi_set
         KiteViewers.update_system(viewer, sys_state; scale = 0.04/1.1, kite_scale=set.kite_scale)
