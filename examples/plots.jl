@@ -34,8 +34,11 @@ function plot_timing()
 
     sl  = log.syslog
     time_limit = app.dt/app.set.time_lapse
-    display(ControlPlots.plotx(sl.time, sl.t_sim, 100*sl.steering, 100*sl.depower;
+    t_sim = collect(sl.t_sim)
+    tl = fill(time_limit * 1000, length(t_sim))
+    display(ControlPlots.plotx(sl.time, [t_sim, tl], 100*sl.steering, 100*sl.depower;
                                ylabels=["t_sim [ms]", "steering [%]","depower [%]"],
+                               labels=[["t_sim", "time_limit"], "", ""],
                                fig="timing"))
     println("Time limit:                $(time_limit*1000) ms")
     println("Mean    time per timestep: $(mean(sl.t_sim)) ms")
@@ -51,8 +54,9 @@ function plot_timing2()
 
     sl  = log.syslog
     time_limit = app.dt/app.set.time_lapse
-    tl = time_limit * ones(length(sl.time)) * 1000
-    display(ControlPlots.plot(sl.time, [sl.t_sim, tl], ylabel="t_sim [ms]", labels=["t_sim","time_limit"], fig="timing2"))
+    t_sim = collect(sl.t_sim)
+    tl = fill(time_limit * 1000, length(t_sim))
+    display(ControlPlots.plot(sl.time, [t_sim, tl], ylabel="t_sim [ms]", labels=["t_sim","time_limit"], fig="timing2"))
     nothing
 end
 
