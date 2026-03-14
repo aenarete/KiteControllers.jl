@@ -139,7 +139,14 @@ bring_viewer_to_front()
 
 function simulate(integrator, stopped=true)
     start_time_ns = time_ns()
+    sys_state = SysState(app.kps4::KPS4)
+    sys_state.e_mech = 0
+    sys_state.sys_state = Int16(app.ssc.fpp._state)
+    e_mech = 0.0
+    last_vel = [0.0, 0.0, 0.0]
+    on_new_systate(app.ssc::SystemStateControl, sys_state)
     clear_viewer(app.viewer::Viewer3D)
+    KiteViewers.update_system(app.viewer::Viewer3D, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
     KiteViewers.running[] = ! stopped
     app.viewer.stop = stopped
     if ! stopped
@@ -154,13 +161,6 @@ function simulate(integrator, stopped=true)
         GC.enable(false)
     end
     max_time = 0
-    sys_state = SysState(app.kps4::KPS4)
-    sys_state.e_mech = 0
-    sys_state.sys_state = Int16(app.ssc.fpp._state)
-    e_mech = 0.0
-    last_vel = [0.0, 0.0, 0.0]
-    on_new_systate(app.ssc::SystemStateControl, sys_state)
-    KiteViewers.update_system(app.viewer::Viewer3D, sys_state; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
     last_yaw = 0.0
     last_yaw_rate = 0.0
     while app.initialized
@@ -304,6 +304,11 @@ function play(stopped=false)
         KiteViewers.plot_file[]=DEFAULT_LOG
         on_parking(app.ssc::SystemStateControl)
         integrator = KiteModels.init!(app.kps4::KPS4; delta=app.set.delta, stiffness_factor=app.set.stiffness_factor)
+        if !isnothing(app.viewer)
+            _ss = SysState(app.kps4::KPS4)
+            _ss.sys_state = Int16(app.ssc.fpp._state)
+            KiteViewers.update_system(app.viewer::Viewer3D, _ss; scale = 0.04/1.1, kite_scale=app.set.kite_scale)
+        end
         if app.run == 0; toc(); end
         app.run += 1
         simulate(integrator, stopped)
@@ -335,18 +340,18 @@ function autopilot()
     on_autopilot(app.ssc::SystemStateControl)
 end
 
-function stop_()
+function stop_(; clear_display=true)
     if app.set.log_level > 0
         println("Stopping...")
     end
     on_stop(app.ssc::SystemStateControl)
     clear!(app.kps4::KPS4)
-    if ! isnothing(app.viewer)
+    if clear_display && ! isnothing(app.viewer)
         clear_viewer(app.viewer::Viewer3D)
     end
 end
 
-stop_()
+stop_(; clear_display=false)
 on(app.viewer.btn_PARKING.clicks) do _; parking(); end
 on(app.viewer.btn_AUTO.clicks) do _; autopilot(); end
 on(app.viewer.btn_STOP.clicks) do _; stop_(); end
