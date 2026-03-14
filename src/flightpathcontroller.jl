@@ -40,7 +40,7 @@ See also:
 - `chi_set`: desired flight direction (bearing) computed by `navigate()` [rad].
 - `u_d0`: minimum depower setting (fully powered kite).
 - `u_d_max`: maximum depower setting (fully depowered kite).
-- `u_d_prime`: normalised depower setting in [0, 1].
+- `u_d_prime`: normalized depower setting in [0, 1].
 - `u_s_max`: saturation limit for the steering output.
 - `psi_dot_max`: saturation limit for the commanded turn rate [rad/s].
 - `u_d`: actual depower setting in [0, 1].
@@ -66,7 +66,7 @@ See also:
 - `reset_int1::Bool`: flag to reset the main integrator at the next `calc_steering` call.
 - `radius`: commanded turn radius [m], or `nothing` when not in radius-control mode.
 - `_n`: filter coefficient for the discrete derivative in the D term.
-- `_i`: call counter for `calc_steering`; used to trigger one-shot initialisations.
+- `_i`: call counter for `calc_steering`; used to trigger one-shot initializations.
 """
 @with_kw mutable struct FlightPathController @deftype Float64
     "struct holding the settings of the flight path controller"
@@ -358,7 +358,13 @@ function calc_sat1in_sat1out_sat2in_sat2out(fpc::FlightPathController, x)
     sat1_in, sat1_out, sat2_in, sat2_out, int_in
 end
 
-
+function residual_fpc!(F, x, fpc::FlightPathController)
+    sat1_in, sat1_out, sat2_in, sat2_out, _ = calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
+    k_u_in = (sat2_out - sat2_in) / fpc.ndi_gain
+    k_psi_in = sat1_out - sat1_in
+    F[1] = k_u_in - x[1]
+    F[2] = k_psi_in - x[2]
+end
 
 """
     function calc_steering(fpc, parking)
@@ -372,19 +378,7 @@ Implements the simulink block diagram, shown in:
 If the parameter parking is true, only the heading is controlled, not the course.
 """
 function calc_steering(fpc::FlightPathController, parking)
-    """
-        residual!(fpc, x)
-
-    see: `docs/flight_path_controller_II.png`
-    x: vector of `k_u_in`, `k_psi_in` and `int2_in`
-    """
-    function residual!(F, x)
-        sat1_in, sat1_out, sat2_in, sat2_out, int_in = calc_sat1in_sat1out_sat2in_sat2out(fpc, x)
-        k_u_in = (sat2_out - sat2_in) / fpc.ndi_gain
-        k_psi_in = sat1_out - sat1_in
-        F[1] = k_u_in - x[1]
-        F[2] = k_psi_in - x[2]
-    end
+    residual! = (F, x) -> residual_fpc!(F, x, fpc)
 
     navigate(fpc)
     # control the heading of the kite
