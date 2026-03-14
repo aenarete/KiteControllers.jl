@@ -7,6 +7,7 @@
 - improved the `plot_timing`, it now shows a line at the real-time limit
 - improve documentation
 - bump ControlPlots to 0.2.14 to fix an MacOS bug
+- add shutdown guard to avoid showing a 2D plot when closing the `autopilot.jl` window
 ### Added
 - support for MacOS
 - the script `test/test_menu.jl` for running manual controller tests
