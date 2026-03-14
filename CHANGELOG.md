@@ -6,8 +6,10 @@
 - improved script `test_flightpathcontroller1.jl`, added unit tests
 - improved the `plot_timing`, it now shows a line at the real-time limit
 - improve documentation
+- bump ControlPlots to 0.2.14 to fix an MacOS bug
 ### Added
 - support for MacOS
+- the script `test/test_menu.jl` for running manual controller tests
 
 ## KiteControllers v0.2.19 - 2026-03-12
 ### Changed
