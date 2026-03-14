@@ -4,7 +4,10 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 using ControlPlots, KiteControllers, Timers; tic()
+using Printf: @sprintf
+using Statistics: mean
 using KiteUtils: Settings, load_settings
+using Printf: @sprintf
 
 set::Settings = deepcopy(load_settings("system.yaml"))
 fcs::FPCSettings = FPCSettings(dt=1/set.sample_freq)
@@ -46,5 +49,20 @@ p=plotx(TIME, PSI, BETA, PSI_DOT;
       ylabels=["heading angle psi [°]","elevation β [°]", "psi_dot [rad/s]"], 
       fig = "test_fpc1")
 display(p)
+
+start_idx = findfirst(t -> t >= 10.0, TIME)
+if start_idx !== nothing
+    psi_dot_slice = @view PSI_DOT[start_idx:end]
+    psi_dot_avg = mean(psi_dot_slice)
+    psi_dot_min = minimum(psi_dot_slice)
+    psi_dot_max = maximum(psi_dot_slice)
+    psi_dot_avg_deg = rad2deg(psi_dot_avg)
+    psi_dot_min_deg = rad2deg(psi_dot_min)
+    psi_dot_max_deg = rad2deg(psi_dot_max)
+    println("psi_dot stats for t>=10s [deg/s]:")
+    println("avg: $(@sprintf("%.2f", psi_dot_avg_deg))")
+    println("min: $(@sprintf("%.2f", psi_dot_min_deg))")
+    println("max: $(@sprintf("%.2f", psi_dot_max_deg))")
+end
 
 #     return TIME, PSI, BETA, PHI, PSI_DOT
