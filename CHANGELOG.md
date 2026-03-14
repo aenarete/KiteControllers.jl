@@ -14,14 +14,14 @@
 - use subprojects
 - add `.JETLSConfig.toml.default` for new linter
 - fix all JETLS warnings
-- update packages; the performance increased a 
+- update packages; the performance increased a lot
 - bump KiteUtils to 0.11.4
 - the `run_julia` script accepts now a script name as parameter
 - improve script `install`
 - improved installation instructions
 - documented more functions of `FlightPathPlanner`
 - the examples `tune_1p.jl` and `tune_4p.jl` where updated. They now use the NOMAD optimizer.
-- the performance improved by a factor of about 7. The GUI can now 24x real-time. 
+- the performance improved by a factor of about 7. The GUI can now 24x real-time.
   In batch mode, 180x realtime can be achieved
 
 ### Added
@@ -109,7 +109,7 @@
 - bump KiteModels to 0.6.6
 ### Fixed
 - fix all failing test scripts
-- fix most of the example, and the script `menu.jl`to run the examples interactively 
+- fix most of the example, and the script `menu.jl`to run the examples interactively
 
 ## KiteControllers v0.2.9 - 2024-08-07
 ### Changed
@@ -174,10 +174,8 @@
 - add the plots `plot_elev_az3`, `plot_side_view3` and `plot_front_view3` that omit the first two power cycles
 - add the plot `aerodynamics` that plots the lift-over-drag of the kite
 - add time series of `fig8` to `plot_control`
-- add the file `kiteobservers.jl` which provides the type `KiteObserver` and methods to 
-determine deviations from the desired flight path
-- add the script `learning.jl` that provides the method `train()` that implements iterative learning
-of a vector of flight path corrections 
+- add the file `kiteobservers.jl` which provides the type `KiteObserver` and methods to determine deviations from the desired flight path
+- add the script `learning.jl` that provides the method `train()` that implements iterative learning of a vector of flight path corrections
 
 ## KiteControllers v0.2.2 - 2024-03-29
 ### Changed
