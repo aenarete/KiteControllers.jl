@@ -179,10 +179,10 @@ function switch(ssc::SystemStateControl, state)
 end
 
 """
-    get_depower(ssc::SystemStateControl)
+    get_depower(_ssc::SystemStateControl)
 
 Return the current depower set-point (0..1) computed by the flight path planner.
 """
-function get_depower(ssc::SystemStateControl)
+function get_depower(_ssc::SystemStateControl)
     return depower[]
 end
