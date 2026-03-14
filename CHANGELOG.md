@@ -5,6 +5,7 @@
 - fixed new JETLS warnings, also in the tests
 - improved script `test_flightpathcontroller1.jl`, added unit tests
 - improved the `plot_timing`, it now shows a line at the real-time limit
+- improve documentation
 ### Added
 - support for MacOS
 
