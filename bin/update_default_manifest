@@ -1,29 +1,65 @@
 #!/bin/bash -eu
 
-if [[ $(basename $(pwd)) == "bin" ]]; then
+if [[ $(basename "$(pwd)") == "bin" ]]; then
     cd ..
 fi
 
+repo_root=$(pwd)
+
+julia_major=$(julia --startup-file=no -e 'print("$(VERSION.major).$(VERSION.minor)")')
+manifest_name="Manifest-v${julia_major}.toml"
+default_manifest="${manifest_name}.default"
+projects=("." "examples" "test")
+
+delete_manifests() {
+    local project_dir=$1
+    rm -f "$project_dir/$manifest_name" "$project_dir/Manifest.toml"
+}
+
+rename_manifest() {
+    local project_dir=$1
+    if [[ -f "$project_dir/Manifest.toml" ]]; then
+        mv "$project_dir/Manifest.toml" "$project_dir/$manifest_name"
+    fi
+}
+
+copy_default_manifest() {
+    local project_dir=$1
+    if [[ -f "$project_dir/$manifest_name" ]]; then
+        cp "$project_dir/$manifest_name" "$project_dir/$default_manifest"
+    fi
+}
+
+require_manifest() {
+    local project_dir=$1
+    if [[ ! -f "$project_dir/$manifest_name" ]]; then
+        echo "Expected $project_dir/$manifest_name to exist, but it was not created."
+        exit 1
+    fi
+}
+
+for project_dir in "${projects[@]}"; do
+    delete_manifests "$project_dir"
+done
+
 cd bin
 ./create_sys_image --update
+cd "$repo_root"
 
-julia_version=$(julia --version | awk '{print($3)}')
-julia_major=${julia_version:0:3}
-if [[ $julia_major == "1.1" ]]; then
-    julia_major=${julia_version:0:4} 
+if [[ $julia_major == "1.12" ]]; then
+    julia --startup-file=no --project -e 'using Pkg; Pkg.update()'
+    julia --startup-file=no --project=examples -e 'using Pkg; Pkg.update()'
+    julia --startup-file=no --project=test -e 'using Pkg; Pkg.update()'
 fi
+
+for project_dir in "${projects[@]}"; do
+    rename_manifest "$project_dir"
+    require_manifest "$project_dir"
+    copy_default_manifest "$project_dir"
+done
 
 # TODO run tests
 
-cd ..
-if [[ $julia_major == "1.10" ]]; then
-    cp Manifest-v1.10.toml Manifest-v1.10.toml.default
-    rm -rf ~/.julia/compiled/v1.10/KiteControllers/
-    echo "Updated Manifest-v1.10.toml.default !"
-    echo "Make sure to run the tests before committing the new version!"
-else
-    cp Manifest-v1.11.toml Manifest-v1.11.toml.default
-    rm -rf ~/.julia/compiled/v1.11/KiteControllers/
-    echo "Updated Manifest-v1.11.toml.default !"
-    echo "Make sure to run the tests before committing the new version!"
-fi
+rm -rf ~/.julia/compiled/v${julia_major}/KiteControllers/
+echo "Updated ${default_manifest} files for Julia ${julia_major} in root, examples, and test!"
+echo "Make sure to run the tests before committing the new version!"
