@@ -4,8 +4,6 @@ if [[ $(basename "$(pwd)") == "bin" ]]; then
     cd ..
 fi
 
-repo_root=$(pwd)
-
 julia_major=$(julia --startup-file=no -e 'print("$(VERSION.major).$(VERSION.minor)")')
 manifest_name="Manifest-v${julia_major}.toml"
 default_manifest="${manifest_name}.default"
@@ -42,24 +40,27 @@ for project_dir in "${projects[@]}"; do
     delete_manifests "$project_dir"
 done
 
-cd bin
-./create_sys_image --update
-cd "$repo_root"
-
 if [[ $julia_major == "1.12" ]]; then
     julia --startup-file=no --project -e 'using Pkg; Pkg.update()'
     julia --startup-file=no --project=examples -e 'using Pkg; Pkg.update()'
     julia --startup-file=no --project=test -e 'using Pkg; Pkg.update()'
+else
+    julia --startup-file=no --project -e 'using Pkg; Pkg.instantiate()'
+    julia --startup-file=no --project=examples -e 'using Pkg; Pkg.instantiate()'
+    julia --startup-file=no --project=test -e 'using Pkg; Pkg.instantiate()'
 fi
 
 for project_dir in "${projects[@]}"; do
     rename_manifest "$project_dir"
     require_manifest "$project_dir"
-    copy_default_manifest "$project_dir"
+    if [[ "$project_dir" == "." ]]; then
+        copy_default_manifest "$project_dir"
+    fi
 done
 
 # TODO run tests
 
 rm -rf ~/.julia/compiled/v${julia_major}/KiteControllers/
-echo "Updated ${default_manifest} files for Julia ${julia_major} in root, examples, and test!"
+echo "Updated ${manifest_name} files for Julia ${julia_major} in root, examples, and test!"
+echo "Updated ${default_manifest} in root only."
 echo "Make sure to run the tests before committing the new version!"
