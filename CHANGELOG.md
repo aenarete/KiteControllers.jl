@@ -1,13 +1,15 @@
 # Changelog
 
-## KiteControllers v0.2.20
+## KiteControllers v0.2.20 - 2026-03-15
 ### Changed
 - fixed new JETLS warnings, also in the tests
 - improved script `test_flightpathcontroller1.jl`, added unit tests
 - improved the `plot_timing`, it now shows a line at the real-time limit
 - improve documentation
 - bump ControlPlots to 0.2.14 to fix an MacOS bug
+- bump KiteViewers to 0.5.2 to avoid GUI artifact when starting the autopilot
 - add shutdown guard to avoid showing a 2D plot when closing the `autopilot.jl` window
+- re-wrote the script update_default_manifest
 ### Added
 - support for MacOS
 - the script `test/test_menu.jl` for running manual controller tests
