@@ -8,6 +8,11 @@ julia_major=$(julia --startup-file=no -e 'print("$(VERSION.major).$(VERSION.mino
 manifest_name="Manifest-v${julia_major}.toml"
 default_manifest="${manifest_name}.default"
 projects=("." "examples" "test")
+manifest_projects=("." "examples" "test")
+
+if [[ $julia_major == "1.12" ]]; then
+    manifest_projects=(".")
+fi
 
 delete_manifests() {
     local project_dir=$1
@@ -41,16 +46,21 @@ for project_dir in "${projects[@]}"; do
 done
 
 if [[ $julia_major == "1.12" ]]; then
-    julia --startup-file=no --project -e 'using Pkg; Pkg.update()'
-    julia --startup-file=no --project=examples -e 'using Pkg; Pkg.update()'
-    julia --startup-file=no --project=test -e 'using Pkg; Pkg.update()'
+    julia --startup-file=no --project -e '
+        using Pkg
+        Pkg.Registry.update()
+        for project in [".", "examples", "test"]
+            Pkg.activate(project)
+            Pkg.update(; update_registry=false)
+        end
+    '
 else
     julia --startup-file=no --project -e 'using Pkg; Pkg.instantiate()'
     julia --startup-file=no --project=examples -e 'using Pkg; Pkg.instantiate()'
     julia --startup-file=no --project=test -e 'using Pkg; Pkg.instantiate()'
 fi
 
-for project_dir in "${projects[@]}"; do
+for project_dir in "${manifest_projects[@]}"; do
     rename_manifest "$project_dir"
     require_manifest "$project_dir"
     if [[ "$project_dir" == "." ]]; then
@@ -58,9 +68,20 @@ for project_dir in "${projects[@]}"; do
     fi
 done
 
+if [[ $julia_major == "1.12" ]]; then
+    # Keep sub-projects manifest-free for Julia 1.12 workspace-based resolution.
+    rm -f "examples/$manifest_name" "examples/Manifest.toml" "examples/$default_manifest"
+    rm -f "test/$manifest_name" "test/Manifest.toml" "test/$default_manifest"
+fi
+
 # TODO run tests
 
 rm -rf ~/.julia/compiled/v${julia_major}/KiteControllers/
-echo "Updated ${manifest_name} files for Julia ${julia_major} in root, examples, and test!"
+if [[ $julia_major == "1.12" ]]; then
+    echo "Updated ${manifest_name} in root only for Julia ${julia_major}."
+    echo "No manifest files are kept in examples/ and test/ for Julia ${julia_major}."
+else
+    echo "Updated ${manifest_name} files for Julia ${julia_major} in root, examples, and test!"
+fi
 echo "Updated ${default_manifest} in root only."
-echo "Make sure to run the tests before committing the new version!"
+echo "Make sure to run install before committing the new version!"

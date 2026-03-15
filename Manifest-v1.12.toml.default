@@ -2,7 +2,7 @@
 
 julia_version = "1.12.5"
 manifest_format = "2.0"
-project_hash = "81e304e780542cfdc4180283768c9e11a894789b"
+project_hash = "4547f3bab4d36036426023f5fd785deb6743d4b1"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "f7304359109c768cf32dc5fa2d371565bb63b68a"
@@ -1283,9 +1283,9 @@ version = "0.11.4"
 
 [[deps.KiteViewers]]
 deps = ["FileIO", "GLMakie", "GeometryBasics", "Joysticks", "KiteUtils", "LinearAlgebra", "Parameters", "Pkg", "PrecompileTools", "Printf", "Reexport", "Rotations", "StaticArrays", "StructArrays", "Timers"]
-git-tree-sha1 = "819d96b8e7ee1d967383598a18b76b33db65235d"
+git-tree-sha1 = "cae633ece41d23e572fd5bce01440cee7912d45a"
 uuid = "2e593061-95e7-45e4-95f4-df0491f2e601"
-version = "0.5.1"
+version = "0.5.2"
 
 [[deps.Krylov]]
 deps = ["LinearAlgebra", "Printf", "SparseArrays"]
