@@ -157,7 +157,7 @@ function simulate(integrator, stopped=true)
     GC.enable(true)
     GC.gc()
     mem_start=Sys.total_memory()/1e9 
-    if Sys.total_memory()/1e9 > 24 && app.max_time < 500
+    if Sys.total_memory()/1e9 > 24 && app.max_time < 1002
         GC.enable(false)
     end
     max_time = 0
@@ -259,9 +259,9 @@ function simulate(integrator, stopped=true)
                 wait_until(start_time_ns + 1e9*app.dt/ratio, always_sleep=true) 
                 mtime = 0
                 if i > 10/app.dt 
-                    # if we missed the deadline by more than 5 ms
+                    # if we missed the deadline by more than 1 ms
                     mtime = time_ns() - start_time_ns
-                    if mtime > app.dt*1e9/ratio + 5e6
+                    if mtime > app.dt*1e9/ratio + 1e6
                         print(".")
                         j += 1
                     end
