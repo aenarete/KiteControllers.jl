@@ -1,5 +1,43 @@
 #!/bin/bash -eu
 
+julia_version=""
+_yes_to_all=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --version)
+            if [[ $# -lt 2 ]]; then
+                echo "Error: --version requires a version argument"
+                exit 1
+            fi
+            julia_version="$2"
+            shift 2
+            ;;
+        -y|--yes)
+            _yes_to_all=true
+            shift
+            ;;
+        *)
+            echo "Invalid parameter! Use:"
+            echo "./create_sys_image"
+            echo "or"
+            echo "./create_sys_image --version 1.x"
+            echo "or"
+            echo "./create_sys_image -y"
+            echo "or"
+            echo "./create_sys_image --yes"
+            exit 1
+            ;;
+    esac
+done
+
+if [[ -n "$julia_version" ]]; then
+    JULIA_CMD="julia +$julia_version"
+else
+    JULIA_CMD="julia"
+fi
+
 if [[ $(basename $(pwd)) == "bin" ]]; then
     cd ..
 fi
@@ -57,7 +95,7 @@ if [[ "$(uname -s)" == "Linux" ]]; then
     unset _PRELOADS _BUNDLED
 fi
 
-julia_version=$(julia --version | awk '{print($3)}')
+julia_version=$($JULIA_CMD --version | awk '{print($3)}')
 julia_major=${julia_version:0:3}
 if [[ $julia_major == "1.1" ]]; then
     julia_major=${julia_version:0:4} 
@@ -80,20 +118,25 @@ if [ -x "$PYTHON_PATH" ]; then
         export PYTHON=$PYTHON_PATH
     else
         echo "Matplotlib is not found."
-        read -p "Do you want to install matplotlib with Conda? (y/n): " choice
-        case "$choice" in 
-          y|Y ) 
-            export PYTHON=""
-            ;;
-          n|N ) 
-            echo "Exiting without installing matplotlib."
-            exit 1
-            ;;
-          * ) 
-            echo "Invalid choice. Exiting."
-            exit 1
-            ;;
-        esac
+                if [[ $_yes_to_all == true ]]; then
+                        echo "Installing matplotlib with Conda..."
+                        export PYTHON=""
+                else
+                        read -p "Do you want to install matplotlib with Conda? (y/n): " choice
+                        case "$choice" in 
+                            y|Y ) 
+                                export PYTHON=""
+                                ;;
+                            n|N ) 
+                                echo "Exiting without installing matplotlib."
+                                exit 1
+                                ;;
+                            * ) 
+                                echo "Invalid choice. Exiting."
+                                exit 1
+                                ;;
+                        esac
+                fi
     fi
 else
     echo "Python is not found."
@@ -138,8 +181,8 @@ if test -f "kps-image-${julia_major}-${branch}.so"; then
     mv bin/kps-image-${julia_major}-${branch}.so kps-image-${julia_major}-${branch}.so.bak
 fi
 
-julia --startup-file=no --project -e "using Pkg; Pkg.instantiate();"
-julia --startup-file=no --project=test -e "include(\"./test/create_sys_image.jl\")"
+$JULIA_CMD --startup-file=no --project -e "using Pkg; Pkg.instantiate();"
+$JULIA_CMD --startup-file=no --project=test -e "include(\"./test/create_sys_image.jl\")"
 
 if [[ $branch != "" ]]; then
     SOFILE="bin/kps-image-${julia_major}-${branch}.so"
@@ -150,15 +193,15 @@ if test -f $SOFILE; then
     mv $SOFILE $SOFILE.bak
 fi
 mv kps-image_tmp.so $SOFILE
-julia --startup-file=no  --project -e "using Pkg; Pkg.precompile(); Pkg.resolve()"
-julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using KiteUtils, KiteControllers"
-julia --project=test -J bin/kps-image-${julia_major}-${branch}.so -e "using ControlPlots, NativeFileDialog"
-julia --project -J bin/kps-image-${julia_major}-${branch}.so -e "using Pkg; Pkg.instantiate()"
-julia --project=examples -J bin/kps-image-${julia_major}-${branch}.so -e "using NOMAD, KiteViewers, Pkg; Pkg.instantiate(); Pkg.precompile()"
+$JULIA_CMD --startup-file=no  --project -e "using Pkg; Pkg.precompile(); Pkg.resolve()"
+$JULIA_CMD --project -J bin/kps-image-${julia_major}-${branch}.so -e "using KiteUtils, KiteControllers"
+$JULIA_CMD --project=test -J bin/kps-image-${julia_major}-${branch}.so -e "using ControlPlots, NativeFileDialog"
+$JULIA_CMD --project -J bin/kps-image-${julia_major}-${branch}.so -e "using Pkg; Pkg.instantiate()"
+$JULIA_CMD --project=examples -J bin/kps-image-${julia_major}-${branch}.so -e "using NOMAD, KiteViewers, Pkg; Pkg.instantiate(); Pkg.precompile()"
 
 # On Linux, suppress known-harmless Julia extension loading warnings (e.g. DistributionsTestExt).
 # The error spans multiple lines (┌ Error: ... │ ... └ @ Base), so use sed range deletion.
 if [[ "$(uname -s)" == "Linux" ]]; then
     exec 2> >(sed '/Error during loading of extension FilePathsURIsExt of FilePaths/,/^└/d' >&2)
 fi
-julia --project=docs -J bin/kps-image-${julia_major}-${branch}.so -e "using LiveServer, Documenter, Pkg; Pkg.instantiate()"
+$JULIA_CMD --project=docs -J bin/kps-image-${julia_major}-${branch}.so -e "using LiveServer, Documenter, Pkg; Pkg.instantiate()"
