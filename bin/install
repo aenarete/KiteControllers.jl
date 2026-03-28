@@ -181,20 +181,37 @@ if [[ "$(uname -s)" == "Linux" ]]; then
             done
         done
         if [[ -n "$_jglib" ]]; then
-            local _jintl=""
-            [[ -f "$_jglib_dir/libintl.so.8" ]] && _jintl="$_jglib_dir/libintl.so.8:"
-            # Lazily find libiconv.so.2: the upfront search ran before Pkg.instantiate()
-            # downloaded artifacts, so on a fresh install it found nothing.  libintl.so.8
-            # (preloaded above) depends on libiconv.so.2, which must be on LD_LIBRARY_PATH
-            # or the dynamic linker fails before Julia can start.
+            # Lazily find libintl.so.8 and libiconv.so.2: the upfront search ran before
+            # Pkg.instantiate() downloaded artifacts, so on a fresh install it found nothing.
+            # libglib-2.0.so.0 (preloaded below) depends on libintl.so.8, and libintl.so.8
+            # depends on libiconv.so.2; both must be on LD_LIBRARY_PATH so the dynamic linker
+            # can resolve the full chain without failing before Julia even starts.
+            local _jintl="" _jintl_dir=""
+            if [[ -f "$_jglib_dir/libintl.so.8" ]]; then
+                _jintl="$_jglib_dir/libintl.so.8:"
+                _jintl_dir="$_jglib_dir"
+            else
+                for _jdepot in $(echo "${JULIA_DEPOT_PATH:-$HOME/.julia}" | tr ':' ' '); do
+                    local _jintl_f
+                    _jintl_f=$(find "$_jdepot/artifacts" -maxdepth 3 -name "libintl.so.8" -path "*/lib/*" 2>/dev/null | head -1)
+                    if [[ -n "$_jintl_f" ]]; then
+                        _jintl="$_jintl_f:"
+                        _jintl_dir=$(dirname "$_jintl_f")
+                        break
+                    fi
+                done
+            fi
             local _jiconv="" _jiconv_dir=""
             for _jdepot in $(echo "${JULIA_DEPOT_PATH:-$HOME/.julia}" | tr ':' ' '); do
                 _jiconv=$(find "$_jdepot/artifacts" -maxdepth 3 -name "libiconv.so.2" -path "*/lib/*" 2>/dev/null | head -1)
                 [[ -n "$_jiconv" ]] && break
             done
             [[ -n "$_jiconv" ]] && _jiconv_dir=$(dirname "$_jiconv")
+            # Build LD_LIBRARY_PATH with all artifact dirs that carry these libs.
             local _extra_lib="${_jglib_dir}"
-            [[ -n "$_jiconv_dir" && "$_jiconv_dir" != "$_jglib_dir" ]] && _extra_lib="${_jiconv_dir}:${_extra_lib}"
+            for _xdir in "$_jintl_dir" "$_jiconv_dir"; do
+                [[ -n "$_xdir" && ":${_extra_lib}:" != *":${_xdir}:"* ]] && _extra_lib="${_xdir}:${_extra_lib}"
+            done
             # Place glib preloads FIRST so they win the SONAME race against libfontconfig.
             LD_PRELOAD="${_jintl}${_jglib}${LD_PRELOAD:+:$LD_PRELOAD}" \
             LD_LIBRARY_PATH="${_extra_lib}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
