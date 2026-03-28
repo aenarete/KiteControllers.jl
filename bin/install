@@ -525,6 +525,12 @@ else
     fi
 fi
 
+julia --startup-file=no --project -e "using Pkg; Pkg.resolve(), Pkg.instantiate(); Pkg.precompile()"
+julia --startup-file=no --project -e "using KiteUtils, KiteControllers"
+julia --startup-file=no --project=test -e "using ControlPlots, NativeFileDialog"
+julia --startup-file=no --project=examples -e "using Pkg; Pkg.resolve(), Pkg.instantiate(); Pkg.precompile(); using NOMAD, KiteViewers"
+julia --startup-file=no --project=docs -e "using Pkg; Pkg.resolve(), Pkg.instantiate(); Pkg.precompile(); using LiveServer, Documenter"
+
 echo
 printf "\033[1;32mInstallation complete!\033[0m\n"
 echo
