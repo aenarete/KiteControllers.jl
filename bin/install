@@ -180,6 +180,18 @@ if [[ "$(uname -s)" == "Linux" ]]; then
                 fi
             done
         done
+        # Lazily find libfontconfig with FcConfigSetDefaultSubstitute (needed by Pango_jll >= 1.57).
+        # The upfront search may have found nothing on a fresh install (artifacts not yet downloaded).
+        local _jfc="" _jfc_dir=""
+        for _jdepot in $(echo "${JULIA_DEPOT_PATH:-$HOME/.julia}" | tr ':' ' '); do
+            for _jf in $(find "$_jdepot/artifacts" -maxdepth 3 -name "libfontconfig.so.1" -path "*/lib/*" 2>/dev/null); do
+                if nm -D "$_jf" 2>/dev/null | grep -q FcConfigSetDefaultSubstitute; then
+                    _jfc="$_jf"
+                    _jfc_dir=$(dirname "$_jf")
+                    break 2
+                fi
+            done
+        done
         if [[ -n "$_jglib" ]]; then
             # Lazily find libintl.so.8 and libiconv.so.2: the upfront search ran before
             # Pkg.instantiate() downloaded artifacts, so on a fresh install it found nothing.
@@ -209,12 +221,19 @@ if [[ "$(uname -s)" == "Linux" ]]; then
             [[ -n "$_jiconv" ]] && _jiconv_dir=$(dirname "$_jiconv")
             # Build LD_LIBRARY_PATH with all artifact dirs that carry these libs.
             local _extra_lib="${_jglib_dir}"
-            for _xdir in "$_jintl_dir" "$_jiconv_dir"; do
+            for _xdir in "$_jintl_dir" "$_jiconv_dir" "$_jfc_dir"; do
                 [[ -n "$_xdir" && ":${_extra_lib}:" != *":${_xdir}:"* ]] && _extra_lib="${_xdir}:${_extra_lib}"
             done
             # Place glib preloads FIRST so they win the SONAME race against libfontconfig.
-            LD_PRELOAD="${_jintl}${_jglib}${LD_PRELOAD:+:$LD_PRELOAD}" \
+            # Append fontconfig after glib so its dir is already on LD_LIBRARY_PATH.
+            local _jfc_entry="${_jfc:+:${_jfc}}"
+            LD_PRELOAD="${_jintl}${_jglib}${_jfc_entry}${LD_PRELOAD:+:$LD_PRELOAD}" \
             LD_LIBRARY_PATH="${_extra_lib}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+            command julia "$@"
+        elif [[ -n "$_jfc" ]]; then
+            # No bundled libglib needed, but fontconfig must still be overridden.
+            LD_PRELOAD="${_jfc}${LD_PRELOAD:+:$LD_PRELOAD}" \
+            LD_LIBRARY_PATH="${_jfc_dir}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
             command julia "$@"
         else
             command julia "$@"
