@@ -547,7 +547,7 @@ fi
 julia --startup-file=no --project -e "using Pkg; Pkg.resolve(), Pkg.instantiate(); Pkg.precompile()"
 julia --startup-file=no --project -e "using KiteUtils, KiteControllers"
 julia --startup-file=no --project=test -e "using ControlPlots, NativeFileDialog"
-julia --startup-file=no --project -e "using Pkg; using KiteControllers; Pkg.activate("examples"); using NOMAD, KiteViewers; using ControlPlots, KiteControllers, KiteModels, LaTeXStrings, NativeFileDialog, Statistics"
+julia --startup-file=no --project -e 'using Pkg; using KiteControllers; Pkg.activate("examples"); using NOMAD, KiteViewers; using ControlPlots, KiteControllers, KiteModels, LaTeXStrings, NativeFileDialog, Statistics'
 julia --startup-file=no --project=docs -e "using Pkg; Pkg.resolve(), Pkg.instantiate(); Pkg.precompile(); using LiveServer, Documenter"
 
 echo
