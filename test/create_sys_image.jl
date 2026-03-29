@@ -28,7 +28,7 @@ open(precompile_script, "w") do io
 end
 
 PackageCompiler.create_sysimage(
-    [:KiteUtils, :NLsolve, :Parameters, :StaticArrays, :WinchModels, :WinchControllers, :KiteViewers, 
+    [:KiteUtils, :NLsolve, :Parameters, :StaticArrays, :WinchModels, :KiteViewers, 
      :KiteModels, :KitePodModels, :StructTypes, :YAML, :Statistics];
     sysimage_path="kps-image_tmp.so",
     include_transitive_dependencies=true,
