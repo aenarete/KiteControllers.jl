@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+### Changed
+- improved `install` script to do a complete installation also with Julia 1.11
+- improved `create_sys_image` script to use less memory on Julia 1.12 and to suppress one warning
+### Fixed
+- decreased v_min to 0.15 m/s (the speed when the brake gets released) to fix sporadic winch controller failures
+
 ## KiteControllers v0.2.20 - 2026-03-15
 ### Changed
 - fixed new JETLS warnings, also in the tests
