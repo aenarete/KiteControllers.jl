@@ -182,7 +182,7 @@ if test -f "kps-image-${julia_major}-${branch}.so"; then
 fi
 
 $JULIA_CMD --startup-file=no --project -e "using Pkg; Pkg.instantiate();"
-$JULIA_CMD --startup-file=no --project=test -e "include(\"./test/create_sys_image.jl\")"
+$JULIA_CMD --startup-file=no --project=test --heap-size-hint=8000M -e "include(\"./test/create_sys_image.jl\")"
 
 if [[ $branch != "" ]]; then
     SOFILE="bin/kps-image-${julia_major}-${branch}.so"
