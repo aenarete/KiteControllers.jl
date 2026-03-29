@@ -24,7 +24,9 @@ end
 precompile_script = joinpath("test", "precompile_all.jl")
 open(precompile_script, "w") do io
     println(io, """include("test_for_precompile.jl")""")
-    println(io, """include("precompile_batch_plot.jl")""")
+    if ! haskey(ENV, "JULIA_IMAGE_THREADS")
+        println(io, """include("precompile_batch_plot.jl")""")
+    end
 end
 
 PackageCompiler.create_sysimage(
