@@ -27,11 +27,6 @@ open(precompile_script, "w") do io
     println(io, """include("precompile_batch_plot.jl")""")
 end
 
-GC.gc(true)
-let mem = Sys.free_memory() / 1024^2
-    @info "Free memory: $(round(mem; digits=1)) MB"
-end
-
 PackageCompiler.create_sysimage(
     [:KiteUtils, :NLsolve, :Parameters, :StaticArrays, :WinchModels, :WinchControllers, :KiteViewers, 
      :KiteModels, :KitePodModels, :StructTypes, :YAML, :Statistics, :ControlPlots];
