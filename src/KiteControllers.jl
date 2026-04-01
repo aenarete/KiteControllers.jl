@@ -118,6 +118,8 @@ function copy_bin()
     src_path = joinpath(@__DIR__, "..", PATH)
     cp(joinpath(src_path, "run_julia"), joinpath(PATH, "run_julia"), force=true)
     chmod(joinpath(PATH, "run_julia"), 0o774)
+    cp(joinpath(src_path, "setup_env"), joinpath(PATH, "setup_env"), force=true)
+    chmod(joinpath(PATH, "setup_env"), 0o644)
 end
 
 function install_examples(add_packages=true)
