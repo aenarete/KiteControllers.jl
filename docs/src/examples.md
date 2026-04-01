@@ -22,7 +22,7 @@ Then you get the menu of the examples by typing:
 menu()
 ```
 
-## [autopilot.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/autopilot.jl) — Full Autopilot Simulation
+## [autopilot.jl](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/autopilot.jl) — Full Autopilot Simulation
 
 The primary example demonstrating the complete control stack.
 
@@ -39,7 +39,7 @@ The primary example demonstrating the complete control stack.
 You can select one of the four, pre-defined projects, run the simulation, and on the left you have menu options to 
 print the statistics or show one of the many 2D plots, visualizing the results.
 
-## [parking_4p.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/parking_4p.jl) — Parking Controller
+## [parking_4p.jl](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/parking_4p.jl) — Parking Controller
 
 Demonstrates how to bring a four-line kite to a stable parking position at
 high elevation using `on_parking`.
@@ -50,12 +50,12 @@ using KiteControllers, KiteModels
 on_parking(ssc, tether_length=200.0)
 ```
 
-## [minipilot.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/minipilot.jl) — Minimal Autopilot
+## [minipilot.jl](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/minipilot.jl) — Minimal Autopilot
 
 A stripped-down autopilot without 2D plots for understanding how to build a GUI
 based simulator. Exposes the core control loop in ~50 lines.
 
-## [batch_pilot.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/batch_pilot.jl) — Batch Simulation
+## [batch_pilot.jl](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/batch_pilot.jl) — Batch Simulation
 
 Runs multiple simulations back-to-back over a range of wind speeds and
 records key statistics (mean power, reel-out speed, etc.) to an
@@ -72,7 +72,7 @@ time-series log to `output/batch-<project>.arrow`.
 
 ---
 
-## [batch_plot](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/batch_plot.jl) — Post-processing Viewer
+## [batch_plot](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/batch_plot.jl) — Post-processing Viewer
 
 Interactive command-line tool for visualizing the Arrow log files produced by
 `batch_pilot`.  Backed by `examples/batch_plot.jl` and the launcher script
@@ -114,13 +114,13 @@ bin/batch_plot --list-commands
 | `plot_side_view3` | Side view from cycle 3 onward |
 | `plot_front_view3` | Front view from cycle 3 onward |
 
-## [tune_4p.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/tune_4p.jl) — Controller Tuning
+## [tune_4p.jl](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/tune_4p.jl) — Controller Tuning
 
 Interactive script for tuning the flight path controller gains (`p`, `i`, `d`, `gain`)
 for a four-line kite.  Changes gain values and immediately re-runs the simulation to
 visualize the effect.
 
-## [joystick.jl](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/joystick.jl) — Manual Joystick Control
+## [joystick.jl](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/joystick.jl) — Manual Joystick Control
 
 Allows manual steering via a gamepad or joystick while the winch is controlled
 automatically or half-automatically by the `WinchController`.  Useful for learning how to steer a kite manually. Half-automatically means you provide a set point for the reel-out speed manually, but the `WinchController` ensures that the maximal and minimal force are respected.
@@ -129,15 +129,15 @@ automatically or half-automatically by the `WinchController`.  Useful for learni
 
 | File | Purpose |
 |:-----|:--------|
-| [`autopilot.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/autopilot.jl) | Full autopilot — start running this as first step |
-| [`minipilot.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/minipilot.jl) | Minimal autopilot without 2D plotting, good for understanding the code |
-| [`parking_4p.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/parking_4p.jl) | Parking of the 4 point kite with disturbance |
-| [`batch_pilot.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/batch_pilot.jl) | Batch simulations of projects |
-| [`batch_plot`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/batch_plot.jl) | Post-processing and interactive plotting of batch logs |
-| [`tune_4p.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/tune_4p.jl) | Gain tuning of the parking controller |
-| [`joystick.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/joystick.jl) | Manual steering with automated or half-automated winch control |
-| [`plots.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/plots.jl) | Post-processing and plotting of Arrow log files, not to be executed on its own |
-| [`stats.jl`](https://github.com/aenarete/KiteControllers.jl/blob/main/examples/stats.jl) | Statistical analysis of batch results, not to be executed on its own |
+| [`autopilot.jl`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/autopilot.jl) | Full autopilot — start running this as first step |
+| [`minipilot.jl`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/minipilot.jl) | Minimal autopilot without 2D plotting, good for understanding the code |
+| [`parking_4p.jl`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/parking_4p.jl) | Parking of the 4 point kite with disturbance |
+| [`batch_pilot.jl`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/batch_pilot.jl) | Batch simulations of projects |
+| [`batch_plot`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/batch_plot.jl) | Post-processing and interactive plotting of batch logs |
+| [`tune_4p.jl`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/tune_4p.jl) | Gain tuning of the parking controller |
+| [`joystick.jl`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/joystick.jl) | Manual steering with automated or half-automated winch control |
+| [`plots.jl`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/plots.jl) | Post-processing and plotting of Arrow log files, not to be executed on its own |
+| [`stats.jl`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/examples/stats.jl) | Statistical analysis of batch results, not to be executed on its own |
 
 ---
 
@@ -147,11 +147,11 @@ All settings are stored as YAML files in the `data/` folder.
 
 | File | Settings struct |
 |:-----|:----------------|
-| [`settings.yaml`](https://github.com/aenarete/KiteControllers.jl/blob/main/data/settings.yaml) | General kite / simulation settings (`KiteUtils.Settings`) |
-| [`system.yaml`](https://github.com/aenarete/KiteControllers.jl/blob/main/data/system.yaml) | System-level parameters |
-| [`fpc_settings.yaml`](https://github.com/aenarete/KiteControllers.jl/blob/main/data/fpc_settings.yaml) | [`FPCSettings`](@ref) — flight path controller |
-| [`fpp_settings.yaml`](https://github.com/aenarete/KiteControllers.jl/blob/main/data/fpp_settings.yaml) | [`FPPSettings`](@ref) — flight path planner |
-| [`wc_settings.yaml`](https://github.com/aenarete/KiteControllers.jl/blob/main/data/wc_settings.yaml) | `WCSettings` — winch controller |
+| [`settings.yaml`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/data/settings.yaml) | General kite / simulation settings (`KiteUtils.Settings`) |
+| [`system.yaml`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/data/system.yaml) | System-level parameters |
+| [`fpc_settings.yaml`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/data/fpc_settings.yaml) | [`FPCSettings`](@ref) — flight path controller |
+| [`fpp_settings.yaml`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/data/fpp_settings.yaml) | [`FPPSettings`](@ref) — flight path planner |
+| [`wc_settings.yaml`](https://github.com/OpenSourceAWE/KiteControllers.jl/blob/main/data/wc_settings.yaml) | `WCSettings` — winch controller |
 
 Copy the default configuration files with:
 

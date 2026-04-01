@@ -1,7 +1,7 @@
 # KiteControllers.jl
 
-[![Build Status](https://github.com/aenarete/KiteControllers.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/aenarete/KiteControllers.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/aenarete/KiteControllers.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/aenarete/KiteControllers.jl)
+[![Build Status](https://github.com/OpenSourceAWE/KiteControllers.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/OpenSourceAWE/KiteControllers.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/OpenSourceAWE/KiteControllers.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/OpenSourceAWE/KiteControllers.jl)
 [![DOI](https://zenodo.org/badge/486324875.svg)](https://zenodo.org/doi/10.5281/zenodo.13255245)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
@@ -78,7 +78,7 @@ exit()
 
 In most cases -- if you want to modify, tune and understand kite controllers -- it is better to check out this project from git. You can do this with:
 ```bash
-git clone https://github.com/aenarete/KiteControllers.jl.git
+git clone https://github.com/OpenSourceAWE/KiteControllers.jl.git
 cd KiteControllers.jl
 ```
 Then, run the install script and optionally create a system image:
