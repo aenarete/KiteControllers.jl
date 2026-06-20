@@ -54,7 +54,6 @@ MIN_DEPOWER, DISTURBANCE = if KiteUtils.PROJECT == "system.yaml"
     pcs.max_turn_rate_cmd = max_turn_rate_cmd
     pcs.max_steering = 0.45
     pcs.max_steering_rate = 1.0
-    pcs.heading_deadband = deg2rad(0.5)
     0.22, 0.1
 else
     # result of tuning
@@ -71,7 +70,6 @@ else
     pcs.max_turn_rate_cmd = max_turn_rate_cmd
     pcs.max_steering = 0.45
     pcs.max_steering_rate = 1.0
-    pcs.heading_deadband = deg2rad(0.5)
     0.4, 0.4
 end
 @info "pcs.kp_tr=$(pcs.kp_tr), pcs.ki_tr=$(pcs.ki_tr), pcs.kp=$(pcs.kp), pcs.ki=$(pcs.ki), pcs.max_turn_rate_cmd=$(pcs.max_turn_rate_cmd), MIN_DEPOWER=$(MIN_DEPOWER)"
