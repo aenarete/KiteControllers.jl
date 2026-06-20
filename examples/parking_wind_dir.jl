@@ -230,7 +230,7 @@ end
 
 play_parking()
 stop(viewer)
-if Cusing FFMPEG_jll
+if CREATE_VIDEO
     FFMPEG_jll.ffmpeg() do exe
         run(`$exe -y -r:v 20 -i video/video%06d.png -codec:v libx264 -preset veryslow -pix_fmt yuv420p -crf 10 -an output/parking_wind_dir.mp4`)
     end
