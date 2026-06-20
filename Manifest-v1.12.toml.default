@@ -2,7 +2,7 @@
 
 julia_version = "1.12.6"
 manifest_format = "2.0"
-project_hash = "580887212075573c1d6ffa8406c3c6dfc3b9b998"
+project_hash = "e6e4990b42bbd7acd1f795bcdf781a085d971309"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "bbc22a9a08a0ef6460041086d8a7b27940ed4ffd"
@@ -1316,9 +1316,9 @@ version = "0.4.0"
 
 [[deps.KiteUtils]]
 deps = ["Arrow", "CSV", "DocStringExtensions", "LinearAlgebra", "OrderedCollections", "Parameters", "Parsers", "Pkg", "PrecompileTools", "RecursiveArrayTools", "ReferenceFrameRotations", "Rotations", "StaticArrays", "StructArrays", "StructTypes", "YAML"]
-git-tree-sha1 = "edd32b16440b162db774dc42604f7faa921541e6"
+git-tree-sha1 = "e1bb61216d74a50ec19ce63314e3fe94e2ed98e7"
 uuid = "90980105-b163-44e5-ba9f-8b1c83bb0533"
-version = "0.11.8"
+version = "0.11.9"
 
 [[deps.KiteViewers]]
 deps = ["FileIO", "GLMakie", "GeometryBasics", "Joysticks", "KiteUtils", "LinearAlgebra", "Parameters", "Pkg", "PrecompileTools", "Printf", "Reexport", "Rotations", "StaticArrays", "StructArrays", "Timers"]
@@ -1649,9 +1649,9 @@ version = "0.24.12"
 
 [[deps.MakieControlPlots]]
 deps = ["CairoMakie", "GLMakie", "GridLayoutBase", "JLD2", "LaTeXStrings", "Makie", "PrecompileTools", "Printf", "StaticArraysCore"]
-git-tree-sha1 = "acf681b3efef526ef9f0830f65ff346f325cc3e0"
+git-tree-sha1 = "4d56ef86cbdd81c443021ec63d80900a1c96f87a"
 uuid = "6d616b69-6563-4f6e-8472-6f6c706c6f74"
-version = "0.1.4"
+version = "0.1.5"
 
     [deps.MakieControlPlots.extensions]
     MakieControlPlotsControlSystemsBaseExt = "ControlSystemsBase"
@@ -2602,9 +2602,9 @@ version = "1.11.0"
 
 [[deps.SortingAlgorithms]]
 deps = ["DataStructures"]
-git-tree-sha1 = "64d974c2e6fdf07f8155b5b2ca2ffa9069b608d9"
+git-tree-sha1 = "13cd91cc9be159e3f4d95b857fa2aa383b53772a"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "1.2.2"
+version = "1.2.3"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
