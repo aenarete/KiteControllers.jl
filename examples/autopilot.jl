@@ -11,10 +11,10 @@ end
 
 LOG_LIFT_DRAG::Bool = false
 DRAG_CORR::Float64 = 0.93
-CREATE_VIDEO::Bool = false
+const CREATE_VIDEO = false
 
 using KiteViewers
-using MakieControlPlots, KiteControllers, KiteModels, LaTeXStrings, NativeFileDialog, Statistics
+using KiteControllers, KiteModels, LaTeXStrings, MakieControlPlots, NativeFileDialog, Statistics
 using LinearAlgebra, Printf
 using KiteViewers: Viewer3D
 import KiteViewers.GLMakie

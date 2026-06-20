@@ -10,7 +10,7 @@ using MakieControlPlots, KiteControllers, KiteModels, KiteViewers, Rotations, St
 using KiteUtils: Settings, load_settings
 using KiteModels: reactivate_host_app
 
-CREATE_VIDEO = false
+const CREATE_VIDEO = false
 PLOT_RATES = false
 
 set::Settings = if haskey(ENV, "USE_V9")
