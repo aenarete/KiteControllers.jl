@@ -20,7 +20,7 @@ using KiteControllers, KiteModels, Statistics
 using Dates, LinearAlgebra, Printf
 
 DEFAULT_PROJECTS = ["hydra10_951.yml", "hydra20_600_TI0.yml", "hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml"]
-PROJECTS = isempty(ARGS) ? DEFAULT_PROJECTS : [
+const PROJECTS = isempty(ARGS) ? DEFAULT_PROJECTS : [
     (endswith(lowercase(project), ".yml") || endswith(lowercase(project), ".yaml")) ? project : "$(project).yml"
     for project in ARGS
 ]

@@ -19,6 +19,7 @@ using LinearAlgebra, Printf
 using KiteViewers: Viewer3D
 import KiteViewers.GLMakie
 import KiteViewers.GLMakie.GLFW
+using FFMPEG_jll
 
 PROJECT = read_project()
 GLMakie.activate!(title = PROJECT)
@@ -595,7 +596,6 @@ KiteViewers.GLMakie.closeall()
 GC.enable(true)
 if CREATE_VIDEO
     video_fps = 60
-    using FFMPEG_jll
     FFMPEG_jll.ffmpeg() do exe
         run(`$exe -y -r:v $video_fps -i video/video%06d.png -codec:v libx264 -preset veryslow -pix_fmt yuv420p -crf 10 -an output/full_simulation.mp4`)
     end
