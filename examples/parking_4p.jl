@@ -10,7 +10,6 @@ if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
 end
 using Timers; tic()
 
-using KiteViewers
 using KiteViewers, MakieControlPlots, Rotations
 using KiteUtils: Settings, load_settings
 using KitePodModels: KCU
