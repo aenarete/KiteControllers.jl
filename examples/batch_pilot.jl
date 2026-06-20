@@ -19,8 +19,8 @@ using Timers
 using KiteControllers, KiteModels, Statistics
 using Dates, LinearAlgebra, Printf
 
-DEFAULT_PROJECTS = ["hydra10_951.yml", "hydra20_600_TI0.yml", "hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml"]
-const PROJECTS = isempty(ARGS) ? DEFAULT_PROJECTS : [
+const DEFAULT_PROJECTS = ["hydra10_951.yml", "hydra20_600_TI0.yml", "hydra20_600.yml", "hydra20_426.yml", "hydra20_920.yml"]
+projects() = isempty(ARGS) ? DEFAULT_PROJECTS : [
     (endswith(lowercase(project), ".yml") || endswith(lowercase(project), ".yaml")) ? project : "$(project).yml"
     for project in ARGS
 ]
@@ -56,7 +56,7 @@ const min_height =  30.0 # minimum height for simulation to be considered valid
 const max_height = 600.0 # maximum height for simulation to be considered valid
 
 function read_project(index::Int = 1)
-    return PROJECTS[index]  
+    return projects()[index]  
 end
 
 # ensure KiteUtils uses this project's data/ directory, regardless of cwd
@@ -290,7 +290,7 @@ let
     tic()
     results = Tuple{String, SimulationError}[]
     av_powers = Float64[]
-    for project in PROJECTS
+    for project in projects()
         wall_start_ns = time_ns()
         println("Running project $project ...")
         app = KiteApp(deepcopy(load_settings(project)), 0.0,
@@ -327,7 +327,7 @@ let
             save_log(app.logger::Logger, output_name; path = output_path)
         end
         wall_time = (time_ns() - wall_start_ns) / 1e9
-        stats = calc_stats(app.logger)
+        stats = calc_stats(app.logger::Logger)
         fmt(x) = @sprintf("%10.2f", x)
         v_wind_200 = app.set.v_wind * calc_wind_factor(app.kps4.am, 200.0)
         stats_yaml = """

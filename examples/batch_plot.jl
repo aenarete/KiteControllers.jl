@@ -12,7 +12,7 @@ if !@isdefined __PRECOMPILE__
     __PRECOMPILE__ = false
 end
 
-using MakieControlPlots, KiteControllers, LaTeXStrings, Statistics, YAML
+using KiteControllers, LaTeXStrings, MakieControlPlots, Statistics, YAML
 using REPL.TerminalMenus
 using KiteModels: reactivate_host_app
 
@@ -413,7 +413,7 @@ function run_command(cmd::String)
     println("Running $name …")
     fn()
     println("Close the plot window to exit.")
-    MakieControlPlots.plt.show(block=true)
+    MakieControlPlots.GLMakie.plt.show(block=true)
     reactivate_host_app()
 end
 
