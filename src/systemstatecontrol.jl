@@ -154,7 +154,7 @@ function calc_steering(ssc::SystemStateControl, manual_steering = 0.0; heading =
     u_s
 end
 
-function switch(ssc::SystemStateControl, state)
+function switch(ssc::SystemStateControl, state::SystemState)
     if ssc.state == state && state != ssParking
         return
     end
