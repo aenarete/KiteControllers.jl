@@ -22,7 +22,7 @@ import KiteViewers.GLMakie.GLFW
 
 PROJECT = read_project()
 GLMakie.activate!(title = PROJECT)
-OUTPUT_DIR::String = "output"
+const OUTPUT_DIR::String = "output"
 mkpath(OUTPUT_DIR)
 @assert isdir(OUTPUT_DIR)
 DEFAULT_LOG::String = joinpath(OUTPUT_DIR, "last_sim_log")

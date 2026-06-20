@@ -7,7 +7,7 @@ using KiteControllers
 using KiteUtils: load_log
 using MakieControlPlots
 
-OUTPUT_DIR::String = "output"
+const OUTPUT_DIR::String = "output"
 
 # Plot force vs time from the last recorded log file
 let
