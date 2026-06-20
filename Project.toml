@@ -1,6 +1,6 @@
 name = "KiteControllers"
 uuid = "b19fd437-5b3a-4cca-b199-c3ded0f20ded"
-version = "0.2.28"
+version = "0.2.29"
 authors = ["Uwe Fechner <fechner@aenarete.eu> and contributors"]
 
 [workspace]

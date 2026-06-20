@@ -1,5 +1,15 @@
 # Changelog
 
+## KiteControllers v0.2.29 - 2026-06-21
+### Changed
+- **Switched from ControlPlots to MakieControlPlots** across all examples, tests, and scripts. Main advantages: thread-safe plotting, better integration with the Makie ecosystem.
+- Removed `bin/install_controlplots` script (no longer needed — MakieControlPlots uses matplotlib via CondaPkg or system install)
+- Updated `bin/install` to check for MakieControlPlots instead of ControlPlots; removed macOS QtAgg/matplotlib installation logic
+- Updated CI workflow and `.JETLSConfig.toml.default` to reference MakieControlPlots
+- Disabled inline type hints in JETLS configuration
+- Added type annotations (`::FPPS`, `::SystemState`) to switch functions in `flightpathplanner2.jl` and `systemstatecontrol.jl` to fix JETLS warnings
+- Updated default manifests
+
 ## KiteControllers v0.2.28 - 2026-05-14
 ### Added
 - `--update`, `--yes`, `--help` command-line options to `bin/install`
