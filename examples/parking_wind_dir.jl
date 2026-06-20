@@ -242,7 +242,7 @@ let v = filter(!=(0.0), V_WIND_KITE)
     global p=plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),[rad2deg.(UPWIND_DIR_), rad2deg.(AV_UPWIND_DIR)],
              rad2deg.(ELEVATION), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)], V_WIND_KITE, FORCE; 
              xlabel="Time [s]", 
-             ysize=10,
+             ysize=14,
              ylabels=["Azimuth [°]", "azimuth_east [°]", "upwind_dir [°]", "Elevation [°]", "Heading [°]", "Steering [%]", "v_wind_kite [m/s]", "force [N]"],
              labels=["azimuth", "azimuth_east", ["upwind_dir", "filtered_upwind_dir"], "elevation", "heading", ["set_steering", "steering"], "v_wind_kite", "force"],
              fig="Parking with changing wind direction, TI: $(round(ti, digits=2)) %")
