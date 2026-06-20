@@ -11,7 +11,7 @@ using MakieControlPlots, KiteControllers, Timers; tic()
 # 3. update u_d and v_reelout from logfile
 # test fails if we allow v_ro > 0
 
-using MakieControlPlots, KiteControllers, KiteModels, KiteViewers
+using KiteModels, KiteViewers
 using KiteUtils: Settings, load_settings
 
 PROJECT="system_8000.yaml"
