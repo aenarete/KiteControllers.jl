@@ -27,7 +27,7 @@ KiteControllers = {path = ".."}
 [compat]
 ControlPlots = "0.3.0"
 Joysticks = "0.1.4"
-KiteModels = "0.11.12"
+KiteModels = "0.11.14"
 KitePodModels = "0.4.0"
 KiteViewers = "0.5.2"
 LaTeXStrings = "1.4"
