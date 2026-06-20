@@ -76,3 +76,6 @@ match_by   = "message"
 match_type = "literal"
 severity   = "off"
 path       = "examples/**"
+
+[inlay_hint.types]
+enabled = false  # Hide type hints; keep `end`-tag hints
