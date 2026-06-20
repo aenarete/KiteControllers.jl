@@ -37,12 +37,12 @@ jobs:
           arch: ${{ matrix.arch }}
       - name: Remove plotting packages (Linux)
         if: runner.os == 'Linux'
-        run: sed -i '/KiteViewers\|NativeFileDialog\|Joysticks\|ControlPlots\|PyPlot/d' test/Project.toml
+        run: sed -i '/KiteViewers\|NativeFileDialog\|Joysticks\|MakieControlPlots\|PyPlot/d' test/Project.toml
         shell: bash
       - name: Remove plotting packages (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: (Get-Content test\Project.toml) -notmatch 'KiteViewers|NativeFileDialog|Joysticks|ControlPlots|PyPlot' | Set-Content test\Project.toml
+        run: (Get-Content test\Project.toml) -notmatch 'KiteViewers|NativeFileDialog|Joysticks|MakieControlPlots|PyPlot' | Set-Content test\Project.toml
       - uses: julia-actions/cache@v3
         if: runner.os != 'Windows' || matrix.version != '1.11'
         with:

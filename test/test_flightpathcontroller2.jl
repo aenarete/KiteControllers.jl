@@ -1,9 +1,9 @@
 # activate the test environment if needed
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
      Pkg.activate(@__DIR__)
 end
-using ControlPlots, KiteControllers, Timers; tic()
+using MakieControlPlots, KiteControllers, Timers; tic()
 using KiteUtils: Settings, load_settings
 
 set::Settings = deepcopy(load_settings("system.yaml"))

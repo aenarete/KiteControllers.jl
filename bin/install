@@ -148,7 +148,7 @@ export JULIA_PKG_SERVER_REGISTRY_PREFERENCE=eager
 . ./bin/setup_env
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
-    # Avoid Tk backend issues on macOS (e.g. non-responsive close button in ControlPlots windows).
+    # Avoid Tk backend issues on macOS (e.g. non-responsive close button in MakieControlPlots windows).
     # Keep user override if MPLBACKEND is already set.
     if [[ -z "${MPLBACKEND:-}" ]]; then
         export MPLBACKEND=qtagg
@@ -390,23 +390,12 @@ if [[ $julia_major == "1.11" ]]; then
     elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("examples (1.11)"); fi
     echo "Precompiling examples project..."
     julia --project=examples -e 'using Pkg; Pkg.precompile()'
-    # On Linux, verify that ControlPlots loads correctly before building docs.
+    # On Linux, verify that MakieControlPlots loads correctly before building docs.
     if [[ "$(uname -s)" == "Linux" ]]; then
-        echo "Checking if ControlPlots is working in the examples project..."
-        if env -u LD_PRELOAD -u LD_LIBRARY_PATH \
-                julia --project=examples -e 'using ControlPlots' &>/dev/null 2>&1; then
-            echo "ControlPlots is working."
-        else
-            echo "ControlPlots is not working. Running install_controlplots..."
-            if [[ -x "bin/install_controlplots" ]]; then
-                if [[ $_yes_to_all == true ]]; then
-                    bash bin/install_controlplots --yes
-                else
-                    bash bin/install_controlplots
-                fi
-            else
-                echo "Warning: bin/install_controlplots not found. Please run it manually."
-            fi
+        echo "Checking if MakieControlPlots is working in the examples project..."
+        if ! env -u LD_PRELOAD -u LD_LIBRARY_PATH \
+                julia --project=examples -e 'using MakieControlPlots' &>/dev/null 2>&1; then
+            echo "Warning: MakieControlPlots could not be loaded. Install matplotlib (e.g. via apt or CondaPkg)."
         fi
     fi
     _ec=0; run_resolve_with_retry "test" 0 || _ec=$?
@@ -441,25 +430,7 @@ else
     elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("examples (1.12)"); fi
     echo "Precompiling examples project..."
     julia --project=examples -e 'using Pkg; Pkg.precompile()'
-    # On Linux, verify that ControlPlots loads correctly before building docs.
-    if [[ "$(uname -s)" == "Linux" ]]; then
-        echo "Checking if ControlPlots is working in the examples project..."
-        if env -u LD_PRELOAD -u LD_LIBRARY_PATH \
-                julia --project=examples -e 'using ControlPlots' &>/dev/null 2>&1; then
-            echo "ControlPlots is working."
-        else
-            echo "ControlPlots is not working. Running install_controlplots..."
-            if [[ -x "bin/install_controlplots" ]]; then
-                if [[ $_yes_to_all == true ]]; then
-                    bash bin/install_controlplots --yes
-                else
-                    bash bin/install_controlplots
-                fi
-            else
-                echo "Warning: bin/install_controlplots not found. Please run it manually."
-            fi
-        fi
-    fi
+
     _ec=0; run_resolve_with_retry "test" 0 || _ec=$?
     if [[ $_ec -eq 2 ]]; then RETRIED_RESOLVES+=("test (1.12)")
     elif [[ $_ec -ne 0 ]]; then FAILED_RESOLVES+=("test (1.12)"); fi
@@ -477,56 +448,7 @@ else
     normalize_manifest_name "test"
     normalize_manifest_name "docs"
 fi
-julia --project=examples -e 'using KiteControllers, KiteViewers, ControlPlots, NOMAD'
-
-if [[ "$(uname -s)" == "Darwin" ]]; then
-    if julia --project=examples -e '
-try
-    using PythonCall
-    pyimport("matplotlib")
-    pyimport("matplotlib.backends.backend_qtagg")
-catch
-    exit(1)
-end
-'; then
-        echo
-        echo "QtAgg already installed; skipping QtAgg dependency installation."
-    else
-        _install_matplotlib_condapkg_macos() {
-            julia --project=examples -e '
-using Pkg
-for pkg in ["PythonCall", "CondaPkg"]
-    if Base.find_package(pkg) === nothing
-        Pkg.add(pkg)
-    end
-end
-using CondaPkg
-CondaPkg.add("matplotlib")
-CondaPkg.add("pyqt")
-CondaPkg.resolve()
-println("Installed matplotlib + pyqt in CondaPkg environment.")
-println("QtAgg should now be available for matplotlib/PythonCall.")
-'
-        }
-        if [[ $_yes_to_all == true ]]; then
-            echo
-            echo "Installing QtAgg dependencies for ControlPlots on macOS..."
-            _install_matplotlib_condapkg_macos
-        else
-            echo
-            echo "Installing QtAgg dependencies for ControlPlots on macOS..."
-            read -rp "Do you want to install matplotlib and pyqt? (y/n) [default: y]: " _install_choice
-            case "${_install_choice}" in
-                n|N)
-                    echo "Skipping QtAgg dependency installation."
-                    ;;
-                *)
-                    _install_matplotlib_condapkg_macos
-                    ;;
-            esac
-        fi
-    fi
-fi
+julia --project=examples -e 'using KiteControllers, KiteViewers, MakieControlPlots, NOMAD'
 
 echo
 if [[ ${#FAILED_RESOLVES[@]} -eq 0 && ${#RETRIED_RESOLVES[@]} -eq 0 ]]; then
@@ -570,8 +492,8 @@ fi
 
 julia --startup-file=no --project -e "using Pkg; Pkg.resolve(), Pkg.instantiate(); Pkg.precompile()"
 julia --startup-file=no --project -e "using KiteUtils, KiteControllers"
-julia --startup-file=no --project=test -e "using ControlPlots, NativeFileDialog"
-julia --startup-file=no --project -e 'using Pkg; using KiteControllers; Pkg.activate("examples"); using NOMAD, KiteViewers; using ControlPlots, KiteControllers, KiteModels, LaTeXStrings, NativeFileDialog, Statistics'
+julia --startup-file=no --project=test -e "using MakieControlPlots, NativeFileDialog"
+julia --startup-file=no --project -e 'using Pkg; using KiteControllers; Pkg.activate("examples"); using NOMAD, KiteViewers; using MakieControlPlots, KiteControllers, KiteModels, LaTeXStrings, NativeFileDialog, Statistics'
 julia --startup-file=no --project=docs -e "using Pkg; Pkg.resolve(), Pkg.instantiate(); Pkg.precompile(); using LiveServer, Documenter"
 
 echo

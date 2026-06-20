@@ -1,12 +1,12 @@
 # park the kind while the wind direction changes
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 using Timers; tic()
 using LinearAlgebra
 
-using ControlPlots, KiteControllers, KiteModels, KiteViewers, Rotations, Statistics
+using MakieControlPlots, KiteControllers, KiteModels, KiteViewers, Rotations, Statistics
 using KiteUtils: Settings, load_settings
 using KiteModels: reactivate_host_app
 

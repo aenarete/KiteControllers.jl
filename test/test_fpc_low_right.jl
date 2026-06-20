@@ -1,9 +1,9 @@
 # activate the test environment if needed
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
-using ControlPlots, KiteControllers, Timers; tic()
+using MakieControlPlots, KiteControllers, Timers; tic()
 
 # Test the flight path controller against the real 4point kite
 # 1. use initial condition from failure_low_right.arrow at 226.0s
@@ -11,7 +11,7 @@ using ControlPlots, KiteControllers, Timers; tic()
 # 3. update u_d and v_reelout from logfile
 # test fails if we allow v_ro > 0
 
-using ControlPlots, KiteControllers, KiteModels, KiteViewers
+using MakieControlPlots, KiteControllers, KiteModels, KiteViewers
 using KiteUtils: Settings, load_settings
 
 PROJECT="system_8000.yaml"

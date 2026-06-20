@@ -5,13 +5,13 @@
 
 # activate the test environment if needed
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 using Timers; tic()
 
 using KiteViewers
-using ControlPlots, KiteViewers, Rotations
+using MakieControlPlots, KiteViewers, Rotations
 using KiteUtils: Settings, load_settings
 using KitePodModels: KCU
 using KiteModels

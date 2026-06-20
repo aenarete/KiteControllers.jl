@@ -5,7 +5,7 @@
 
 # activate the test environment if needed
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 using Timers; tic()
@@ -19,7 +19,7 @@ set.v_wind = 6.5
 
 using KiteViewers
 using KiteModels: reactivate_host_app
-using ControlPlots, KiteModels, Rotations
+using MakieControlPlots, KiteModels, Rotations
 using KiteControllers
 using KiteControllers: FPCSettings, FPPSettings, SystemStateControl, WCSettings,
                        on_parking, on_stop, on_winchcontrol

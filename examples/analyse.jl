@@ -1,11 +1,11 @@
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 
 using KiteControllers
 using KiteUtils: load_log
-using ControlPlots
+using MakieControlPlots
 
 OUTPUT_DIR::String = "output"
 

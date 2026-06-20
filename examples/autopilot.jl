@@ -1,6 +1,6 @@
 # activate the test environment if needed
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 using Timers; tic()
@@ -14,7 +14,7 @@ DRAG_CORR::Float64 = 0.93
 CREATE_VIDEO::Bool = false
 
 using KiteViewers
-using ControlPlots, KiteControllers, KiteModels, LaTeXStrings, NativeFileDialog, Statistics
+using MakieControlPlots, KiteControllers, KiteModels, LaTeXStrings, NativeFileDialog, Statistics
 using LinearAlgebra, Printf
 using KiteViewers: Viewer3D
 import KiteViewers.GLMakie

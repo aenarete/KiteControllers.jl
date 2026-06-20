@@ -1,11 +1,11 @@
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 
 using KiteControllers
 using KiteUtils: load_log
-using ControlPlots
+using MakieControlPlots
 
 OUTPUT_DIR::String = "output"
 
@@ -18,12 +18,12 @@ let
         force = hcat(sl.winch_force...)[1,:]
         v_ro = hcat(sl.v_reelout...)[1,:]
         power = force .* v_ro
-        p1 = ControlPlots.plot(sl.time, force;
+        p1 = MakieControlPlots.plot(sl.time, force;
                   xlabel="time [s]",
                   ylabel="force [N]",
                   fig="loading")
         display(p1)
-        p2 = ControlPlots.plot(sl.time, power;
+        p2 = MakieControlPlots.plot(sl.time, power;
                   xlabel="time [s]",
                   ylabel="power [W]",
                   fig="power")
