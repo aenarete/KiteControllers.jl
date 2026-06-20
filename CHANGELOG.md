@@ -2,7 +2,8 @@
 
 ## KiteControllers v0.2.29 - 2026-06-21
 ### Changed
-- **Switched from ControlPlots to MakieControlPlots** across all examples, tests, and scripts. Main advantages: thread-safe plotting, better integration with the Makie ecosystem.
+- **Switched from ControlPlots to MakieControlPlots** across all examples, tests, and scripts. Main advantages: Less installation issues,
+easy adaption of GUI possible, faster 2D animations
 - Removed `bin/install_controlplots` script (no longer needed — MakieControlPlots uses matplotlib via CondaPkg or system install)
 - Updated `bin/install` to check for MakieControlPlots instead of ControlPlots; removed macOS QtAgg/matplotlib installation logic
 - Updated CI workflow
