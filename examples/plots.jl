@@ -36,7 +36,7 @@ function plot_timing()
     time_limit = app.dt/app.set.time_lapse
     t_sim = collect(sl.t_sim)
     tl = fill(time_limit * 1000, length(t_sim))
-    display(ControlPlots.plotx(sl.time, [t_sim, tl], 100*sl.steering, 100*sl.depower;
+    display(MakieControlPlots.plotx(sl.time, [t_sim, tl], 100*sl.steering, 100*sl.depower;
                                ylabels=["t_sim [ms]", "steering [%]","depower [%]"],
                                labels=[["t_sim", "time_limit"], "", ""],
                                fig="timing"))
@@ -56,7 +56,7 @@ function plot_timing2()
     time_limit = app.dt/app.set.time_lapse
     t_sim = collect(sl.t_sim)
     tl = fill(time_limit * 1000, length(t_sim))
-    display(ControlPlots.plot(sl.time, [t_sim, tl], ylabel="t_sim [ms]", labels=["t_sim","time_limit"], fig="timing2"))
+    display(MakieControlPlots.plot(sl.time, [t_sim, tl], ylabel="t_sim [ms]", labels=["t_sim","time_limit"], fig="timing2"))
     nothing
 end
 

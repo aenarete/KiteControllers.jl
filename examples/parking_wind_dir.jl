@@ -1,17 +1,18 @@
 # park the kind while the wind direction changes
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 using Timers; tic()
 using LinearAlgebra
 
-using ControlPlots, KiteControllers, KiteModels, KiteViewers, Rotations, Statistics
+using KiteControllers, KiteModels, KiteViewers, MakieControlPlots, Rotations, Statistics
 using KiteUtils: Settings, load_settings
 using KiteModels: reactivate_host_app
+using FFMPEG_jll
 
-CREATE_VIDEO = false
-PLOT_RATES = false
+const CREATE_VIDEO = false
+const PLOT_RATES = false
 
 set::Settings = if haskey(ENV, "USE_V9")
     deepcopy(load_settings("system_v9.yaml"))
@@ -230,7 +231,6 @@ end
 play_parking()
 stop(viewer)
 if CREATE_VIDEO
-    using FFMPEG_jll
     FFMPEG_jll.ffmpeg() do exe
         run(`$exe -y -r:v 20 -i video/video%06d.png -codec:v libx264 -preset veryslow -pix_fmt yuv420p -crf 10 -an output/parking_wind_dir.mp4`)
     end
@@ -242,7 +242,7 @@ let v = filter(!=(0.0), V_WIND_KITE)
     global p=plotx(T, rad2deg.(AZIMUTH), rad2deg.(AZIMUTH_EAST),[rad2deg.(UPWIND_DIR_), rad2deg.(AV_UPWIND_DIR)],
              rad2deg.(ELEVATION), rad2deg.(HEADING), [100*(SET_STEERING), 100*(STEERING)], V_WIND_KITE, FORCE; 
              xlabel="Time [s]", 
-             ysize=10,
+             ysize=14,
              ylabels=["Azimuth [°]", "azimuth_east [°]", "upwind_dir [°]", "Elevation [°]", "Heading [°]", "Steering [%]", "v_wind_kite [m/s]", "force [N]"],
              labels=["azimuth", "azimuth_east", ["upwind_dir", "filtered_upwind_dir"], "elevation", "heading", ["set_steering", "steering"], "v_wind_kite", "force"],
              fig="Parking with changing wind direction, TI: $(round(ti, digits=2)) %")

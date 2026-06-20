@@ -114,7 +114,7 @@ fi
 mv kps-image_tmp.so $SOFILE
 $JULIA_CMD --startup-file=no  --project -e "using Pkg; Pkg.precompile(); Pkg.resolve()"
 $JULIA_CMD --project -J bin/kps-image-${julia_major}.so -e "using KiteUtils, KiteControllers"
-$JULIA_CMD --project=test -J bin/kps-image-${julia_major}.so -e "using ControlPlots, NativeFileDialog"
+$JULIA_CMD --project=test -J bin/kps-image-${julia_major}.so -e "using MakieControlPlots, NativeFileDialog"
 $JULIA_CMD --project -J bin/kps-image-${julia_major}.so -e "using Pkg; Pkg.instantiate()"
 $JULIA_CMD --project=examples -J bin/kps-image-${julia_major}.so -e "using NOMAD, KiteViewers, Pkg; Pkg.instantiate(); Pkg.precompile()"
 

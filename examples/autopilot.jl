@@ -1,6 +1,6 @@
 # activate the test environment if needed
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 using Timers; tic()
@@ -11,18 +11,19 @@ end
 
 LOG_LIFT_DRAG::Bool = false
 DRAG_CORR::Float64 = 0.93
-CREATE_VIDEO::Bool = false
+const CREATE_VIDEO = false
 
 using KiteViewers
-using ControlPlots, KiteControllers, KiteModels, LaTeXStrings, NativeFileDialog, Statistics
+using KiteControllers, KiteModels, LaTeXStrings, MakieControlPlots, NativeFileDialog, Statistics
 using LinearAlgebra, Printf
 using KiteViewers: Viewer3D
 import KiteViewers.GLMakie
 import KiteViewers.GLMakie.GLFW
+using FFMPEG_jll
 
 PROJECT = read_project()
 GLMakie.activate!(title = PROJECT)
-OUTPUT_DIR::String = "output"
+const OUTPUT_DIR::String = "output"
 mkpath(OUTPUT_DIR)
 @assert isdir(OUTPUT_DIR)
 DEFAULT_LOG::String = joinpath(OUTPUT_DIR, "last_sim_log")
@@ -595,7 +596,6 @@ KiteViewers.GLMakie.closeall()
 GC.enable(true)
 if CREATE_VIDEO
     video_fps = 60
-    using FFMPEG_jll
     FFMPEG_jll.ffmpeg() do exe
         run(`$exe -y -r:v $video_fps -i video/video%06d.png -codec:v libx264 -preset veryslow -pix_fmt yuv420p -crf 10 -an output/full_simulation.mp4`)
     end

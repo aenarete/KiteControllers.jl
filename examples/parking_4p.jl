@@ -5,13 +5,12 @@
 
 # activate the test environment if needed
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 using Timers; tic()
 
-using KiteViewers
-using ControlPlots, KiteViewers, Rotations
+using KiteViewers, MakieControlPlots, Rotations
 using KiteUtils: Settings, load_settings
 using KitePodModels: KCU
 using KiteModels
@@ -54,7 +53,6 @@ MIN_DEPOWER, DISTURBANCE = if KiteUtils.PROJECT == "system.yaml"
     pcs.max_turn_rate_cmd = max_turn_rate_cmd
     pcs.max_steering = 0.45
     pcs.max_steering_rate = 1.0
-    pcs.heading_deadband = deg2rad(0.5)
     0.22, 0.1
 else
     # result of tuning
@@ -71,7 +69,6 @@ else
     pcs.max_turn_rate_cmd = max_turn_rate_cmd
     pcs.max_steering = 0.45
     pcs.max_steering_rate = 1.0
-    pcs.heading_deadband = deg2rad(0.5)
     0.4, 0.4
 end
 @info "pcs.kp_tr=$(pcs.kp_tr), pcs.ki_tr=$(pcs.ki_tr), pcs.kp=$(pcs.kp), pcs.ki=$(pcs.ki), pcs.max_turn_rate_cmd=$(pcs.max_turn_rate_cmd), MIN_DEPOWER=$(MIN_DEPOWER)"
@@ -108,11 +105,8 @@ function simulate(integrator)
     while true
         steering = 0.0
         if i >= 100
-            if i == 100
-                pc.last_heading = sys_state.heading
-            end
             chi_set = pcm.navigate(pc, sys_state.azimuth, sys_state.elevation)
-            steering, ndi_gain, psi_dot, psi_dot_set = pcm.calc_steering(pc, sys_state.heading, chi_set; 
+            steering, ndi_gain, psi_dot, psi_dot_set = pcm.calc_steering(pc, sys_state.heading, sys_state.heading_rate, chi_set; 
                                                                          sys_state.elevation, v_app = sys_state.v_app)
             PSI_DOT[i] = psi_dot
             PSI_DOT_SET[i] = psi_dot_set

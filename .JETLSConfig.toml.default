@@ -7,12 +7,6 @@ auto_instantiate = false            # boolean, default: true
 all_files = false                   # boolean, default: true
 
 [[diagnostic.patterns]]
-pattern = "not concretized"
-match_by = "message"
-match_type = "regex"
-severity = "off"
-
-[[diagnostic.patterns]]
 pattern = "copy!.*Random.TaskLocalRNG.*Nothing"
 match_by = "message"
 match_type = "regex"
@@ -82,3 +76,6 @@ match_by   = "message"
 match_type = "literal"
 severity   = "off"
 path       = "examples/**"
+
+[inlay_hint.types]
+enabled = false  # Hide type hints; keep `end`-tag hints

@@ -15,9 +15,9 @@ set = deepcopy(load_settings("system.yaml"))
 set.abs_tol = 0.0006
 set.rel_tol = 0.001
 
-using ControlPlots, KiteControllers, KiteModels, NOMAD
+using KiteControllers, KiteModels, MakieControlPlots, NOMAD
 using KiteControllers: calc_steering
-plt.close("all")
+close("all")
 
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
@@ -154,7 +154,7 @@ function tune_4p!(LAST_RES)
     fcs.p = optimizer[1]
     fcs.d = optimizer[2]
     test_parking!(LAST_RES)
-    plt.close("all")
+    close("all")
     println(" p: ", fcs.p, " i: ", fcs.i, " d: ", fcs.d)
     show_result(copy(T), copy(AZIMUTH))
 end

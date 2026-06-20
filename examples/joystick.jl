@@ -12,10 +12,9 @@ set::Settings = deepcopy(load_settings("system.yaml"))
 kcu::KCU = KCU(set)
 kps4::KPS4 = KPS4(kcu)
 if ! @isdefined js;
-    global js
-    const js = open_joystick()
-    const jsaxes = JSState()
-    const jsbuttons = JSButtonState()
+    global js       = open_joystick()
+    global jsaxes   = JSState()
+    global jsbuttons = JSButtonState()
     async_read!(js, jsaxes, jsbuttons)
 end
 wcs::WCSettings = WCSettings(true, dt = 1/set.sample_freq)

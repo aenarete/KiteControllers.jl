@@ -77,7 +77,7 @@ end
 
 #  Switch the state of the FPP. Execute all actions, that are needed when the new state is entered.
 #  Return immediately, if the new state is equal to the old state.
-function _switch(fpp::FlightPathPlanner, state)
+function _switch(fpp::FlightPathPlanner, state::FPPS)
     global depower
     if state == fpp._state
         return

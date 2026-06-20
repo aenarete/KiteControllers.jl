@@ -7,7 +7,7 @@
 
 # activate the test environment if needed
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate(@__DIR__)
 end
 using KiteControllers, KiteModels
@@ -36,10 +36,8 @@ const max_height = 600.0 # maximum height for simulation to be considered valid
 MAX_NORM = 100.0        # maximum allowed norm for corr_vec
 MAX_ITER = 70           # maximum number of training iterations
 
-using ControlPlots, KiteControllers, LinearAlgebra, NonlinearSolve
+using KiteControllers, LinearAlgebra, MakieControlPlots, NonlinearSolve
 import JLD2
-
-global ssc::SystemStateControl
 
 # Effective norm: exclude residuals for elements that are floor-clamped and still
 # pushing lower — those crossings are physically unreachable and should not block
@@ -229,7 +227,7 @@ function plot(;full_sim=false)
     end
     sl = lg.syslog
     fig_name = full_sim ? "azimuth_elevation_last" : "azimuth_elevation"
-    display(ControlPlots.plotx(sl.time, rad2deg.(sl.azimuth), rad2deg.(sl.elevation);
+    display(MakieControlPlots.plotx(sl.time, rad2deg.(sl.azimuth), rad2deg.(sl.elevation);
             ylabels=["azimuth [°]", "elevation [°]"],
             xlabel="time [s]",
             fig=fig_name))
@@ -399,7 +397,7 @@ function plot_batch()
     lg = KiteControllers.load_log("batch-hydra20_600_TI0"; path="output")
     @info "Plotting batch log from output/batch-hydra20_600_TI0.arrow"
     sl = lg.syslog
-    display(ControlPlots.plotx(sl.time, rad2deg.(sl.azimuth), rad2deg.(sl.elevation);
+    display(MakieControlPlots.plotx(sl.time, rad2deg.(sl.azimuth), rad2deg.(sl.elevation);
             ylabels=["azimuth [°]", "elevation [°]"],
             xlabel="time [s]",
             fig="azimuth_elevation_batch"))
