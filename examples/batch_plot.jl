@@ -412,8 +412,8 @@ function run_command(cmd::String)
     name, fn = MENU_ITEMS[idx]
     println("Running $name …")
     fn()
-    println("Close the plot window to exit.")
-    MakieControlPlots.GLMakie.plt.show(block=true)
+    println("Close the plot window, then press Enter to exit.")
+    readline()
     reactivate_host_app()
 end
 
