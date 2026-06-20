@@ -11,7 +11,7 @@ end
 using Timers; tic()
 
 using KiteViewers
-using MakieControlPlots, KiteViewers, Rotations
+using KiteViewers, MakieControlPlots, Rotations
 using KiteUtils: Settings, load_settings
 using KitePodModels: KCU
 using KiteModels

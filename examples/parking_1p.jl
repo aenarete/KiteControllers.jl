@@ -19,7 +19,7 @@ set.v_wind = 6.5
 
 using KiteViewers
 using KiteModels: reactivate_host_app
-using MakieControlPlots, KiteModels, Rotations
+using KiteModels, MakieControlPlots, Rotations
 using KiteControllers
 using KiteControllers: FPCSettings, FPPSettings, SystemStateControl, WCSettings,
                        on_parking, on_stop, on_winchcontrol

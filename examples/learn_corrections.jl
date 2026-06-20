@@ -36,10 +36,8 @@ const max_height = 600.0 # maximum height for simulation to be considered valid
 MAX_NORM = 100.0        # maximum allowed norm for corr_vec
 MAX_ITER = 70           # maximum number of training iterations
 
-using MakieControlPlots, KiteControllers, LinearAlgebra, NonlinearSolve
+using KiteControllers, LinearAlgebra, MakieControlPlots, NonlinearSolve
 import JLD2
-
-global ssc::SystemStateControl
 
 # Effective norm: exclude residuals for elements that are floor-clamped and still
 # pushing lower — those crossings are physically unreachable and should not block

@@ -6,12 +6,13 @@ end
 using Timers; tic()
 using LinearAlgebra
 
-using MakieControlPlots, KiteControllers, KiteModels, KiteViewers, Rotations, Statistics
+using KiteControllers, KiteModels, KiteViewers, MakieControlPlots, Rotations, Statistics
 using KiteUtils: Settings, load_settings
 using KiteModels: reactivate_host_app
+using FFMPEG_jll
 
 const CREATE_VIDEO = false
-PLOT_RATES = false
+const PLOT_RATES = false
 
 set::Settings = if haskey(ENV, "USE_V9")
     deepcopy(load_settings("system_v9.yaml"))
@@ -229,8 +230,7 @@ end
 
 play_parking()
 stop(viewer)
-if CREATE_VIDEO
-    using FFMPEG_jll
+if Cusing FFMPEG_jll
     FFMPEG_jll.ffmpeg() do exe
         run(`$exe -y -r:v 20 -i video/video%06d.png -codec:v libx264 -preset veryslow -pix_fmt yuv420p -crf 10 -an output/parking_wind_dir.mp4`)
     end
