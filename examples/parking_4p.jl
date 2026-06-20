@@ -106,11 +106,8 @@ function simulate(integrator)
     while true
         steering = 0.0
         if i >= 100
-            if i == 100
-                pc.last_heading = sys_state.heading
-            end
             chi_set = pcm.navigate(pc, sys_state.azimuth, sys_state.elevation)
-            steering, ndi_gain, psi_dot, psi_dot_set = pcm.calc_steering(pc, sys_state.heading, chi_set; 
+            steering, ndi_gain, psi_dot, psi_dot_set = pcm.calc_steering(pc, sys_state.heading, sys_state.heading_rate, chi_set; 
                                                                          sys_state.elevation, v_app = sys_state.v_app)
             PSI_DOT[i] = psi_dot
             PSI_DOT_SET[i] = psi_dot_set
