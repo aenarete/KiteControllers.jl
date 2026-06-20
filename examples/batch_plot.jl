@@ -412,8 +412,7 @@ function run_command(cmd::String)
     name, fn = MENU_ITEMS[idx]
     println("Running $name …")
     fn()
-    println("Close the plot window, then press Enter to exit.")
-    readline()
+    wait_for_figures()
     reactivate_host_app()
 end
 
