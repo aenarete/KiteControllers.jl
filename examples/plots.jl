@@ -1,5 +1,6 @@
 # Shared plot functions (core logic) live in plot_functions.jl
 include("plot_functions.jl")
+using KiteViewers
 
 # ---------------------------------------------------------------------------
 # Helpers for log loading (specific to the interactive GUI)
