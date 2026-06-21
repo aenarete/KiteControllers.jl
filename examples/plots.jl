@@ -40,27 +40,27 @@ end
 # ---------------------------------------------------------------------------
 function plot_main()
     log_file_exists() || return
-    _plot_main(_load_log(); ysize=16)
+    _plot_main(_load_log())
 end
 
 function plot_power()
     log_file_exists() || return
-    _plot_power(_load_log(); ysize=16, dt=app.dt)
+    _plot_power(_load_log(); dt=app.dt)
 end
 
 function plot_control()
     log_file_exists() || return
-    _plot_control(_load_log(); ysize=16)
+    _plot_control(_load_log())
 end
 
 function plot_control_II()
     log_file_exists() || return
-    _plot_control_II(_load_log(); ysize=16)
+    _plot_control_II(_load_log())
 end
 
 function plot_winch_control()
     log_file_exists() || return
-    _plot_winch_control(_load_log(); ysize=14)
+    _plot_winch_control(_load_log())
 end
 
 function plot_aerodynamics(plot_lift_drag=false)

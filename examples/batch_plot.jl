@@ -94,24 +94,24 @@ end
 # Plot wrappers — load the log, then delegate to the shared implementation
 # ---------------------------------------------------------------------------
 function plot_main()
-    _plot_main(load_plot_log(); ysize=10)
+    _plot_main(load_plot_log())
 end
 
 function plot_power()
     log = load_plot_log()
-    _plot_power(log; ysize=10, energy=log.syslog.e_mech, dt=0.0)
+    _plot_power(log; energy=log.syslog.e_mech, dt=0.0)
 end
 
 function plot_control()
-    _plot_control(load_plot_log(); ysize=10)
+    _plot_control(load_plot_log())
 end
 
 function plot_control_II()
-    _plot_control_II(load_plot_log(); ysize=10)
+    _plot_control_II(load_plot_log())
 end
 
 function plot_winch_control()
-    _plot_winch_control(load_plot_log(); ysize=10)
+    _plot_winch_control(load_plot_log())
 end
 
 function plot_aerodynamics(plot_lift_drag=false)
