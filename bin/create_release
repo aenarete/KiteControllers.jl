@@ -54,7 +54,7 @@ fi
 
 # Build the comment body and pipe it to gh
 {
-    echo '[@JuliaRegistrator](https://github.com/JuliaRegistrator) register'
+    echo '@JuliaRegistrator register'
     echo ""
     echo "Release notes:"
     echo ""
