@@ -136,14 +136,14 @@ function plot_control()
                   100*sl.depower, 100*sl.steering, sl.sys_state, sl.cycle, sl.fig_8;
             ylabels=["elevation [°]", "azimuth [°]", "heading [°]", "force [N]",
                      "depower [%]", "steering [%]", "fpp_state", "cycle", "fig8"],
-            fig="control", ysize=10, yzoom=0.7))
+            fig="control", ysize=16, yzoom=0.7))
     sleep(0.05)
     display(plotx(sl.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth),
                   -rad2deg.(wrap2pi.(sl.heading)), 100*sl.depower, 100*sl.steering,
                   rad2deg.(sl.var_07), sl.var_06, sl.sys_state, sl.cycle;
             ylabels=["elevation [°]", "azimuth [°]", "psi [°]", "depower [%]",
                      "steering [%]", "chi_set", "ndi_gain", "fpp_state", "cycle"],
-            fig="fpc", ysize=10, yzoom=0.7))
+            fig="fpc", ysize=16, yzoom=0.7))
     nothing
 end
 
@@ -155,7 +155,7 @@ function plot_control_II()
                   rad2deg.(sl.var_09), rad2deg.(sl.var_10), sl.var_06, sl.sys_state;
             ylabels=["azimuth [°]", "psi [°]", "steering [%]", "c2", "chi",
                      "psi_dot_set", "psi_dot", "ndi_gain", "fpp_state"],
-            fig="fpc", ysize=10, yzoom=0.7))
+            fig="fpc", ysize=16, yzoom=0.7))
     nothing
 end
 
@@ -167,12 +167,12 @@ function plot_winch_control()
                   100*sl.depower, 100*sl.steering, sl.var_03;
             ylabels=["elevation [°]", "azimuth [°]", "force [N]", "set_force",
                      "v_reelout [m/s]", "depower [%]", "steering [%]", "wc_state"],
-            fig="winch_control", ysize=10))
+            fig="winch_control", ysize=14))
     display(plot(sl.time, [v_reelout(sl), sl.var_05];
             labels=["v_reelout", "pid2_v_set_out"],
             ylabel="v_reelout [m/s]",
             xlabel="time [s]",
-            fig="winch", ysize=10))
+            fig="winch", ysize=14))
     nothing
 end
 
