@@ -38,12 +38,12 @@ function _plot_power(log; ysize=10, energy=nothing, dt=0.0)
         energy = similar(v_ro)
         en = 0.0
         for i in eachindex(energy)
-            en += f_[i] * v_ro[i] * dt
+            en += f_[i] * v_ro[i] * dt / 3600
             energy[i] = en
         end
     end
     display(plotx(sl.time, force(sl), v_reelout(sl), force(sl) .* v_reelout(sl),
-                  energy ./ 3600, sl.acc;
+                  energy, sl.acc;
             ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]",
                      "Energy [Wh]", "acc [m/s^2]"],
             fig="power", ysize=ysize))
