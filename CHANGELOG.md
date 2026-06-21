@@ -1,5 +1,12 @@
 # Changelog
 
+## KiteControllers v0.2.30 - 2026-06-21
+### Fixed
+- Added missing `FFMPEG_jll` dependency to `install_examples()` to prevent errors when running `autopilot.jl`
+
+### Changed
+- Increased plot sizes (`ysize`) in `batch_plot.jl` from 10 to 16 (control/fpc plots) and from 10 to 14 (winch plots) for better readability
+
 ## KiteControllers v0.2.29 - 2026-06-21
 ### Changed
 - **Switched from ControlPlots to MakieControlPlots** across all examples, tests, and scripts. Main advantages: Less installation issues,
