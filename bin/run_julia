@@ -7,17 +7,6 @@ fi
 export NO_AT_BRIDGE=1
 export JULIA_PKG_SERVER_REGISTRY_PREFERENCE=eager
 
-USE_KAIMON=false
-if command -v ss &> /dev/null; then
-    if ss -ltn '( sport = :2828 )' | grep -q ':2828'; then
-        USE_KAIMON=true
-    fi
-elif command -v lsof &> /dev/null; then
-    if lsof -nP -iTCP:2828 -sTCP:LISTEN &> /dev/null; then
-        USE_KAIMON=true
-    fi
-fi
-
 if [[ "$(uname -s)" == "Darwin" ]]; then
     # Avoid Tk backend issues on macOS (e.g. non-responsive close button in PyPlot windows).
     # Keep user override if MPLBACKEND is already set.
@@ -45,11 +34,6 @@ else
     GCT=""
 fi
 
-# Kaimon requires Julia 1.12+
-if [[ "$julia_major" == "1.11" ]]; then
-    USE_KAIMON=false
-fi
-
 # Check that the current Julia version matches the one used during install
 if [[ -f "install_version_${julia_major}.txt" ]]; then
     install_version=$(cat "install_version_${julia_major}.txt")
@@ -74,9 +58,6 @@ if [[ $# -gt 0 ]]; then
 fi
 
 julia_init='using Revise; '
-if [[ "$USE_KAIMON" == "true" ]]; then
-    julia_init+='using Kaimon; Gate.serve(); '
-fi
 julia_init+='using KiteControllers; test_menu() = Base.include(Main, joinpath(pkgdir(KiteControllers), "test", "test_menu.jl")); menu_learning() = Base.include(Main, joinpath(pkgdir(KiteControllers), "examples", "menu_learning.jl"))'
 
 if test -f "bin/kps-image-${julia_major}.so"; then
