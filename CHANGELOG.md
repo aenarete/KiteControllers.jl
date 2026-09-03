@@ -1,5 +1,20 @@
 # Changelog
 
+## KiteControllers v0.2.31 - 2026-09-03
+### Added
+- `--tests` / `--no-tests` command-line options to `bin/install`; when neither is given and `-y`/`--yes` is not set, the script now asks interactively whether to instantiate the test project and run the test suite
+- `bin/count_loc` script to report lines of code via `scc`
+- `bin/create_release` script to post release notes from `CHANGELOG.md` to the JuliaRegistrator issue
+
+### Changed
+- `bin/install` no longer instantiates the `docs` project (removed the `docs` resolve/precompile/instantiate steps)
+- `bin/run_julia` now launches Julia with `--project=examples` by default instead of the top-level project
+- Updated default manifest for Julia 1.12
+
+### Removed
+- Kaimon gate integration from `bin/run_julia`
+- `CondaPkg` dependency from `examples/Project.toml`
+
 ## KiteControllers v0.2.30 - 2026-06-21
 ### Fixed
 - Added missing `FFMPEG_jll` dependency to `install_examples()` to prevent errors when running `autopilot.jl`
