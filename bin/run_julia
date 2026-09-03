@@ -63,15 +63,15 @@ julia_init+='using KiteControllers; test_menu() = Base.include(Main, joinpath(pk
 if test -f "bin/kps-image-${julia_major}.so"; then
     echo "Found system image!"
     if [[ -n "$script_file" ]]; then
-        PLOT=1 julia -J bin/kps-image-${julia_major}.so -t auto $GCT --project "$script_file" "$@"
+        PLOT=1 julia --project=examples -J bin/kps-image-${julia_major}.so -t auto $GCT --project "$script_file" "$@"
     else
-        PLOT=1 julia -J bin/kps-image-${julia_major}.so -t auto $GCT --project -i -e "$julia_init"
+        PLOT=1 julia --project=examples -J bin/kps-image-${julia_major}.so -t auto $GCT --project -i -e "$julia_init"
     fi
 else
     if [[ -n "$script_file" ]]; then
-        PLOT=1 julia --project -t auto $GCT "$script_file" "$@"
+        PLOT=1 julia --project=examples -t auto $GCT "$script_file" "$@"
     else
-        PLOT=1 julia --project -t auto $GCT -i -e "$julia_init"
+        PLOT=1 julia --project=examples -t auto $GCT -i -e "$julia_init"
     fi
     # julia --project
 fi
