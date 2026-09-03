@@ -1,0 +1,10 @@
+# Copyright (c) 2025 Uwe Fechner
+# SPDX-License-Identifier: BSD-3-Clause
+
+if [[ $(basename $(pwd)) == "bin" ]]; then
+    cd ..
+fi
+
+scc -x csv -x toml --exclude-dir .git,.hg,.svn,output .
+echo "src folder only:"
+scc -x csv -x toml ./src
