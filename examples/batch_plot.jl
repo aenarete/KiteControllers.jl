@@ -79,24 +79,9 @@ const PLOT_FILE = Ref{String}(
 )
 
 # ---------------------------------------------------------------------------
-# Helper accessors (same as in plots.jl)
+# Core plot logic (shared with plots.jl via plot_functions.jl)
 # ---------------------------------------------------------------------------
-function l_tether(sl)
-    hcat(sl.l_tether...)[1,:]
-end
-
-function force(sl)
-    hcat(sl.winch_force...)[1,:]
-end
-
-function v_reelout(sl)
-    hcat(sl.v_reelout...)[1,:]
-end
-
-# Derive dt from the log instead of from an app object
-function log_dt(sl)
-    length(sl.time) > 1 ? sl.time[2] - sl.time[1] : 0.05
-end
+include("plot_functions.jl")
 
 # ---------------------------------------------------------------------------
 # Load helper
@@ -106,172 +91,59 @@ function load_plot_log()
 end
 
 # ---------------------------------------------------------------------------
-# Plot functions (adapted from plots.jl — no KiteViewers references)
+# Plot wrappers — load the log, then delegate to the shared implementation
 # ---------------------------------------------------------------------------
 function plot_main()
-    log = load_plot_log()
-    sl  = log.syslog
-    display(plotx(sl.time, log.z, rad2deg.(sl.elevation), rad2deg.(sl.azimuth),
-                  l_tether(sl), force(sl), v_reelout(sl), sl.cycle;
-            ylabels=["height [m]", "elevation [°]", "azimuth [°]", "length [m]",
-                     "force [N]", "v_ro [m/s]", "cycle [-]"],
-            yzoom=0.9, fig="main"))
-    nothing
+    _plot_main(load_plot_log())
 end
 
 function plot_power()
     log = load_plot_log()
-    sl  = log.syslog
-    display(plotx(sl.time, force(sl), v_reelout(sl), force(sl) .* v_reelout(sl), sl.e_mech, sl.acc;
-            ylabels=["force [N]", L"v_\mathrm{ro}~[m/s]", L"P_\mathrm{m}~[W]", "Energy [Wh]", "acc [m/s^2]"],
-            fig="power"))
-    nothing
+    _plot_power(log; energy=log.syslog.e_mech, dt=0.0)
 end
 
 function plot_control()
-    log = load_plot_log()
-    sl  = log.syslog
-    display(plotx(sl.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth),
-                  rad2deg.(wrap2pi.(sl.heading)), force(sl),
-                  100*sl.depower, 100*sl.steering, sl.sys_state, sl.cycle, sl.fig_8;
-            ylabels=["elevation [°]", "azimuth [°]", "heading [°]", "force [N]",
-                     "depower [%]", "steering [%]", "fpp_state", "cycle", "fig8"],
-            fig="control", ysize=16, yzoom=0.7))
-    sleep(0.05)
-    display(plotx(sl.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth),
-                  -rad2deg.(wrap2pi.(sl.heading)), 100*sl.depower, 100*sl.steering,
-                  rad2deg.(sl.var_07), sl.var_06, sl.sys_state, sl.cycle;
-            ylabels=["elevation [°]", "azimuth [°]", "psi [°]", "depower [%]",
-                     "steering [%]", "chi_set", "ndi_gain", "fpp_state", "cycle"],
-            fig="fpc", ysize=16, yzoom=0.7))
-    nothing
+    _plot_control(load_plot_log())
 end
 
 function plot_control_II()
-    log = load_plot_log()
-    sl  = log.syslog
-    display(plotx(sl.time, rad2deg.(sl.azimuth), -rad2deg.(wrap2pi.(sl.heading)),
-                  100*sl.steering, sl.var_12, rad2deg.(sl.course .- pi),
-                  rad2deg.(sl.var_09), rad2deg.(sl.var_10), sl.var_06, sl.sys_state;
-            ylabels=["azimuth [°]", "psi [°]", "steering [%]", "c2", "chi",
-                     "psi_dot_set", "psi_dot", "ndi_gain", "fpp_state"],
-            fig="fpc", ysize=16, yzoom=0.7))
-    nothing
+    _plot_control_II(load_plot_log())
 end
 
 function plot_winch_control()
-    log = load_plot_log()
-    sl  = log.syslog
-    display(plotx(sl.time, rad2deg.(sl.elevation), rad2deg.(sl.azimuth),
-                  force(sl), sl.var_04, v_reelout(sl),
-                  100*sl.depower, 100*sl.steering, sl.var_03;
-            ylabels=["elevation [°]", "azimuth [°]", "force [N]", "set_force",
-                     "v_reelout [m/s]", "depower [%]", "steering [%]", "wc_state"],
-            fig="winch_control", ysize=14))
-    display(plot(sl.time, [v_reelout(sl), sl.var_05];
-            labels=["v_reelout", "pid2_v_set_out"],
-            ylabel="v_reelout [m/s]",
-            xlabel="time [s]",
-            fig="winch", ysize=14))
-    nothing
+    _plot_winch_control(load_plot_log())
 end
 
 function plot_aerodynamics(plot_lift_drag=false)
-    log = load_plot_log()
-    sl  = log.syslog
-    if plot_lift_drag
-        display(plotx(sl.time, sl.var_08, rad2deg.(sl.AoA), sl.CL2, sl.CD2;
-                      ylabels=["LoD [-]", L"AoA~[°]", "CL [-]", "CD [-]"],
-                      fig="aerodynamics"))
-        display(plotxy(rad2deg.(sl.AoA[2:end]), sl.CL2[2:end];
-                      xlabel="AoA [°]", ylabel="CL [-]",
-                      fig="CL as function of AoA"))
-        display(plotxy(rad2deg.(sl.AoA[2:end]), sl.CD2[2:end];
-                      xlabel="AoA [°]", ylabel="CD [-]",
-                      fig="CD_tot as function of AoA"))
-    else
-        display(plotx(sl.time, sl.var_08, rad2deg.(sl.AoA), 100*sl.steering,
-                      sl.var_15, rad2deg.(sl.var_16);
-                    ylabels=["LoD [-]", L"AoA~[°]", "steering [%]",
-                             "yaw_rate [°/s]", L"side\_slip~[°]"],
-                    fig="aerodynamics"))
-    end
-    nothing
+    _plot_aerodynamics(load_plot_log(); plot_lift_drag=plot_lift_drag)
 end
 
 function plot_elev_az()
-    log = load_plot_log()
-    sl  = log.syslog
-    display(plotxy(rad2deg.(sl.azimuth), rad2deg.(sl.elevation);
-            ylabel="elevation [°]", xlabel="azimuth [°]", fig="elev_az"))
-    nothing
+    _plot_elev_az(load_plot_log())
 end
 
 function plot_elev_az2()
-    log = load_plot_log()
-    sl  = log.syslog
-    index = 1
-    for i in 1:length(sl.cycle)
-        if sl.cycle[i] == 2; index = i; break; end
-    end
-    display(plotxy(rad2deg.(sl.azimuth)[index:end], rad2deg.(sl.elevation)[index:end];
-            ylabel="elevation [°]", xlabel="azimuth [°]", fig="elev_az"))
-    nothing
+    _plot_elev_az_n(load_plot_log(), 2)
 end
 
 function plot_elev_az3()
-    log = load_plot_log()
-    sl  = log.syslog
-    index = 1
-    for i in 1:length(sl.cycle)
-        if sl.cycle[i] == 3; index = i; break; end
-    end
-    display(plotxy(rad2deg.(sl.azimuth)[index:end], rad2deg.(sl.elevation)[index:end];
-            ylabel="elevation [°]", xlabel="azimuth [°]", fig="elev_az"))
-    nothing
+    _plot_elev_az_n(load_plot_log(), 3)
 end
 
 function plot_side_view()
-    log = load_plot_log()
-    display(plotxy(log.x, log.z;
-            ylabel="pos_x [m]", xlabel="height [m]", fig="side_view"))
-    nothing
+    _plot_side_view(load_plot_log())
 end
 
 function plot_side_view2()
-    log = load_plot_log()
-    sl  = log.syslog
-    index = 1
-    for i in 1:length(sl.cycle)
-        if sl.cycle[i] == 2; index = i; break; end
-    end
-    display(plotxy(log.x[index:end], log.z[index:end];
-            ylabel="pos_x [m]", xlabel="height [m]", fig="side_view"))
-    nothing
+    _plot_side_view_n(load_plot_log(), 2)
 end
 
 function plot_side_view3()
-    log = load_plot_log()
-    sl  = log.syslog
-    index = 1
-    for i in 1:length(sl.cycle)
-        if sl.cycle[i] == 3; index = i; break; end
-    end
-    display(plotxy(log.x[index:end], log.z[index:end];
-            ylabel="pos_x [m]", xlabel="height [m]", fig="side_view"))
-    nothing
+    _plot_side_view_n(load_plot_log(), 3)
 end
 
 function plot_front_view3()
-    log = load_plot_log()
-    sl  = log.syslog
-    index = 1
-    for i in 1:length(sl.cycle)
-        if sl.cycle[i] == 3; index = i; break; end
-    end
-    display(plotxy(log.y[index:end], log.z[index:end];
-            xlabel="pos_y [m]", ylabel="height [m]", fig="front_view"))
-    nothing
+    _plot_front_view_n(load_plot_log(), 3)
 end
 
 # ---------------------------------------------------------------------------
